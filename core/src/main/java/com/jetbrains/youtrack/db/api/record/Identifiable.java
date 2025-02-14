@@ -31,12 +31,12 @@ import javax.annotation.Nullable;
  * many points.
  */
 public interface Identifiable extends Comparable<Identifiable>, Comparator<Identifiable> {
-
   /**
    * Returns the record identity.
    *
    * @return RID instance
    */
+  @Nonnull
   RID getIdentity();
 
   /**
@@ -46,7 +46,7 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws RecordNotFoundException if the record does not exist
    */
   @Nonnull
-  <T extends DBRecord> T getRecord(DatabaseSession db);
+  <T extends DBRecord> T getRecord(@Nonnull DatabaseSession session);
 
   /**
    * Returns the record instance, or null if the record does not exist.
@@ -55,9 +55,9 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getRecord(DatabaseSession)
    */
   @Nullable
-  default <T extends DBRecord> T getRecordSilently(DatabaseSession db) {
+  default <T extends DBRecord> T getRecordSilently(@Nonnull DatabaseSession session) {
     try {
-      return getRecord(db);
+      return getRecord(session);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -70,13 +70,13 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not an element.
    */
   @Nonnull
-  default Entity getEntity(@Nonnull DatabaseSession db) {
-    var record = getRecord(db);
+  default Entity getEntity(@Nonnull DatabaseSession session) {
+    var record = getRecord(session);
     if (record instanceof Entity element) {
       return element;
     }
 
-    throw new DatabaseException(db.getDatabaseName(),
+    throw new DatabaseException(session.getDatabaseName(),
         "Record " + getIdentity() + " is not an entity.");
   }
 
@@ -88,9 +88,9 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getEntity(DatabaseSession)
    */
   @Nullable
-  default Entity getElementSilently(DatabaseSession db) {
+  default Entity getEntitySilently(@Nonnull DatabaseSession session) {
     try {
-      return getEntity(db);
+      return getEntity(session);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -103,13 +103,13 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not a blob.
    */
   @Nonnull
-  default Blob getBlob(@Nonnull DatabaseSession db) {
-    var record = getRecord(db);
+  default Blob getBlob(@Nonnull DatabaseSession session) {
+    var record = getRecord(session);
     if (record instanceof Blob blob) {
       return blob;
     }
 
-    throw new DatabaseException(db.getDatabaseName(),
+    throw new DatabaseException(session.getDatabaseName(),
         "Record " + getIdentity() + " is not a blob.");
   }
 
@@ -121,9 +121,9 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getBlob(DatabaseSession)
    */
   @Nullable
-  default Blob getBlobSilently(DatabaseSession db) {
+  default Blob getBlobSilently(@Nonnull DatabaseSession session) {
     try {
-      return getBlob(db);
+      return getBlob(session);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -136,13 +136,13 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not an edge.
    */
   @Nonnull
-  default Edge getEdge(@Nonnull DatabaseSession db) {
-    var record = getRecord(db);
-    if (record instanceof Edge edge) {
+  default StatefulEdge getEdge(@Nonnull DatabaseSession session) {
+    var record = getRecord(session);
+    if (record instanceof StatefulEdge edge) {
       return edge;
     }
 
-    throw new DatabaseException(db.getDatabaseName(),
+    throw new DatabaseException(session.getDatabaseName(),
         "Record " + getIdentity() + " is not an edge.");
   }
 
@@ -154,9 +154,9 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getEdge(DatabaseSession)
    */
   @Nullable
-  default Edge getEdgeSilently(DatabaseSession db) {
+  default StatefulEdge getEdgeSilently(@Nonnull DatabaseSession session) {
     try {
-      return getEdge(db);
+      return getEdge(session);
     } catch (RecordNotFoundException e) {
       return null;
     }
@@ -169,13 +169,13 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @throws DatabaseException if the record is not a vertex.
    */
   @Nonnull
-  default Vertex getVertex(@Nonnull DatabaseSession db) {
-    var record = getRecord(db);
+  default Vertex getVertex(@Nonnull DatabaseSession session) {
+    var record = getRecord(session);
     if (record instanceof Vertex vertex) {
       return vertex;
     }
 
-    throw new DatabaseException(db.getDatabaseName(),
+    throw new DatabaseException(session.getDatabaseName(),
         "Record " + getIdentity() + " is not a vertex.");
   }
 
@@ -187,9 +187,9 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
    * @see #getVertex(DatabaseSession)
    */
   @Nullable
-  default Vertex getVertexSilently(DatabaseSession db) {
+  default Vertex getVertexSilently(@Nonnull DatabaseSession session) {
     try {
-      return getVertex(db);
+      return getVertex(session);
     } catch (RecordNotFoundException e) {
       return null;
     }

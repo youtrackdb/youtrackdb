@@ -139,70 +139,54 @@ public class SQLFunctionAstarTest {
     v6.setProperty("lon", -118.243685f);
     v6.setProperty("alt", 400);
 
-    var e1 = graph.newRegularEdge(v1, v2, "has_path");
+    var e1 = graph.newStatefulEdge(v1, v2, "has_path");
     e1.setProperty("weight", 250.0f);
     e1.setProperty("ptype", "road");
-    e1.save();
-    var e2 = graph.newRegularEdge(v2, v3, "has_path");
+    var e2 = graph.newStatefulEdge(v2, v3, "has_path");
     e2.setProperty("weight", 250.0f);
     e2.setProperty("ptype", "road");
-    e2.save();
-    var e3 = graph.newRegularEdge(v1, v3, "has_path");
+    var e3 = graph.newStatefulEdge(v1, v3, "has_path");
     e3.setProperty("weight", 1000.0f);
     e3.setProperty("ptype", "road");
-    e3.save();
-    var e4 = graph.newRegularEdge(v3, v4, "has_path");
+    var e4 = graph.newStatefulEdge(v3, v4, "has_path");
     e4.setProperty("weight", 250.0f);
     e4.setProperty("ptype", "road");
-    e4.save();
-    var e5 = graph.newRegularEdge(v2, v4, "has_path");
+    var e5 = graph.newStatefulEdge(v2, v4, "has_path");
     e5.setProperty("weight", 600.0f);
     e5.setProperty("ptype", "road");
-    e5.save();
-    var e6 = graph.newRegularEdge(v4, v5, "has_path");
+    var e6 = graph.newStatefulEdge(v4, v5, "has_path");
     e6.setProperty("weight", 400.0f);
     e6.setProperty("ptype", "road");
-    e6.save();
-    var e7 = graph.newRegularEdge(v5, v6, "has_path");
+    var e7 = graph.newStatefulEdge(v5, v6, "has_path");
     e7.setProperty("weight", 300.0f);
     e7.setProperty("ptype", "road");
-    e7.save();
-    var e8 = graph.newRegularEdge(v3, v6, "has_path");
+    var e8 = graph.newStatefulEdge(v3, v6, "has_path");
     e8.setProperty("weight", 200.0f);
     e8.setProperty("ptype", "road");
-    e8.save();
-    var e9 = graph.newRegularEdge(v4, v6, "has_path");
+    var e9 = graph.newStatefulEdge(v4, v6, "has_path");
     e9.setProperty("weight", 900.0f);
     e9.setProperty("ptype", "road");
-    e9.save();
-    var e10 = graph.newRegularEdge(v2, v6, "has_path");
+    var e10 = graph.newStatefulEdge(v2, v6, "has_path");
     e10.setProperty("weight", 2500.0f);
     e10.setProperty("ptype", "road");
-    e10.save();
-    var e11 = graph.newRegularEdge(v1, v5, "has_path");
+    var e11 = graph.newStatefulEdge(v1, v5, "has_path");
     e11.setProperty("weight", 100.0f);
     e11.setProperty("ptype", "road");
-    e11.save();
-    var e12 = graph.newRegularEdge(v4, v1, "has_path");
+    var e12 = graph.newStatefulEdge(v4, v1, "has_path");
     e12.setProperty("weight", 200.0f);
     e12.setProperty("ptype", "road");
-    e12.save();
-    var e13 = graph.newRegularEdge(v5, v3, "has_path");
+    var e13 = graph.newStatefulEdge(v5, v3, "has_path");
     e13.setProperty("weight", 800.0f);
     e13.setProperty("ptype", "road");
-    e13.save();
-    var e14 = graph.newRegularEdge(v5, v2, "has_path");
+    var e14 = graph.newStatefulEdge(v5, v2, "has_path");
     e14.setProperty("weight", 500.0f);
     e14.setProperty("ptype", "road");
-    e14.save();
-    var e15 = graph.newRegularEdge(v6, v5, "has_path");
+    var e15 = graph.newStatefulEdge(v6, v5, "has_path");
     e15.setProperty("weight", 250.0f);
     e15.setProperty("ptype", "road");
-    e15.save();
-    var e16 = graph.newRegularEdge(v3, v1, "has_path");
+    var e16 = graph.newStatefulEdge(v3, v1, "has_path");
     e16.setProperty("weight", 550.0f);
     e16.setProperty("ptype", "road");
-    e16.save();
     graph.commit();
   }
 
@@ -541,7 +525,7 @@ public class SQLFunctionAstarTest {
 
     List<RID> result = new ArrayList<>();
     while (r.hasNext()) {
-      result.add(r.next().getIdentity().get());
+      result.add(r.next().getIdentity());
     }
     try (var rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));

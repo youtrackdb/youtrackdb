@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class QueryResponseTest extends DbTestBase {
       resuls.add(item);
     }
     var response =
-        new QueryResponse("query", true, resuls, Optional.empty(), false, new HashMap<>(), true);
+        new QueryResponse("query", true, resuls, null, false, new HashMap<>(), true);
 
     var channel = new MockChannel();
     response.write(null,

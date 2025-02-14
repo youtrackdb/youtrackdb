@@ -1,16 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.command.script.transformer;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.ScriptResultSets;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Edge;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptResultSet;
+import com.jetbrains.youtrack.db.internal.core.command.script.ScriptResultSets;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.result.MapTransformer;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.result.ResultTransformer;
 import com.jetbrains.youtrack.db.internal.core.command.script.transformer.resultset.ResultSetTransformer;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,7 +66,15 @@ public class ScriptTransformerImpl implements ScriptTransformer {
       } else if (v.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) v.getArraySize());
         for (var i = 0; i < v.getArraySize(); ++i) {
-          array.add(new ResultInternal(db, v.getArrayElement(i).asHostObject()));
+          var hostObject = v.getArrayElement(i).asHostObject();
+          if (hostObject instanceof Identifiable identifiable) {
+            array.add(new ResultInternal(db, identifiable));
+          } else if (hostObject instanceof Edge edge) {
+            array.add((new ResultInternal(db, edge)));
+          } else {
+            array.add(toResult(db, hostObject));
+          }
+
         }
         value = array;
       } else if (v.isHostObject()) {
@@ -101,12 +110,12 @@ public class ScriptTransformerImpl implements ScriptTransformer {
 
   @Override
   public Result toResult(DatabaseSessionInternal db, Object value) {
-
     var transformer = getTransformer(value.getClass());
 
     if (transformer == null) {
       return defaultTransformer(db, value);
     }
+
     return transformer.transform(db, value);
   }
 
@@ -126,7 +135,7 @@ public class ScriptTransformerImpl implements ScriptTransformer {
     return getTransformer(value.getClass()) != null;
   }
 
-  private Result defaultTransformer(DatabaseSessionInternal db, Object value) {
+  private static Result defaultTransformer(DatabaseSessionInternal db, Object value) {
     var internal = new ResultInternal(db);
     internal.setProperty("value", value);
     return internal;

@@ -59,9 +59,12 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
             for (var prop : nextItem.getPropertyNames()) {
               result.setProperty(prop, nextItem.getProperty(prop));
             }
-            for (var md : nextItem.getMetadataKeys()) {
-              result.setMetadata(md, nextItem.getMetadata(md));
+            if (nextItem instanceof ResultInternal nextResult) {
+              for (var md : nextResult.getMetadataKeys()) {
+                result.setMetadata(md, nextResult.getMetadata(md));
+              }
             }
+
             return result;
           }
         });

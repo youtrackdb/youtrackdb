@@ -374,9 +374,9 @@ public class ConnectionExecutorTransactionTest {
 
     assertEquals(1, results.size());
 
-    assertEquals("update", results.get(0).getProperty("name"));
+    assertEquals("update", results.getFirst().getProperty("name"));
 
-    assertTrue(results.get(0).getEntity().get().getIdentity().isTemporary());
+    assertTrue(results.getFirst().castToEntity().getIdentity().isTemporary());
 
     var commit = new Commit37Request(db, 10, false, true, null
     );
@@ -386,7 +386,8 @@ public class ConnectionExecutorTransactionTest {
 
     assertEquals(1, ((Commit37Response) commitResponse).getUpdatedRids().size());
 
-    assertTrue(((Commit37Response) commitResponse).getUpdatedRids().get(0).first().isTemporary());
+    assertTrue(
+        ((Commit37Response) commitResponse).getUpdatedRids().getFirst().first().isTemporary());
 
     assertEquals(1, db.countClass("test"));
 
@@ -396,7 +397,7 @@ public class ConnectionExecutorTransactionTest {
 
     assertEquals(1, results.size());
 
-    assertEquals("update", results.get(0).getProperty("name"));
+    assertEquals("update", results.getFirst().getProperty("name"));
 
     query.close();
   }

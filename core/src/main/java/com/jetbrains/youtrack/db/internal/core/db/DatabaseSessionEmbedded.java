@@ -949,20 +949,20 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     if (record instanceof Entity) {
       if (((Entity) record).isVertex()) {
-        VertexInternal.deleteLinks(((Entity) record).toVertex());
+        VertexInternal.deleteLinks(((Entity) record).castToVertex());
       } else {
-        if (((Entity) record).isEdge()) {
-          EdgeEntityImpl.deleteLinks(this, ((Entity) record).toEdge());
+        if (((Entity) record).isStatefulEdge()) {
+          EdgeEntityImpl.deleteLinks(this, ((Entity) record).castToStateFullEdge());
         }
       }
     }
 
     // CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-    if (record instanceof EntityImpl && ((EntityImpl) record).getClassName() != null) {
+    if (record instanceof EntityImpl && ((EntityImpl) record).getSchemaClassName() != null) {
       checkSecurity(
           Rule.ResourceGeneric.CLASS,
           Role.PERMISSION_DELETE,
-          ((EntityImpl) record).getClassName());
+          ((EntityImpl) record).getSchemaClassName());
     }
 
     try {
@@ -976,7 +976,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
-                    + ((EntityImpl) record).getClassName()
+                    + ((EntityImpl) record).getSchemaClassName()
                     + "'"),
             e, getDatabaseName());
       } else {

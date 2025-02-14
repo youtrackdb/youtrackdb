@@ -3,7 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -15,7 +16,7 @@ public class DeleteExecutionPlan extends UpdateExecutionPlan {
   }
 
   @Override
-  public Result toResult(DatabaseSession db) {
+  public @Nonnull Result toResult(@Nullable DatabaseSession db) {
     var res = (ResultInternal) super.toResult(db);
     res.setProperty("type", "DeleteExecutionPlan");
     return res;

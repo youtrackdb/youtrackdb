@@ -97,10 +97,9 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", "abc");
 
-    //noinspection OptionalGetWithoutIsPresent
-    session.delete(results.get(0).getEntity().get().getIdentity());
+    session.delete(results.getFirst().castToEntity().getIdentity());
 
-    Collection coll;
+    Collection<Object> coll;
     try (var vertices = session.query(query)) {
       try (var stream = index.getInternal().getRids(session, "abc")) {
         coll = stream.collect(Collectors.toList());
@@ -169,9 +168,9 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
 
     session.begin();
 
-    var record = results.get(0);
+    var record = results.getFirst();
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    var element = session.bindToSession(record.getEntity().get());
+    var element = session.bindToSession(record.castToEntity());
     element.setProperty("p1", "removed");
     session.save(element);
 

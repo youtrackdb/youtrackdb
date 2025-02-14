@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,14 +35,14 @@ public class JSScriptTest extends DbTestBase {
     var resultSet = session.execute("javascript", script);
     Assert.assertTrue(resultSet.hasNext());
 
-    var results = resultSet.stream().collect(Collectors.toList());
+    var results = resultSet.stream().toList();
     Assert.assertEquals(2, results.size()); // no default users anymore, 'admin' created
 
     results.stream()
-        .map(r -> r.getEntity().get())
+        .map(Result::castToEntity)
         .forEach(
             oElement -> {
-              Assert.assertEquals("OUser", oElement.getSchemaType().get().getName(session));
+              Assert.assertEquals("OUser", oElement.getSchemaClassName());
             });
 
   }
@@ -56,13 +56,13 @@ public class JSScriptTest extends DbTestBase {
     var results = resultSet.stream().collect(Collectors.toList());
     Assert.assertEquals(1, results.size());
 
-    var value = results.get(0).getProperty("value");
+    var value = results.getFirst().getProperty("value");
     var values = (Collection<Result>) value;
     values.stream()
-        .map(r -> r.getEntity().get())
+        .map(Result::castToEntity)
         .forEach(
             oElement -> {
-              Assert.assertEquals("OUser", oElement.getSchemaType().get().getName(session));
+              Assert.assertEquals("OUser", oElement.getSchemaClassName());
             });
 
   }
@@ -73,19 +73,18 @@ public class JSScriptTest extends DbTestBase {
     var resultSet = session.execute("javascript", IOUtils.readStreamAsString(stream));
     Assert.assertTrue(resultSet.hasNext());
 
-    var results = resultSet.stream().collect(Collectors.toList());
+    var results = resultSet.stream().toList();
     Assert.assertEquals(1, results.size());
 
-    Number value = results.get(0).getProperty("value");
+    Number value = results.getFirst().getProperty("value");
     Assert.assertEquals(2, value.intValue()); // no default users anymore, 'admin' created
   }
 
   @Test
   public void jsSandboxTestWithJavaType() {
     try {
-      final var result =
-          session.execute(
-              "javascript", "var File = Java.type(\"java.io.File\");\n  File.pathSeparator;");
+      session.execute(
+          "javascript", "var File = Java.type(\"java.io.File\");\n  File.pathSeparator;");
 
       Assert.fail("It should receive a class not found exception");
     } catch (RuntimeException e) {

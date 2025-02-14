@@ -4,16 +4,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Direction;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,8 +45,7 @@ public class TestGraphElementDelete {
     database.begin();
     var vertex = database.newVertex("V");
     var vertex1 = database.newVertex("V");
-    var edge = vertex.addEdge(vertex1, "E");
-    database.save(edge);
+    var edge = vertex.addStateFulEdge(vertex1, "E");
     database.commit();
 
     database.begin();
@@ -68,7 +66,7 @@ public class TestGraphElementDelete {
     database.begin();
     var vertex = database.newVertex("V");
     var vertex1 = database.newVertex("V");
-    var edge = vertex.addEdge(vertex1, "E");
+    var edge = vertex.addStateFulEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 
@@ -84,7 +82,7 @@ public class TestGraphElementDelete {
     database.begin();
     var vertex = database.newVertex("V");
     var vertex1 = database.newVertex("V");
-    var edge = vertex.addEdge(vertex1, "E");
+    var edge = vertex.addStateFulEdge(vertex1, "E");
     database.save(edge);
     database.commit();
 

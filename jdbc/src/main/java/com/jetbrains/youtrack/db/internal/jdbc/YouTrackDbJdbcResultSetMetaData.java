@@ -126,13 +126,13 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
     PropertyType otype = null;
     if (currentRecord.isEntity()) {
-      otype =
-          currentRecord
-              .asEntity()
-              .getSchemaType()
-              .map(st -> st.getProperty(session, fieldName))
-              .map(schemaProperty -> schemaProperty.getType(session))
-              .orElse(null);
+      var entity = currentRecord.castToEntity();
+      var schemaClass = entity.getSchemaClass();
+      if (schemaClass != null) {
+        otype = schemaClass.getProperty(session, fieldName).getType(session);
+      } else {
+        otype = null;
+      }
     }
 
     if (otype == null) {
@@ -238,13 +238,14 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
     var columnLabel = fieldNames[column - 1];
 
     if (currentRecord.isEntity()) {
-      return currentRecord
-          .asEntity()
-          .getSchemaType()
-          .map(st -> st.getProperty(session, columnLabel))
-          .map(schemaProperty -> schemaProperty.getType(session))
-          .map(Enum::toString)
-          .orElse(null);
+      var entity = currentRecord.castToEntity();
+      var schemaClass = entity.getSchemaClass();
+      if (schemaClass != null) {
+        var property = schemaClass.getProperty(session, columnLabel);
+        if (property != null) {
+          return property.getType(session).toString();
+        }
+      }
     }
 
     return null;
@@ -308,11 +309,13 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
     final var currentRecord = getCurrentRecord();
     PropertyType otype = null;
     if (currentRecord.isEntity()) {
-      otype = currentRecord
-          .asEntity()
-          .getSchemaType()
-          .map(st -> st.getProperty(session, fieldNames[column - 1]).getType(session))
-          .orElse(null);
+      var entity = currentRecord.castToEntity();
+      var schemaClass = entity.getSchemaClass();
+      if (schemaClass != null) {
+        otype = schemaClass.getProperty(session, fieldNames[column - 1]).getType(session);
+      } else {
+        otype = null;
+      }
     }
 
     return YouTrackDbJdbcResultSetMetaData.isANumericColumn(otype);
@@ -344,11 +347,11 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
 
     var currentRecord = getCurrentRecord();
     if (currentRecord.isEntity()) {
-      return currentRecord
-          .asEntity()
-          .getSchemaType()
-          .map(st -> st.getProperty(session, fieldName))
-          .orElse(null);
+      var entity = currentRecord.castToEntity();
+      var schemaClass = entity.getSchemaClass();
+      if (schemaClass != null) {
+        return schemaClass.getProperty(session, fieldName);
+      }
     }
 
     return null;

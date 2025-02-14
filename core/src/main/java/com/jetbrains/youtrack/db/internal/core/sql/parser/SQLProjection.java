@@ -120,7 +120,7 @@ public class SQLProjection extends SimpleNode {
   }
 
   public Result calculateSingle(CommandContext iContext, Result iRecord) {
-    initExcludes(iContext);
+    initExcludes();
     if (isExpand()) {
       throw new IllegalStateException(
           "This is an expand projection, it cannot be calculated as a single result" + this);
@@ -138,15 +138,9 @@ public class SQLProjection extends SimpleNode {
         continue;
       }
       if (item.isAll()) {
-        iRecord
-            .getEntity()
-            .ifPresent(
-                (e) -> {
-                  var record = e.getRecord(session);
-                  if (record instanceof EntityImpl entity) {
-                    entity.deserializeFields();
-                  }
-                });
+        if (iRecord.isEntity()) {
+          ((EntityImpl) iRecord.castToEntity()).deserializeFields();
+        }
         for (var alias : iRecord.getPropertyNames()) {
           if (this.excludes.contains(alias)) {
             continue;
@@ -157,8 +151,8 @@ public class SQLProjection extends SimpleNode {
           }
           result.setProperty(alias, val);
         }
-        if (iRecord.getEntity().isPresent()) {
-          var x = iRecord.getEntity().get();
+        if (iRecord.isEntity()) {
+          var x = iRecord.castToEntity();
           if (!this.excludes.contains("@rid")) {
             result.setProperty("@rid", x.getIdentity());
           }
@@ -166,8 +160,10 @@ public class SQLProjection extends SimpleNode {
             result.setProperty("@version", x.getVersion());
           }
           if (!this.excludes.contains("@class")) {
-            result.setProperty(
-                "@class", x.getSchemaType().map(clazz -> clazz.getName(session)).orElse(null));
+            var clazz = x.getSchemaClass();
+            if (clazz != null) {
+              result.setProperty("@class", clazz.getName(session));
+            }
           }
         }
       } else {
@@ -175,17 +171,19 @@ public class SQLProjection extends SimpleNode {
       }
     }
 
-    for (var key : iRecord.getMetadataKeys()) {
+    var resultInternal = (ResultInternal) iRecord;
+    for (var key : resultInternal.getMetadataKeys()) {
       if (!result.getMetadataKeys().contains(key)) {
-        result.setMetadata(key, iRecord.getMetadata(key));
+        result.setMetadata(key, resultInternal.getMetadata(key));
       }
     }
+
     return result;
   }
 
-  private void initExcludes(CommandContext iContext) {
+  private void initExcludes() {
     if (excludes == null) {
-      this.excludes = new HashSet<String>();
+      this.excludes = new HashSet<>();
       for (var item : items) {
         if (item.exclude) {
           this.excludes.add(item.getProjectionAliasAsString());

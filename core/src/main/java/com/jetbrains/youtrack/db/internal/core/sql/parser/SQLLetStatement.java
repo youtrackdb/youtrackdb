@@ -41,7 +41,7 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
     if (result instanceof ResultSet) {
       var rs = new InternalResultSet(session);
       ((ResultSet) result).stream().forEach(rs::add);
-      rs.setPlan(((ResultSet) result).getExecutionPlan().orElse(null));
+      rs.setPlan(((ResultSet) result).getExecutionPlan());
       ((ResultSet) result).close();
       result = rs;
     }

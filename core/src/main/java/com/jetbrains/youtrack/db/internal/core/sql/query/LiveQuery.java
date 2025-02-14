@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.query;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -76,7 +75,7 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
     protected int token;
 
     @Override
-    public void onCreate(DatabaseSessionInternal session, Result data) {
+    public void onCreate(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ((LocalLiveResultListener) getResultListener())
           .onLiveResult(session,
               token,
@@ -84,7 +83,8 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
+    public void onUpdate(@Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+        @Nonnull Result after) {
       ((LocalLiveResultListener) getResultListener())
           .onLiveResult(session,
               token,
@@ -92,7 +92,7 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal session, Result data) {
+    public void onDelete(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ((LocalLiveResultListener) getResultListener())
           .onLiveResult(session,
               token,
@@ -100,12 +100,12 @@ public class LiveQuery<T> extends SQLSynchQuery<T> {
     }
 
     @Override
-    public void onError(DatabaseSession session, BaseException exception) {
+    public void onError(@Nonnull DatabaseSession session, @Nonnull BaseException exception) {
       ((LocalLiveResultListener) getResultListener()).onError(token);
     }
 
     @Override
-    public void onEnd(DatabaseSession session) {
+    public void onEnd(@Nonnull DatabaseSession session) {
       ((LocalLiveResultListener) getResultListener()).onUnsubscribe(token);
     }
   }

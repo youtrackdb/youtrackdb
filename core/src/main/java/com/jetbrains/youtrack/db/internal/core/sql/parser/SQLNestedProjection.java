@@ -162,7 +162,7 @@ public class SQLNestedProjection extends SimpleNode {
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        var value = item.expression.execute(elem, ctx);
+        var value = item.expression.execute((Identifiable) elem, ctx);
         if (item.expansion != null) {
           value = item.expand(expression, alias, value, ctx, recursion - 1);
         }

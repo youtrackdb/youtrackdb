@@ -96,7 +96,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           final EntityImpl inV = entity.getPropertyInternal("in");
 
           // OUTGOING
-          final var outField = outV.getPropertyInternal("out_" + entity.getClassName());
+          final var outField = outV.getPropertyInternal("out_" + entity.getSchemaClassName());
           if (outField instanceof RidBag) {
             final var it = ((RidBag) outField).iterator();
             while (it.hasNext()) {
@@ -113,7 +113,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           outV.save();
 
           // INCOMING
-          final var inField = inV.getPropertyInternal("in_" + entity.getClassName());
+          final var inField = inV.getPropertyInternal("in_" + entity.getSchemaClassName());
           if (outField instanceof RidBag) {
             final var it = ((RidBag) inField).iterator();
             while (it.hasNext()) {

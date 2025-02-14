@@ -61,6 +61,7 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   }
 
 
+  @Nonnull
   public SchemaClass createClass(final String iClassName) {
     return delegate.createClass(session, iClassName);
   }
@@ -89,8 +90,10 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
     return delegate.getOrCreateClass(session, iClassName, superClasses);
   }
 
+  @Nonnull
   @Override
-  public SchemaClass createClass(final String iClassName, final SchemaClass iSuperClass) {
+  public SchemaClass createClass(@Nonnull final String iClassName,
+      @Nonnull final SchemaClass iSuperClass) {
     return delegate.createClass(session, iClassName, iSuperClass, null);
   }
 
@@ -236,8 +239,10 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
     return delegate.getClassesRelyOnCluster(this.session, iClusterName);
   }
 
+  @Nonnull
   @Override
-  public SchemaClass createClass(String className, int clusters, SchemaClass... superClasses) {
+  public SchemaClass createClass(@Nonnull String className, int clusters,
+      SchemaClass... superClasses) {
     return delegate.createClass(session, className, clusters, superClasses);
   }
 

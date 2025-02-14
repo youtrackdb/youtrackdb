@@ -1207,19 +1207,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     var statement = SQLEngine.parseServerStatement(script, this);
     var original = statement.execute(this, args, true);
     LocalResultSetLifecycleDecorator result;
-    //    if (!statement.isIdempotent()) {
-    // fetch all, close and detach
-    // TODO pagination!
     var prefetched = new InternalResultSet(null);
-    original.forEachRemaining(x -> prefetched.add(x));
+    original.forEachRemaining(prefetched::add);
     original.close();
     result = new LocalResultSetLifecycleDecorator(prefetched);
-    //    } else {
-    // stream, keep open and attach to the current DB
-    //      result = new LocalResultSetLifecycleDecorator(original);
-    //      this.queryStarted(result.getQueryId(), result);
-    //      result.addLifecycleListener(this);
-    //    }
     return result;
   }
 

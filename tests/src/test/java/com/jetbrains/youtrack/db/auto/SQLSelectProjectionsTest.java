@@ -381,7 +381,7 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
 
     Set<RID> rids = new HashSet<>();
     for (var d : resultset) {
-      final var rid = d.getIdentity().orElseThrow();
+      final var rid = d.getIdentity();
       Assert.assertFalse(rids.contains(rid));
 
       rids.add(rid);

@@ -18,8 +18,8 @@ public class ExplainStatementExecutionTest extends DbTestBase {
     Assert.assertNotNull(next.getProperty("executionPlanAsString"));
 
     var plan = result.getExecutionPlan();
-    Assert.assertTrue(plan.isPresent());
-    Assert.assertTrue(plan.get() instanceof SelectExecutionPlan);
+    Assert.assertNotNull(plan);
+    Assert.assertTrue(plan instanceof SelectExecutionPlan);
 
     result.close();
   }

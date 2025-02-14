@@ -4,6 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -143,8 +144,12 @@ public class SQLMethodCall extends SimpleNode {
       CommandContext ctx,
       Object val,
       List<Object> paramValues) {
-    if (val instanceof Result) {
-      val = ((Result) val).getEntity().orElse(null);
+    if (val instanceof Result result) {
+      if (result.isEntity()) {
+        val = result.castToEntity();
+      } else {
+        val = result;
+      }
     }
     return method.execute(
         targetObjects, (Identifiable) val, ctx, targetObjects, paramValues.toArray());
@@ -158,8 +163,12 @@ public class SQLMethodCall extends SimpleNode {
       List<Object> paramValues) {
     if (graphFunction instanceof SQLFunctionFiltered) {
       var current = ctx.getVariable("$current");
-      if (current instanceof Result) {
-        current = ((Result) current).getEntity().orElse(null);
+      if (current instanceof Result result) {
+        if (result.isEntity()) {
+          current = result.castToEntity();
+        } else {
+          current = null;
+        }
       }
       return ((SQLFunctionFiltered) graphFunction)
           .execute(
@@ -174,10 +183,16 @@ public class SQLMethodCall extends SimpleNode {
       if (current instanceof Identifiable) {
         return graphFunction.execute(
             targetObjects, (Identifiable) current, null, paramValues.toArray(), ctx);
-      } else if (current instanceof Result) {
+      } else if (current instanceof Result result) {
+        Entity entity = null;
+        if (result.isEntity()) {
+          entity = result.castToEntity();
+        } else {
+          entity = null;
+        }
         return graphFunction.execute(
             targetObjects,
-            ((Result) current).getEntity().orElse(null),
+            entity,
             null,
             paramValues.toArray(),
             ctx);

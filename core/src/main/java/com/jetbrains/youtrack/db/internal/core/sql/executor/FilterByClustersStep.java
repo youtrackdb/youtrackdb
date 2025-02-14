@@ -44,7 +44,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
 
   private Result filterMap(Result result, IntOpenHashSet clusterIds) {
     if (result.isEntity()) {
-      var rid = result.getRecordId();
+      var rid = result.getIdentity();
       assert rid != null;
 
       var clusterId = rid.getClusterId();

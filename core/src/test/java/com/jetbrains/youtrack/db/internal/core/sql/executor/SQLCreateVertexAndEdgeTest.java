@@ -17,8 +17,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,44 +41,43 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
     // VERTEXES
     session.begin();
-    var v1 = session.command("create vertex").next().getVertex().get();
+    var v1 = session.command("create vertex").next().castToVertex();
     session.commit();
 
     v1 = session.bindToSession(v1);
-    Assert.assertEquals("V", v1.getSchemaType().get().getName(session));
+    Assert.assertEquals("V", v1.getSchemaClassName());
 
     session.begin();
-    var v2 = session.command("create vertex V1").next().getVertex().get();
+    var v2 = session.command("create vertex V1").next().castToVertex();
     session.commit();
 
     v2 = session.bindToSession(v2);
-    Assert.assertEquals("V1", v2.getSchemaType().get().getName(session));
+    Assert.assertEquals("V1", v2.getSchemaClassName());
 
     session.begin();
-    var v3 = session.command("create vertex set brand = 'fiat'").next().getVertex().get();
+    var v3 = session.command("create vertex set brand = 'fiat'").next().castToVertex();
     session.commit();
 
     v3 = session.bindToSession(v3);
-    Assert.assertEquals("V", v3.getSchemaType().get().getName(session));
+    Assert.assertEquals("V", v3.getSchemaClassName());
     Assert.assertEquals("fiat", v3.getProperty("brand"));
 
     session.begin();
     var v4 =
-        session.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().getVertex()
-            .get();
+        session.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().castToVertex();
     session.commit();
 
     v4 = session.bindToSession(v4);
-    Assert.assertEquals("V1", v4.getSchemaType().get().getName(session));
+    Assert.assertEquals("V1", v4.getSchemaClassName());
     Assert.assertEquals("fiat", v4.getProperty("brand"));
     Assert.assertEquals("wow", v4.getProperty("name"));
 
     session.begin();
-    var v5 = session.command("create vertex V1 cluster vdefault").next().getVertex().get();
+    var v5 = session.command("create vertex V1 cluster vdefault").next().castToVertex();
     session.commit();
 
     v5 = session.bindToSession(v5);
-    Assert.assertEquals("V1", v5.getSchemaType().get().getName(session));
+    Assert.assertEquals("V1", v5.getSchemaClassName());
     Assert.assertEquals(v5.getIdentity().getClusterId(), vclusterId);
 
     // EDGES
@@ -99,8 +98,8 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
             "create edge from " + v1.getIdentity() + " to " + v4.getIdentity() + " set weight = 3");
     session.commit();
 
-    EntityImpl e3 = edges.next().getIdentity().get().getRecord(session);
-    Assert.assertEquals("E", e3.getClassName());
+    EntityImpl e3 = edges.next().getIdentity().getRecord(session);
+    Assert.assertEquals("E", e3.getSchemaClassName());
     Assert.assertEquals(e3.field("out"), v1);
     Assert.assertEquals(e3.field("in"), v4);
     Assert.assertEquals(3, e3.<Object>field("weight"));
@@ -114,8 +113,8 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
                 + v3.getIdentity()
                 + " set weight = 10");
     session.commit();
-    EntityImpl e4 = edges.next().getIdentity().get().getRecord(session);
-    Assert.assertEquals("E1", e4.getClassName());
+    EntityImpl e4 = edges.next().getIdentity().getRecord(session);
+    Assert.assertEquals("E1", e4.getSchemaClassName());
     Assert.assertEquals(e4.field("out"), v2);
     Assert.assertEquals(e4.field("in"), v3);
     Assert.assertEquals(10, e4.<Object>field("weight"));
@@ -129,8 +128,8 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
                 + v5.getIdentity()
                 + " set weight = 17");
     session.commit();
-    EntityImpl e5 = edges.next().getIdentity().get().getRecord(session);
-    Assert.assertEquals("E1", e5.getClassName());
+    EntityImpl e5 = edges.next().getIdentity().getRecord(session);
+    Assert.assertEquals("E1", e5.getSchemaClassName());
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }
 
@@ -169,11 +168,11 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
   @Test
   public void testNewParser() {
     session.begin();
-    var v1 = session.command("create vertex").next().getVertex().get();
+    var v1 = session.command("create vertex").next().castToVertex();
     session.commit();
 
     v1 = session.bindToSession(v1);
-    Assert.assertEquals("V", v1.getSchemaType().get().getName(session));
+    Assert.assertEquals("V", v1.getSchemaClassName());
 
     var vid = v1.getIdentity();
 
@@ -207,6 +206,7 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     }
   }
 
+  @Test
   public void testSqlScriptThatDeletesEdge() {
     var start = System.currentTimeMillis();
 

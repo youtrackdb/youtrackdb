@@ -53,7 +53,7 @@ public class SequenceLibraryImpl {
           var res = result.next();
 
           final var sequence =
-              SequenceHelper.createSequence((EntityImpl) res.getEntity().get());
+              SequenceHelper.createSequence((EntityImpl) res.castToEntity());
           sequences.put(sequence.getName(session).toUpperCase(Locale.ENGLISH), sequence);
         }
       }

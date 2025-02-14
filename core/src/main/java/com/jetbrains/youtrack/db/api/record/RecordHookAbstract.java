@@ -21,6 +21,7 @@ package com.jetbrains.youtrack.db.api.record;
 
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import javax.annotation.Nonnull;
 
 /**
  * Hook abstract class that calls separate methods for each hook defined.
@@ -129,7 +130,8 @@ public abstract class RecordHookAbstract implements RecordHook {
   public void onRecordFinalizeDeletion(final DBRecord record) {
   }
 
-  public RESULT onTrigger(DatabaseSession session, final TYPE iType, final DBRecord record) {
+  public RESULT onTrigger(@Nonnull DatabaseSession session, @Nonnull final TYPE iType,
+      @Nonnull final DBRecord record) {
     switch (iType) {
       case BEFORE_CREATE:
         return onRecordBeforeCreate(record);

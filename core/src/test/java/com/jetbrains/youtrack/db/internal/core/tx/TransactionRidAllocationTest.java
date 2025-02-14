@@ -194,7 +194,7 @@ public class TransactionRidAllocationTest {
     db.save(v0);
     for (var i = 0; i < 20; i++) {
       var v = db.newVertex("V");
-      var edge = v0.addRegularEdge(v);
+      var edge = v0.addStateFulEdge(v);
       orecords.add(db.save(edge));
       orecords.add(db.save(v));
     }

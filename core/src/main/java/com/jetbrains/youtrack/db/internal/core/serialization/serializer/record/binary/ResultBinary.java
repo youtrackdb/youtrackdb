@@ -16,11 +16,13 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -28,10 +30,10 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -94,7 +96,7 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public <T> T getProperty(String name) {
+  public <T> T getProperty(@Nonnull String name) {
     assert session != null && session.assertIfNotActive();
 
     var bytes = new BytesContainer(this.bytes);
@@ -103,19 +105,25 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public Entity getEntityProperty(String name) {
+  public @Nonnull Result detach() {
     throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
+        "Not supported yet.");
   }
 
   @Override
-  public Vertex getVertexProperty(String name) {
+  public Entity getEntityProperty(@Nonnull String name) {
     throw new UnsupportedOperationException(
-        "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
+        "Not supported yet.");
   }
 
   @Override
-  public Edge getEdgeProperty(String name) {
+  public Vertex getVertexProperty(@Nonnull String name) {
+    throw new UnsupportedOperationException(
+        "Not supported yet.");
+  }
+
+  @Override
+  public Edge getEdgeProperty(@Nonnull String name) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -124,8 +132,14 @@ public class ResultBinary implements Result {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Nullable
   @Override
-  public Set<String> getPropertyNames() {
+  public Identifiable getLinkProperty(@Nonnull String name) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public @Nonnull Collection<String> getPropertyNames() {
     assert session != null && session.assertIfNotActive();
 
     final var container = new BytesContainer(bytes);
@@ -136,17 +150,11 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public Optional<RID> getIdentity() {
-    assert session != null && session.assertIfNotActive();
-    return Optional.ofNullable(id);
-  }
-
-  @Nullable
-  @Override
-  public RID getRecordId() {
+  public RID getIdentity() {
     assert session != null && session.assertIfNotActive();
     return id;
   }
+
 
   @Override
   public boolean isEntity() {
@@ -160,17 +168,20 @@ public class ResultBinary implements Result {
     return true;
   }
 
+  @Nonnull
   @Override
-  public Optional<Entity> getEntity() {
+  public Entity castToEntity() {
     assert session != null && session.assertIfNotActive();
-    return Optional.of(asEntity());
+    return toEntityImpl();
   }
 
+  @Nullable
   @Override
   public Entity asEntity() {
     assert session != null && session.assertIfNotActive();
     return toEntityImpl();
   }
+
 
   @Override
   public boolean isBlob() {
@@ -178,28 +189,42 @@ public class ResultBinary implements Result {
     return false;
   }
 
+  @Nonnull
   @Override
-  public Map<String, ?> toMap() {
+  public Map<String, Object> toMap() {
     assert session != null && session.assertIfNotActive();
     return toEntityImpl().toMap();
   }
 
   @Override
-  public String toJSON() {
+  public @Nonnull String toJSON() {
     assert session != null && session.assertIfNotActive();
     return toEntityImpl().toJSON();
   }
 
+  @Nonnull
   @Override
-  public Optional<Blob> getBlob() {
-    assert session != null && session.assertIfNotActive();
-    return Optional.empty();
+  public Blob castToBlob() {
+    throw new IllegalStateException("Not a blob");
   }
 
+  @Nullable
   @Override
-  public Optional<DBRecord> getRecord() {
+  public Blob asBlob() {
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public DBRecord castToRecord() {
     assert session != null && session.assertIfNotActive();
-    return Optional.of(toEntityImpl());
+    return toEntityImpl();
+  }
+
+  @Nullable
+  @Override
+  public DBRecord asRecord() {
+    return toEntityImpl();
   }
 
   @Override
@@ -209,19 +234,25 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public Object getMetadata(String key) {
+  public boolean isEdge() {
     assert session != null && session.assertIfNotActive();
+    return false;
+  }
+
+  @Nonnull
+  @Override
+  public Edge castToEdge() {
+    throw new DatabaseException("Not an edge");
+  }
+
+  @Nullable
+  @Override
+  public Edge asEdge() {
     return null;
   }
 
   @Override
-  public Set<String> getMetadataKeys() {
-    assert session != null && session.assertIfNotActive();
-    return null;
-  }
-
-  @Override
-  public boolean hasProperty(String varName) {
+  public boolean hasProperty(@Nonnull String varName) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }

@@ -934,7 +934,7 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertEquals(loaded.<Set<Entity>>getProperty("embeddedSet").size(), 5);
     for (var loadedC : loaded.<Set<Entity>>getProperty("embeddedSet")) {
       Assert.assertTrue(loadedC.isEmbedded());
-      Assert.assertEquals(loadedC.getClassName(), "Child");
+      Assert.assertEquals(loadedC.getSchemaClassName(), "Child");
       Assert.assertTrue(
           loadedC.<String>getProperty("name").equals("John")
               || loadedC.<String>getProperty("name").equals("Jack")
@@ -999,7 +999,7 @@ public class CRUDTest extends BaseDBTest {
     for (var key : loaded.<Map<String, Entity>>getProperty("embeddedChildren").keySet()) {
       var loadedC = loaded.<Map<String, Entity>>getProperty("embeddedChildren").get(key);
       Assert.assertTrue(loadedC.isEmbedded());
-      Assert.assertEquals(loadedC.getClassName(), "Child");
+      Assert.assertEquals(loadedC.getSchemaClassName(), "Child");
       Assert.assertTrue(
           loadedC.<String>getProperty("name").equals("John")
               || loadedC.<String>getProperty("name").equals("Jack")
@@ -1224,7 +1224,7 @@ public class CRUDTest extends BaseDBTest {
               .<Map<String, Identifiable>>getProperty("children")
               .get(key)
               .getEntity(session)
-              .getClassName(),
+              .getSchemaClassName(),
           "Child");
       Assert.assertEquals(
           key,
@@ -1361,7 +1361,7 @@ public class CRUDTest extends BaseDBTest {
               .<Map<String, Identifiable>>getProperty("children")
               .get(key)
               .getEntity(session)
-              .getClassName(),
+              .getSchemaClassName(),
           "Child");
       Assert.assertEquals(
           key,
@@ -2449,7 +2449,7 @@ public class CRUDTest extends BaseDBTest {
                 .iterator()
                 .next()
                 .getEntity(session)
-                .getClassName(),
+                .getSchemaClassName(),
             "Profile");
       } else if (obj.<String>getProperty("nick").equals("Morpheus")
           || obj.<String>getProperty("nick").equals("Trinity")) {
@@ -2705,7 +2705,7 @@ public class CRUDTest extends BaseDBTest {
     var result1 = executeQuery("select from Profile where nick = 'foo'");
 
     Assert.assertEquals(result1.size(), 1);
-    Assert.assertEquals(result1.getFirst().asEntity().getClassName(), "Profile");
+    Assert.assertEquals(result1.getFirst().asEntity().getSchemaClassName(), "Profile");
     var profile = result1.getFirst().asEntity();
 
     Assert.assertEquals(profile.getProperty("nick"), "foo");

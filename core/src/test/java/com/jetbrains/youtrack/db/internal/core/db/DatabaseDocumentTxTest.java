@@ -156,9 +156,9 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
     try (var result = session.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
-      var item = result.next().getEntity().get();
+      var item = result.next().castToEntity();
       EntityImpl meta = item.getProperty("meta");
-      Assert.assertEquals("testDocFromJsonEmbedded_Class0", meta.getClassName());
+      Assert.assertEquals("testDocFromJsonEmbedded_Class0", meta.getSchemaClassName());
       Assert.assertEquals("0:0:0:0:0:0:0:1", meta.field("ip"));
     }
   }
@@ -258,7 +258,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     var doc2 = session.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
-    session.newRegularEdge(session.bindToSession(doc1), doc2, "testEdge").save();
+    session.newStatefulEdge(session.bindToSession(doc1), doc2, "testEdge").save();
     session.commit();
 
     try (var rs = session.query("SELECT out() as o FROM " + vertexClass)) {
@@ -294,8 +294,8 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     doc3.setProperty("name", "third");
     doc3.save();
 
-    session.newRegularEdge(doc1, doc2, "testEdge").save();
-    session.newRegularEdge(doc1, doc3, "testEdge").save();
+    session.newStatefulEdge(doc1, doc2, "testEdge").save();
+    session.newStatefulEdge(doc1, doc3, "testEdge").save();
     session.commit();
 
     try (var rs = session.query("SELECT out() as o FROM " + vertexClass)) {
@@ -328,8 +328,8 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     doc3.setProperty("name", "third");
     doc3.save();
 
-    session.newRegularEdge(doc1, doc2, "testEdge");
-    session.newRegularEdge(doc1, doc3, "testEdge");
+    session.newStatefulEdge(doc1, doc2, "testEdge");
+    session.newStatefulEdge(doc1, doc3, "testEdge");
   }
 
   @Test

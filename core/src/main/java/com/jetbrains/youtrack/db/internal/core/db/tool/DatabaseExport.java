@@ -196,8 +196,8 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
             if (rec instanceof EntityImpl entity) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
               final var className =
-                  entity.getClassName() != null
-                      ? entity.getClassName().toUpperCase(Locale.ENGLISH)
+                  entity.getSchemaClassName() != null
+                      ? entity.getSchemaClassName().toUpperCase(Locale.ENGLISH)
                       : null;
             }
 

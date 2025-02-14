@@ -162,7 +162,7 @@ public class SQLUpdateTest extends BaseDBTest {
                       + ","
                       + positions.get(2)
                       + "] where @rid = "
-                      + doc.getRecordId())
+                      + doc.getIdentity())
               .next()
               .getProperty("count");
       session.commit();
@@ -170,7 +170,7 @@ public class SQLUpdateTest extends BaseDBTest {
       session.begin();
       Assert.assertEquals(records, 1);
 
-      EntityImpl loadedDoc = session.load(doc.getRecordId());
+      EntityImpl loadedDoc = session.load(doc.getIdentity());
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
           ((Identifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
@@ -312,7 +312,7 @@ public class SQLUpdateTest extends BaseDBTest {
     var result1 = session.command(sqlString).stream().toList();
     session.commit();
     Assert.assertEquals(result1.size(), 1);
-    Assert.assertEquals(result1.get(0).getRecordId(), doc.getIdentity());
+    Assert.assertEquals(result1.get(0).getIdentity(), doc.getIdentity());
     Assert.assertEquals(result1.get(0).getProperty("gender"), "male");
 
     sqlString =
@@ -566,8 +566,8 @@ public class SQLUpdateTest extends BaseDBTest {
     schema.createClass("UpdateVertexContent", vertex);
 
     session.begin();
-    final var vOneId = session.command("create vertex UpdateVertexContent").next().getRecordId();
-    final var vTwoId = session.command("create vertex UpdateVertexContent").next().getRecordId();
+    final var vOneId = session.command("create vertex UpdateVertexContent").next().getIdentity();
+    final var vTwoId = session.command("create vertex UpdateVertexContent").next().getIdentity();
 
     session.command("create edge from " + vOneId + " to " + vTwoId).close();
     session.command("create edge from " + vOneId + " to " + vTwoId).close();
@@ -624,8 +624,8 @@ public class SQLUpdateTest extends BaseDBTest {
     schema.createClass("UpdateEdgeContentE", edge);
 
     session.begin();
-    final var vOneId = session.command("create vertex UpdateEdgeContentV").next().getRecordId();
-    final var vTwoId = session.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final var vOneId = session.command("create vertex UpdateEdgeContentV").next().getIdentity();
+    final var vTwoId = session.command("create vertex UpdateEdgeContentV").next().getIdentity();
 
     session.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     session.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
@@ -731,7 +731,7 @@ public class SQLUpdateTest extends BaseDBTest {
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
                     + " embeddedListWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
-            .getRecordId();
+            .getIdentity();
 
     session
         .command(
@@ -764,7 +764,7 @@ public class SQLUpdateTest extends BaseDBTest {
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (var o : addr) {
       Assert.assertTrue(o instanceof EntityImpl);
-      Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertEquals(((EntityImpl) o).getSchemaClassName(), "TestConvertLinkedClass");
     }
   }
 

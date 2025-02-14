@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionPlan;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionStep;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  *
@@ -33,7 +32,7 @@ public class ServerQueryResponse implements BinaryResponse {
   private String queryId;
   private boolean txChanges;
   private List<Result> result;
-  private Optional<ExecutionPlan> executionPlan;
+  private ExecutionPlan executionPlan;
   private boolean hasNextPage;
   private Map<String, Long> queryStats;
   private boolean reloadMetadata;
@@ -42,7 +41,7 @@ public class ServerQueryResponse implements BinaryResponse {
       String queryId,
       boolean txChanges,
       List<Result> result,
-      Optional<ExecutionPlan> executionPlan,
+      ExecutionPlan executionPlan,
       boolean hasNextPage,
       Map<String, Long> queryStats,
       boolean reloadMetadata) {
@@ -119,25 +118,25 @@ public class ServerQueryResponse implements BinaryResponse {
   }
 
   private void writeExecutionPlan(
-      DatabaseSessionInternal session, Optional<ExecutionPlan> executionPlan,
+      DatabaseSessionInternal session, ExecutionPlan executionPlan,
       ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
-    if (executionPlan.isPresent()
+    if (executionPlan != null
         && GlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
       channel.writeBoolean(true);
-      MessageHelper.writeResult(session, executionPlan.get().toResult(session), channel,
+      MessageHelper.writeResult(session, executionPlan.toResult(session), channel,
           recordSerializer);
     } else {
       channel.writeBoolean(false);
     }
   }
 
-  private Optional<ExecutionPlan> readExecutionPlan(DatabaseSessionInternal db,
+  private ExecutionPlan readExecutionPlan(DatabaseSessionInternal db,
       ChannelDataInput network) throws IOException {
     var present = network.readBoolean();
     if (!present) {
-      return Optional.empty();
+      return null;
     }
     var result = new InfoExecutionPlan();
     Result read = MessageHelper.readResult(db, network);
@@ -150,7 +149,7 @@ public class ServerQueryResponse implements BinaryResponse {
     if (subSteps != null) {
       subSteps.forEach(x -> result.getSteps().add(toInfoStep(x)));
     }
-    return Optional.of(result);
+    return result;
   }
 
   public String getQueryId() {
@@ -161,7 +160,7 @@ public class ServerQueryResponse implements BinaryResponse {
     return result;
   }
 
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     return executionPlan;
   }
 

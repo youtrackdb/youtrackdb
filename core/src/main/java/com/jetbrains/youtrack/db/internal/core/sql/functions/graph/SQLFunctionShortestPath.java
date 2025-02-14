@@ -95,7 +95,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       if (elem == null || !elem.isVertex()) {
         throw new IllegalArgumentException("The sourceVertex must be a vertex record");
       }
-      ctx.sourceVertex = elem.asVertex().get();
+      ctx.sourceVertex = elem.castToVertex();
     } else {
       throw new IllegalArgumentException("The sourceVertex must be a vertex record");
     }
@@ -111,7 +111,7 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
       if (elem == null || !elem.isVertex()) {
         throw new IllegalArgumentException("The destinationVertex must be a vertex record");
       }
-      ctx.destinationVertex = elem.asVertex().get();
+      ctx.destinationVertex = elem.castToVertex();
     } else {
       throw new IllegalArgumentException("The destinationVertex must be a vertex record");
     }
@@ -368,7 +368,14 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
         while (vertexIterator.hasNext() && edgeIterator.hasNext()) {
           var v = vertexIterator.next();
           final var neighborVertexIdentity = v.getIdentity();
-          final var neighborEdgeIdentity = edgeIterator.next().getIdentity();
+          var edge = edgeIterator.next();
+
+          RID neighborEdgeIdentity;
+          if (edge.isStateful()) {
+            neighborEdgeIdentity = edge.castToStatefulEdge().getIdentity();
+          } else {
+            neighborEdgeIdentity = null;
+          }
 
           if (ctx.rightVisited.contains(neighborVertexIdentity)) {
             ctx.previouses.put(neighborVertexIdentity, neighborEdgeIdentity);
@@ -434,7 +441,14 @@ public class SQLFunctionShortestPath extends SQLFunctionMathAbstract {
         while (vertexIterator.hasNext() && edgeIterator.hasNext()) {
           final var v = vertexIterator.next();
           final var neighborVertexIdentity = v.getIdentity();
-          final var neighborEdgeIdentity = edgeIterator.next().getIdentity();
+          var edge = edgeIterator.next();
+
+          RID neighborEdgeIdentity;
+          if (edge.isStateful()) {
+            neighborEdgeIdentity = edge.castToStatefulEdge().getIdentity();
+          } else {
+            neighborEdgeIdentity = null;
+          }
 
           if (ctx.leftVisited.contains(neighborVertexIdentity)) {
             ctx.nexts.put(neighborVertexIdentity, neighborEdgeIdentity);

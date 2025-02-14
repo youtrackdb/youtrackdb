@@ -899,7 +899,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     var item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
-    return item.getEntity().get().getRecord(session);
+    return item.castToEntity().getRecord(session);
   }
 
   private EntityImpl getManagerArrows(String personName) {
@@ -921,7 +921,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     var item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
-    return item.getEntity().get().getRecord(session);
+    return item.castToEntity().getRecord(session);
   }
 
   @Test
@@ -1397,12 +1397,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
     printExecutionPlan(result);
 
     result
-        .getExecutionPlan()
-        .ifPresent(
-            x ->
-                x.getSteps().stream()
-                    .filter(y -> y instanceof MatchPrefetchStep)
-                    .forEach(prefetchStepFound -> Assert.fail()));
+        .getExecutionPlan().getSteps().stream()
+        .filter(y -> y instanceof MatchPrefetchStep)
+        .forEach(prefetchStepFound -> Assert.fail());
 
     for (var i = 0; i < 1000; i++) {
       Assert.assertTrue(result.hasNext());
@@ -2219,8 +2216,8 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v3.setProperty("name", "c");
           v3.save();
 
-          v1.addRegularEdge(v2).save();
-          v2.addRegularEdge(v3).save();
+          v1.addStateFulEdge(v2);
+          v2.addStateFulEdge(v3);
         });
 
     var query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
@@ -2254,9 +2251,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v3.setProperty("name", "c");
           v3.save();
 
-          v1.addRegularEdge(v2).save();
-          v2.addRegularEdge(v3).save();
-          v1.addRegularEdge(v3).save();
+          v1.addStateFulEdge(v2);
+          v2.addStateFulEdge(v3);
+          v1.addStateFulEdge(v3);
         });
 
     var query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
@@ -2288,9 +2285,9 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           v3.setProperty("name", "c");
           v3.save();
 
-          v1.addRegularEdge(v2).save();
-          v2.addRegularEdge(v3).save();
-          v1.addRegularEdge(v3).save();
+          v1.addStateFulEdge(v2);
+          v2.addStateFulEdge(v3);
+          v1.addStateFulEdge(v3);
         });
 
     var query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";

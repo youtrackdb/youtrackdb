@@ -60,10 +60,10 @@ public class LuceneSearchOnFieldsFunction extends LuceneSearchFunctionTemplate {
     var result = (Result) iThis;
 
     var entity = result.asEntity();
-    if (!entity.getSchemaType().isPresent()) {
+    if (entity.getSchemaClass() == null) {
       return false;
     }
-    var className = entity.getSchemaType().get().getName(session);
+    var className = entity.getSchemaClassName();
     var fieldNames = (List<String>) params[0];
 
     var index = searchForIndex(className, ctx, fieldNames);

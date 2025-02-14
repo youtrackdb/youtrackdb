@@ -24,7 +24,7 @@ public class SQLFunctionConvertTest extends DbTestBase {
         .close();
     session.commit();
 
-    var doc = session.query("select from TestConversion limit 1").next().getIdentity().get();
+    var doc = session.query("select from TestConversion limit 1").next().getIdentity();
 
     session.begin();
     session.command("update TestConversion set selfrid = 'foo" + doc.getIdentity() + "'").close();

@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nonnull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,29 +55,30 @@ public class LiveQueryV2Test extends DbTestBase {
     public List<Result> ops = new ArrayList<>();
 
     @Override
-    public void onCreate(DatabaseSessionInternal session, Result data) {
+    public void onCreate(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
+    public void onUpdate(@Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+        @Nonnull Result after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal session, Result data) {
+    public void onDelete(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(DatabaseSession session, BaseException exception) {
+    public void onError(@Nonnull DatabaseSession session, @Nonnull BaseException exception) {
     }
 
     @Override
-    public void onEnd(DatabaseSession session) {
+    public void onEnd(@Nonnull DatabaseSession session) {
     }
   }
 
@@ -198,30 +200,34 @@ public class LiveQueryV2Test extends DbTestBase {
                     new LiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(DatabaseSessionInternal session, Result data) {
+                      public void onCreate(@Nonnull DatabaseSessionInternal session,
+                          @Nonnull Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          DatabaseSessionInternal session, Result before, Result after) {
+                          @Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+                          @Nonnull Result after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(DatabaseSessionInternal session, Result data) {
+                      public void onDelete(@Nonnull DatabaseSessionInternal session,
+                          @Nonnull Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onError(DatabaseSession session, BaseException exception) {
+                      public void onError(@Nonnull DatabaseSession session,
+                          @Nonnull BaseException exception) {
                       }
 
                       @Override
-                      public void onEnd(DatabaseSession session) {
+                      public void onEnd(@Nonnull DatabaseSession session) {
                       }
                     });
 

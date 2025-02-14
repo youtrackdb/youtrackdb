@@ -4,10 +4,11 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -43,7 +44,7 @@ public class UpdateExecutionPlan extends SelectExecutionPlan {
   }
 
   @Override
-  public Result toResult(DatabaseSession db) {
+  public @Nonnull Result toResult(@Nullable DatabaseSession db) {
     var res = (ResultInternal) super.toResult(db);
     res.setProperty("type", "UpdateExecutionPlan");
     return res;

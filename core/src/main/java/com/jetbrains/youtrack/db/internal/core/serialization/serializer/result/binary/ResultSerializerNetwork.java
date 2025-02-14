@@ -119,7 +119,7 @@ public class ResultSerializerNetwork {
       if (propertyValue != null) {
         if (propertyValue instanceof Result) {
           if (((Result) propertyValue).isEntity()) {
-            var elem = ((Result) propertyValue).getEntity().get();
+            var elem = ((Result) propertyValue).castToEntity();
             writeOType(bytes, bytes.alloc(1), PropertyType.LINK);
             serializeValue(session, bytes, elem.getIdentity(), PropertyType.LINK);
           } else {
@@ -142,30 +142,34 @@ public class ResultSerializerNetwork {
       }
     }
 
-    var metadataKeys = result.getMetadataKeys();
-    VarIntSerializer.write(bytes, metadataKeys.size());
+    if (result instanceof ResultInternal resultInternal) {
+      var metadataKeys = resultInternal.getMetadataKeys();
+      VarIntSerializer.write(bytes, metadataKeys.size());
 
-    for (var field : metadataKeys) {
-      writeString(bytes, field);
-      final var value = result.getMetadata(field);
-      if (value != null) {
-        if (value instanceof Result) {
-          writeOType(bytes, bytes.alloc(1), PropertyType.EMBEDDED);
-          serializeValue(session, bytes, value, PropertyType.EMBEDDED);
-        } else {
-          final var type = PropertyType.getTypeByValue(value);
-          if (type == null) {
-            throw new SerializationException(session,
-                "Impossible serialize value of type "
-                    + value.getClass()
-                    + " with the Result binary serializer");
+      for (var field : metadataKeys) {
+        writeString(bytes, field);
+        final var value = resultInternal.getMetadata(field);
+        if (value != null) {
+          if (value instanceof Result) {
+            writeOType(bytes, bytes.alloc(1), PropertyType.EMBEDDED);
+            serializeValue(session, bytes, value, PropertyType.EMBEDDED);
+          } else {
+            final var type = PropertyType.getTypeByValue(value);
+            if (type == null) {
+              throw new SerializationException(session,
+                  "Impossible serialize value of type "
+                      + value.getClass()
+                      + " with the Result binary serializer");
+            }
+            writeOType(bytes, bytes.alloc(1), type);
+            serializeValue(session, bytes, value, type);
           }
-          writeOType(bytes, bytes.alloc(1), type);
-          serializeValue(session, bytes, value, type);
+        } else {
+          writeOType(bytes, bytes.alloc(1), null);
         }
-      } else {
-        writeOType(bytes, bytes.alloc(1), null);
       }
+    } else {
+      VarIntSerializer.write(bytes, 0);
     }
   }
 
@@ -440,7 +444,7 @@ public class ResultSerializerNetwork {
         break;
       case LINK:
         if (value instanceof Result && ((Result) value).isEntity()) {
-          value = ((Result) value).getEntity().get();
+          value = ((Result) value).castToEntity();
         }
         if (!(value instanceof Identifiable)) {
           throw new ValidationException(session, "Value '" + value + "' is not a Identifiable");

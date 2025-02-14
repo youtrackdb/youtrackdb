@@ -24,6 +24,7 @@ import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import javax.annotation.Nonnull;
 
 public class GlobalPropertyImpl implements GlobalProperty {
 
@@ -40,14 +41,17 @@ public class GlobalPropertyImpl implements GlobalProperty {
     this.id = id;
   }
 
+  @Nonnull
   public Integer getId() {
     return id;
   }
 
+  @Nonnull
   public String getName() {
     return name;
   }
 
+  @Nonnull
   public PropertyType getType() {
     return type;
   }

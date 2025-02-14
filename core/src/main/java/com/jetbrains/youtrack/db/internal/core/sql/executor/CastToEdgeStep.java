@@ -3,7 +3,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -25,20 +24,21 @@ public class CastToEdgeStep extends AbstractExecutionStep {
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
-    if (result.getEntity().orElse(null) instanceof Edge) {
+    if (!result.isStatefulEdge()) {
       return result;
     }
     var db = ctx.getDatabaseSession();
     if (result.isEdge()) {
-      if (result instanceof ResultInternal) {
-        ((ResultInternal) result).setIdentifiable(result.asEntity().toEdge());
+      if (result.isStatefulEdge()) {
+        ((ResultInternal) result).setIdentifiable(result.castToStateFullEdge());
       } else {
-        result = new ResultInternal(db, result.asEntity().toEdge());
+        result = new ResultInternal(db, result.castToEdge());
       }
     } else {
       throw new CommandExecutionException(ctx.getDatabaseSession(),
           "Current entity is not a vertex: " + result);
     }
+
     return result;
   }
 

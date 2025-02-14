@@ -63,7 +63,7 @@ public class LuceneSearchOnClassFunction extends LuceneSearchFunctionTemplate {
     var entity = result.asEntity();
 
     var session = ctx.getDatabaseSession();
-    var className = entity.getSchemaType().get().getName(session);
+    var className = entity.getSchemaClassName();
     var index = searchForIndex(ctx, className);
 
     if (index == null) {

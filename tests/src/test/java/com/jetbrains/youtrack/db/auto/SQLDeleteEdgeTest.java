@@ -188,9 +188,9 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
 
     session.begin();
     Identifiable v1 =
-        session.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
+        session.command("create vertex SuperV set name = 'Luca'").next().getIdentity();
     Identifiable v2 =
-        session.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
+        session.command("create vertex SuperV set name = 'Mark'").next().getIdentity();
     session
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
@@ -231,9 +231,9 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
 
     session.begin();
     Identifiable v1 =
-        session.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
+        session.command("create vertex SuperV set name = 'Luca'").next().getIdentity();
     Identifiable v2 =
-        session.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
+        session.command("create vertex SuperV set name = 'Mark'").next().getIdentity();
     session
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
@@ -281,20 +281,17 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
         session
             .command("create vertex FromInStringV set name = ' from '")
             .next()
-            .getIdentity()
-            .get();
+            .getIdentity();
     Identifiable v2 =
         session
             .command("create vertex FromInStringV set name = ' FROM '")
             .next()
-            .getIdentity()
-            .get();
+            .getIdentity();
     Identifiable v3 =
         session
             .command("create vertex FromInStringV set name = ' TO '")
             .next()
-            .getIdentity()
-            .get();
+            .getIdentity();
 
     session
         .command("create edge FromInStringE from " + v1.getIdentity() + " to " + v2.getIdentity())
@@ -317,11 +314,11 @@ public class SQLDeleteEdgeTest extends BaseDBTest {
   public void testDeleteVertexWithReturn() {
     session.begin();
     Identifiable v1 =
-        session.command("create vertex V set returning = true").next().getIdentity().get();
+        session.command("create vertex V set returning = true").next().getIdentity();
 
     List<Identifiable> v2s =
         session.command("delete vertex V return before where returning = true").stream()
-            .map((r) -> r.getIdentity().get())
+            .map((r) -> r.getIdentity())
             .collect(Collectors.toList());
     session.commit();
 

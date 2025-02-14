@@ -691,7 +691,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
     var res = serializer.toStream(session, document);
     var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
-    assertEquals(extr.getClassName(), document.getClassName());
+    assertEquals(extr.getSchemaClassName(), document.getSchemaClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
     assertEquals(extr.<Object>field("custom"), document.field("custom"));
@@ -706,7 +706,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
     var res = serializer.toStream(session, document);
     var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
-    assertEquals(extr.getClassName(), document.getClassName());
+    assertEquals(extr.getSchemaClassName(), document.getSchemaClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
     assertEquals(extr.<Object>field("custom"), document.field("custom"));

@@ -58,7 +58,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     EntityImpl fieldsToPreserve = null;
 
     var session = ctx.getDatabaseSession();
-    var clazz = record.getSchemaType().orElse(null);
+    var clazz = record.getSchemaClass();
     if (clazz != null && ((SchemaImmutableClass) clazz).isRestricted()) {
       fieldsToPreserve = new EntityImpl(session);
 

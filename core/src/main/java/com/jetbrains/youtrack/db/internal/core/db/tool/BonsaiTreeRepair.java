@@ -41,8 +41,8 @@ public class BonsaiTreeRepair {
           final String label;
           if (edge.field("label") != null) {
             label = edge.field("label");
-          } else if (!edge.getClassName().equals(edgeClass.getName(db))) {
-            label = edge.getClassName();
+          } else if (!edge.getSchemaClassName().equals(edgeClass.getName(db))) {
+            label = edge.getSchemaClassName();
           } else {
             counter++;
             continue;

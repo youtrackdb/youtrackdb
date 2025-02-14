@@ -9,6 +9,7 @@ import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -37,7 +38,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   EntityImpl getBaseEntity();
 
   @Override
-  default Collection<String> getPropertyNames() {
+  default @Nonnull Collection<String> getPropertyNames() {
     return filterPropertyNames(getBaseEntity().getPropertyNamesInternal());
   }
 
@@ -68,49 +69,51 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default <RET> RET getProperty(String name) {
+  default <RET> RET getProperty(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getProperty(name);
   }
 
   @Override
-  default <T> List<T> getOrCreateEmbeddedList(String name) {
+  default @Nonnull <T> List<T> getOrCreateEmbeddedList(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateEmbeddedList(name);
   }
 
   @Override
-  default <T> Set<T> getOrCreateEmbeddedSet(String name) {
+  default @Nonnull <T> Set<T> getOrCreateEmbeddedSet(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateEmbeddedSet(name);
   }
 
   @Override
-  default <T> Map<String, T> getOrCreateEmbeddedMap(String name) {
+  default @Nonnull <T> Map<String, T> getOrCreateEmbeddedMap(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateEmbeddedMap(name);
   }
 
   @Override
-  default List<Identifiable> getOrCreateLinkList(String name) {
+  default @Nonnull List<Identifiable> getOrCreateLinkList(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateLinkList(name);
   }
 
+  @Nonnull
   @Override
-  default Set<Identifiable> getOrCreateLinkSet(String name) {
+  default Set<Identifiable> getOrCreateLinkSet(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateLinkSet(name);
   }
 
+  @Nonnull
   @Override
-  default Map<String, Identifiable> getOrCreateLinkMap(String name) {
+  default Map<String, Identifiable> getOrCreateLinkMap(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateLinkMap(name);
@@ -118,7 +121,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nullable
   @Override
-  default Entity getEntityProperty(String name) {
+  default Entity getEntityProperty(@Nonnull String name) {
     checkPropertyName(name);
 
     var baseEntity = getBaseEntity();
@@ -145,7 +148,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default <RET> RET getPropertyOnLoadValue(String name) {
+  default <RET> RET getPropertyOnLoadValue(@Nonnull String name) {
     return getBaseEntity().getPropertyOnLoadValue(name);
   }
 
@@ -157,7 +160,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nullable
   @Override
-  default Identifiable getLinkProperty(String name) {
+  default Identifiable getLinkProperty(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getLinkProperty(name);
@@ -171,7 +174,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default void setProperty(String name, Object value) {
+  default void setProperty(@Nonnull String name, @Nullable Object value) {
     checkPropertyName(name);
 
     getBaseEntity().setProperty(name, value);
@@ -183,14 +186,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default boolean hasProperty(final String propertyName) {
+  default boolean hasProperty(final @Nonnull String propertyName) {
     checkPropertyName(propertyName);
 
     return getBaseEntity().hasProperty(propertyName);
   }
 
   @Override
-  default void setProperty(String name, Object value, PropertyType fieldType) {
+  default void setProperty(@Nonnull String name, Object value, @Nonnull PropertyType fieldType) {
     checkPropertyName(name);
 
     getBaseEntity().setProperty(name, value, fieldType);
@@ -202,7 +205,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default <RET> RET removeProperty(String name) {
+  default <RET> RET removeProperty(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().removePropertyInternal(name);
@@ -273,15 +276,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Edge addRegularEdge(Vertex to) {
-    return addEdge(to, EdgeInternal.CLASS_NAME);
+  default StatefulEdge addStateFulEdge(Vertex to) {
+    return (StatefulEdge) addEdge(to, EdgeInternal.CLASS_NAME);
   }
 
   @Override
   default Edge addEdge(Vertex to, String type) {
     var db = getBaseEntity().getSession();
     if (type == null) {
-      return db.newRegularEdge(this, to, EdgeInternal.CLASS_NAME);
+      return db.newStatefulEdge(this, to, EdgeInternal.CLASS_NAME);
     }
 
     var schemaClass = db.getClass(type);
@@ -292,14 +295,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
       return db.newLightweightEdge(this, to, type);
     }
 
-    return db.newRegularEdge(this, to, schemaClass);
+    return db.newStatefulEdge(this, to, schemaClass);
   }
 
   @Override
-  default Edge addRegularEdge(Vertex to, String label) {
+  default StatefulEdge addStateFulEdge(Vertex to, String label) {
     var db = getBaseEntity().getSession();
 
-    return db.newRegularEdge(this, to, label == null ? EdgeInternal.CLASS_NAME : label);
+    return db.newStatefulEdge(this, to, label == null ? EdgeInternal.CLASS_NAME : label);
   }
 
   @Override
@@ -323,7 +326,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Edge addRegularEdge(Vertex to, SchemaClass label) {
+  default StatefulEdge addStateFulEdge(Vertex to, SchemaClass label) {
     final String className;
 
     var session = getBaseEntity().getSession();
@@ -333,7 +336,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       className = EdgeInternal.CLASS_NAME;
     }
 
-    return addRegularEdge(to, className);
+    return addStateFulEdge(to, className);
   }
 
   @Override
@@ -369,7 +372,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return getBaseEntity().isUnloaded();
   }
 
-  default boolean isNotBound(DatabaseSession session) {
+  default boolean isNotBound(@Nonnull DatabaseSession session) {
     return getBaseEntity().isNotBound(session);
   }
 
@@ -662,7 +665,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default RID moveTo(final String className, final String clusterName) {
+  default RID moveTo(final String className) {
 
     final var baseEntity = getBaseEntity();
     var session = baseEntity.getSession();
@@ -693,16 +696,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
     // CONVERT OUT EDGES
     for (var oe : outEdges) {
       final var inVLink = oe.getVertexLink(Direction.IN);
-      var optSchemaType = oe.getSchemaType();
 
-      String schemaType;
-      //noinspection OptionalIsPresent
-      if (optSchemaType.isPresent()) {
-        schemaType = optSchemaType.get().getName(session);
-      } else {
-        schemaType = null;
-      }
-
+      var schemaType = oe.getSchemaClassName();
       final var inFieldName = getEdgeLinkFieldName(Direction.IN, schemaType, true);
 
       // link to itself
@@ -720,23 +715,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
         // REPLACE WITH NEW VERTEX
         ((EntityInternal) oe).setPropertyInternal(EdgeInternal.DIRECTION_OUT, newIdentity);
       }
-
-      session.save(oe);
     }
 
     for (var ine : inEdges) {
       final var outVLink = ine.getVertexLink(Direction.OUT);
 
-      var optSchemaType = ine.getSchemaType();
-
-      String schemaType;
-      //noinspection OptionalIsPresent
-      if (optSchemaType.isPresent()) {
-        schemaType = optSchemaType.get().getName(session);
-      } else {
-        schemaType = null;
-      }
-
+      var schemaType = ine.getSchemaClassName();
       final var outFieldName = getEdgeLinkFieldName(Direction.OUT, schemaType, true);
 
       EntityImpl outRecord;
@@ -753,8 +737,6 @@ public interface VertexInternal extends Vertex, EntityInternal {
         // REPLACE WITH NEW VERTEX
         ((EdgeInternal) ine).setPropertyInternal(Edge.DIRECTION_IN, newIdentity);
       }
-
-      session.save(ine);
     }
 
     // FINAL SAVE
@@ -817,7 +799,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       Identifiable currentInVertex,
       Identifiable prevOutVertex,
       Identifiable currentOutVertex) {
-    var edgeClass = edge.getClassName();
+    var edgeClass = edge.getSchemaClassName();
 
     if (currentInVertex != prevInVertex) {
       changeVertexEdgePointersOneDirection(db,
@@ -982,11 +964,13 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   private static void removeLinkFromEdge(DatabaseSessionInternal db, EntityImpl vertex, Edge edge,
       Direction direction) {
-    var schemaType = edge.getSchemaType();
-    assert schemaType.isPresent();
-
-    var className = schemaType.get().getName(db);
-    Identifiable edgeId = edge.getIdentity();
+    var className = edge.getSchemaClassName();
+    Identifiable edgeId;
+    if (edge instanceof StatefulEdge statefulEdge) {
+      edgeId = statefulEdge.getIdentity();
+    } else {
+      edgeId = null;
+    }
 
     removeLinkFromEdge(
         vertex, edge, Vertex.getEdgeLinkFieldName(direction, className), edgeId, direction);
@@ -998,12 +982,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
     var edgeProp = vertex.getPropertyInternal(edgeField);
     RID oppositeVertexId = null;
     if (direction == Direction.IN) {
-      var fromIdentifiable = edge.getFromIdentifiable();
+      var fromIdentifiable = edge.getFromLink();
       if (fromIdentifiable != null) {
         oppositeVertexId = fromIdentifiable.getIdentity();
       }
     } else {
-      var toIdentifiable = edge.getToIdentifiable();
+      var toIdentifiable = edge.getToLink();
       if (toIdentifiable != null) {
         oppositeVertexId = toIdentifiable.getIdentity();
       }

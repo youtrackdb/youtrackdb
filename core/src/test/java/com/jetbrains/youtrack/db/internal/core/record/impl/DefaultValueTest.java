@@ -57,7 +57,7 @@ public class DefaultValueTest extends DbTestBase {
     var inserted = session.command("insert into ClassA content {}").next();
     session.commit();
 
-    EntityImpl seved1 = session.load(inserted.getIdentity().get());
+    EntityImpl seved1 = session.load(inserted.getIdentity());
     assertNotNull(seved1.field("date"));
     assertNotNull(seved1.field("id"));
     assertTrue(seved1.field("date") instanceof Date);
@@ -90,7 +90,7 @@ public class DefaultValueTest extends DbTestBase {
         .next();
     session.commit();
 
-    EntityImpl seved1 = session.load(inserted.getIdentity().get());
+    EntityImpl seved1 = session.load(inserted.getIdentity());
     assertNotNull(seved1.field("date"));
     assertNotNull(seved1.field("id"));
     assertTrue(seved1.field("date") instanceof Date);

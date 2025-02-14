@@ -20,14 +20,18 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Blob;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -35,7 +39,6 @@ import javax.annotation.Nullable;
  *
  */
 public final class VertexDelegate implements VertexInternal {
-
   private final EntityImpl entity;
 
   public VertexDelegate(EntityImpl entry) {
@@ -47,30 +50,71 @@ public final class VertexDelegate implements VertexInternal {
     entity.delete();
   }
 
-  public void resetToNew() {
-    entity.resetToNew();
-  }
-
   @Override
-  public Optional<Vertex> asVertex() {
-    return Optional.of(this);
-  }
-
-  @Nonnull
-  @Override
-  public Vertex toVertex() {
+  public Vertex asVertex() {
     return this;
   }
 
   @Override
-  public Optional<Edge> asEdge() {
-    return Optional.empty();
+  public boolean isEdge() {
+    return false;
+  }
+
+  @Nonnull
+  @Override
+  public Edge castToEdge() {
+    throw new DatabaseException("Not an edge");
   }
 
   @Nullable
   @Override
-  public Edge toEdge() {
+  public Edge asEdge() {
     return null;
+  }
+
+  @Override
+  @Nullable
+  public StatefulEdge asRegularEdge() {
+    return null;
+  }
+
+  @Override
+  public boolean isBlob() {
+    return false;
+  }
+
+  @Nonnull
+  @Override
+  public Blob castToBlob() {
+    throw new DatabaseException("Not a blob");
+  }
+
+  @Nullable
+  @Override
+  public Blob asBlob() {
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public DBRecord castToRecord() {
+    return entity;
+  }
+
+  @Nullable
+  @Override
+  public DBRecord asRecord() {
+    return entity;
+  }
+
+  @Override
+  public boolean isRecord() {
+    return true;
+  }
+
+  @Override
+  public boolean isProjection() {
+    return false;
   }
 
   @Override
@@ -79,13 +123,8 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public boolean isEdge() {
+  public boolean isStatefulEdge() {
     return false;
-  }
-
-  @Override
-  public Optional<SchemaClass> getSchemaType() {
-    return entity.getSchemaType();
   }
 
   @Nullable
@@ -96,14 +135,14 @@ public final class VertexDelegate implements VertexInternal {
 
   @Nullable
   @Override
-  public String getClassName() {
-    return entity.getClassName();
+  public String getSchemaClassName() {
+    return entity.getSchemaClassName();
   }
 
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
-  public EntityImpl getRecord(DatabaseSession db) {
+  public EntityImpl getRecord(@Nonnull DatabaseSession session) {
     return entity;
   }
 
@@ -155,6 +194,23 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
+  public boolean isEntity() {
+    return true;
+  }
+
+  @Nonnull
+  @Override
+  public Entity castToEntity() {
+    return entity;
+  }
+
+  @Nullable
+  @Override
+  public Entity asEntity() {
+    return entity;
+  }
+
+  @Override
   public int getVersion() {
     return entity.getVersion();
   }
@@ -175,12 +231,13 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public String toJSON() {
+  public @Nonnull String toJSON() {
     return entity.toJSON();
   }
 
+  @Nonnull
   @Override
-  public String toJSON(String iFormat) {
+  public String toJSON(@Nonnull String iFormat) {
     return entity.toJSON(iFormat);
   }
 
@@ -199,15 +256,17 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public void updateFromMap(Map<String, ?> map) {
+  public void updateFromMap(@Nonnull Map<String, ?> map) {
     entity.updateFromMap(map);
   }
 
+  @Nonnull
   @Override
   public Map<String, Object> toMap() {
     return entity.toMap();
   }
 
+  @Nonnull
   @Override
   public Map<String, Object> toMap(boolean includeMetadata) {
     return entity.toMap(includeMetadata);
@@ -216,5 +275,11 @@ public final class VertexDelegate implements VertexInternal {
   @Override
   public DatabaseSession getBoundedToSession() {
     return entity.getBoundedToSession();
+  }
+
+  @Nonnull
+  @Override
+  public Result detach() {
+    return entity.detach();
   }
 }

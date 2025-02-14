@@ -71,7 +71,7 @@ public class FunctionLibraryImpl {
       try (var result = session.query("select from OFunction order by name")) {
         while (result.hasNext()) {
           var res = result.next();
-          var d = (EntityImpl) res.getEntity().orElseThrow();
+          var d = (EntityImpl) res.castToEntity();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {
             continue;

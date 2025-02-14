@@ -4,7 +4,6 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
@@ -164,8 +163,6 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                     throw new CommandExecutionException(session,
                         "Cannot set target cluster on lightweight edges");
                   }
-
-                  edgeToUpdate.getBaseEntity().save(targetCluster.getStringValue());
                 }
               }
 
@@ -203,25 +200,12 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       currentFrom = ((RID) currentFrom).getRecord(session);
     }
     if (currentFrom instanceof Result) {
-      var from = currentFrom;
       currentFrom =
           ((Result) currentFrom)
-              .getVertex()
-              .orElseThrow(
-                  () ->
-                      new CommandExecutionException(session,
-                          "Invalid vertex for edge creation: " + from));
+              .castToVertex();
     }
     if (currentFrom instanceof Vertex) {
       return (Vertex) currentFrom;
-    }
-    if (currentFrom instanceof Entity) {
-      var from = currentFrom;
-      return ((Entity) currentFrom)
-          .asVertex()
-          .orElseThrow(
-              () -> new CommandExecutionException(session,
-                  "Invalid vertex for edge creation: " + from));
     }
     throw new CommandExecutionException(session,
         "Invalid vertex for edge creation: "

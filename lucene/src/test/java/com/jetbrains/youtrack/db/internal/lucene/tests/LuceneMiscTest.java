@@ -161,9 +161,8 @@ public class LuceneMiscTest extends LuceneBaseTest {
     session.save(songVertex);
     session.commit();
 
-    var edge = authorVertex.addEdge(songVertex, "AuthorOf");
     session.begin();
-    session.save(edge);
+    authorVertex.addEdge(songVertex, "AuthorOf");
     session.commit();
 
     var results = session.query("select from AuthorOf");

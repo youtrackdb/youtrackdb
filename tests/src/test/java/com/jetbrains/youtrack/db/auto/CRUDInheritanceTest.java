@@ -65,7 +65,7 @@ public class CRUDInheritanceTest extends BaseDBTest {
     for (var entries : resultSet) {
       account = entries.asEntity();
 
-      if ("Company".equals(account.getClassName())) {
+      if ("Company".equals(account.getSchemaClassName())) {
         companyRecords++;
       }
 

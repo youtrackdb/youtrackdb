@@ -96,7 +96,11 @@ public class LuceneGraphEmbeddedTest extends LuceneBaseTest {
 
     var resultSet = session.query("SELECT from One where name = 'Same' ");
 
-    resultSet.getExecutionPlan().ifPresent(x -> System.out.println(x.prettyPrint(0, 2)));
+    var plan = resultSet.getExecutionPlan();
+    if (plan != null) {
+      System.out.println(plan.prettyPrint(0, 2));
+    }
+
     Assertions.assertThat(resultSet).hasSize(1);
     resultSet.close();
   }

@@ -356,18 +356,17 @@ public class ClientConnection {
     stats.lastCommandReceived = System.currentTimeMillis();
   }
 
-  private List<String> getActiveQueries(DatabaseSessionInternal database) {
+  private static List<String> getActiveQueries(DatabaseSessionInternal database) {
     try {
       List<String> result = new ArrayList<>();
       var queries = database.getActiveQueries();
       for (var oResultSet : queries.values()) {
         var plan = oResultSet.getResultSet().getExecutionPlan();
-        if (!plan.isPresent()) {
+        if (plan == null) {
           continue;
         }
-        var p = plan.get();
-        if (p instanceof InternalExecutionPlan) {
-          var stm = ((InternalExecutionPlan) p).getStatement();
+        if (plan instanceof InternalExecutionPlan internalExecutionPlan) {
+          var stm = internalExecutionPlan.getStatement();
           if (stm != null) {
             result.add(stm);
           }

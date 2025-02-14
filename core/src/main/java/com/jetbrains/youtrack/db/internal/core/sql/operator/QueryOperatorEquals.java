@@ -139,8 +139,8 @@ public class QueryOperatorEquals extends QueryOperatorEqualityNotNulls {
 
   protected static boolean comparesValues(
       final Object iValue, final Result iRecord, final boolean iConsiderIn) {
-    if (iRecord.getIdentity().isPresent() && iRecord.getIdentity().get().isPersistent()) {
-      return iRecord.getIdentity().get().equals(iValue);
+    if (iRecord.getIdentity() != null && iRecord.getIdentity().isPersistent()) {
+      return iRecord.getIdentity().equals(iValue);
     } else {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY
       var firstFieldName = iRecord.getPropertyNames();

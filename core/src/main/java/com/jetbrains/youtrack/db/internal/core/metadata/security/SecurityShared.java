@@ -383,7 +383,7 @@ public class SecurityShared implements SecurityInternal {
 
     EntityImpl result;
     result = session.load(iRecordId);
-    if (!result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
+    if (!result.getSchemaClassName().equals(SecurityUserImpl.CLASS_NAME)) {
       result = null;
     }
     return new SecurityUserImpl((DatabaseSessionInternal) session, result);
@@ -456,7 +456,7 @@ public class SecurityShared implements SecurityInternal {
         session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new Role((DatabaseSessionInternal) session,
-            (EntityImpl) result.next().getEntity().get());
+            (EntityImpl) result.next().castToEntity());
       }
     }
 
@@ -506,14 +506,14 @@ public class SecurityShared implements SecurityInternal {
 
   public List<EntityImpl> getAllUsers(final DatabaseSession session) {
     try (var rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
+      return rs.stream().map((e) -> (EntityImpl) e.castToEntity())
           .collect(Collectors.toList());
     }
   }
 
   public List<EntityImpl> getAllRoles(final DatabaseSession session) {
     try (var rs = session.query("select from " + Role.CLASS_NAME)) {
-      return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
+      return rs.stream().map((e) -> (EntityImpl) e.castToEntity())
           .collect(Collectors.toList());
     }
   }
@@ -626,7 +626,7 @@ public class SecurityShared implements SecurityInternal {
             "SELECT FROM " + SecurityPolicy.CLASS_NAME + " WHERE name = ?", name)) {
       if (rs.hasNext()) {
         var result = rs.next();
-        return new SecurityPolicyImpl(result.getEntity().get());
+        return new SecurityPolicyImpl(result.castToEntity());
       }
     }
     return null;
@@ -1216,7 +1216,7 @@ public class SecurityShared implements SecurityInternal {
         session.query("select from OUser where name = ? limit 1", iUserName)) {
       if (result.hasNext()) {
         return new SecurityUserImpl((DatabaseSessionInternal) session,
-            (EntityImpl) result.next().getEntity().get());
+            (EntityImpl) result.next().castToEntity());
       }
     }
 
@@ -1443,7 +1443,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + clazz.getName(session) + "`.`" + prop + "`",
               SecurityPolicy.Scope.READ);
-      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, entity)) {
+      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, (DBRecord) entity)) {
         result.add(prop);
       }
     }
@@ -1462,9 +1462,9 @@ public class SecurityShared implements SecurityInternal {
     String className;
     SchemaClass clazz = null;
     if (entity instanceof EntityImpl) {
-      className = entity.getClassName();
+      className = entity.getSchemaClassName();
     } else {
-      clazz = entity.getSchemaType().orElse(null);
+      clazz = entity.getSchemaClass();
       className = clazz == null ? null : clazz.getName(session);
     }
     if (className == null) {
@@ -1492,7 +1492,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.CREATE);
-      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, entity);
+      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, (DBRecord) entity);
     } else {
 
       var readPredicate =
@@ -1501,7 +1501,8 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.READ);
-      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, readPredicate, entity)) {
+      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, readPredicate,
+          (DBRecord) entity)) {
         return false;
       }
 
@@ -1525,7 +1526,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.AFTER_UPDATE);
-      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, entity);
+      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, (DBRecord) entity);
     }
   }
 
@@ -1539,11 +1540,9 @@ public class SecurityShared implements SecurityInternal {
     if (record instanceof Entity) {
       String className;
       if (record instanceof EntityImpl) {
-        className = ((EntityImpl) record).getClassName();
+        className = ((EntityImpl) record).getSchemaClassName();
       } else {
-        className = ((Entity) record).getSchemaType()
-            .map(schemaClass -> schemaClass.getName(session))
-            .orElse(null);
+        className = ((Entity) record).getSchemaClassName();
       }
 
       if (roleHasPredicateSecurityForClass != null) {
@@ -1599,7 +1598,7 @@ public class SecurityShared implements SecurityInternal {
           if (roleMap == null) {
             return true; // TODO hierarchy...?
           }
-          var val = roleMap.get(((EntityImpl) record).getClassName());
+          var val = roleMap.get(((EntityImpl) record).getSchemaClassName());
           if (!(Boolean.TRUE.equals(val))) {
             return true; // TODO hierarchy...?
           }
@@ -1610,7 +1609,7 @@ public class SecurityShared implements SecurityInternal {
           SecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
-              "database.class.`" + ((EntityImpl) record).getClassName() + "`",
+              "database.class.`" + ((EntityImpl) record).getSchemaClassName() + "`",
               SecurityPolicy.Scope.READ);
       return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, record);
     }
@@ -1627,9 +1626,9 @@ public class SecurityShared implements SecurityInternal {
 
       String className;
       if (record instanceof EntityImpl) {
-        className = ((EntityImpl) record).getClassName();
+        className = ((EntityImpl) record).getSchemaClassName();
       } else {
-        className = ((Entity) record).getSchemaType().map(x -> x.getName(session)).orElse(null);
+        className = ((Entity) record).getSchemaClassName();
       }
 
       if (className != null && roleHasPredicateSecurityForClass != null) {
@@ -1690,7 +1689,7 @@ public class SecurityShared implements SecurityInternal {
       result.setProperty(prop, unboxRidbags(entity.getProperty(prop)));
     }
     result.setProperty("@rid", entity.getIdentity());
-    result.setProperty("@class", entity.getClassName());
+    result.setProperty("@class", entity.getSchemaClassName());
     result.setProperty("@version", entity.getVersion());
     for (var prop : entity.getDirtyProperties()) {
       result.setProperty(prop, convert(entity.getOriginalValue(prop)));
@@ -1730,11 +1729,9 @@ public class SecurityShared implements SecurityInternal {
     if (record instanceof Entity) {
       String className;
       if (record instanceof EntityImpl) {
-        className = ((EntityImpl) record).getClassName();
+        className = ((EntityImpl) record).getSchemaClassName();
       } else {
-        className = ((Entity) record).getSchemaType()
-            .map(schemaClass -> schemaClass.getName(session))
-            .orElse(null);
+        className = ((Entity) record).getSchemaClassName();
       }
 
       if (roleHasPredicateSecurityForClass != null) {
@@ -1782,7 +1779,7 @@ public class SecurityShared implements SecurityInternal {
     }
 
     return SecurityEngine.evaluateSecuirtyPolicyPredicate(
-        session, predicate, function.getIdentity().getEntity(session));
+        session, predicate, (DBRecord) function.getIdentity().getEntity(session));
   }
 
   protected SQLBooleanExpression getPredicateFromCache(String roleName, String key) {

@@ -70,19 +70,14 @@ public class ServerCommandGetQuery extends ServerCommandAuthenticatedDbAbstract 
 
       Map<String, Object> additionalContent = new HashMap<>();
 
-      result
-          .getExecutionPlan()
-          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(db).toMap()));
-
+      var plan = result
+          .getExecutionPlan();
+      if (plan != null) {
+        additionalContent.put("executionPlan", plan.toResult(db).toMap());
+      }
       result.close();
 
-      String format = null;
-      if (fetchPlan != null) {
-        format = "fetchPlan:" + fetchPlan;
-      }
-
       iResponse.writeRecords(response, fetchPlan, null, accept, additionalContent, db);
-
     }
 
     return false;

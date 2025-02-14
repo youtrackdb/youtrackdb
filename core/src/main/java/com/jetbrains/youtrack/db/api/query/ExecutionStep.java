@@ -6,6 +6,8 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPla
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -29,7 +31,8 @@ public interface ExecutionStep {
     return -1L;
   }
 
-  default Result toResult(DatabaseSession db) {
+  @Nonnull
+  default Result toResult(@Nullable DatabaseSession db) {
     var result = new ResultInternal((DatabaseSessionInternal) db);
     result.setProperty("name", getName());
     result.setProperty("type", getType());

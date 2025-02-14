@@ -77,7 +77,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
       try {
         Entity rec = iRecord.getRecord(graph);
         if (rec.isVertex()) {
-          return rec.asVertex().get().getVertices(iDirection, iLabels);
+          return rec.castToVertex().getVertices(iDirection, iLabels);
         } else {
           return null;
         }
@@ -98,7 +98,7 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
       try {
         Entity rec = iRecord.getRecord(graph);
         if (rec.isVertex()) {
-          return rec.asVertex().get().getEdges(iDirection, iLabels);
+          return rec.castToVertex().getEdges(iDirection, iLabels);
         } else {
           return null;
         }
@@ -119,14 +119,14 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
 
       try {
         Entity rec = iRecord.getRecord(graph);
-        if (rec.isEdge()) {
+        if (rec.isStatefulEdge()) {
           if (iDirection == Direction.BOTH) {
             List results = new ArrayList();
-            results.add(rec.asEdge().get().getVertex(Direction.OUT));
-            results.add(rec.asEdge().get().getVertex(Direction.IN));
+            results.add(rec.castToStateFullEdge().getVertex(Direction.OUT));
+            results.add(rec.castToStateFullEdge().getVertex(Direction.IN));
             return results;
           }
-          return rec.asEdge().get().getVertex(iDirection);
+          return rec.castToStateFullEdge().getVertex(iDirection);
         } else {
           return null;
         }

@@ -9,7 +9,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -56,9 +55,9 @@ public class IteratorResultSet implements ResultSet {
   }
 
   @Override
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     assert session == null || session.assertIfNotActive();
-    return Optional.empty();
+    return null;
   }
 
   @Override

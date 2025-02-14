@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import javax.annotation.Nonnull;
 
 /**
  * The rawest representation of a record. It's schema less. Use this if you need to store Strings or
@@ -79,7 +80,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
   }
 
   @Override
-  public byte[] toStream() {
+  public @Nonnull byte[] toStream() {
     checkForBinding();
     return source;
   }
@@ -90,13 +91,13 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   /**
    * Reads the input stream in memory. This is less efficient than
-   * {@link #fromInputStream(InputStream, int)} because allocation is made multiple times. If you
-   * already know the input size use {@link #fromInputStream(InputStream, int)}.
+   * {@link Blob#fromInputStream(InputStream, int)} because allocation is made multiple times. If you
+   * already know the input size use {@link Blob#fromInputStream(InputStream, int)}.
    *
    * @param in Input Stream, use buffered input stream wrapper to speed up reading
    * @return Buffer read from the stream. It's also the internal buffer size in bytes
    */
-  public int fromInputStream(final InputStream in) throws IOException {
+  public int fromInputStream(final @Nonnull InputStream in) throws IOException {
     incrementLoading();
     try {
       try (var out = new MemoryStream()) {
@@ -121,7 +122,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   /**
    * Reads the input stream in memory specifying the maximum bytes to read. This is more efficient
-   * than {@link #fromInputStream(InputStream)} because allocation is made only once.
+   * than {@link Blob#fromInputStream(InputStream)} because allocation is made only once.
    *
    * @param in      Input Stream, use buffered input stream wrapper to speed up reading
    * @param maxSize Maximum size to read
@@ -129,7 +130,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
    * in bytes
    * @throws IOException if an I/O error occurs.
    */
-  public int fromInputStream(final InputStream in, final int maxSize) throws IOException {
+  public int fromInputStream(final @Nonnull InputStream in, final int maxSize) throws IOException {
     incrementLoading();
     try {
       final var buffer = new byte[maxSize];
@@ -159,7 +160,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
     }
   }
 
-  public void toOutputStream(final OutputStream out) throws IOException {
+  public void toOutputStream(final @Nonnull OutputStream out) throws IOException {
     checkForBinding();
 
     if (source.length > 0) {

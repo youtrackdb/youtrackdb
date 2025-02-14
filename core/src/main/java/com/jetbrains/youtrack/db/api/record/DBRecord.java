@@ -41,7 +41,7 @@ public interface DBRecord extends Identifiable {
    * @return <code>true</code> if record is bound to the passed in session.
    * @see DatabaseSession#bindToSession(Identifiable)
    */
-  boolean isNotBound(DatabaseSession session);
+  boolean isNotBound(@Nonnull DatabaseSession session);
 
   /**
    * All the fields are deleted but the record identity is maintained. Use this to remove all the
@@ -103,6 +103,7 @@ public interface DBRecord extends Identifiable {
    *
    * @return Object content in JSON format
    */
+  @Nonnull
   String toJSON();
 
   /**
@@ -121,7 +122,8 @@ public interface DBRecord extends Identifiable {
    *                with record properties using an indenting level equals of 6.
    * @return Object content in JSON format
    */
-  String toJSON(String iFormat);
+  @Nonnull
+  String toJSON(@Nonnull String iFormat);
 
   /**
    * Checks if the record exists in the database. It adheres the same rules
@@ -130,12 +132,6 @@ public interface DBRecord extends Identifiable {
    * @return true if the record exists, otherwise false
    */
   boolean exists();
-  /**
-   * Returns true if the current entity is embedded
-   *
-   * @return true if the current entity is embedded
-   */
-  boolean isEmbedded();
 
   /**
    * @return Returns session to which given record is bound or <code>null</code> if record is

@@ -50,8 +50,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public RESULT onRecordBeforeCreate(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_CREATE;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -61,8 +61,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public void onRecordAfterCreate(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_CREATE;
       }
     }
@@ -71,8 +71,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public void onRecordBeforeRead(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_READ;
       }
     }
@@ -81,8 +81,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public void onRecordAfterRead(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_READ;
       }
     }
@@ -91,8 +91,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public RESULT onRecordBeforeUpdate(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_UPDATE;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -102,8 +102,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public void onRecordAfterUpdate(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_UPDATE;
       }
     }
@@ -112,8 +112,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public RESULT onRecordBeforeDelete(DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_DELETE;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -123,8 +123,8 @@ public class HookTxTest extends BaseDBTest {
     @Test(enabled = false)
     public void onRecordAfterDelete(DatabaseSession session, DBRecord iRecord) {
       if (iRecord instanceof EntityImpl
-          && ((EntityImpl) iRecord).getClassName() != null
-          && ((EntityImpl) iRecord).getClassName().equals("Profile")) {
+          && ((EntityImpl) iRecord).getSchemaClassName() != null
+          && ((EntityImpl) iRecord).getSchemaClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_DELETE;
       }
     }

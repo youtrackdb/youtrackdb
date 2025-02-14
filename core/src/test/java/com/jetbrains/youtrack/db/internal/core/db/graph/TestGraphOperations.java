@@ -28,7 +28,7 @@ public class TestGraphOperations extends DbTestBase {
 
     var vertex1 = session.newVertex("TestVertex");
 
-    var edge = vertex.addEdge(vertex1, "TestLabel");
+    var edge = vertex.addStateFulEdge(vertex1, "TestLabel");
 
     edge.setProperty("key", "unique");
     session.save(vertex);
@@ -36,7 +36,8 @@ public class TestGraphOperations extends DbTestBase {
 
     try {
       session.begin();
-      edge = session.bindToSession(vertex).addEdge(session.bindToSession(vertex1), "TestLabel");
+      edge = session.bindToSession(vertex)
+          .addStateFulEdge(session.bindToSession(vertex1), "TestLabel");
       edge.setProperty("key", "unique");
       session.save(edge);
       session.commit();
@@ -46,7 +47,8 @@ public class TestGraphOperations extends DbTestBase {
     }
 
     session.begin();
-    edge = session.bindToSession(vertex).addEdge(session.bindToSession(vertex1), "TestLabel");
+    edge = session.bindToSession(vertex)
+        .addStateFulEdge(session.bindToSession(vertex1), "TestLabel");
     edge.setProperty("key", "notunique");
     session.save(edge);
     session.commit();

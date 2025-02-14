@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -43,22 +44,23 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal session, Result data) {
+  public void onCreate(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
     addEvent(new LiveQueryResult(LiveQueryResult.CREATE_EVENT, data, null));
   }
 
   @Override
-  public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
+  public void onUpdate(@Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+      @Nonnull Result after) {
     addEvent(new LiveQueryResult(LiveQueryResult.UPDATE_EVENT, after, before));
   }
 
   @Override
-  public void onDelete(DatabaseSessionInternal session, Result data) {
+  public void onDelete(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
     addEvent(new LiveQueryResult(LiveQueryResult.DELETE_EVENT, data, null));
   }
 
   @Override
-  public void onError(DatabaseSession session, BaseException exception) {
+  public void onError(@Nonnull DatabaseSession session, @Nonnull BaseException exception) {
     try {
       // TODO: resolve error identifier
       var errorIdentifier = 0;
@@ -76,7 +78,7 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
   }
 
   @Override
-  public void onEnd(DatabaseSession session) {
+  public void onEnd(@Nonnull DatabaseSession session) {
     try {
       protocol.push((DatabaseSessionInternal) session,
           new LiveQueryPushRequest(monitorId, LiveQueryPushRequest.END, Collections.emptyList()));

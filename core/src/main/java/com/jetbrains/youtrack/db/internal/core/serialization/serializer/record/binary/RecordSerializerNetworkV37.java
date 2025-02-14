@@ -212,7 +212,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
       name = clazz.getName(db);
     }
     if (name == null) {
-      name = entity.getClassName();
+      name = entity.getSchemaClassName();
     }
 
     if (name != null) {

@@ -2,12 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -77,16 +76,15 @@ public class SQLUpdateRemoveItem extends SimpleNode {
       var leftVal = left.execute(result, ctx);
       var rightVal = right.execute(result, ctx);
       if (rightVal instanceof Result && ((Result) rightVal).isEntity()) {
-        rightVal = ((Result) rightVal).getEntity().get();
+        rightVal = ((Result) rightVal).castToEntity();
       }
-      if (rightVal instanceof Collection
-          && ((Collection) rightVal)
+      if (rightVal instanceof Collection<?>
+          && ((Collection<?>) rightVal)
           .stream().allMatch(x -> x instanceof Result && ((Result) x).isEntity())) {
         rightVal =
-            ((Collection) rightVal)
+            ((Collection<?>) rightVal)
                 .stream()
-                .map(o -> o)
-                .map(x -> ((Result) x).getEntity().get())
+                .map(x -> ((Result) x).castToEntity())
                 .collect(Collectors.toList());
       }
       if (MultiValue.isMultiValue(leftVal)) {
@@ -95,8 +93,8 @@ public class SQLUpdateRemoveItem extends SimpleNode {
           var iter = MultiValue.getMultiValueIterator(rightVal);
           while (iter.hasNext()) {
             var item = iter.next();
-            if (item instanceof Result && ((Result) item).getIdentity().isPresent()) {
-              MultiValue.remove(leftVal, ((Result) item).getIdentity().get(), false);
+            if (item instanceof Result && ((Result) item).getIdentity() != null) {
+              MultiValue.remove(leftVal, ((Result) item).getIdentity(), false);
             } else {
               MultiValue.remove(leftVal, item, false);
             }

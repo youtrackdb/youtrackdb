@@ -5,6 +5,7 @@ import com.jetbrains.youtrack.db.api.query.ExecutionStep;
 import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -45,7 +46,7 @@ public class InfoExecutionStep implements ExecutionStep {
   }
 
   @Override
-  public Result toResult(DatabaseSession db) {
+  public @Nonnull Result toResult(DatabaseSession db) {
     return null;
   }
 

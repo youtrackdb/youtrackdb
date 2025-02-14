@@ -277,7 +277,7 @@ public class ColumnSecurityTest {
     rs = db.query("select from Person where name = 'bar'");
     Assert.assertFalse(rs.hasNext());
     Assert.assertTrue(
-        rs.getExecutionPlan().get().getSteps().stream()
+        rs.getExecutionPlan().getSteps().stream()
             .anyMatch(x -> x instanceof FetchFromIndexStep));
     rs.close();
   }
@@ -533,7 +533,7 @@ public class ColumnSecurityTest {
     try (final var resultSet = db.query("SELECT from Person")) {
       var item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
-      var doc = item.getEntity().get();
+      var doc = item.castToEntity();
       doc.setProperty("name", "bar");
       try {
         doc.save();

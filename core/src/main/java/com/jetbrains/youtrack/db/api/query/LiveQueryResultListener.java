@@ -3,19 +3,21 @@ package com.jetbrains.youtrack.db.api.query;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import javax.annotation.Nonnull;
 
 /**
  *
  */
 public interface LiveQueryResultListener {
 
-  void onCreate(DatabaseSessionInternal session, Result data);
+  void onCreate(@Nonnull DatabaseSessionInternal session, @Nonnull Result data);
 
-  void onUpdate(DatabaseSessionInternal session, Result before, Result after);
+  void onUpdate(@Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+      @Nonnull Result after);
 
-  void onDelete(DatabaseSessionInternal session, Result data);
+  void onDelete(@Nonnull DatabaseSessionInternal session, @Nonnull Result data);
 
-  void onError(DatabaseSession session, BaseException exception);
+  void onError(@Nonnull DatabaseSession session, @Nonnull BaseException exception);
 
-  void onEnd(DatabaseSession session);
+  void onEnd(@Nonnull DatabaseSession session);
 }

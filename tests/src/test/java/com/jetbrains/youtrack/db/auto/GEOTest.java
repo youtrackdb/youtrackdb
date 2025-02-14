@@ -103,7 +103,7 @@ public class GEOTest extends BaseDBTest {
     Assert.assertFalse(result.isEmpty());
 
     for (var d : result) {
-      Assert.assertEquals(d.getClassName(), "MapPoint");
+      Assert.assertEquals(d.getSchemaClassName(), "MapPoint");
       Assert.assertEquals(RecordInternal.getRecordType(session, d), EntityImpl.RECORD_TYPE);
     }
   }

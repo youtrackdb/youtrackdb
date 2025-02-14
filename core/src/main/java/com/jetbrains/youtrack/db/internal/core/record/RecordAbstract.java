@@ -97,7 +97,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   }
 
   @Nonnull
-  public RecordAbstract getRecord(DatabaseSession db) {
+  public RecordAbstract getRecord(@Nonnull DatabaseSession session) {
     return this;
   }
 
@@ -150,7 +150,6 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   }
 
 
-  @Override
   public boolean isEmbedded() {
     return false;
   }
@@ -249,12 +248,13 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     }
   }
 
-  public String toJSON() {
+  public @Nonnull String toJSON() {
     checkForBinding();
     return toJSON(DEFAULT_FORMAT);
   }
 
-  public String toJSON(final String format) {
+  @Nonnull
+  public String toJSON(final @Nonnull String format) {
     checkForBinding();
 
     return RecordSerializerJackson
@@ -308,7 +308,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   }
 
   @Override
-  public boolean isNotBound(DatabaseSession session) {
+  public boolean isNotBound(@Nonnull DatabaseSession session) {
     return isUnloaded() || this.session != session;
   }
 

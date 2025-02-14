@@ -346,8 +346,8 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
               for (var edge : (Iterable) edges) {
                 if (edge instanceof Identifiable) {
                   Entity edgeRec = ((Identifiable) edge).getRecord(db);
-                  if (edgeRec.getSchemaType().isPresent()
-                      && edgeRec.getSchemaType().get().isSubClassOf(db, "E")) {
+                  if (edgeRec.getSchemaClass() != null
+                      && edgeRec.getSchemaClass().isSubClassOf(db, "E")) {
                     entity.removeProperty(field);
                     break;
                   }

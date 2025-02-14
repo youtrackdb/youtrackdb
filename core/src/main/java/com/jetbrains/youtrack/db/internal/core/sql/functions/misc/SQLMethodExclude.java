@@ -101,7 +101,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
         }
       } else {
         if (iThis instanceof Result result) {
-          iThis = result.asEntity();
+          iThis = result.castToEntity();
         }
       }
       if (iThis instanceof EntityImpl) {

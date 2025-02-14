@@ -3,16 +3,15 @@ package com.jetbrains.youtrack.db.api.query;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -31,7 +30,8 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
 
   void close();
 
-  Optional<ExecutionPlan> getExecutionPlan();
+  @Nullable
+  ExecutionPlan getExecutionPlan();
 
   Map<String, Long> getQueryStats();
 
@@ -65,8 +65,6 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
 
   /**
    * Returns the result set as a stream. IMPORTANT: the stream consumes the result set!
-   *
-   * @return
    */
   default Stream<Result> stream() {
     return StreamSupport.stream(this, false).onClose(this::close);
@@ -113,10 +111,15 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
   }
 
   /**
+   * Detaches the result set from the underlying session and returns the results as a list.
+   */
+  default List<Result> detach() {
+    return stream().map(Result::detach).toList();
+  }
+
+  /**
    * Returns the result set as a stream of elements (filters only the results that are elements -
    * where the isEntity() method returns true). IMPORTANT: the stream consumes the result set!
-   *
-   * @return
    */
   default Stream<Entity> entityStream() {
     return StreamSupport.stream(
@@ -126,7 +129,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
                 while (hasNext()) {
                   var elem = next();
                   if (elem.isEntity()) {
-                    action.accept(elem.getEntity().get());
+                    action.accept(elem.castToEntity());
                     return true;
                   }
                 }
@@ -170,7 +173,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
                 while (hasNext()) {
                   var elem = next();
                   if (elem.isVertex()) {
-                    action.accept(elem.getVertex().get());
+                    action.accept(elem.castToVertex());
                     return true;
                   }
                 }
@@ -203,8 +206,6 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
   /**
    * Returns the result set as a stream of vertices (filters only the results that are edges - where
    * the isEdge() method returns true). IMPORTANT: the stream consumes the result set!
-   *
-   * @return
    */
   default Stream<Edge> edgeStream() {
     return StreamSupport.stream(
@@ -213,8 +214,8 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
               public boolean tryAdvance(Consumer<? super Edge> action) {
                 while (hasNext()) {
                   var nextElem = next();
-                  if (nextElem != null && nextElem.isEdge()) {
-                    action.accept(nextElem.getEdge().get());
+                  if (nextElem != null && nextElem.isStatefulEdge()) {
+                    action.accept(nextElem.castToStateFullEdge());
                     return true;
                   }
                 }
@@ -244,3 +245,4 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
     return edgeStream().toList();
   }
 }
+

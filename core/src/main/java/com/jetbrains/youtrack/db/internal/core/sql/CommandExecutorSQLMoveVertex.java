@@ -149,7 +149,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
       }
 
       var oldVertex = ((RecordId) fromVertex.getIdentity()).copy();
-      var newVertex = fromVertex.moveTo(className, clusterName);
+      var newVertex = fromVertex.moveTo(className);
 
       final EntityImpl newVertexDoc = newVertex.getRecord(session);
 
@@ -199,7 +199,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
   private static Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
     if (item instanceof Entity) {
-      return ((Entity) item).asVertex().orElse(null);
+      return ((Entity) item).asVertex();
     } else {
       try {
         item = db.load(item.getIdentity());
@@ -207,7 +207,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
         return null;
       }
       if (item instanceof Entity) {
-        return ((Entity) item).asVertex().orElse(null);
+        return ((Entity) item).asVertex();
       }
     }
     return null;

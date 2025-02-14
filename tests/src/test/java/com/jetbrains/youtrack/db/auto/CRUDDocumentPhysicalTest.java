@@ -16,6 +16,7 @@
 package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -478,7 +479,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     for (var o : session.browseClass("PersonTest")) {
       for (Identifiable id : session.query("traverse * from " + o.getIdentity())
           .stream().map(
-              r -> r.getIdentity().orElseThrow()).toList()) {
+              Result::getIdentity).toList()) {
         session.load(id.getIdentity()).toJSON();
       }
     }

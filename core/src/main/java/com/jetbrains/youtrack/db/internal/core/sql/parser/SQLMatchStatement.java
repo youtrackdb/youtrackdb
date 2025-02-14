@@ -4,6 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -1074,7 +1075,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
         } else {
           returnAlias = returnAliasIdentifier;
         }
-        var executed = item.execute(mapDoc, ctx);
+        var executed = item.execute((Result) mapDoc, ctx);
         // Force Embedded Document
         if (executed instanceof EntityImpl && !((EntityImpl) executed).getIdentity()
             .isValid()) {
@@ -1167,7 +1168,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
       var result = new EntityImpl(null);
       result.setTrackingChanges(false);
       result.updateFromMap(
-          ((SQLJson) returnItems.get(0).value).toMap(matchContext.toEntity(db), ctx));
+          ((SQLJson) returnItems.get(0).value).toMap((Result) matchContext.toEntity(db), ctx));
       return result;
     }
     throw new IllegalStateException("Match RETURN statement is not a plain JSON");
@@ -1520,7 +1521,7 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     }
 
     var result = execute(session, iArgs);
-    return result.stream().map(x -> (Identifiable) x.getRecordId()).iterator();
+    return result.stream().map(x -> (Identifiable) x.getIdentity()).iterator();
   }
 
   @Override

@@ -22,6 +22,7 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -539,9 +540,9 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Edge newRegularEdge(Vertex from, Vertex to, String type) {
+  public StatefulEdge newStatefulEdge(Vertex from, Vertex to, String type) {
     checkOpenness();
-    return internal.newRegularEdge(from, to, type);
+    return internal.newStatefulEdge(from, to, type);
   }
 
   @Override
@@ -551,9 +552,9 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public Edge newRegularEdge(Vertex from, Vertex to, SchemaClass type) {
+  public StatefulEdge newStatefulEdge(Vertex from, Vertex to, SchemaClass type) {
     checkOpenness();
-    return internal.newRegularEdge(from, to, type);
+    return internal.newStatefulEdge(from, to, type);
   }
 
   @Override

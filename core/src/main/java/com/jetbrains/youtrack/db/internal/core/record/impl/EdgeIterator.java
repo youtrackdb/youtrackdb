@@ -72,8 +72,8 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
   }
 
   public Edge createGraphElement(final Object iObject) {
-    if (iObject instanceof Entity && ((Entity) iObject).isEdge()) {
-      return ((Entity) iObject).asEdge().get();
+    if (iObject instanceof Entity && ((Entity) iObject).isStatefulEdge()) {
+      return ((Entity) iObject).castToStateFullEdge();
     }
 
     final var rec = (Identifiable) iObject;
@@ -118,15 +118,15 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       if (connection.getKey() == Direction.OUT) {
         edge =
             new EdgeDelegate(db,
-                this.sourceVertex, value.asVertex().get(), clazz, connection.getValue());
+                this.sourceVertex, value.castToVertex(), clazz, connection.getValue());
       } else {
         edge =
             new EdgeDelegate(db,
-                value.asVertex().get(), this.sourceVertex, clazz, connection.getValue());
+                value.castToVertex(), this.sourceVertex, clazz, connection.getValue());
       }
-    } else if (value.isEdge()) {
+    } else if (value.isStatefulEdge()) {
       // EDGE
-      edge = value.asEdge().get();
+      edge = value.castToStateFullEdge();
     } else {
       throw new IllegalStateException(
           "Invalid content found while iterating edges, value '" + value + "' is not an edge");

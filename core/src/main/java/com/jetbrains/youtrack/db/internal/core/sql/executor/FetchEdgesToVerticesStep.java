@@ -92,7 +92,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
       from = ((Identifiable) from).getRecord(session);
     }
     if (from instanceof Entity && ((Entity) from).isVertex()) {
-      var vertex = ((Entity) from).toVertex();
+      var vertex = ((Entity) from).castToVertex();
       assert vertex != null;
       var edges = vertex.getEdges(Direction.IN);
       Stream<Result> stream =
@@ -109,9 +109,15 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     if (targetCluster == null) {
       return true;
     }
-    var clusterId = edge.getIdentity().getClusterId();
-    var clusterName = ctx.getDatabaseSession().getClusterNameById(clusterId);
-    return clusterName.equals(targetCluster.getStringValue());
+    if (edge.isStateful()) {
+      var statefulEdge = edge.castToStatefulEdge();
+
+      var clusterId = statefulEdge.getIdentity().getClusterId();
+      var clusterName = ctx.getDatabaseSession().getClusterNameById(clusterId);
+      return clusterName.equals(targetCluster.getStringValue());
+    }
+
+    return false;
   }
 
   private boolean matchesClass(DatabaseSessionInternal db, Edge edge) {

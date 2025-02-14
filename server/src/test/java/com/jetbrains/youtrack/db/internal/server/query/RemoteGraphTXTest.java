@@ -1,10 +1,7 @@
 package com.jetbrains.youtrack.db.internal.server.query;
 
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.server.BaseServerMemoryDatabase;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +32,7 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
                 + " SecondV where id = '2')")) {
       var result = resultSet.stream().iterator().next();
 
-      Assert.assertTrue(result.isEdge());
+      Assert.assertTrue(result.isStatefulEdge());
     }
     db.commit();
 

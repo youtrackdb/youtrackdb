@@ -11,6 +11,8 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -48,7 +50,7 @@ public class SelectExecutionPlan implements InternalExecutionPlan {
   }
 
   @Override
-  public String prettyPrint(int depth, int indent) {
+  public @Nonnull String prettyPrint(int depth, int indent) {
     var result = new StringBuilder();
     for (var i = 0; i < steps.size(); i++) {
       var step = steps.get(i);
@@ -75,7 +77,7 @@ public class SelectExecutionPlan implements InternalExecutionPlan {
   }
 
   @Override
-  public List<ExecutionStep> getSteps() {
+  public @Nonnull List<ExecutionStep> getSteps() {
     // TODO do a copy of the steps
     return (List) steps;
   }
@@ -90,7 +92,7 @@ public class SelectExecutionPlan implements InternalExecutionPlan {
   }
 
   @Override
-  public Result toResult(DatabaseSession db) {
+  public @Nonnull Result toResult(@Nullable DatabaseSession db) {
     var session = (DatabaseSessionInternal) db;
     var result = new ResultInternal(session);
     result.setProperty("type", "QueryExecutionPlan");

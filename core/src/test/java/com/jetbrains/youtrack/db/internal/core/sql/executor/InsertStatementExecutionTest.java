@@ -401,7 +401,7 @@ public class InsertStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(o instanceof Result);
       Assert.assertEquals("foo", ((Result) o).getProperty("name"));
       Assert.assertEquals(className1,
-          ((Result) o).asEntity().getSchemaType().get().getName(session));
+          ((Result) o).castToEntity().getSchemaClassName());
     }
     result.close();
   }
@@ -436,7 +436,7 @@ public class InsertStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(o instanceof Result);
       Assert.assertEquals("foo", ((Result) o).getProperty("name"));
       Assert.assertEquals(className1,
-          ((Result) o).asEntity().getSchemaType().get().getName(session));
+          ((Result) o).castToEntity().getSchemaClassName());
     }
     result.close();
   }

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Case insensitive collate.
@@ -34,11 +35,11 @@ public class CaseInsensitiveCollate extends DefaultComparator implements Collate
 
   public static final String NAME = "ci";
 
-  public String getName() {
+  public @Nonnull String getName() {
     return NAME;
   }
 
-  public Object transform(final Object obj) {
+  public @Nonnull Object transform(final @Nonnull Object obj) {
     if (obj instanceof String) {
       return ((String) obj).toLowerCase(Locale.ENGLISH);
     }
@@ -78,7 +79,7 @@ public class CaseInsensitiveCollate extends DefaultComparator implements Collate
   }
 
   @Override
-  public int compareForOrderBy(Object objectOne, Object objectTwo) {
+  public int compareForOrderBy(@Nonnull Object objectOne, @Nonnull Object objectTwo) {
     var newObj1 = transform(objectOne);
     var newObj2 = transform(objectTwo);
     var result = super.compare(newObj1, newObj2);

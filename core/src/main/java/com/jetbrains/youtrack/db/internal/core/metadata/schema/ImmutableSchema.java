@@ -130,13 +130,15 @@ public class ImmutableSchema implements SchemaInternal {
     return classes.size();
   }
 
+  @Nonnull
   @Override
   public SchemaClass createClass(String iClassName) {
     throw new UnsupportedOperationException();
   }
 
+  @Nonnull
   @Override
-  public SchemaClass createClass(String iClassName, SchemaClass iSuperClass) {
+  public SchemaClass createClass(@Nonnull String iClassName, @Nonnull SchemaClass iSuperClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -150,8 +152,10 @@ public class ImmutableSchema implements SchemaInternal {
     throw new UnsupportedOperationException();
   }
 
+  @Nonnull
   @Override
-  public SchemaClass createClass(String className, int clusters, SchemaClass... superClasses) {
+  public SchemaClass createClass(@Nonnull String className, int clusters,
+      SchemaClass... superClasses) {
     throw new UnsupportedOperationException();
   }
 

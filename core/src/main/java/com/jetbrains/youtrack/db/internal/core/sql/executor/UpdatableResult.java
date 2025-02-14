@@ -4,6 +4,7 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -22,7 +23,7 @@ public class UpdatableResult extends ResultInternal {
     return true;
   }
 
-  public <T> T getProperty(String name) {
+  public <T> T getProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     T result = null;

@@ -31,12 +31,12 @@ public class UpdateMergeStep extends AbstractExecutionStep {
     if (result instanceof ResultInternal) {
       if (result.isEntity()) {
         ((ResultInternal) result).setIdentifiable(
-            result.asEntity().getRecord(ctx.getDatabaseSession()));
+            result.castToEntity().getRecord(ctx.getDatabaseSession()));
       }
-      if (!(result.getEntity().orElse(null) instanceof EntityImpl)) {
+      if (!result.isEntity()) {
         return result;
       }
-      handleMerge((EntityImpl) result.getEntity().orElse(null), ctx);
+      handleMerge((EntityImpl) result.castToEntity(), ctx);
     }
     return result;
   }

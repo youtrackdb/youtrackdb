@@ -225,9 +225,9 @@ public class LuceneTextOperator extends QueryTargetOperator {
       SQLFilterCondition iCondition) {
     try {
       EntityImpl doc = iRecord.getRecord(session);
-      if (doc.getClassName() != null) {
+      if (doc.getSchemaClassName() != null) {
         var cls = session.getMetadata().getSchemaInternal()
-            .getClassInternal(doc.getClassName());
+            .getClassInternal(doc.getSchemaClassName());
         if (isChained(iCondition.getLeft())) {
           var chained = (SQLFilterItemField) iCondition.getLeft();
           var fieldChain = chained.getFieldChain();

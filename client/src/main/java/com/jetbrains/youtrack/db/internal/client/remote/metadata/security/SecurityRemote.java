@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.client.remote.metadata.security;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -9,7 +8,6 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
@@ -216,7 +214,7 @@ public class SecurityRemote implements SecurityInternal {
         iUserName)) {
       if (result.hasNext()) {
         return new SecurityUserImpl((DatabaseSessionInternal) session,
-            (EntityImpl) result.next().getEntity().get());
+            (EntityImpl) result.next().castToEntity());
       }
     }
     return null;
@@ -229,7 +227,7 @@ public class SecurityRemote implements SecurityInternal {
 
     EntityImpl result;
     result = session.load(iRecordId);
-    if (!result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
+    if (!result.getSchemaClassName().equals(SecurityUserImpl.CLASS_NAME)) {
       result = null;
     }
     return new SecurityUserImpl((DatabaseSessionInternal) session, result);
@@ -254,7 +252,7 @@ public class SecurityRemote implements SecurityInternal {
         session.query("select from " + Role.CLASS_NAME + " where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new Role((DatabaseSessionInternal) session,
-            (EntityImpl) result.next().getEntity().get());
+            (EntityImpl) result.next().castToEntity());
       }
     }
 
@@ -263,14 +261,14 @@ public class SecurityRemote implements SecurityInternal {
 
   public List<EntityImpl> getAllUsers(final DatabaseSession session) {
     try (var rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
+      return rs.stream().map((e) -> (EntityImpl) e.castToEntity())
           .collect(Collectors.toList());
     }
   }
 
   public List<EntityImpl> getAllRoles(final DatabaseSession session) {
     try (var rs = session.query("select from " + Role.CLASS_NAME)) {
-      return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
+      return rs.stream().map((e) -> (EntityImpl) e.castToEntity())
           .collect(Collectors.toList());
     }
   }
@@ -411,7 +409,7 @@ public class SecurityRemote implements SecurityInternal {
   @Override
   public Set<SecurityResourceProperty> getAllFilteredProperties(
       DatabaseSessionInternal database) {
-    return Collections.EMPTY_SET;
+    return Collections.emptySet();
   }
 
   @Override

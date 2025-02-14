@@ -199,7 +199,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
                   result.add(entry);
                 }
               } else {
-                if (iClass.getName(session).equals(((EntityImpl) entry.record).getClassName())) {
+                if (iClass.getName(session)
+                    .equals(((EntityImpl) entry.record).getSchemaClassName())) {
                   result.add(entry);
                 }
               }
@@ -655,7 +656,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         if (recordOperation.type == RecordOperation.CREATED
             || recordOperation.type == RecordOperation.UPDATED) {
           if (recordOperation.record instanceof EntityImpl entity) {
-            var className = entity.getClassName();
+            var className = entity.getSchemaClassName();
             if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
               EntityInternalUtils.checkClass(entity, session);
               try {

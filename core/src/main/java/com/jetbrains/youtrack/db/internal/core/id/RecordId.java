@@ -297,24 +297,25 @@ public class RecordId implements RID, SerializableStream {
   }
 
 
+  @Nonnull
   public RID getIdentity() {
     return this;
   }
 
   @Nonnull
-  public <T extends DBRecord> T getRecord(DatabaseSession db) {
+  public <T extends DBRecord> T getRecord(@Nonnull DatabaseSession session) {
     if (!isValid()) {
-      throw new RecordNotFoundException(db.getDatabaseName(), this);
+      throw new RecordNotFoundException(session.getDatabaseName(), this);
     }
 
-    if (db == null) {
-      throw new DatabaseException(db.getDatabaseName(),
+    if (session == null) {
+      throw new DatabaseException(session.getDatabaseName(),
           "No database found in current thread local space. If you manually control databases over"
               + " threads assure to set the current database before to use it by calling:"
               + " DatabaseRecordThreadLocal.instance().set(db);");
     }
 
-    return db.load(this);
+    return session.load(this);
   }
 
   private void checkClusterLimits() {

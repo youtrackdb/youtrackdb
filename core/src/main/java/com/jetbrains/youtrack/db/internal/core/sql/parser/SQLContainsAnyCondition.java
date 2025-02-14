@@ -76,11 +76,11 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
           }
           var leftElem =
               leftItem instanceof Result && ((Result) leftItem).isEntity()
-                  ? ((Result) leftItem).getEntity().get()
+                  ? ((Result) leftItem).castToEntity()
                   : rightItem;
           var rightElem =
               rightItem instanceof Result && ((Result) rightItem).isEntity()
-                  ? ((Result) rightItem).getEntity().get()
+                  ? ((Result) rightItem).castToEntity()
                   : rightItem;
           if (leftElem != null && leftElem.equals(rightElem)) {
             return true;

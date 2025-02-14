@@ -66,7 +66,7 @@ public class CountRealationshipsTest {
     vertex2 = g.load(vertex2.getIdentity());
     vertex1 = g.load(vertex1.getIdentity());
 
-    vertex1.addRegularEdge(vertex2);
+    vertex1.addStateFulEdge(vertex2);
     vertex1.save();
 
     version = vertex1.getProperty("@version");

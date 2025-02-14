@@ -11,6 +11,8 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSimpleExecServerStatement;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -75,19 +77,19 @@ public class SingleOpServerExecutionPlan implements InternalExecutionPlan {
   }
 
   @Override
-  public List<ExecutionStep> getSteps() {
+  public @Nonnull List<ExecutionStep> getSteps() {
     return Collections.emptyList();
   }
 
   @Override
-  public String prettyPrint(int depth, int indent) {
+  public @Nonnull String prettyPrint(int depth, int indent) {
     var spaces = ExecutionStepInternal.getIndent(depth, indent);
     var result = spaces + "+ " + statement.toString();
     return result;
   }
 
   @Override
-  public Result toResult(DatabaseSession db) {
+  public @Nonnull Result toResult(@Nullable DatabaseSession db) {
     var result = new ResultInternal((DatabaseSessionInternal) db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty("javaType", getClass().getName());

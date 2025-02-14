@@ -10,7 +10,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class RemoteResultSet implements ResultSet {
@@ -19,7 +18,7 @@ public class RemoteResultSet implements ResultSet {
   private final DatabaseSessionRemote session;
   private final String queryId;
   private List<Result> currentPage;
-  private Optional<ExecutionPlan> executionPlan;
+  private ExecutionPlan executionPlan;
   private Map<String, Long> queryStats;
   private boolean hasNextPage;
 
@@ -27,7 +26,7 @@ public class RemoteResultSet implements ResultSet {
       @Nullable DatabaseSessionRemote session,
       String queryId,
       List<Result> currentPage,
-      Optional<ExecutionPlan> executionPlan,
+      ExecutionPlan executionPlan,
       Map<String, Long> queryStats,
       boolean hasNextPage) {
     this.session = session;
@@ -81,7 +80,7 @@ public class RemoteResultSet implements ResultSet {
     var internal = currentPage.removeFirst();
 
     if (internal.isRecord() && session != null && session.getTransaction().isActive()) {
-      DBRecord record = session.getTransaction().getRecord(internal.getIdentity().orElseThrow());
+      DBRecord record = session.getTransaction().getRecord(internal.getIdentity());
       if (record != null && record != FrontendTransactionAbstract.DELETED_RECORD) {
         internal = new ResultInternal(session, record);
       }
@@ -100,7 +99,7 @@ public class RemoteResultSet implements ResultSet {
   }
 
   @Override
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     assert session == null || session.assertIfNotActive();
     return executionPlan;
   }
@@ -129,7 +128,7 @@ public class RemoteResultSet implements ResultSet {
   public void fetched(
       List<Result> result,
       boolean hasNextPage,
-      Optional<ExecutionPlan> executionPlan,
+      ExecutionPlan executionPlan,
       Map<String, Long> queryStats) {
     assert session == null || session.assertIfNotActive();
     this.currentPage = result;
@@ -138,6 +137,8 @@ public class RemoteResultSet implements ResultSet {
     if (queryStats != null) {
       this.queryStats = queryStats;
     }
-    executionPlan.ifPresent(x -> this.executionPlan = executionPlan);
+    if (executionPlan != null) {
+      this.executionPlan = executionPlan;
+    }
   }
 }

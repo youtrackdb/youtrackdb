@@ -92,7 +92,7 @@ public class ComplexTypesTest extends BaseDBTest {
     var d = ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(0);
     Assert.assertEquals(d.field("name"), "Luca");
     d = ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(1);
-    Assert.assertEquals(d.getClassName(), "Account");
+    Assert.assertEquals(d.getSchemaClassName(), "Account");
     Assert.assertEquals(d.field("name"), "Marcus");
   }
 
@@ -130,7 +130,7 @@ public class ComplexTypesTest extends BaseDBTest {
     Assert.assertTrue(d.getIdentity().isValid());
     Assert.assertEquals(d.field("name"), "Luca");
     d = ((List<Identifiable>) loadedDoc.field("linkedList")).get(1).getRecord(session);
-    Assert.assertEquals(d.getClassName(), "Account");
+    Assert.assertEquals(d.getSchemaClassName(), "Account");
     Assert.assertEquals(d.field("name"), "Marcus");
   }
 
@@ -165,7 +165,7 @@ public class ComplexTypesTest extends BaseDBTest {
       Assert.assertTrue(d instanceof EntityImpl);
 
       if (d.field("name").equals("Marcus")) {
-        Assert.assertEquals(d.getClassName(), "Account");
+        Assert.assertEquals(d.getSchemaClassName(), "Account");
       }
 
       ++tot;
@@ -208,7 +208,7 @@ public class ComplexTypesTest extends BaseDBTest {
       var d = it.next().getEntity(session);
 
       if (Objects.equals(d.getProperty("name"), "Marcus")) {
-        Assert.assertEquals(d.getClassName(), "Account");
+        Assert.assertEquals(d.getSchemaClassName(), "Account");
       }
 
       ++tot;
@@ -251,7 +251,7 @@ public class ComplexTypesTest extends BaseDBTest {
 
     d = ((Map<String, EntityImpl>) loadedDoc.field("embeddedMap")).get("Cesare");
     Assert.assertEquals(d.field("name"), "Cesare");
-    Assert.assertEquals(d.getClassName(), "Account");
+    Assert.assertEquals(d.getSchemaClassName(), "Account");
   }
 
   @Test
@@ -323,6 +323,6 @@ public class ComplexTypesTest extends BaseDBTest {
 
     d = ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).get("Cesare").getRecord(session);
     Assert.assertEquals(d.field("name"), "Cesare");
-    Assert.assertEquals(d.getClassName(), "Account");
+    Assert.assertEquals(d.getSchemaClassName(), "Account");
   }
 }

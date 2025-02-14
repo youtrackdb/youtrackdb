@@ -55,7 +55,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.command("INSERT INTO company SET name = 'MyCompany'").close();
     session.commit();
 
-    final var r = session.query("SELECT FROM company").next().getEntity().get();
+    final var r = session.query("SELECT FROM company").next().castToEntity();
 
     session.begin();
     session.command("INSERT INTO employee SET name = 'Philipp'").close();
@@ -278,7 +278,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.save(test);
     session.commit();
 
-    var queried = session.query("SELECT FROM test WHERE id = \"id1\"").next().getEntity().get();
+    var queried = session.query("SELECT FROM test WHERE id = \"id1\"").next().castToEntity();
 
     session.begin();
     session.command("UPDATE test set count += 2").close();
@@ -312,7 +312,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.save(test);
     session.commit();
 
-    var queried = session.query("SELECT FROM test").next().getEntity().get();
+    var queried = session.query("SELECT FROM test").next().castToEntity();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -337,7 +337,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.save(test);
     session.commit();
 
-    var queried = session.query("SELECT FROM test").next().getEntity().get();
+    var queried = session.query("SELECT FROM test").next().castToEntity();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -361,7 +361,7 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
         .close();
     session.commit();
 
-    var queried = session.query("SELECT FROM testquotesinjson").next().getEntity().get();
+    var queried = session.query("SELECT FROM testquotesinjson").next().castToEntity();
     assertEquals(((Map) queried.getProperty("value")).get("f12"), "test\\");
   }
 

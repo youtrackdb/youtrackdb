@@ -1389,7 +1389,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  }<-WorksAt-{as: managed}"
             + "  return $elements";
 
-    return session.query(query).stream().map(Result::getRecordId).toList();
+    return session.query(query).stream().map(Result::getIdentity).toList();
   }
 
   @Test
@@ -1897,7 +1897,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
             + "  }<-WorksAt-{as: managed}"
             + "  return $pathElements";
 
-    return session.command(query).stream().map(Result::getRecordId).toList();
+    return session.command(query).stream().map(Result::getIdentity).toList();
   }
 
   private static List<Result> collect(ResultSet set) {
@@ -1905,7 +1905,7 @@ public class MatchStatementExecutionTest extends DbTestBase {
   }
 
   private static List<Identifiable> collectIdentifiable(ResultSet set) {
-    return set.stream().map((r) -> r.asEntity()).collect(Collectors.toList());
+    return set.stream().map(Result::asEntity).collect(Collectors.toList());
   }
 
   private static Profiler getProfilerInstance() {

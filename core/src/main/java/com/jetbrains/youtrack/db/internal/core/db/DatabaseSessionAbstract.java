@@ -42,6 +42,7 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -1275,7 +1276,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
-  public EdgeInternal newRegularEdge(Vertex from, Vertex to, String type) {
+  public StatefulEdge newStatefulEdge(Vertex from, Vertex to, String type) {
     assert assertIfNotActive();
     var cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType(this)) {
@@ -1286,7 +1287,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
           type + " is an abstract class and can not be used for creation of regular edge");
     }
 
-    return addEdgeInternal(from, to, type, true);
+    return (StatefulEdge) addEdgeInternal(from, to, type, true);
   }
 
   @Override
@@ -1305,13 +1306,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
-  public Edge newRegularEdge(Vertex from, Vertex to, SchemaClass type) {
+  public StatefulEdge newStatefulEdge(Vertex from, Vertex to, SchemaClass type) {
     assert assertIfNotActive();
     if (type == null) {
-      return newRegularEdge(from, to, "E");
+      return newStatefulEdge(from, to, "E");
     }
 
-    return newRegularEdge(from, to, type.getName(this));
+    return newStatefulEdge(from, to, type.getName(this));
   }
 
   @Override
@@ -1526,7 +1527,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkOpenness();
 
     if (clusterName != null && record instanceof EntityImpl entity
-        && entity.getClassName() != null) {
+        && entity.getSchemaClassName() != null) {
       throw new DatabaseException(getDatabaseName(),
           "Only entities without class name can be saved in predefined clusters");
     }
@@ -1569,15 +1570,17 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
 
     if (!entity.getIdentity().isValid()) {
-      if (entity.getClassName() != null) {
-        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, entity.getClassName());
+      if (entity.getSchemaClassName() != null) {
+        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE,
+            entity.getSchemaClassName());
       }
 
       assignAndCheckCluster(entity, clusterName);
     } else {
       // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-      if (entity.getClassName() != null) {
-        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE, entity.getClassName());
+      if (entity.getSchemaClassName() != null) {
+        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE,
+            entity.getSchemaClassName());
       }
     }
 
@@ -1882,7 +1885,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     checkSecurity(Rule.ResourceGeneric.CLUSTER, operation, cluster);
 
     if (record instanceof EntityImpl) {
-      var clazzName = ((EntityImpl) record).getClassName();
+      var clazzName = ((EntityImpl) record).getSchemaClassName();
       if (clazzName != null) {
         checkSecurity(Rule.ResourceGeneric.CLASS, operation, clazzName);
       }

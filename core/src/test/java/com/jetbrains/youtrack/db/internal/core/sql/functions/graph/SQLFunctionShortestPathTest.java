@@ -66,19 +66,19 @@ public class SQLFunctionShortestPathTest {
     vertices.get(3).setProperty("node_id", "C");
     vertices.get(4).setProperty("node_id", "D");
 
-    db.newRegularEdge(vertices.get(1), vertices.get(2), "Edge1").save();
-    db.newRegularEdge(vertices.get(2), vertices.get(3), "Edge1").save();
-    db.newRegularEdge(vertices.get(3), vertices.get(1), "Edge2").save();
-    db.newRegularEdge(vertices.get(3), vertices.get(4), "Edge1").save();
+    db.newStatefulEdge(vertices.get(1), vertices.get(2), "Edge1").save();
+    db.newStatefulEdge(vertices.get(2), vertices.get(3), "Edge1").save();
+    db.newStatefulEdge(vertices.get(3), vertices.get(1), "Edge2").save();
+    db.newStatefulEdge(vertices.get(3), vertices.get(4), "Edge1").save();
 
     for (var i = 5; i <= 20; i++) {
       var v = db.newVertex();
       v.save();
       vertices.put(i, v);
       vertices.get(i).setProperty("node_id", "V" + i);
-      db.newRegularEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
+      db.newStatefulEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
       if (i % 2 == 0) {
-        db.newRegularEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
+        db.newStatefulEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
       }
     }
     db.commit();

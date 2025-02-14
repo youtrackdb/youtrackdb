@@ -40,12 +40,15 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       var item = toTraverseResult(ctx.getDatabaseSession(), nextN.next(ctx));
       if (item != null) {
         List<RID> stack = new ArrayList<>();
-        item.getIdentity().ifPresent(stack::add);
+        var identity = item.getIdentity();
+        stack.add(identity);
         ((ResultInternal) item).setMetadata("$stack", stack);
+
         List<Identifiable> path = new ArrayList<>();
-        path.add(item.getIdentity().get());
+        path.add(identity);
+
         ((ResultInternal) item).setMetadata("$path", path);
-        if (item.isEntity() && !traversed.contains(item.getEntity().get().getIdentity())) {
+        if (item.isEntity() && !traversed.contains(item.castToEntity().getIdentity())) {
           tryAddEntryPoint(item, ctx, entryPoints, traversed);
         }
       }
@@ -56,8 +59,8 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     TraverseResult res = null;
     if (item instanceof TraverseResult) {
       res = (TraverseResult) item;
-    } else if (item.isEntity() && item.getEntity().get().getIdentity().isPersistent()) {
-      res = new TraverseResult(db, item.getEntity().get());
+    } else if (item.isEntity() && item.castToEntity().getIdentity().isPersistent()) {
+      res = new TraverseResult(db, item.castToEntity());
       res.depth = 0;
       res.setMetadata("$depth", 0);
     } else if (item.getPropertyNames().size() == 1) {
@@ -72,8 +75,10 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       for (var key : item.getPropertyNames()) {
         res.setProperty(key, item.getProperty(key));
       }
-      for (var md : item.getMetadataKeys()) {
-        res.setMetadata(md, item.getMetadata(md));
+      if (item instanceof ResultInternal resultInternal) {
+        for (var md : resultInternal.getMetadataKeys()) {
+          res.setMetadata(md, resultInternal.getMetadata(md));
+        }
       }
     }
 
@@ -150,7 +155,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
     List<Identifiable> newPath = new ArrayList<>();
     newPath.addAll(path);
-    newPath.add(res.getIdentity().get());
+    newPath.add(res.getIdentity());
     res.setMetadata("$path", newPath);
 
     List reverseStack = new ArrayList();
@@ -173,7 +178,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     if (!nextStep.isEntity()) {
       return;
     }
-    if (traversed.contains(nextStep.getEntity().get().getIdentity())) {
+    if (traversed.contains(nextStep.getIdentity())) {
       return;
     }
     if (nextStep instanceof TraverseResult) {
@@ -182,7 +187,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       List<Identifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
-      newPath.add(nextStep.getIdentity().get());
+      newPath.add(nextStep.getIdentity());
       ((TraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
@@ -194,13 +199,13 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      var res = new TraverseResult(ctx.getDatabaseSession(), nextStep.getEntity().get());
+      var res = new TraverseResult(ctx.getDatabaseSession(), nextStep.castToEntity());
       res.depth = depth;
       res.setMetadata("$depth", depth);
 
       List<Identifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
-      newPath.add(nextStep.getIdentity().get());
+      newPath.add(nextStep.getIdentity());
       ((TraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
@@ -219,7 +224,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(res);
     }
-    traversed.add(res.getEntity().get().getIdentity());
+    traversed.add(res.getIdentity());
   }
 
   @Override

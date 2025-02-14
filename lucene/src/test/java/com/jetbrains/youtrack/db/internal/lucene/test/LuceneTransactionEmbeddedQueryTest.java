@@ -85,7 +85,7 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     session.begin();
     Assert.assertEquals(1, index.getInternal().size(session));
 
-    session.delete(res.getIdentity().get());
+    session.delete(res.castToEntity());
 
     query = "select from C1 where p1 lucene \"abc\" ";
     vertices = session.query(query);
@@ -155,7 +155,7 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     session.begin();
 
     // select in transaction while updating
-    var record = session.bindToSession(resultRecord.getEntity().get());
+    var record = session.bindToSession(resultRecord.castToEntity());
     Collection p1 = record.getProperty("p1");
     p1.remove("update removed");
     session.save(record);

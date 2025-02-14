@@ -1906,7 +1906,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     var extr = (EntityImpl) session.newEntity();
     serializerDelta.deserialize(session, res, extr);
 
-    assertEquals(extr.getClassName(), document.getClassName());
+    assertEquals(extr.getSchemaClassName(), document.getSchemaClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
     assertEquals(extr.<Object>field("custom"), document.field("custom"));
@@ -1924,7 +1924,7 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     var extr = (EntityImpl) session.newEntity();
     serializerDelta.deserialize(session, res, extr);
 
-    assertEquals(extr.getClassName(), document.getClassName());
+    assertEquals(extr.getSchemaClassName(), document.getSchemaClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
     assertEquals(extr.<Object>field("custom"), document.field("custom"));

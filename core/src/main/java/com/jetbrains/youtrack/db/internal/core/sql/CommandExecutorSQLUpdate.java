@@ -461,7 +461,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       DatabaseSessionInternal db, EntityImpl edge, Identifiable prevVertex,
       Identifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
-      var edgeClassName = edge.getClassName();
+      var edgeClassName = edge.getSchemaClassName();
       if (edgeClassName.equalsIgnoreCase("E")) {
         edgeClassName = "";
       }

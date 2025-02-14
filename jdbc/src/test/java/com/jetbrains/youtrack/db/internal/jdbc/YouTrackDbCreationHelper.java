@@ -16,10 +16,8 @@ package com.jetbrains.youtrack.db.internal.jdbc;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -30,7 +28,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
@@ -161,7 +158,7 @@ public class YouTrackDbCreationHelper {
         post.setProperty("title", "the title");
         post.setProperty("content", "the content");
 
-        db.newRegularEdge(writer, post, "Writes");
+        db.newStatefulEdge(writer, post, "Writes");
       }
     }
 
@@ -180,7 +177,7 @@ public class YouTrackDbCreationHelper {
     post.setProperty("title", "the title");
     post.setProperty("content", "the content");
 
-    db.newRegularEdge(writer, post, "Writes");
+    db.newStatefulEdge(writer, post, "Writes");
   }
 
   private static Blob loadFile(DatabaseSession database, String filePath) throws IOException {

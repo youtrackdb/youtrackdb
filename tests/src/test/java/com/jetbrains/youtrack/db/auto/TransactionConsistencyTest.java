@@ -600,7 +600,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     session.begin();
     foo = session.bindToSession(foo);
     bar = session.bindToSession(bar);
-    var sees = session.newRegularEdge(foo, bar, "Sees");
+    var sees = session.newStatefulEdge(foo, bar, "Sees");
     sees.save();
     session.commit();
 

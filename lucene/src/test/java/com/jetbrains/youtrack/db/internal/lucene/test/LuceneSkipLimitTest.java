@@ -18,6 +18,7 @@
 
 package com.jetbrains.youtrack.db.internal.lucene.test;
 
+import com.jetbrains.youtrack.db.api.query.Result;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,20 +34,20 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
 
     var docs =
         session.query("select * from Song where [title] LUCENE \"(title:man)\"").stream()
-            .map((r) -> r.getIdentity().get())
+            .map(Result::getIdentity)
             .collect(Collectors.toList());
 
-    Assert.assertEquals(docs.size(), 14);
+    Assert.assertEquals(14, docs.size());
 
     var doc = docs.get(9);
     docs =
         session
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 10 limit 10")
             .stream()
-            .map((r) -> r.getIdentity().get())
+            .map(Result::getIdentity)
             .collect(Collectors.toList());
 
-    Assert.assertEquals(docs.size(), 4);
+    Assert.assertEquals(4, docs.size());
 
     Assert.assertFalse(docs.contains(doc));
 
@@ -54,10 +55,10 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
         session
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 14 limit 10")
             .stream()
-            .map((r) -> r.getIdentity().get())
+            .map(Result::getIdentity)
             .collect(Collectors.toList());
 
-    Assert.assertEquals(docs.size(), 0);
+    Assert.assertEquals(0, docs.size());
   }
 
   @Before

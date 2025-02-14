@@ -92,7 +92,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
                 + ":2, #"
                 + defCluster
                 + ":3], {'minTermFreq':1, 'minDocFreq':1} ) = true OR author ='Hunter' ")) {
-      resultSet.getExecutionPlan().ifPresent(c -> System.out.println(c.prettyPrint(1, 1)));
+      var plan = resultSet.getExecutionPlan();
+      if (plan != null) {
+        System.out.println(plan.prettyPrint(1, 1));
+      }
       assertThat(resultSet).hasSize(138);
     }
   }
@@ -113,7 +116,10 @@ public class LuceneSearchMoreLikeThisFunctionTest extends BaseLuceneTest {
                 + defCluster
                 + ":3] , {'fields': [ 'title' ], 'minTermFreq':1, 'minDocFreq':1}) = true")) {
 
-      resultSet.getExecutionPlan().ifPresent(c -> System.out.println(c.prettyPrint(1, 1)));
+      var plan = resultSet.getExecutionPlan();
+      if (plan != null) {
+        System.out.println(plan.prettyPrint(1, 1));
+      }
       assertThat(resultSet).hasSize(84);
     }
   }

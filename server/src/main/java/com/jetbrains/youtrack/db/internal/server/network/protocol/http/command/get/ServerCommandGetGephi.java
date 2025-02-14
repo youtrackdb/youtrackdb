@@ -121,9 +121,9 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       }
       var next = resultSet.next();
       if (next.isVertex()) {
-        vertexes.add(next.getVertex().get());
-      } else if (next.isEdge()) {
-        edges.add(next.getEdge().get());
+        vertexes.add(next.castToVertex());
+      } else if (next.isStatefulEdge()) {
+        edges.add(next.castToStateFullEdge());
       }
       i++;
     }
@@ -152,21 +152,26 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
     }
 
     for (var edge : edges) {
-
       json.resetAttributes();
       json.beginObject();
       json.beginObject(1, false, "ae");
-      json.beginObject(2, false, edge.getIdentity());
+      if (edge.isStateful()) {
+        json.beginObject(2, false, edge.castToStatefulEdge().getIdentity());
+      }
+
       json.writeAttribute(db, 3, false, "directed", false);
 
-      json.writeAttribute(db, 3, false, "source", edge.getToIdentifiable());
-      json.writeAttribute(db, 3, false, "target", edge.getFromIdentifiable());
+      json.writeAttribute(db, 3, false, "source", edge.getToLink());
+      json.writeAttribute(db, 3, false, "target", edge.getFromLink());
 
-      for (var field : edge.getPropertyNames()) {
-        final var v = edge.getProperty(field);
+      if (edge.isStateful()) {
+        var statefulEdge = edge.castToStatefulEdge();
+        for (var field : statefulEdge.getPropertyNames()) {
+          final var v = statefulEdge.getProperty(field);
 
-        if (v != null) {
-          json.writeAttribute(db, 3, false, field, v);
+          if (v != null) {
+            json.writeAttribute(db, 3, false, field, v);
+          }
         }
       }
 

@@ -406,7 +406,7 @@ public class RestrictedTest extends BaseDBTest {
     var res = result.next();
     Assert.assertFalse(result.hasNext());
 
-    final var doc = res.getEntity().get();
+    final var doc = res.castToEntity();
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
 

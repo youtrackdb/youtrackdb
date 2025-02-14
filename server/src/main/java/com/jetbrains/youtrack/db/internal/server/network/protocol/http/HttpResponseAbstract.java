@@ -323,10 +323,13 @@ public abstract class HttpResponseAbstract implements HttpResponse {
                 if (r instanceof Result result) {
                   if (result.isEntity()) {
                     var entity = result.asEntity();
-                    entity
-                        .getSchemaType()
-                        .ifPresent(x -> x.properties(session)
-                            .forEach(prop -> colNames.add(prop.getName(session))));
+                    var schema = entity.getSchemaClass();
+
+                    if (schema != null) {
+                      schema.properties(session)
+                          .forEach(prop -> colNames.add(prop.getName(session)));
+                    }
+
                     records.add(entity);
                   } else {
                     maps.add(result.toMap());

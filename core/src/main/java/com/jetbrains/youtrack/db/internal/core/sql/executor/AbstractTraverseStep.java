@@ -62,7 +62,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
         }
         var result = results.removeFirst();
         if (result.isEntity()) {
-          this.traversed.add(result.asEntity().getIdentity());
+          this.traversed.add(result.getIdentity());
         }
         return result;
       }

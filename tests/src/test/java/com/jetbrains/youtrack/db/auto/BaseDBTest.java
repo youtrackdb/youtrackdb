@@ -68,12 +68,12 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
         .toList();
   }
 
-  protected List<Result> executeQuery(String sql, DatabaseSessionInternal db, Map args) {
+  protected static List<Result> executeQuery(String sql, DatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
         .toList();
   }
 
-  protected List<Result> executeQuery(String sql, DatabaseSessionInternal db) {
+  protected static List<Result> executeQuery(String sql, DatabaseSessionInternal db) {
     return db.query(sql).stream()
         .toList();
   }
@@ -592,14 +592,14 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     session.begin();
     carNode = session.bindToSession(carNode);
     motoNode = session.bindToSession(motoNode);
-    session.newRegularEdge(carNode, motoNode).save();
+    session.newStatefulEdge(carNode, motoNode);
 
     var result =
         session.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     for (var v : result) {
       Assert.assertTrue(
-          v.getEntity().flatMap(Entity::getSchemaType).get().isSubClassOf(session, vehicleClass));
+          v.castToEntity().getSchemaClass().isSubClassOf(session, vehicleClass));
     }
 
     session.commit();
@@ -611,27 +611,27 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
 
     for (var v : result) {
       Assert.assertTrue(
-          v.getEntity().get().getSchemaType().get().isSubClassOf(session, "GraphVehicle"));
+          v.castToEntity().getSchemaClass().isSubClassOf(session, "GraphVehicle"));
 
-      if (v.getEntity().get().getSchemaType().isPresent()
-          && v.getEntity().get().getSchemaType().get().getName(session).equals("GraphCar")) {
+      if (v.castToEntity().getSchemaClass() != null
+          && v.castToEntity().getSchemaClassName().equals("GraphCar")) {
         Assert.assertEquals(
             CollectionUtils.size(
-                session.<Vertex>load(v.getIdentity().get()).getEdges(Direction.OUT)),
+                session.<Vertex>load(v.getIdentity()).getEdges(Direction.OUT)),
             1);
         edge1 =
             session
-                .<Vertex>load(v.getIdentity().get())
+                .<Vertex>load(v.getIdentity())
                 .getEdges(Direction.OUT)
                 .iterator()
                 .next();
       } else {
         Assert.assertEquals(
             CollectionUtils.size(
-                session.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN)),
+                session.<Vertex>load(v.getIdentity()).getEdges(Direction.IN)),
             1);
         edge2 =
-            session.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN).iterator()
+            session.<Vertex>load(v.getIdentity()).getEdges(Direction.IN).iterator()
                 .next();
       }
     }

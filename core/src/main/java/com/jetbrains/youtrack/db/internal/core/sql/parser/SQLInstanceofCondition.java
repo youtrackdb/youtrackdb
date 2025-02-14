@@ -70,7 +70,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     }
 
     var db = ctx.getDatabaseSession();
-    var record = currentRecord.getEntity().get().getRecord(db);
+    var record = currentRecord.castToEntity().getRecord(db);
     if (!(record instanceof EntityImpl entity)) {
       return false;
     }

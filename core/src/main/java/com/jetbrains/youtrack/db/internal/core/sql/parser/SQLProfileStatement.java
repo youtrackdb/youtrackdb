@@ -73,12 +73,14 @@ public class SQLProfileStatement extends SQLStatement {
       rs.next();
     }
     var dbStats = session.getStats();
+    var ep = rs.getExecutionPlan();
+    if (ep == null) {
+      throw new CommandExecutionException(session,
+          "Cannot profile command: " + statement);
+    }
     var result =
         new ExplainResultSet(session,
-            rs.getExecutionPlan()
-                .orElseThrow(
-                    () -> new CommandExecutionException(session,
-                        "Cannot profile command: " + statement)),
+            ep,
             dbStats);
     rs.close();
     return result;
@@ -109,12 +111,14 @@ public class SQLProfileStatement extends SQLStatement {
       rs.next();
     }
     var dbStats = session.getStats();
+    var ep = rs.getExecutionPlan();
+    if (ep == null) {
+      throw new CommandExecutionException(session,
+          "Cannot profile command: " + statement);
+    }
     var result =
         new ExplainResultSet(session,
-            rs.getExecutionPlan()
-                .orElseThrow(
-                    () -> new CommandExecutionException(session,
-                        "Cannot profile command: " + statement)),
+            ep,
             dbStats);
     rs.close();
     return result;

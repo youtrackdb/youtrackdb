@@ -87,31 +87,25 @@ public class NewTraverseTest extends BaseDBTest {
     youHaveGotMail.save();
     totalElements++;
 
-    var e = session.newRegularEdge(tomCruise, topGun, "actorIn");
-    e.save();
+    var e = session.newStatefulEdge(tomCruise, topGun, "actorIn");
 
     totalElements++;
-    e = session.newRegularEdge(megRyan, topGun, "actorIn");
-    e.save();
+    e = session.newStatefulEdge(megRyan, topGun, "actorIn");
 
     totalElements++;
-    e = session.newRegularEdge(tomCruise, missionImpossible, "actorIn");
-    e.save();
+    e = session.newStatefulEdge(tomCruise, missionImpossible, "actorIn");
 
     totalElements++;
-    e = session.newRegularEdge(megRyan, youHaveGotMail, "actorIn");
-    e.save();
+    e = session.newStatefulEdge(megRyan, youHaveGotMail, "actorIn");
 
     totalElements++;
 
-    e = session.newRegularEdge(tomCruise, megRyan, "friend");
-    e.save();
+    e = session.newStatefulEdge(tomCruise, megRyan, "friend");
 
     totalElements++;
-    e = session.newRegularEdge(tomCruise, nicoleKidman, "married");
+    e = session.newStatefulEdge(tomCruise, nicoleKidman, "married");
 
     e.setProperty("year", 1990);
-    e.save();
 
     totalElements++;
     session.commit();
@@ -156,7 +150,7 @@ public class NewTraverseTest extends BaseDBTest {
     while (result1.hasNext()) {
       var d = result1.next();
 
-      Assert.assertEquals(d.getEntity().get().getSchemaType().get().getName(session), "Movie");
+      Assert.assertEquals(d.castToEntity().getSchemaClassName(), "Movie");
     }
     result1.close();
   }
@@ -171,7 +165,7 @@ public class NewTraverseTest extends BaseDBTest {
     Assert.assertTrue(result1.hasNext());
     while (result1.hasNext()) {
       var d = result1.next();
-      Assert.assertEquals(d.getEntity().get().getSchemaType().get().getName(session), "Movie");
+      Assert.assertEquals(d.castToEntity().getSchemaClassName(), "Movie");
     }
     result1.close();
   }
@@ -193,8 +187,8 @@ public class NewTraverseTest extends BaseDBTest {
     Assert.assertTrue(result2.hasNext());
     var size2 = 0;
     while (result2.hasNext()) {
-      EntityImpl d = result2.next().getEntity().get().getRecord(session);
-      Assert.assertEquals(d.getClassName(), "Movie");
+      EntityImpl d = result2.next().castToEntity().getRecord(session);
+      Assert.assertEquals(d.getSchemaClassName(), "Movie");
       size2++;
     }
     result2.close();
@@ -206,8 +200,8 @@ public class NewTraverseTest extends BaseDBTest {
     Assert.assertTrue(result3.hasNext());
     var size3 = 0;
     while (result3.hasNext()) {
-      EntityImpl d = result3.next().getEntity().get().getRecord(session);
-      Assert.assertEquals(d.getClassName(), "Movie");
+      EntityImpl d = result3.next().castToEntity().getRecord(session);
+      Assert.assertEquals(d.getSchemaClassName(), "Movie");
       size3++;
     }
     Assert.assertTrue(size3 > size2);

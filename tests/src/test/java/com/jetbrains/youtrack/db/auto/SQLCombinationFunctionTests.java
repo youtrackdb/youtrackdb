@@ -375,7 +375,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
         from = session.bindToSession(car);
         to = session.bindToSession(motorcycle);
       }
-      session.newRegularEdge(from, to).save();
+      session.newStatefulEdge(from, to).save();
     }
     session.commit();
   }

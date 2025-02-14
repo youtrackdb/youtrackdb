@@ -752,8 +752,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
         throw new SQLException(
             "The current record is not an entity. Its class can not be retrieved");
       }
-      var r = result.asEntity().getSchemaType().map(schemaClass -> schemaClass.getName(session))
-          .orElse(null);
+      var r = result.castToEntity().getSchemaClassName();
       lastReadWasNull = r == null;
       return r;
     }
@@ -867,8 +866,11 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
             "The current record is not an entity. Its class can not be retrieved");
       }
       lastReadWasNull = false;
-      return result.asEntity().getSchemaType().map(schemaClass -> schemaClass.getName(session))
-          .orElse("NOCLASS");
+      var className = result.castToEntity().getSchemaClassName();
+      if (className == null) {
+        return "NOCLASS";
+      }
+      return className;
     }
 
     try {

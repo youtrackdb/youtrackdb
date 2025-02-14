@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -47,29 +48,30 @@ public class LiveQuery30Test extends BaseDBTest implements CommandOutputListener
     public int unsubscribe;
 
     @Override
-    public void onCreate(DatabaseSessionInternal session, Result data) {
+    public void onCreate(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ops.add(new Pair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
+    public void onUpdate(@Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+        @Nonnull Result after) {
       ops.add(new Pair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal session, Result data) {
+    public void onDelete(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ops.add(new Pair<>("delete", data));
       latch.countDown();
     }
 
     @Override
-    public void onError(DatabaseSession session, BaseException exception) {
+    public void onError(@Nonnull DatabaseSession session, @Nonnull BaseException exception) {
     }
 
     @Override
-    public void onEnd(DatabaseSession session) {
+    public void onEnd(@Nonnull DatabaseSession session) {
       unsubscribe = 1;
       unLatch.countDown();
     }

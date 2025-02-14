@@ -1334,7 +1334,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         database.executeInTx(
             () -> {
               var record =
-                  database.bindToSession((EntityImpl) result.next().getEntity().get());
+                  database.bindToSession((EntityImpl) result.next().castToEntity());
               record.field(propertyName, record.field(propertyName), type);
               database.save(record);
             });
@@ -1361,7 +1361,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
         database.executeInTx(
             () -> {
               var record =
-                  database.bindToSession((EntityImpl) result.next().getEntity().get());
+                  database.bindToSession((EntityImpl) result.next().castToEntity());
               record.setFieldType(propertyName, type);
               record.field(newPropertyName, record.field(propertyName), type);
               database.save(record);
@@ -1490,7 +1490,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   protected static boolean matchesType(DatabaseSession db, Object x, SchemaClass linkedClass) {
     if (x instanceof Result) {
-      x = ((Result) x).asEntity();
+      x = ((Result) x).castToEntity();
     }
     if (x instanceof RID) {
       try {
@@ -1506,7 +1506,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
       return false;
     }
     return !(x instanceof EntityImpl)
-        || linkedClass.getName(db).equalsIgnoreCase(((EntityImpl) x).getClassName());
+        || linkedClass.getName(db).equalsIgnoreCase(((EntityImpl) x).getSchemaClassName());
   }
 
   protected static String getEscapedName(final String iName, final boolean iStrictSQL) {

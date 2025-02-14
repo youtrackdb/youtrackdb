@@ -331,7 +331,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
   private static Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
     if (item instanceof Entity) {
-      return ((Entity) item).asVertex().orElse(null);
+      return ((Entity) item).asVertex();
     } else {
       try {
         item = db.load(item.getIdentity());
@@ -340,7 +340,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       }
 
       if (item instanceof Entity) {
-        return ((Entity) item).asVertex().orElse(null);
+        return ((Entity) item).asVertex();
       }
     }
     return null;

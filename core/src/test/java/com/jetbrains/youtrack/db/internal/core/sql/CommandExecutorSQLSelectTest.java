@@ -441,7 +441,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testProjection() {
     try (var rs = session.query("select a from foo where name = 'a' or bar = 1")) {
       if (!session.isRemote()) {
-        assertEquals(2, indexUsages(rs.getExecutionPlan().orElseThrow()));
+        assertEquals(2, indexUsages(rs.getExecutionPlan()));
       }
 
       var qResult = rs.toList();
@@ -453,7 +453,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
   public void testProjection2() {
     try (var rs = session.query("select a from foo where name = 'a' or bar = 2")) {
       if (!session.isRemote()) {
-        assertEquals(2, indexUsages(rs.getExecutionPlan().orElseThrow()));
+        assertEquals(2, indexUsages(rs.getExecutionPlan()));
       }
 
       var qResult = rs.toList();
@@ -726,7 +726,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     var prev = qResult.next();
     while (qResult.hasNext()) {
       var next = qResult.next();
-      assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) <= 0);
+      assertTrue(prev.getIdentity().compareTo(next.getIdentity()) <= 0);
       prev = next;
     }
     qResult.close();
@@ -737,7 +737,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     prev = qResult.next();
     while (qResult.hasNext()) {
       var next = qResult.next();
-      assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) >= 0);
+      assertTrue(prev.getIdentity().compareTo(next.getIdentity()) >= 0);
       prev = next;
     }
     qResult.close();
@@ -748,7 +748,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     prev = qResult.next();
     while (qResult.hasNext()) {
       var next = qResult.next();
-      assertTrue(prev.getIdentity().get().compareTo(next.getIdentity().get()) >= 0);
+      assertTrue(prev.getIdentity().compareTo(next.getIdentity()) >= 0);
       prev = next;
     }
   }
@@ -763,7 +763,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
-      assertFalse(doc.getIdentity().isPresent());
+      assertNull(doc.getIdentity());
     }
   }
 
@@ -776,7 +776,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     for (var doc : qResult) {
       var coll = doc.getProperty("coll");
       assertNull(coll);
-      assertFalse(doc.getIdentity().isPresent());
+      assertNull(doc.getIdentity());
     }
   }
 
@@ -791,7 +791,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
       assertTrue(coll.startsWith(name));
-      assertFalse(doc.getIdentity().isPresent());
+      assertNull(doc.getIdentity());
     }
   }
 
@@ -1661,7 +1661,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     Result lastDoc = null;
     for (var doc : results) {
       if (lastDoc != null) {
-        assertTrue(doc.getIdentity().get().compareTo(lastDoc.getIdentity().get()) < 0);
+        assertTrue(doc.getIdentity().compareTo(lastDoc.getIdentity()) < 0);
       }
       lastDoc = doc;
     }
@@ -1673,7 +1673,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     lastDoc = null;
     for (var doc : results) {
       if (lastDoc != null) {
-        assertTrue(doc.getIdentity().get().compareTo(lastDoc.getIdentity().get()) > 0);
+        assertTrue(doc.getIdentity().compareTo(lastDoc.getIdentity()) > 0);
       }
       lastDoc = doc;
     }

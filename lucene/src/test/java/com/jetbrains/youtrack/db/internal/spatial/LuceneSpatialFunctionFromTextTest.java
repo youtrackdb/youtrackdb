@@ -55,7 +55,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
     Assert.assertNotNull(geom.getProperty("coordinates"));
 
     Assert.assertEquals(
-        source.getSchemaType().get().getName(session), geom.getSchemaType().get().getName(session));
+        source.getSchemaClassName(), geom.getSchemaClassName());
     Assert.assertEquals(
         geom.<PointLegecyBuilder>getProperty("coordinates"), source.getProperty("coordinates"));
   }
@@ -120,7 +120,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
     Assert.assertNotNull(geom.getProperty("geometries"));
 
-    Assert.assertEquals(source.getClassName(), geom.getSchemaType().get().getName(session));
+    Assert.assertEquals(source.getSchemaClassName(), geom.getSchemaClassName());
 
     List<EntityImpl> sourceCollection = source.getProperty("geometries");
     List<EntityImpl> targetCollection = source.getProperty("geometries");

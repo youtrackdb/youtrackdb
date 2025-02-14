@@ -339,7 +339,7 @@ public class StorageBackupMTStateTest {
                     + random.nextInt(linkedClassCounter.get()));
 
         if (docs.hasNext()) {
-          linkedDocuments.add(docs.next().getIdentity().get());
+          linkedDocuments.add(docs.next().getIdentity());
         }
 
         tCount++;
@@ -444,7 +444,7 @@ public class StorageBackupMTStateTest {
 
                 if (docs.hasNext()) {
                   var document = docs.next();
-                  databaseDocumentTx.delete(document.getIdentity().get());
+                  databaseDocumentTx.delete(document.castToEntity());
                   deleted = true;
                 }
               } while (!deleted);

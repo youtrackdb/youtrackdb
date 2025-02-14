@@ -26,7 +26,7 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
       v1.save();
       if (prev != null) {
         prev = session.bindToSession(prev);
-        prev.addEdge(v1, edgeClassName).save();
+        prev.addEdge(v1, edgeClassName);
       }
       prev = v1;
       session.commit();
@@ -81,7 +81,7 @@ public class DeleteEdgeStatementExecutionTest extends DbTestBase {
       v1.save();
       if (prev != null) {
         prev = session.bindToSession(prev);
-        prev.addEdge(v1, edgeClassName).save();
+        prev.addEdge(v1, edgeClassName);
       }
       prev = v1;
       session.commit();

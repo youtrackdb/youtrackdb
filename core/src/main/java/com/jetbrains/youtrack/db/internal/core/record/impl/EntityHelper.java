@@ -152,7 +152,7 @@ public class EntityHelper {
       } else if (MultiValue.isMultiValue(iValue) && MultiValue.getSize(iValue) == 1) {
         var val = MultiValue.getFirstValue(iValue);
         if (val instanceof Result) {
-          val = ((Result) val).getIdentity().orElse(null);
+          val = ((Result) val).getIdentity();
         }
         if (val instanceof Identifiable) {
           return (RET) val;
@@ -883,7 +883,7 @@ public class EntityHelper {
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_VERSION)) {
           return iCurrent.getRecord(db).getVersion();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_CLASS)) {
-          return ((EntityImpl) iCurrent.getRecord(db)).getClassName();
+          return ((EntityImpl) iCurrent.getRecord(db)).getSchemaClassName();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_TYPE)) {
           return YouTrackDBEnginesManager.instance()
               .getRecordFactoryManager()

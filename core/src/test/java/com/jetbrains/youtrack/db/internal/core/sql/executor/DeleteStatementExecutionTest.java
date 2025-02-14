@@ -140,7 +140,7 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
       Assert.assertNotNull(item);
-      Assert.assertEquals(fourthId, item.getRecordId());
+      Assert.assertEquals(fourthId, item.getIdentity());
     }
     Assert.assertFalse(result.hasNext());
     session.commit();

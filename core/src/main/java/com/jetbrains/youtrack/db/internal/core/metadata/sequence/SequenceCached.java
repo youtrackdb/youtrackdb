@@ -121,7 +121,7 @@ public class SequenceCached extends DBSequence {
         .checkSecurity(
             Rule.ResourceGeneric.CLASS,
             Role.PERMISSION_UPDATE,
-            this.entityRid.<EntityImpl>getRecord(db).getClassName());
+            this.entityRid.<EntityImpl>getRecord(db).getSchemaClassName());
   }
 
   @Override

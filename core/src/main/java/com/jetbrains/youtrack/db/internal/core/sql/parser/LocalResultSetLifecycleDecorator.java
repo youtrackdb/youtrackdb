@@ -1,14 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.db.QueryLifecycleListener;
 import com.jetbrains.youtrack.db.api.query.ExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.QueryLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -59,7 +58,7 @@ public class LocalResultSetLifecycleDecorator implements ResultSet {
   }
 
   @Override
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     return entity.getExecutionPlan();
   }
 

@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +75,8 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
           sb.append("'");
 
           // role=(select from Role where name in [<input_role || 'writer'>)]
-          List<SQLIdentifier> roles = new ArrayList<>();
-          roles.addAll(this.roles);
-          if (roles.size() == 0) {
+          List<SQLIdentifier> roles = new ArrayList<>(this.roles);
+          if (roles.isEmpty()) {
             roles.add(new SQLIdentifier(DEFAULT_ROLE));
           }
 
@@ -100,7 +99,8 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
               sb.append(", ");
             }
 
-            if (roleName.startsWith("'") || roleName.startsWith("\"")) {
+            if (!roleName.isEmpty() && roleName.charAt(0) == '\'' || !roleName.isEmpty()
+                && roleName.charAt(0) == '\"') {
               sb.append(roleName);
             } else {
               sb.append("'");
@@ -109,10 +109,10 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
             }
           }
           sb.append("])");
-          var stream =
-              session.computeInTx(() -> session.command(sb.toString(), params.toArray()).stream());
-          return ExecutionStream.resultIterator(stream.iterator())
-              .onClose((context) -> stream.close());
+          var result =
+              session.computeInTx(
+                  () -> session.command(sb.toString(), params.toArray()).detach());
+          return ExecutionStream.resultIterator(result.iterator());
         });
   }
 
@@ -153,25 +153,49 @@ public class SQLCreateSystemUserStatement extends SQLSimpleExecServerStatement {
     return result;
   }
 
+//  @Override
+//  public boolean equals(Object o) {
+//    if (this == o) {
+//      return true;
+//    }
+//    if (o == null || getClass() != o.getClass()) {
+//      return false;
+//    }
+//    var that = (SQLCreateSystemUserStatement) o;
+//    return Objects.equals(name, that.name)
+//        && Objects.equals(passwordIdentifier, that.passwordIdentifier)
+//        && Objects.equals(passwordString, that.passwordString)
+//        && Objects.equals(passwordParam, that.passwordParam)
+//        && Objects.equals(roles, that.roles);
+//  }
+//
+//  @Override
+//  public int hashCode() {
+//    return Objects.hash(name, passwordIdentifier, passwordString, passwordParam, roles);
+//  }
+
+
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
+
     var that = (SQLCreateSystemUserStatement) o;
-    return Objects.equals(name, that.name)
-        && Objects.equals(passwordIdentifier, that.passwordIdentifier)
-        && Objects.equals(passwordString, that.passwordString)
-        && Objects.equals(passwordParam, that.passwordParam)
-        && Objects.equals(roles, that.roles);
+    return Objects.equals(name, that.name) && Objects.equals(passwordIdentifier,
+        that.passwordIdentifier) && Objects.equals(passwordString, that.passwordString)
+        && Objects.equals(passwordParam, that.passwordParam) && Objects.equals(
+        roles, that.roles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, passwordIdentifier, passwordString, passwordParam, roles);
+    var result = Objects.hashCode(name);
+    result = 31 * result + Objects.hashCode(passwordIdentifier);
+    result = 31 * result + Objects.hashCode(passwordString);
+    result = 31 * result + Objects.hashCode(passwordParam);
+    result = 31 * result + Objects.hashCode(roles);
+    return result;
   }
 
   public void addRole(SQLIdentifier identifer) {

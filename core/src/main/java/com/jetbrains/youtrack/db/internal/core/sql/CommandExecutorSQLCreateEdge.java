@@ -232,7 +232,6 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
                 edge.getRecord(session), fields, new CommandParameters(iArgs), context);
           }
 
-          edge.getBaseEntity().save(clusterName);
           fromVertex.save();
           toVertex.save();
 
@@ -268,7 +267,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
       return null;
     }
     if (item instanceof Entity) {
-      return ((Entity) item).asVertex().orElse(null);
+      return ((Entity) item).asVertex();
     } else {
       try {
         item = db.load(item.getIdentity());
@@ -276,7 +275,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
         return null;
       }
       if (item instanceof Entity) {
-        return ((Entity) item).asVertex().orElse(null);
+        return ((Entity) item).asVertex();
       }
     }
     return null;

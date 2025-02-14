@@ -47,7 +47,7 @@ public class BinaryToken implements Token {
     if (this.payload.getUserRid() != null) {
       try {
         EntityImpl result = db.load(new RecordId(this.payload.getUserRid()));
-        if (result.getClassName().equals(SecurityUserImpl.CLASS_NAME)) {
+        if (result.getSchemaClassName().equals(SecurityUserImpl.CLASS_NAME)) {
           return new SecurityUserImpl(db, result);
         }
       } catch (RecordNotFoundException e) {

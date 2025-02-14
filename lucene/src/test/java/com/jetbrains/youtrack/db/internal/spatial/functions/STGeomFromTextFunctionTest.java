@@ -20,13 +20,13 @@ public class STGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
       var func = new STGeomFromTextFunction();
       var item =
           (EntityImpl) func.execute(null, null, null, new Object[]{"POINT (100.0 80.0)"}, null);
-      Assert.assertEquals("OPoint", item.getClassName());
+      Assert.assertEquals("OPoint", item.getSchemaClassName());
       Assert.assertEquals(2, ((List) item.getProperty("coordinates")).size());
 
       item =
           (EntityImpl) func.execute(null, null, null, new Object[]{"POINT Z(100.0 80.0 10)"},
               null);
-      Assert.assertEquals("OPointZ", item.getClassName());
+      Assert.assertEquals("OPointZ", item.getSchemaClassName());
       Assert.assertEquals(3, ((List) item.getProperty("coordinates")).size());
 
       item =
@@ -37,7 +37,7 @@ public class STGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
                   null,
                   new Object[]{"LINESTRING Z (1 1 0, 1 2 0, 1 3 1, 2 2 0)"},
                   null);
-      Assert.assertEquals("OLineStringZ", item.getClassName());
+      Assert.assertEquals("OLineStringZ", item.getSchemaClassName());
       Assert.assertEquals(3, ((List<List<Double>>) item.getProperty("coordinates")).get(0).size());
       Assert.assertFalse(
           Double.isNaN(((List<List<Double>>) item.getProperty("coordinates")).get(0).get(2)));
@@ -50,7 +50,7 @@ public class STGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
                   null,
                   new Object[]{"POLYGON Z ((0 0 1, 0 1 0, 1 1 0, 1 0 0, 0 0 0))"},
                   null);
-      Assert.assertEquals("OPolygonZ", item.getClassName());
+      Assert.assertEquals("OPolygonZ", item.getSchemaClassName());
       Assert.assertEquals(
           5, ((List<List<List<Double>>>) item.getProperty("coordinates")).get(0).size());
       Assert.assertFalse(
@@ -65,7 +65,7 @@ public class STGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
                   null,
                   new Object[]{"MULTILINESTRING Z ((1 1 0, 1 2 0), (1 3 1, 2 2 0))"},
                   null);
-      Assert.assertEquals("OMultiLineStringZ", item.getClassName());
+      Assert.assertEquals("OMultiLineStringZ", item.getSchemaClassName());
       Assert.assertEquals(
           2, ((List<List<List<Double>>>) item.getProperty("coordinates")).get(0).size());
       Assert.assertFalse(

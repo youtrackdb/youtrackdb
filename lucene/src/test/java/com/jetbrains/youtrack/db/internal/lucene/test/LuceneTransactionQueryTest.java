@@ -86,7 +86,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", "abc");
 
-    session.delete(result.getIdentity().get());
+    session.delete(result.getIdentity());
 
     vertices = session.query("select from C1 where p1 lucene \"abc\" ");
 
@@ -153,7 +153,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     session.begin();
 
-    var record = session.bindToSession(res.getEntity().get());
+    var record = session.bindToSession(res.castToEntity());
     record.setProperty("p1", "removed");
     session.save(record);
 

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -46,9 +45,9 @@ public class InternalResultSet implements ResultSet, Resettable {
   }
 
   @Override
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     assert session == null || session.assertIfNotActive();
-    return Optional.ofNullable(plan);
+    return plan;
   }
 
   public void setPlan(ExecutionPlan plan) {

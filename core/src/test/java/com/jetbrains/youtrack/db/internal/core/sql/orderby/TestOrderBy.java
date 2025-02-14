@@ -28,15 +28,15 @@ public class TestOrderBy extends DbTestBase {
 
     var queryRes =
         session.query("select from test order by name").stream().collect(Collectors.toList());
-    assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());
-    assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());
-    assertEquals(queryRes.get(2).getIdentity().get(), res3.getIdentity());
+    assertEquals(queryRes.get(0).getIdentity(), res2.getIdentity());
+    assertEquals(queryRes.get(1).getIdentity(), res1.getIdentity());
+    assertEquals(queryRes.get(2).getIdentity(), res3.getIdentity());
 
     queryRes =
         session.query("select from test order by name desc ").stream().collect(Collectors.toList());
-    assertEquals(queryRes.get(0).getIdentity().get(), res3.getIdentity());
-    assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());
-    assertEquals(queryRes.get(2).getIdentity().get(), res2.getIdentity());
+    assertEquals(queryRes.get(0).getIdentity(), res3.getIdentity());
+    assertEquals(queryRes.get(1).getIdentity(), res1.getIdentity());
+    assertEquals(queryRes.get(2).getIdentity(), res2.getIdentity());
   }
 
   @Test
@@ -52,9 +52,9 @@ public class TestOrderBy extends DbTestBase {
     var res3 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Zebra"));
     var queryRes =
         session.query("select from test order by name").stream().collect(Collectors.toList());
-    assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());
-    assertEquals(queryRes.get(1).getIdentity().get(), res1.getIdentity());
-    assertEquals(queryRes.get(2).getIdentity().get(), res3.getIdentity());
+    assertEquals(queryRes.get(0).getIdentity(), res2.getIdentity());
+    assertEquals(queryRes.get(1).getIdentity(), res1.getIdentity());
+    assertEquals(queryRes.get(2).getIdentity(), res3.getIdentity());
 
     queryRes =
         session.query("select from test order by name desc ").stream().collect(Collectors.toList());

@@ -157,7 +157,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
       var item = iter.next();
       if (item instanceof Result) {
         if (((Result) item).isEntity()) {
-          rids.add(((Result) item).getIdentity().get().toString());
+          rids.add(((Result) item).getIdentity().toString());
         } else {
           var properties = ((Result) item).getPropertyNames();
           if (properties.size() == 1) {

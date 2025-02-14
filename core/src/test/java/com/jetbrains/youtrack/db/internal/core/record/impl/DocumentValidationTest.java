@@ -171,7 +171,7 @@ public class DocumentValidationTest extends BaseMemoryInternalDatabase {
     d = (EntityImpl) session.newEntity(clazzNotVertex);
     checkField(d, "embeddedSimple", session.newVertex());
     checkField(d, "embeddedSimple",
-        session.newRegularEdge(session.newVertex(), session.newVertex()));
+        session.newStatefulEdge(session.newVertex(), session.newVertex()));
     session.rollback();
   }
 

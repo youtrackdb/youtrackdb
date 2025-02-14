@@ -156,7 +156,10 @@ public class SQLUpdateItem extends SimpleNode {
 
   private Object initSchemafullCollections(DatabaseSessionInternal session, ResultInternal entity,
       String propName) {
-    var oClass = entity.getEntity().flatMap(Entity::getSchemaType).orElse(null);
+    if (!entity.isEntity()) {
+      return null;
+    }
+    var oClass = entity.castToEntity().getSchemaClass();
     if (oClass == null) {
       return null;
     }
@@ -190,7 +193,7 @@ public class SQLUpdateItem extends SimpleNode {
     if (entity.isEntity()) {
       var elem = entity.asEntity();
 
-      var clazz = elem.getSchemaType().orElse(null);
+      var clazz = elem.getSchemaClass();
       if (clazz == null) {
         return null;
       }
@@ -248,12 +251,12 @@ public class SQLUpdateItem extends SimpleNode {
 
     var session = ctx.getDatabaseSession();
     var entity = res.asEntity();
-    var optSchema = entity.getSchemaType();
-    if (optSchema.isEmpty()) {
+    var optSchema = entity.getSchemaClass();
+    if (optSchema == null) {
       return newValue;
     }
 
-    var prop = optSchema.get().getProperty(ctx.getDatabaseSession(), attrName.getStringValue());
+    var prop = optSchema.getProperty(ctx.getDatabaseSession(), attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }
@@ -322,7 +325,7 @@ public class SQLUpdateItem extends SimpleNode {
   private static Object convertToType(Object item, SchemaClass linkedClass, CommandContext ctx) {
     var db = ctx.getDatabaseSession();
     if (item instanceof Entity) {
-      var currentType = ((Entity) item).getSchemaType().orElse(null);
+      var currentType = ((Entity) item).getSchemaClass();
       if (currentType == null || !currentType.isSubClassOf(db, linkedClass)) {
         var result = db.newEmbededEntity(linkedClass);
 

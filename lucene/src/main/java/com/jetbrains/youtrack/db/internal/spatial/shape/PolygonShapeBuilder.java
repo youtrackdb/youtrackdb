@@ -16,7 +16,6 @@ package com.jetbrains.youtrack.db.internal.spatial.shape;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -144,7 +143,7 @@ public class PolygonShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
 
   @Override
   public String asText(EntityImpl document) {
-    if (document.getClassName().equals("OPolygonZ")) {
+    if (document.getSchemaClassName().equals("OPolygonZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 
       var result =

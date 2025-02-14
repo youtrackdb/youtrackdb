@@ -283,7 +283,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
               final var v = toVertex(session, toId);
               if (v != null) {
                 for (var e : v.getEdges(Direction.IN, label)) {
-                  final var outVRid = e.getFromIdentifiable().getIdentity();
+                  final var outVRid = e.getFromLink().getIdentity();
                   if (outVRid != null && fromIds.contains(outVRid)) {
                     edges.add(e);
                   }
@@ -318,12 +318,9 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
         if (compiledFilter != null) {
           // ADDITIONAL FILTERING
-          for (var it = edges.iterator(); it.hasNext(); ) {
-            final var edge = it.next();
-            if (!(Boolean) compiledFilter.evaluate(edge.getRecord(session), null, context)) {
-              it.remove();
-            }
-          }
+          edges.removeIf(
+              edge -> edge.isStateful() && !(Boolean) compiledFilter.evaluate(
+                  edge.castToStatefulEdge(), null, context));
         }
 
         // DELETE THE FOUND EDGES
@@ -387,12 +384,8 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   }
 
   private Edge toEdge(DatabaseSessionInternal session, Identifiable item) {
-    if (item != null && item instanceof Entity) {
-      final var a = item;
-      return ((Entity) item)
-          .asEdge()
-          .orElseThrow(
-              () -> new CommandExecutionException(session, (a.getIdentity()) + " is not an edge"));
+    if (item instanceof Entity) {
+      return ((Entity) item).castToStateFullEdge();
     } else {
       try {
         item = session.load(item.getIdentity());
@@ -402,19 +395,15 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
       if (item instanceof Entity) {
         final var a = item;
-        return ((Entity) item)
-            .asEdge()
-            .orElseThrow(
-                () -> new CommandExecutionException(session,
-                    (a.getIdentity()) + " is not an edge"));
+        return ((Entity) item).castToStateFullEdge();
       }
     }
     return null;
   }
 
-  private Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
+  private static Vertex toVertex(DatabaseSessionInternal db, Identifiable item) {
     if (item instanceof Entity) {
-      return ((Entity) item).asVertex().orElse(null);
+      return ((Entity) item).asVertex();
     } else {
       try {
         item = db.load(item.getIdentity());
@@ -422,7 +411,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
         return null;
       }
       if (item instanceof Entity) {
-        return ((Entity) item).asVertex().orElse(null);
+        return ((Entity) item).asVertex();
       }
     }
     return null;

@@ -6,13 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -335,7 +329,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
     var v1 = db.newVertex("MyV");
     var v2 = db.newVertex("MyV");
-    var edge = v1.addEdge(v2, "MyE");
+    var edge = v1.addStateFulEdge(v2, "MyE");
     edge.setProperty("some", "value");
     db.save(v1);
     var result1 = db.query("select out_MyE from MyV  where out_MyE is not null");

@@ -104,21 +104,21 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    DatabaseSessionInternal db = null;
+    DatabaseSessionInternal session = null;
 
     var ok = false;
     var txBegun = false;
     try {
-      db = getProfiledDatabaseSessionInstance(iRequest);
-      db.resetRecordLoadStats();
-      var stm = parseStatement(language, text, db);
+      session = getProfiledDatabaseSessionInstance(iRequest);
+      session.resetRecordLoadStats();
+      var stm = parseStatement(language, text, session);
 
       if (stm != null && !(stm instanceof DDLStatement)) {
-        db.begin();
+        session.begin();
         txBegun = true;
       }
 
-      var result = executeStatement(language, text, params, db);
+      var result = executeStatement(language, text, params, session);
       limit = getLimitFromStatement(stm, limit);
       var localFetchPlan = getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {
@@ -127,7 +127,7 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       var i = 0;
       List response = new ArrayList();
       TimerTask commandInterruptTimer = null;
-      if (db.getConfiguration().getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT) > 0
+      if (session.getConfiguration().getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT) > 0
           && !language.equalsIgnoreCase("sql")) {
       }
       try {
@@ -145,10 +145,10 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       }
       Map<String, Object> additionalContent = new HashMap<>();
       if (returnExecutionPlan) {
-        var dbRef = db;
-        result
-            .getExecutionPlan()
-            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(dbRef).toMap()));
+        var plan = result.getExecutionPlan();
+        if (plan != null) {
+          additionalContent.put("executionPlan", plan.toResult(session).toMap());
+        }
       }
 
       result.close();
@@ -164,23 +164,23 @@ public class ServerCommandPostCommand extends ServerCommandAuthenticatedDbAbstra
       }
 
       additionalContent.put("elapsedMs", elapsedMs);
-      var dbStats = db.getStats();
-      additionalContent.put("dbStats", dbStats.toResult(db).toMap());
+      var dbStats = session.getStats();
+      additionalContent.put("dbStats", dbStats.toResult(session).toMap());
 
-      iResponse.writeResult(response, format, accept, additionalContent, mode, db);
+      iResponse.writeResult(response, format, accept, additionalContent, mode, session);
       ok = true;
     } finally {
-      if (db != null) {
-        db.activateOnCurrentThread();
+      if (session != null) {
+        session.activateOnCurrentThread();
 
-        if (txBegun && db.getTransaction().isActive()) {
+        if (txBegun && session.getTransaction().isActive()) {
           if (ok) {
-            db.commit();
+            session.commit();
           } else {
-            db.rollback();
+            session.rollback();
           }
         }
-        db.close();
+        session.close();
       }
     }
 

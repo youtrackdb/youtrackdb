@@ -57,7 +57,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
     for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Assert.assertEquals(i, item.getMetadata("$depth"));
+      Assert.assertEquals(i, ((ResultInternal) item).getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -113,7 +113,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
     for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Assert.assertEquals(i, item.getMetadata("$depth"));
+      Assert.assertEquals(i, ((ResultInternal) item).getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -167,7 +167,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
     for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Assert.assertEquals(i, item.getMetadata("$depth"));
+      Assert.assertEquals(i, ((ResultInternal) item).getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -179,7 +179,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
     for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Assert.assertEquals(i, item.getMetadata("$depth"));
+      Assert.assertEquals(i, ((ResultInternal) item).getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -235,7 +235,7 @@ public class TraverseStatementExecutionTest extends DbTestBase {
     for (var i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Assert.assertEquals(i, item.getMetadata("$depth"));
+      Assert.assertEquals(i, ((ResultInternal) item).getMetadata("$depth"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();

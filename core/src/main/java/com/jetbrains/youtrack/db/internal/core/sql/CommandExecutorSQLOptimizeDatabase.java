@@ -132,7 +132,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             final EntityImpl inV = entity.field("in");
 
             // OUTGOING
-            final var outField = outV.field("out_" + entity.getClassName());
+            final var outField = outV.field("out_" + entity.getSchemaClassName());
             if (outField instanceof RidBag) {
               final var it = ((RidBag) outField).iterator();
               while (it.hasNext()) {
@@ -149,7 +149,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             outV.save();
 
             // INCOMING
-            final var inField = inV.field("in_" + entity.getClassName());
+            final var inField = inV.field("in_" + entity.getSchemaClassName());
             if (outField instanceof RidBag) {
               final var it = ((RidBag) inField).iterator();
               while (it.hasNext()) {

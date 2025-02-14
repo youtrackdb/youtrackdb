@@ -46,7 +46,7 @@ public class MatchEdgeTraverser {
     }
     var endPointAlias = getEndpointAlias();
     var nextR = downstream.next(ctx);
-    Identifiable nextElement = nextR.getEntity().get();
+    Identifiable nextElement = nextR.castToEntity();
     var prevValue = sourceRecord.getProperty(endPointAlias);
     if (prevValue != null && !equals(prevValue, nextElement)) {
       return null;
@@ -59,21 +59,31 @@ public class MatchEdgeTraverser {
     }
     result.setProperty(endPointAlias, toResult(db, nextElement));
     if (edge.edge.item.getFilter().getDepthAlias() != null) {
-      result.setProperty(edge.edge.item.getFilter().getDepthAlias(), nextR.getMetadata("$depth"));
+      result.setProperty(edge.edge.item.getFilter().getDepthAlias(),
+          ((ResultInternal) nextR).getMetadata("$depth"));
     }
     if (edge.edge.item.getFilter().getPathAlias() != null) {
       result.setProperty(
-          edge.edge.item.getFilter().getPathAlias(), nextR.getMetadata("$matchPath"));
+          edge.edge.item.getFilter().getPathAlias(),
+          ((ResultInternal) nextR).getMetadata("$matchPath"));
     }
     return result;
   }
 
-  protected boolean equals(Object prevValue, Identifiable nextElement) {
-    if (prevValue instanceof Result) {
-      prevValue = ((Result) prevValue).getEntity().orElse(null);
+  protected static boolean equals(Object prevValue, Identifiable nextElement) {
+    if (prevValue instanceof Result result) {
+      if (result.isEntity()) {
+        prevValue = result.castToEntity();
+      } else {
+        prevValue = null;
+      }
     }
-    if (nextElement instanceof Result) {
-      nextElement = ((Result) nextElement).getEntity().orElse(null);
+    if (nextElement instanceof Result result) {
+      if (result.isEntity()) {
+        nextElement = result.castToEntity();
+      } else {
+        nextElement = null;
+      }
     }
     return prevValue != null && prevValue.equals(nextElement);
   }
@@ -96,8 +106,12 @@ public class MatchEdgeTraverser {
   protected void init(CommandContext ctx) {
     if (downstream == null) {
       var startingElem = sourceRecord.getProperty(getStartingPointAlias());
-      if (startingElem instanceof Result) {
-        startingElem = ((Result) startingElem).getEntity().orElse(null);
+      if (startingElem instanceof Result result) {
+        if (result.isEntity()) {
+          startingElem = result.castToEntity();
+        } else {
+          startingElem = null;
+        }
       }
       downstream = executeTraversal(ctx, this.item, (Identifiable) startingElem, 0, null);
     }
@@ -151,7 +165,7 @@ public class MatchEdgeTraverser {
 
       if (matchesFilters(iCommandContext, filter, startingPoint)
           && matchesClass(iCommandContext, className, startingPoint)
-          && matchesCluster(iCommandContext, clusterId, startingPoint)
+          && matchesCluster(clusterId, startingPoint)
           && matchesRid(iCommandContext, targetRid, startingPoint)) {
         var rs = new ResultInternal(iCommandContext.getDatabaseSession(), startingPoint);
         // set traversal depth in the metadata
@@ -181,8 +195,8 @@ public class MatchEdgeTraverser {
           }
 
           assert origin.isEntity();
-          var elem = origin.asEntity();
-          newPath.add(elem.getIdentity());
+          var elem = origin.castToEntity();
+          newPath.add(elem);
 
           var subResult =
               executeTraversal(iCommandContext, item, elem, depth + 1, newPath);
@@ -213,11 +227,11 @@ public class MatchEdgeTraverser {
     }
     assert next.isEntity();
 
-    var elem = next.asEntity();
+    var elem = next.castToEntity();
     iCommandContext.setVariable("$currentMatch", elem);
     if (matchesFilters(iCommandContext, theFilter, elem)
         && matchesClass(iCommandContext, theClassName, elem)
-        && matchesCluster(iCommandContext, theClusterId, elem)
+        && matchesCluster(theClusterId, elem)
         && matchesRid(iCommandContext, theTargetRid, elem)) {
       ctx.setVariable("$currentMatch", previousMatch);
       return next;
@@ -260,17 +274,17 @@ public class MatchEdgeTraverser {
       }
     }
     if (element != null) {
-      var clazz = element.getSchemaType();
-      if (!clazz.isPresent()) {
+      var clazz = element.getSchemaClass();
+      if (clazz == null) {
         return false;
       }
-      return clazz.get().isSubClassOf(db, className);
+      return clazz.isSubClassOf(db, className);
     }
     return false;
   }
 
-  private boolean matchesCluster(
-      CommandContext iCommandContext, Integer clusterId, Identifiable origin) {
+  private static boolean matchesCluster(
+      Integer clusterId, Identifiable origin) {
     if (clusterId == null) {
       return true;
     }

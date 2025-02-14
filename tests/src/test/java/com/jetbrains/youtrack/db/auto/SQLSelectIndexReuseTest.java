@@ -2962,7 +2962,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         "select count(*) as count from CountFunctionWithNotUniqueIndexTest where a = 'a' and"
             + " b = 'c'")) {
       if (!remoteDB) {
-        Assert.assertEquals(indexesUsed(rs.getExecutionPlan().orElseThrow()), 1);
+        Assert.assertEquals(indexesUsed(rs.getExecutionPlan()), 1);
       }
       Assert.assertEquals(rs.findFirst().<Long>getProperty("count"), 0L);
     }
@@ -3005,7 +3005,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         "select count(*) as count from CountFunctionWithUniqueIndexTest where a = 'a' and b"
             + " = 'c'")) {
       if (!remoteDB) {
-        Assert.assertEquals(indexesUsed(rs.getExecutionPlan().orElseThrow()), 1);
+        Assert.assertEquals(indexesUsed(rs.getExecutionPlan()), 1);
       }
       Assert.assertEquals(rs.findFirst().<Long>getProperty("count"), 2L);
     }

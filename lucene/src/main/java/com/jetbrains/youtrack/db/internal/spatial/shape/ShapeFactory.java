@@ -14,7 +14,6 @@
 package com.jetbrains.youtrack.db.internal.spatial.shape;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   @Override
   public Shape fromDoc(EntityImpl document) {
-    var shapeBuilder = factories.get(document.getClassName());
+    var shapeBuilder = factories.get(document.getSchemaClassName());
     if (shapeBuilder != null) {
       return shapeBuilder.fromDoc(document);
     }
@@ -104,7 +103,7 @@ public class ShapeFactory extends ComplexShapeBuilder {
 
   @Override
   public String asText(EntityImpl document) {
-    var className = document.getClassName();
+    var className = document.getSchemaClassName();
     var shapeBuilder = factories.get(className);
     if (shapeBuilder != null) {
       return shapeBuilder.asText(document);

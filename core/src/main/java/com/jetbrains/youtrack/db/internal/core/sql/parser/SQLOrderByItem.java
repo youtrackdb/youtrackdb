@@ -116,8 +116,8 @@ public class SQLOrderByItem {
       }
     }
     if (aVal == null && bVal == null) {
-      aVal = a.getMetadata(alias);
-      bVal = b.getMetadata(alias);
+      aVal = ((ResultInternal) a).getMetadata(alias);
+      bVal = ((ResultInternal) b).getMetadata(alias);
     }
     if (modifier != null) {
       aVal = modifier.execute(a, aVal, ctx);

@@ -22,16 +22,21 @@ package com.jetbrains.youtrack.db.api.schema;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface Schema {
 
   int countClasses();
 
+  @Nonnull
   SchemaClass createClass(String iClassName);
 
-  SchemaClass createClass(String iClassName, SchemaClass iSuperClass);
+  @Nonnull
+  SchemaClass createClass(@Nonnull String iClassName, @Nonnull SchemaClass iSuperClass);
 
-  SchemaClass createClass(String className, int clusters, SchemaClass... superClasses);
+  @Nonnull
+  SchemaClass createClass(@Nonnull String className, int clusters,
+      @Nullable SchemaClass... superClasses);
 
   SchemaClass createClass(String iClassName, SchemaClass... superClasses);
 

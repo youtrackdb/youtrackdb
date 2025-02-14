@@ -63,7 +63,7 @@ public class MessageHelperTest {
               MessageHelper.readIdentifiable(db,
                   channel, RecordSerializerNetworkFactory.current());
 
-      assertThat(newDoc.getClassName()).isEqualTo("Test");
+      assertThat(newDoc.getSchemaClassName()).isEqualTo("Test");
       assertThat((RidBag) newDoc.field("bag")).hasSize(1);
 
       Assert.assertTrue(

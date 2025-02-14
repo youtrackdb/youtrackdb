@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import java.util.Collection;
 
 /**
  * Abstract class to extend to build Custom SQL Functions. Extend it and register it with: <code>
@@ -100,7 +99,7 @@ public abstract class SQLFunctionAbstract implements SQLFunction {
       }
       source = MultiValue.getFirstValue(source);
       if (source instanceof Result && ((Result) source).isEntity()) {
-        source = ((Result) source).getEntity().get();
+        source = ((Result) source).castToEntity();
       }
     }
     return source;

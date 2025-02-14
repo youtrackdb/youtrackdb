@@ -16,7 +16,6 @@ package com.jetbrains.youtrack.db.internal.spatial.shape;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
@@ -89,7 +88,7 @@ public class LineStringShapeBuilder extends ComplexShapeBuilder<JtsGeometry> {
 
   @Override
   public String asText(EntityImpl document) {
-    if (document.getClassName().equals("OLineStringZ")) {
+    if (document.getSchemaClassName().equals("OLineStringZ")) {
       List<List<Double>> coordinates = document.getProperty("coordinates");
 
       var result =

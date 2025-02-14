@@ -105,7 +105,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
         if (entry != null && entry instanceof Result && ((Result) entry).isEntity()) {
 
-          entry = ((Result) entry).getEntity().get();
+          entry = ((Result) entry).castToEntity();
 
         } else if (entry == null || !(entry instanceof Identifiable)) {
           // IGNORE IT
@@ -122,9 +122,9 @@ public class HttpGraphResponse extends HttpResponseAbstract {
 
         if (entry instanceof Entity element) {
           if (element.isVertex()) {
-            vertices.add(element.asVertex().get());
-          } else if (element.isEdge()) {
-            var edge = element.asEdge().get();
+            vertices.add(element.castToVertex());
+          } else if (element.isStatefulEdge()) {
+            var edge = element.castToStateFullEdge();
             vertices.add(edge.getTo());
             vertices.add(edge.getFrom());
             if (edge.getIdentity() != null) {
@@ -151,7 +151,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         json.beginObject();
 
         json.writeAttribute(session, "@rid", vertex.getIdentity());
-        json.writeAttribute(session, "@class", vertex.getSchemaType().get().getName(session));
+        json.writeAttribute(session, "@class", vertex.getSchemaClassName());
 
         // ADD ALL THE PROPERTIES
         for (var field : ((VertexInternal) vertex).getPropertyNamesInternal()) {
@@ -176,8 +176,12 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         for (var vertex : vertices) {
           for (var e : vertex.getEdges(Direction.OUT)) {
             var edge = e;
-            if (edgeRids.contains(e.getIdentity())
-                && e.getIdentity() != null /* only for non-lighweight */) {
+            if (e.isLightweight()) {
+              continue;
+            }
+
+            var statefulEdge = e.castToStatefulEdge();
+            if (edgeRids.contains(statefulEdge.getIdentity())) {
               continue;
             }
             if (!vertices.contains(edge.getVertex(Direction.OUT))
@@ -187,7 +191,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
               continue;
             }
 
-            edgeRids.add(edge.getIdentity());
+            edgeRids.add(statefulEdge.getIdentity());
 
             printEdge(session, json, edge);
           }
@@ -196,7 +200,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         for (var edgeRid : edgeRids) {
           try {
             Entity elem = edgeRid.getRecord(session);
-            var edge = elem.asEdge().orElse(null);
+            var edge = elem.asRegularEdge();
 
             if (edge != null) {
               printEdge(session, json, edge);
@@ -244,19 +248,22 @@ public class HttpGraphResponse extends HttpResponseAbstract {
   private static void printEdge(DatabaseSessionInternal session, JSONWriter json, Edge edge)
       throws IOException {
     json.beginObject();
-    json.writeAttribute(session, "@rid", edge.getIdentity());
-    json.writeAttribute(session, "@class",
-        edge.getSchemaType().map(x -> x.getName(session)).orElse(null));
+
+    if (!edge.isLightweight()) {
+      var statefulEdge = edge.castToStatefulEdge();
+      json.writeAttribute(session, "@rid", statefulEdge.getIdentity());
+      json.writeAttribute(session, "@class", statefulEdge.getSchemaClassName());
+
+      for (var field : statefulEdge.getPropertyNames()) {
+        final var v = statefulEdge.getProperty(field);
+        if (v != null) {
+          json.writeAttribute(session, field, v);
+        }
+      }
+    }
 
     json.writeAttribute(session, "out", edge.getVertex(Direction.OUT).getIdentity());
     json.writeAttribute(session, "in", edge.getVertex(Direction.IN).getIdentity());
-
-    for (var field : edge.getPropertyNames()) {
-      final var v = edge.getProperty(field);
-      if (v != null) {
-        json.writeAttribute(session, field, v);
-      }
-    }
 
     json.endObject();
   }

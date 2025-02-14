@@ -705,7 +705,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     var rs = currentDatabaseSession.command(command);
     var result =
-        rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap())).toList();
+        rs.stream().map(x -> new RawPair<RID, Object>(x.getIdentity(), x.toMap())).toList();
     rs.close();
 
     var elapsedSeconds = getElapsedSecs(start);
@@ -1054,7 +1054,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     var start = System.currentTimeMillis();
     var rs = currentDatabaseSession.command("traverse " + iQueryText);
-    currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap()))
+    currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getIdentity(), x.toMap()))
         .toList();
     rs.close();
 
@@ -1106,9 +1106,9 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       while (rs.hasNext()) {
         var item = rs.next();
         if (item.isBlob()) {
-          result.add(new RawPair<>(item.getRecordId(), item.getBlob().orElseThrow().toStream()));
+          result.add(new RawPair<>(item.getIdentity(), item.castToBlob().toStream()));
         } else {
-          result.add(new RawPair<>(item.getRecordId(), item.toMap()));
+          result.add(new RawPair<>(item.getIdentity(), item.toMap()));
         }
       }
     }
@@ -1162,7 +1162,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     var count = 0;
     while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
       var resultItem = rs.next();
-      result.add(new RawPair<>(resultItem.getRecordId(), resultItem.toMap()));
+      result.add(new RawPair<>(resultItem.getIdentity(), resultItem.toMap()));
     }
     rs.close();
     currentResultSet = result;
@@ -1212,7 +1212,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     var start = System.currentTimeMillis();
     currentResultSet = currentDatabaseSession.execute("JavaScript", iText).stream()
-        .map(result -> new RawPair<RID, Object>(result.getRecordId(), result.toMap())).toList();
+        .map(result -> new RawPair<RID, Object>(result.getIdentity(), result.toMap())).toList();
     var elapsedSeconds = getElapsedSecs(start);
 
     dumpResultSet(-1);
@@ -2642,9 +2642,9 @@ public class ConsoleDatabaseApp extends ConsoleApplication
           while (rs.hasNext() && (displayLimit < 0 || count < displayLimit)) {
             var item = rs.next();
             if (item.isBlob()) {
-              result.add(new RawPair<>(item.getRecordId(), item.getBlob().orElseThrow()));
+              result.add(new RawPair<>(item.getIdentity(), item.castToBlob()));
             } else {
-              result.add(new RawPair<>(item.getRecordId(), item.toMap()));
+              result.add(new RawPair<>(item.getIdentity(), item.toMap()));
             }
           }
           currentResultSet = result;
@@ -2925,7 +2925,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
     resetResultSet();
     var start = System.currentTimeMillis();
     var rs = currentDatabaseSession.execute(iLanguage, script);
-    currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getRecordId(), x.toMap()))
+    currentResultSet = rs.stream().map(x -> new RawPair<RID, Object>(x.getIdentity(), x.toMap()))
         .toList();
     rs.close();
     var elapsedSeconds = getElapsedSecs(start);

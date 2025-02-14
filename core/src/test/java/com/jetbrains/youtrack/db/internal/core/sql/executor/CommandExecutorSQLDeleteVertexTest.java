@@ -86,7 +86,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
 
     try (var edges = session.query("select from e limit 1")) {
       session.begin();
-      session.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
+      session.command("delete vertex [" + edges.next().getIdentity() + "]").close();
       session.commit();
       Assert.fail("Error on deleting a vertex with a rid of an edge");
     }

@@ -183,9 +183,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
         Assert.assertTrue(
-            lastItem.getIdentity().compareTo(item.getEntity().get().getIdentity()) < 0);
+            lastItem.getIdentity().compareTo(item.castToEntity().getIdentity()) < 0);
       }
-      lastItem = item.getEntity().get();
+      lastItem = item.castToEntity();
     }
     Assert.assertFalse(result.hasNext());
 
@@ -215,9 +215,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
         Assert.assertTrue(
-            lastItem.getIdentity().compareTo(item.getEntity().get().getIdentity()) > 0);
+            lastItem.getIdentity().compareTo(item.castToEntity().getIdentity()) > 0);
       }
-      lastItem = item.getEntity().get();
+      lastItem = item.castToEntity();
     }
     Assert.assertFalse(result.hasNext());
 
@@ -504,7 +504,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertNotNull(name);
       Assert.assertTrue(name.startsWith("name"));
       Assert.assertNull(surname);
-      Assert.assertFalse(item.getEntity().isPresent());
+      Assert.assertFalse(item.isEntity());
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1172,8 +1172,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
 
     var p = result.getExecutionPlan();
-    Assert.assertTrue(p.isPresent());
-    var p2 = p.get();
+    Assert.assertNotNull(p);
+    var p2 = p;
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
     var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
@@ -1208,8 +1208,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
 
     var p = result.getExecutionPlan();
-    Assert.assertTrue(p.isPresent());
-    var p2 = p.get();
+    Assert.assertNotNull(p);
+    var p2 = p;
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
     var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
@@ -1254,14 +1254,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
 
     var p = result.getExecutionPlan();
-    Assert.assertTrue(p.isPresent());
-    var p2 = p.get();
+    Assert.assertNotNull(p);
+    var p2 = p;
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
     var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(FetchFromIndexStep.class, plan.getSteps().get(0).getClass());
 
     Assert.assertEquals(
-        ((FetchFromIndexStep) plan.getSteps().get(0)).getIndexName(), classNameExt + ".name");
+        classNameExt + ".name", ((FetchFromIndexStep) plan.getSteps().get(0)).getIndexName());
     result.close();
   }
 
@@ -1299,8 +1299,8 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
 
     var p = result.getExecutionPlan();
-    Assert.assertTrue(p.isPresent());
-    var p2 = p.get();
+    Assert.assertNotNull(p);
+    var p2 = p;
     Assert.assertTrue(p2 instanceof SelectExecutionPlan);
     var plan = (SelectExecutionPlan) p2;
     Assert.assertEquals(ParallelExecStep.class, plan.getSteps().get(0).getClass());
@@ -1726,7 +1726,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
-    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     result.close();
@@ -1760,7 +1760,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + " 'surname5' ");
     printExecutionPlan(result);
     Assert.assertFalse(result.hasNext());
-    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     result.close();
@@ -1797,7 +1797,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
-    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     result.close();
@@ -1834,7 +1834,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertNotNull(next);
     }
     Assert.assertFalse(result.hasNext());
-    var plan = (SelectExecutionPlan) result.getExecutionPlan().get();
+    var plan = (SelectExecutionPlan) result.getExecutionPlan();
     Assert.assertEquals(
         FetchFromIndexStep.class, plan.getSteps().getFirst().getClass()); // index not used
     result.close();
@@ -2219,7 +2219,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     doc1 = session.bindToSession(doc1);
     doc2 = session.bindToSession(doc2);
 
-    session.newRegularEdge(doc1, doc2, edgeClass).save();
+    session.newStatefulEdge(doc1, doc2, edgeClass);
     session.commit();
 
     var queryString =
@@ -2375,7 +2375,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     var result = session.query("select from " + parent + " where name = 'name1'");
     printExecutionPlan(result);
-    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
     for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
@@ -2420,7 +2420,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var result =
         session.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
     for (var i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
@@ -2464,7 +2464,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var result =
         session.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan();
     Assert.assertTrue(
         plan.getSteps().get(0) instanceof FetchFromClassExecutionStep); // no index used
     for (var i = 0; i < 2; i++) {
@@ -2516,7 +2516,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var result =
         session.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan();
     Assert.assertTrue(
         plan.getSteps().get(0)
             instanceof
@@ -2580,7 +2580,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var result =
         session.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan();
     Assert.assertTrue(plan.getSteps().get(0) instanceof ParallelExecStep);
     for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
@@ -2638,7 +2638,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var result =
         session.query("select from " + parent + " where name = 'name1' and surname = 'surname1'");
     printExecutionPlan(result);
-    var plan = (InternalExecutionPlan) result.getExecutionPlan().get();
+    var plan = (InternalExecutionPlan) result.getExecutionPlan();
     Assert.assertTrue(plan.getSteps().get(0) instanceof FetchFromClassExecutionStep);
     for (var i = 0; i < 3; i++) {
       Assert.assertTrue(result.hasNext());
@@ -2689,7 +2689,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    var plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2737,7 +2737,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    var plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2786,7 +2786,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    var plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2835,7 +2835,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    var plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2883,7 +2883,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    var plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2931,7 +2931,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       lastSurname = surname;
     }
     Assert.assertFalse(result.hasNext());
-    var plan = result.getExecutionPlan().get();
+    var plan = result.getExecutionPlan();
     Assert.assertEquals(
         1, plan.getSteps().stream().filter(step -> step instanceof FetchFromIndexStep).count());
     Assert.assertEquals(
@@ -2975,7 +2975,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     }
     Assert.assertFalse(result.hasNext());
     var orderStepFound = false;
-    for (var step : result.getExecutionPlan().get().getSteps()) {
+    for (var step : result.getExecutionPlan().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3021,7 +3021,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     var orderStepFound = false;
-    for (var step : result.getExecutionPlan().get().getSteps()) {
+    for (var step : result.getExecutionPlan().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3065,7 +3065,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     var orderStepFound = false;
-    for (var step : result.getExecutionPlan().get().getSteps()) {
+    for (var step : result.getExecutionPlan().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3109,7 +3109,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     var orderStepFound = false;
-    for (var step : result.getExecutionPlan().get().getSteps()) {
+    for (var step : result.getExecutionPlan().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3153,7 +3153,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     var orderStepFound = false;
-    for (var step : result.getExecutionPlan().get().getSteps()) {
+    for (var step : result.getExecutionPlan().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3203,7 +3203,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     Assert.assertFalse(result.hasNext());
     Assert.assertFalse(result.hasNext());
     var orderStepFound = false;
-    for (var step : result.getExecutionPlan().get().getSteps()) {
+    for (var step : result.getExecutionPlan().getSteps()) {
       if (step instanceof OrderByStep) {
         orderStepFound = true;
         break;
@@ -3283,7 +3283,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
       Assert.assertNotNull(item);
-      Assert.assertEquals(item.getProperty("name"), "name1");
+      Assert.assertEquals("name1", item.getProperty("name"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -3818,7 +3818,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
@@ -3828,7 +3828,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
@@ -3840,7 +3840,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
@@ -3848,14 +3848,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
         session.query("select from " + className + " where tags containsany ['xx','baz']")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
     try (var result = session.query("select from " + className + " where tags containsany []")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -3927,7 +3927,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
@@ -3939,14 +3939,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
       result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
     try (var result = session.query("select from " + className + " where tag in []")) {
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
 
@@ -3960,7 +3960,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       result.next();
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4009,7 +4009,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertEquals("right", item.getProperty("name"));
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4067,7 +4067,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertEquals("right", item.getProperty("name"));
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4100,7 +4100,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4142,7 +4142,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4176,7 +4176,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertEquals("key10", map.keySet().iterator().next());
       Assert.assertFalse(result.hasNext());
       Assert.assertTrue(
-          result.getExecutionPlan().get().getSteps().stream()
+          result.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4641,7 +4641,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
             "SELECT FROM " + classNamePrefix + "A WHERE b.c.name = 'foo' AND b.c.d.name = 'foo'")) {
       Assert.assertTrue(rs.hasNext());
       Assert.assertTrue(
-          rs.getExecutionPlan().get().getSteps().stream()
+          rs.getExecutionPlan().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
   }
@@ -4830,7 +4830,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
         session.query("select count(*) as count from " + className + " where field=true")) {
       Assert.assertTrue(rs.hasNext());
       var item = rs.next();
-      Assert.assertEquals((long) item.getProperty("count"), 1L);
+      Assert.assertEquals(1L, (long) item.getProperty("count"));
       Assert.assertFalse(rs.hasNext());
     }
   }

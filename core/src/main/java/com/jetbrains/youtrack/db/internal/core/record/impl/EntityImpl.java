@@ -35,6 +35,7 @@ import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -75,6 +76,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordSchemaAware;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.lang.ref.WeakReference;
@@ -94,7 +96,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -261,26 +262,48 @@ public class EntityImpl extends RecordAbstract
     field(iFieldName, iFieldValue);
   }
 
+  @Nullable
   @Override
-  public Optional<Vertex> asVertex() {
-    if (this instanceof Vertex) {
-      return Optional.of((Vertex) this);
-    }
-    SchemaClass type = this.getImmutableSchemaClass();
+  public Entity asEntity() {
+    return this;
+  }
 
+  @Nullable
+  @Override
+  public Blob asBlob() {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public DBRecord asRecord() {
+    return this;
+  }
+
+
+  @Override
+  @Nonnull
+  public Vertex castToVertex() {
+    if (this instanceof Vertex vertex) {
+      return vertex;
+    }
+
+    SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
-      return Optional.empty();
+      throw new IllegalStateException("Entity is not a vertex");
     }
 
     var session = getSession();
     if (type.isVertexType(session)) {
-      return Optional.of(new VertexDelegate(this));
+      return new VertexDelegate(this);
     }
-    return Optional.empty();
+
+    throw new IllegalStateException("Entity is not a vertex");
   }
 
+  @Nullable
   @Override
-  public @Nullable Vertex toVertex() {
+  public Vertex asVertex() {
     if (this instanceof Vertex vertex) {
       return vertex;
     }
@@ -294,36 +317,40 @@ public class EntityImpl extends RecordAbstract
     if (type.isVertexType(session)) {
       return new VertexDelegate(this);
     }
+
     return null;
   }
 
-  @Override
-  public Optional<Edge> asEdge() {
-    if (this instanceof Edge) {
-      return Optional.of((Edge) this);
+  @Nonnull
+  public StatefulEdge castToStatefulEdge() {
+    if (this instanceof StatefulEdge edge) {
+      return edge;
     }
+
     SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
-      return Optional.empty();
+      throw new DatabaseException("Entity is not an edge");
     }
     var session = getSession();
     if (type.isEdgeType(session)) {
-      return Optional.of(new EdgeDelegate(this));
+      return new EdgeDelegate(this);
     }
-    return Optional.empty();
+
+    throw new DatabaseException("Entity is not an edge");
   }
 
-  @Override
-  public @Nullable Edge toEdge() {
-    if (this instanceof Edge edge) {
+  @Nullable
+  public StatefulEdge asStatefulEdge() {
+    if (this instanceof StatefulEdge edge) {
       return edge;
     }
+
     SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return null;
     }
-
     var session = getSession();
+
     if (type.isEdgeType(session)) {
       return new EdgeDelegate(this);
     }
@@ -347,7 +374,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public boolean isEdge() {
+  public boolean isStatefulEdge() {
     if (this instanceof Edge) {
       return true;
     }
@@ -362,9 +389,47 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public Optional<SchemaClass> getSchemaType() {
-    checkForBinding();
-    return Optional.ofNullable(getImmutableSchemaClass());
+  public boolean isEdge() {
+    return isStatefulEdge();
+  }
+
+  @Nonnull
+  @Override
+  public Edge castToEdge() {
+    return castToStatefulEdge();
+  }
+
+  @Nullable
+  @Override
+  public Edge asEdge() {
+    return asStatefulEdge();
+  }
+
+  @Override
+  public boolean isBlob() {
+    return false;
+  }
+
+  @Nonnull
+  @Override
+  public Blob castToBlob() {
+    throw new DatabaseException("Entity is not a blob");
+  }
+
+  @Nonnull
+  @Override
+  public DBRecord castToRecord() {
+    return this;
+  }
+
+  @Override
+  public boolean isRecord() {
+    return true;
+  }
+
+  @Override
+  public boolean isProjection() {
+    return false;
   }
 
   Set<String> calculatePropertyNames() {
@@ -418,8 +483,19 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public Collection<String> getPropertyNames() {
+  public @Nonnull Collection<String> getPropertyNames() {
     return getPropertyNamesInternal();
+  }
+
+  @Override
+  public boolean isEntity() {
+    return true;
+  }
+
+  @Nonnull
+  @Override
+  public Entity castToEntity() {
+    return this;
   }
 
   @Override
@@ -434,13 +510,13 @@ public class EntityImpl extends RecordAbstract
    *                  expression, as in #eval()
    * @return the field value. Null if the field does not exist.
    */
-  public <RET> RET getProperty(final String fieldName) {
+  public <RET> RET getProperty(final @Nonnull String fieldName) {
     return getPropertyInternal(fieldName);
   }
 
   @Nullable
   @Override
-  public Entity getEntityProperty(String name) {
+  public Entity getEntityProperty(@Nonnull String name) {
     {
       var property = getProperty(name);
 
@@ -513,7 +589,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public <RET> RET getPropertyOnLoadValue(String name) {
+  public <RET> RET getPropertyOnLoadValue(@Nonnull String name) {
     checkForBinding();
 
     Objects.requireNonNull(name, "Name argument is required.");
@@ -555,10 +631,10 @@ public class EntityImpl extends RecordAbstract
   private static <RET> RET convertToGraphElement(RET value) {
     if (value instanceof Entity) {
       if (((Entity) value).isVertex()) {
-        value = (RET) ((Entity) value).toVertex();
+        value = (RET) ((Entity) value).castToVertex();
       } else {
-        if (((Entity) value).isEdge()) {
-          value = (RET) ((Entity) value).toEdge();
+        if (((Entity) value).isStatefulEdge()) {
+          value = (RET) ((Entity) value).castToVertex();
         }
       }
     }
@@ -566,17 +642,17 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * This method similar to {@link #getProperty(String)} but unlike before mentioned method it does
-   * not load link automatically.
+   * This method similar to {@link Result#getProperty(String)} but unlike before mentioned method it
+   * does not load link automatically.
    *
    * @param fieldName the name of the link property
    * @return the link property value, or null if the property does not exist
    * @throws IllegalArgumentException if requested property is not a link.
-   * @see #getProperty(String)
+   * @see Result#getProperty(String)
    */
   @Nullable
   @Override
-  public Identifiable getLinkProperty(String fieldName) {
+  public Identifiable getLinkProperty(@Nonnull String fieldName) {
     return getLinkPropertyInternal(fieldName);
   }
 
@@ -629,7 +705,7 @@ public class EntityImpl extends RecordAbstract
    * @param iFieldName    The property name
    * @param propertyValue The property value
    */
-  public void setProperty(final String iFieldName, Object propertyValue) {
+  public void setProperty(final @Nonnull String iFieldName, @Nullable Object propertyValue) {
     if (propertyValue instanceof Collection<?> || propertyValue instanceof Map<?, ?>
         || propertyValue != null && propertyValue.getClass()
         .isArray()) {
@@ -641,7 +717,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public <T> List<T> getOrCreateEmbeddedList(String name) {
+  public @Nonnull <T> List<T> getOrCreateEmbeddedList(@Nonnull String name) {
     var value = this.<List<T>>getPropertyInternal(name);
 
     if (value == null) {
@@ -653,7 +729,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public <T> Set<T> getOrCreateEmbeddedSet(String name) {
+  public @Nonnull <T> Set<T> getOrCreateEmbeddedSet(@Nonnull String name) {
     var value = this.<Set<T>>getPropertyInternal(name);
     if (value == null) {
       value = new TrackedSet<T>(this);
@@ -664,7 +740,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public <T> Map<String, T> getOrCreateEmbeddedMap(String name) {
+  public @Nonnull <T> Map<String, T> getOrCreateEmbeddedMap(@Nonnull String name) {
     var value = this.<Map<String, T>>getPropertyInternal(name);
     if (value == null) {
       value = new TrackedMap<T>(this);
@@ -675,7 +751,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public List<Identifiable> getOrCreateLinkList(String name) {
+  public @Nonnull List<Identifiable> getOrCreateLinkList(@Nonnull String name) {
     var value = this.<List<Identifiable>>getPropertyInternal(name);
     if (value == null) {
       value = new LinkList(this);
@@ -685,8 +761,9 @@ public class EntityImpl extends RecordAbstract
     return value;
   }
 
+  @Nonnull
   @Override
-  public Set<Identifiable> getOrCreateLinkSet(String name) {
+  public Set<Identifiable> getOrCreateLinkSet(@Nonnull String name) {
     var value = this.<Set<Identifiable>>getPropertyInternal(name);
     if (value == null) {
       value = new LinkSet(this);
@@ -696,8 +773,9 @@ public class EntityImpl extends RecordAbstract
     return value;
   }
 
+  @Nonnull
   @Override
-  public Map<String, Identifiable> getOrCreateLinkMap(String name) {
+  public Map<String, Identifiable> getOrCreateLinkMap(@Nonnull String name) {
     var value = this.<Map<String, Identifiable>>getPropertyInternal(name);
     if (value == null) {
       value = new LinkMap(this);
@@ -811,7 +889,7 @@ public class EntityImpl extends RecordAbstract
    * @param propertyValue The property value
    * @param types         Forced type (not auto-determined)
    */
-  public void setProperty(String name, Object propertyValue, PropertyType types) {
+  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType types) {
     if (propertyValue instanceof Collection<?> || propertyValue instanceof Map<?, ?>
         || propertyValue != null && propertyValue.getClass()
         .isArray()) {
@@ -992,7 +1070,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  public <RET> RET removeProperty(final String iFieldName) {
+  public <RET> RET removeProperty(@Nonnull final String iFieldName) {
     return removePropertyInternal(iFieldName);
   }
 
@@ -1060,7 +1138,7 @@ public class EntityImpl extends RecordAbstract
           throw new SecurityException(session.getDatabaseName(),
               String.format(
                   "Change of field '%s' is not allowed for user '%s'",
-                  iRecord.getClassName() + "." + mapEntry.getKey(),
+                  iRecord.getSchemaClassName() + "." + mapEntry.getKey(),
                   session.geCurrentUser().getName(session)));
         }
       }
@@ -1494,7 +1572,7 @@ public class EntityImpl extends RecordAbstract
                     + "' that is vertex class");
           }
 
-          if (entity.isEdge()) {
+          if (entity.isStatefulEdge()) {
             throw new ValidationException(db.getDatabaseName(),
                 "The field '"
                     + p.getFullName(db)
@@ -1592,10 +1670,12 @@ public class EntityImpl extends RecordAbstract
    *
    * @since 2.0
    */
+  @Nonnull
   public Map<String, Object> toMap() {
     return toMap(true);
   }
 
+  @Nonnull
   @Override
   public Map<String, Object> toMap(boolean includeMetadata) {
     checkForBinding();
@@ -1604,7 +1684,7 @@ public class EntityImpl extends RecordAbstract
 
     for (var propertyName : getPropertyNamesInternal()) {
       var value = getPropertyInternal(propertyName);
-      map.put(propertyName, mapValue(value));
+      map.put(propertyName, ResultInternal.toMapValue(value, true));
     }
 
     if (includeMetadata) {
@@ -1616,78 +1696,13 @@ public class EntityImpl extends RecordAbstract
           map.put(EntityHelper.ATTRIBUTE_RID, id);
         }
       }
-      final var className = getClassName();
+      final var className = getSchemaClassName();
       if (className != null) {
         map.put(EntityHelper.ATTRIBUTE_CLASS, className);
       }
     }
 
     return map;
-  }
-
-  private static Object mapValue(Object value) {
-    return switch (value) {
-      case null -> null;
-      case DBRecord record -> {
-        if (record instanceof EntityImpl entity && entity.isEmbedded()) {
-          yield entity.toMap();
-        }
-
-        yield record.getIdentity();
-      }
-
-      case LinkList linkList -> {
-        List<RID> list = new ArrayList<>(linkList.size());
-        for (var item : linkList) {
-          list.add(item.getIdentity());
-        }
-        yield list;
-      }
-
-      case LinkSet linkSet -> {
-        Set<RID> set = new HashSet<>(linkSet.size());
-        for (var item : linkSet) {
-          set.add(item.getIdentity());
-        }
-        yield set;
-      }
-      case LinkMap linkMap -> {
-        Map<Object, RID> map = new HashMap<>(linkMap.size());
-        for (var entry : linkMap.entrySet()) {
-          map.put(entry.getKey(), entry.getValue().getIdentity());
-        }
-        yield map;
-      }
-      case RidBag ridBag -> {
-        List<RID> list = new ArrayList<>(ridBag.size());
-        for (var rid : ridBag) {
-          list.add(rid);
-        }
-        yield list;
-      }
-      case TrackedList<?> trackedList -> {
-        List<Object> list = new ArrayList<>(trackedList.size());
-        for (var item : trackedList) {
-          list.add(mapValue(item));
-        }
-        yield list;
-      }
-      case TrackedSet<?> trackedSet -> {
-        Set<Object> set = new HashSet<>(trackedSet.size());
-        for (var item : trackedSet) {
-          set.add(mapValue(item));
-        }
-        yield set;
-      }
-      case TrackedMap<?> trackedMap -> {
-        Map<Object, Object> map = new HashMap<>(trackedMap.size());
-        for (var entry : trackedMap.entrySet()) {
-          map.put(entry.getKey(), mapValue(entry.getValue()));
-        }
-        yield map;
-      }
-      default -> value;
-    };
   }
 
   /**
@@ -1992,7 +2007,7 @@ public class EntityImpl extends RecordAbstract
    *
    * @since 2.0
    */
-  public void updateFromMap(final Map<String, ?> map) {
+  public void updateFromMap(@Nonnull final Map<String, ?> map) {
     checkForBinding();
 
     var db = getSession();
@@ -2000,59 +2015,57 @@ public class EntityImpl extends RecordAbstract
 
     status = STATUS.UNMARSHALLING;
     try {
-      if (map != null) {
-        for (var entry : map.entrySet()) {
-          var key = entry.getKey();
-          if (key.isEmpty()) {
-            continue;
-          }
-          if (key.charAt(0) == '@') {
-            continue;
-          }
+      for (var entry : map.entrySet()) {
+        var key = entry.getKey();
+        if (key.isEmpty()) {
+          continue;
+        }
+        if (key.charAt(0) == '@') {
+          continue;
+        }
 
-          var property = cls != null ? cls.getProperty(db, key) : null;
-          var type = property != null ? property.getType(db) : null;
+        var property = cls != null ? cls.getProperty(db, key) : null;
+        var type = property != null ? property.getType(db) : null;
 
-          switch (type) {
-            case LINKLIST: {
-              updateLinkListFromMapEntry(entry, key);
-              break;
-            }
-            case LINKSET: {
-              updateLinkSetFromMapEntry(entry, key);
-              break;
-            }
-            case LINKBAG: {
-              updateLinkBagFromMapEntry(entry, db, key);
-              break;
-            }
-            case LINKMAP: {
-              updateLinkMapFromMapEntry(entry, key);
-              break;
-            }
-            case EMBEDDEDLIST: {
-              updateEmbeddedListFromMapEntry(db, entry, key);
-              break;
-            }
-            case EMBEDDEDSET: {
-              updateEmbeddedSetFromMapEntry(db, entry, key);
-              break;
-            }
-            case EMBEDDEDMAP: {
-              updateEmbeddedMapFromMapEntry(db, entry, key);
-              break;
-            }
-            case EMBEDDED: {
-              updateEmbeddedFromMapEntry(entry, db, key);
-              break;
-            }
-            case null: {
-              updatePropertyFromNonTypedMapEntry(entry, db, key);
-              break;
-            }
-            default: {
-              setPropertyInternal(key, entry.getValue());
-            }
+        switch (type) {
+          case LINKLIST: {
+            updateLinkListFromMapEntry(entry, key);
+            break;
+          }
+          case LINKSET: {
+            updateLinkSetFromMapEntry(entry, key);
+            break;
+          }
+          case LINKBAG: {
+            updateLinkBagFromMapEntry(entry, db, key);
+            break;
+          }
+          case LINKMAP: {
+            updateLinkMapFromMapEntry(entry, key);
+            break;
+          }
+          case EMBEDDEDLIST: {
+            updateEmbeddedListFromMapEntry(db, entry, key);
+            break;
+          }
+          case EMBEDDEDSET: {
+            updateEmbeddedSetFromMapEntry(db, entry, key);
+            break;
+          }
+          case EMBEDDEDMAP: {
+            updateEmbeddedMapFromMapEntry(db, entry, key);
+            break;
+          }
+          case EMBEDDED: {
+            updateEmbeddedFromMapEntry(entry, db, key);
+            break;
+          }
+          case null: {
+            updatePropertyFromNonTypedMapEntry(entry, db, key);
+            break;
+          }
+          default: {
+            setPropertyInternal(key, entry.getValue());
           }
         }
       }
@@ -2089,9 +2102,9 @@ public class EntityImpl extends RecordAbstract
       } else if (rid != null) {
         var record = session.load(new RecordId(rid.toString()));
         if (record instanceof EntityImpl entity) {
-          if (className != null && !className.equals(entity.getClassName())) {
+          if (className != null && !className.equals(entity.getSchemaClassName())) {
             throw new IllegalArgumentException("Invalid  entity class name provided: "
-                + className + " expected: " + entity.getClassName());
+                + className + " expected: " + entity.getSchemaClassName());
           }
           entity.updateFromMap(mapValue);
           value = entity;
@@ -2784,11 +2797,8 @@ public class EntityImpl extends RecordAbstract
    * @return True if exists, otherwise false.
    */
   @Override
-  public boolean hasProperty(final String propertyName) {
+  public boolean hasProperty(final @Nonnull String propertyName) {
     checkForBinding();
-    if (propertyName == null) {
-      return false;
-    }
 
     if (checkForFields(propertyName)
         && (propertyAccess == null || propertyAccess.isReadable(propertyName))) {
@@ -2797,6 +2807,18 @@ public class EntityImpl extends RecordAbstract
     } else {
       return false;
     }
+  }
+
+  @Override
+  public @Nonnull Result detach() {
+    var result = new ResultInternal(null);
+    var content = toMap(false);
+
+    for (var entry : content.entrySet()) {
+      result.setProperty(entry.getKey(), entry.getValue());
+    }
+
+    return result;
   }
 
   /**
@@ -3000,7 +3022,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  public EntityImpl undo(final String field) {
+  public void undo(final String field) {
     var session = getSession();
 
     if (!trackingChanges) {
@@ -3020,7 +3042,6 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    return this;
   }
 
   public boolean isLazyLoad() {
@@ -3324,6 +3345,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
+  @Nullable
   @Override
   public SchemaClass getSchemaClass() {
     checkForBinding();
@@ -3339,7 +3361,8 @@ public class EntityImpl extends RecordAbstract
     return getSession().getMetadata().getSchema().getClass(className);
   }
 
-  public String getClassName() {
+  @Nullable
+  public String getSchemaClassName() {
     if (className == null) {
       fetchClassName();
     }
@@ -3440,7 +3463,7 @@ public class EntityImpl extends RecordAbstract
 
       var session = getSessionIfDefined();
       if (session != null && !session.isClosed()) {
-        final var clsName = getClassName();
+        final var clsName = getSchemaClassName();
         if (clsName != null) {
           buffer.append(clsName);
         }
@@ -3739,7 +3762,7 @@ public class EntityImpl extends RecordAbstract
                 if (MultiValue.isMultiValue(val) && MultiValue.getSize(val) == 1) {
                   val = MultiValue.getFirstValue(val);
                   if (val instanceof Result) {
-                    val = ((Result) val).getIdentity().orElse(null);
+                    val = ((Result) val).getIdentity();
                   }
                   changed = true;
                 }
@@ -4392,7 +4415,7 @@ public class EntityImpl extends RecordAbstract
   void checkEmbeddable() {
     var session = getSession();
 
-    if (isVertex() || isEdge()) {
+    if (isVertex() || isStatefulEdge()) {
       throw new DatabaseException(session.getDatabaseName(),
           "Vertices or Edges cannot be stored as embedded");
     }

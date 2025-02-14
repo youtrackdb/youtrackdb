@@ -528,7 +528,7 @@ public class IndexTest extends BaseDBTest {
 
     var indexedResult =
         executeQuery("select * from Whiz where account = ?",
-            resultSet.getFirst().getIdentity().orElseThrow());
+            resultSet.getFirst().getIdentity());
     Assert.assertEquals(indexedResult.size(), 5);
 
     session.begin();
@@ -1139,7 +1139,7 @@ public class IndexTest extends BaseDBTest {
             "select from CompoundSQLIndexTest2 where address in (select from"
                 + " CompoundSQLIndexTest1 where city='Montreal')");
     Assert.assertEquals(result.size(), 1);
-    Assert.assertEquals(result.getFirst().getIdentity().orElseThrow(), docTwo.getIdentity());
+    Assert.assertEquals(result.getFirst().getIdentity(), docTwo.getIdentity());
   }
 
   public void testIndexWithLimitAndOffset() {
@@ -1414,7 +1414,7 @@ public class IndexTest extends BaseDBTest {
 
     var resultOne = executeQuery(queryOne);
     Assert.assertEquals(resultOne.size(), 1);
-    Assert.assertEquals(resultOne.getFirst().getRecordId(), docOne.getIdentity());
+    Assert.assertEquals(resultOne.getFirst().getIdentity(), docOne.getIdentity());
 
     try (var result = session.command("explain " + queryOne)) {
       var explain = result.next();
@@ -1427,7 +1427,7 @@ public class IndexTest extends BaseDBTest {
 
       var resultTwo = executeQuery(queryTwo);
       Assert.assertEquals(resultTwo.size(), 1);
-      Assert.assertEquals(resultTwo.getFirst().getRecordId(), docTwo.getIdentity());
+      Assert.assertEquals(resultTwo.getFirst().getIdentity(), docTwo.getIdentity());
 
       explain = session.command(new CommandSQL("explain " + queryTwo)).execute(session);
       Assert.assertTrue(
@@ -1498,7 +1498,7 @@ public class IndexTest extends BaseDBTest {
     session.save(parent);
     var child = session.newVertex("PreservingIdentityInIndexTxChild");
     session.save(child);
-    session.save(session.newRegularEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
+    session.save(session.newStatefulEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
     child.setProperty("name", "pokus");
     session.save(child);
 
@@ -1506,7 +1506,7 @@ public class IndexTest extends BaseDBTest {
     session.save(parent2);
     var child2 = session.newVertex("PreservingIdentityInIndexTxChild");
     session.save(child2);
-    session.save(session.newRegularEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
+    session.save(session.newStatefulEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
     child2.setProperty("name", "pokus2");
     session.save(child2);
     session.commit();
@@ -2274,7 +2274,7 @@ public class IndexTest extends BaseDBTest {
   }
 
   private void assertIndexUsage(ResultSet resultSet) {
-    var executionPlan = resultSet.getExecutionPlan().orElseThrow();
+    var executionPlan = resultSet.getExecutionPlan();
     for (var step : executionPlan.getSteps()) {
       if (assertIndexUsage(step, "Profile.nick")) {
         return;

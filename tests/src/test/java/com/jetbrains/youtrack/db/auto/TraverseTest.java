@@ -95,31 +95,31 @@ public class TraverseTest extends BaseDBTest {
 
     totalElements++;
 
-    var e = session.newRegularEdge(tomCruise, topGun, "actorIn");
+    var e = session.newStatefulEdge(tomCruise, topGun, "actorIn");
     e.save();
 
     totalElements++;
 
-    e = session.newRegularEdge(megRyan, topGun, "actorIn");
+    e = session.newStatefulEdge(megRyan, topGun, "actorIn");
     e.save();
 
     totalElements++;
 
-    e = session.newRegularEdge(tomCruise, missionImpossible, "actorIn");
+    e = session.newStatefulEdge(tomCruise, missionImpossible, "actorIn");
     e.save();
 
     totalElements++;
 
-    e = session.newRegularEdge(megRyan, youHaveGotMail, "actorIn");
+    e = session.newStatefulEdge(megRyan, youHaveGotMail, "actorIn");
     e.save();
 
     totalElements++;
 
-    e = session.newRegularEdge(tomCruise, megRyan, "friend");
+    e = session.newStatefulEdge(tomCruise, megRyan, "friend");
     e.save();
 
     totalElements++;
-    e = session.newRegularEdge(tomCruise, nicoleKidman, "married");
+    e = session.newStatefulEdge(tomCruise, nicoleKidman, "married");
     e.setProperty("year", 1990);
     e.save();
 
@@ -163,7 +163,7 @@ public class TraverseTest extends BaseDBTest {
             .execute(session);
     Assert.assertFalse(result1.isEmpty());
     for (var d : result1) {
-      Assert.assertEquals(d.getClassName(), "Movie");
+      Assert.assertEquals(d.getSchemaClassName(), "Movie");
     }
   }
 
@@ -179,8 +179,7 @@ public class TraverseTest extends BaseDBTest {
             .execute(session);
     Assert.assertFalse(result1.isEmpty());
     for (Entity d : result1) {
-      Assert.assertEquals(
-          d.getSchemaType().map(schemaClass -> schemaClass.getName(session)).orElse(null), "Movie");
+      Assert.assertEquals(d.getSchemaClassName(), "Movie");
     }
   }
 
@@ -204,7 +203,7 @@ public class TraverseTest extends BaseDBTest {
             .execute(session);
     Assert.assertFalse(result2.isEmpty());
     for (var d : result2) {
-      Assert.assertEquals(d.getClassName(), "Movie");
+      Assert.assertEquals(d.getSchemaClassName(), "Movie");
     }
 
     List<EntityImpl> result3 =
@@ -218,7 +217,7 @@ public class TraverseTest extends BaseDBTest {
     Assert.assertFalse(result3.isEmpty());
     Assert.assertTrue(result3.size() > result2.size());
     for (var d : result3) {
-      Assert.assertEquals(d.getClassName(), "Movie");
+      Assert.assertEquals(d.getSchemaClassName(), "Movie");
     }
   }
 

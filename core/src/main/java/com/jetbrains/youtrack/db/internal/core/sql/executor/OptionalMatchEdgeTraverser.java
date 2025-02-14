@@ -38,26 +38,26 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
       return sourceRecord;
     }
     if (!isEmptyOptional(next)) {
-      if (prevValue != null && !equals(prevValue, next.getEntity().get())) {
+      if (prevValue != null && !equals(prevValue, next.castToEntity())) {
         return null;
       }
     }
 
-    var db = ctx.getDatabaseSession();
-    var result = new ResultInternal(db);
+    var session = ctx.getDatabaseSession();
+    var result = new ResultInternal(session);
     for (var prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
-    result.setProperty(endPointAlias, next.getEntity().map(x -> toResult(db, x)).orElse(null));
+    if (next.isEntity()) {
+      result.setProperty(endPointAlias, toResult(session, next.castToEntity()));
+    } else {
+      result.setProperty(endPointAlias, null);
+    }
+
     return result;
   }
 
   public static boolean isEmptyOptional(Object elem) {
-    if (elem == EMPTY_OPTIONAL) {
-      return true;
-    }
-
-    return elem instanceof Result && EMPTY_OPTIONAL == ((Result) elem).getEntity()
-        .orElse(null);
+    return elem == EMPTY_OPTIONAL;
   }
 }

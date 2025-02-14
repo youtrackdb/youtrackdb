@@ -44,7 +44,7 @@ public class LuceneMetadataFieldsTest extends LuceneBaseTest {
   public void shouldFetchByRid() throws Exception {
     var songs = session.query("SELECT FROM Song limit 2").toList();
 
-    var ridQuery = doubleEscape(songs.get(0).getRecordId() + " " + songs.get(1).getRecordId());
+    var ridQuery = doubleEscape(songs.get(0).getIdentity() + " " + songs.get(1).getIdentity());
     var results =
         session.query("SELECT FROM Song WHERE search_class('RID:(" + ridQuery + ") ')=true ");
 

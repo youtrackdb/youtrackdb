@@ -68,7 +68,8 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
     Assert.assertTrue(edges.hasNext());
     var edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals("E1", ((EntityImpl) edge.asEntity().getRecord(session)).getClassName());
+    Assert.assertEquals("E1",
+        ((EntityImpl) edge.asEntity().getRecord(session)).getSchemaClassName());
     edges.close();
 
     session.begin();
@@ -132,11 +133,11 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
 
     var result = session.query("select expand(out()) from " + v1.getIdentity());
 
-    Assert.assertEquals(result.next().getRecordId(), v3.getIdentity());
+    Assert.assertEquals(result.next().getIdentity(), v3.getIdentity());
     result.close();
 
     result = session.query("select expand(in()) from " + v3.getIdentity());
-    Assert.assertEquals(result.next().getRecordId(), v1.getIdentity());
+    Assert.assertEquals(result.next().getIdentity(), v1.getIdentity());
     result.close();
 
     result = session.command("select expand(in()) from " + v2.getIdentity());

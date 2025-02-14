@@ -16,10 +16,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.functions.conversion;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.LiveQueryListenerImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 
 /**
@@ -48,8 +48,8 @@ public class SQLMethodBeforeUpdate extends AbstractSQLMethod {
       CommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    if (iThis instanceof Result) {
-      return ((Result) iThis).getMetadata(LiveQueryListenerImpl.BEFORE_METADATA_KEY);
+    if (iThis instanceof ResultInternal internal) {
+      return internal.getMetadata(LiveQueryListenerImpl.BEFORE_METADATA_KEY);
     }
     return null;
   }

@@ -134,7 +134,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             """;
     List<EntityImpl> qResult = session.command(new CommandScript("sql", script)).execute(session);
 
-    assertThat(session.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
+    assertThat(session.bindToSession(qResult.getFirst()).<Long>field("weight")).isEqualTo(4L);
   }
 
   @Test
@@ -152,7 +152,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
             """;
     var qResult = session.execute("sql", script);
 
-    assertThat(qResult.next().getEntity().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
+    assertThat(qResult.next().castToEntity().<Long>getProperty("weight")).isEqualTo(4L);
   }
 
   @Test
@@ -317,7 +317,7 @@ public class CommandExecutorSQLScriptTest extends DbTestBase {
     List<EntityImpl> result = session.query(
         new SQLSynchQuery<EntityImpl>("SELECT FROM QuotedRegex2"));
     Assert.assertEquals(1, result.size());
-    var doc = result.get(0);
+    var doc = result.getFirst();
     Assert.assertEquals("'';", doc.field("regexp"));
   }
 

@@ -633,7 +633,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
-                    + ((EntityImpl) record).getClassName()
+                    + ((EntityImpl) record).getSchemaClassName()
                     + "'"),
             e, this);
       } else {

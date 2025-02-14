@@ -6,13 +6,13 @@ import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class ExecutionResultSet implements ResultSet {
+
   private final ExecutionStream stream;
   private final CommandContext context;
-  private final Optional<ExecutionPlan> plan;
+  private final ExecutionPlan plan;
   @Nullable
   private final DatabaseSessionInternal session;
 
@@ -22,7 +22,7 @@ public class ExecutionResultSet implements ResultSet {
     this.stream = stream;
     this.context = context;
     this.session = context.getDatabaseSession();
-    this.plan = Optional.of(plan);
+    this.plan = plan;
   }
 
   @Override
@@ -44,7 +44,7 @@ public class ExecutionResultSet implements ResultSet {
   }
 
   @Override
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     assert session == null || session.assertIfNotActive();
     return plan;
   }

@@ -71,7 +71,7 @@ public class GraphRecoveringTest {
     var v2 = session.newVertex("V2");
     v2.setProperty("key", 2);
 
-    v0.addRegularEdge(v1);
+    v0.addStateFulEdge(v1);
     v1.addEdge(v2, "E1");
     v2.addEdge(v0, "E2");
 
@@ -119,7 +119,7 @@ public class GraphRecoveringTest {
         for (var e :
             session.query("select from E").stream()
                 .map(Result::asEntity)
-                .map(Entity::toEdge)
+                .map(Entity::castToStateFullEdge)
                 .toList()) {
           e.<EntityImpl>getRecord(session).removeField("out");
           e.save();
@@ -158,7 +158,7 @@ public class GraphRecoveringTest {
             session.query("select from V").stream()
                 .map(Result::asEntity)
                 .filter(Objects::nonNull)
-                .map(Entity::toVertex)
+                .map(Entity::castToVertex)
                 .toList()) {
           for (var f : v.<EntityImpl>getRecord(session).fieldNames()) {
             if (f.startsWith(Vertex.DIRECTION_OUT_PREFIX)) {

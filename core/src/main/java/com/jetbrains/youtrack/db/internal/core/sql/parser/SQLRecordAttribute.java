@@ -4,7 +4,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -80,46 +79,51 @@ public class SQLRecordAttribute extends SimpleNode {
     name = fromResult.getProperty("name");
   }
 
-  public Object evaluate(Result iCurrentRecord, CommandContext ctx) {
+  public Object evaluate(Result iCurrentResult, CommandContext ctx) {
     var session = ctx.getDatabaseSession();
     if (name.equalsIgnoreCase("@rid")) {
-      var identity = iCurrentRecord.getIdentity().orElse(null);
+      var identity = iCurrentResult.getIdentity();
       if (identity == null) {
-        identity = iCurrentRecord.getProperty(name);
+        identity = iCurrentResult.getProperty(name);
       }
       return identity;
     } else if (name.equalsIgnoreCase("@class")) {
-      var entity = iCurrentRecord.asEntity();
-      if (entity != null) {
-        return entity.getSchemaType().map(schemaClass -> schemaClass.getName(session)).orElse(null);
+      if (iCurrentResult.isEntity()) {
+        var schemaClass = iCurrentResult.castToEntity().getSchemaClass();
+        if (schemaClass != null) {
+          return schemaClass.getName(session);
+        }
       }
+
       return null;
     } else if (name.equalsIgnoreCase("@version")) {
-      return iCurrentRecord.getRecord().map(DBRecord::getVersion).orElse(null);
+      if (iCurrentResult.isRecord()) {
+        return iCurrentResult.castToRecord().getVersion();
+      }
     } else if (name.equals("@type")) {
-      return iCurrentRecord
-          .getRecord()
-          .map(
-              r -> {
-                var recordType = RecordInternal.getRecordType(ctx.getDatabaseSession(), r);
-                if (recordType == EntityImpl.RECORD_TYPE) {
-                  return "document";
-                } else if (recordType == RecordBytes.RECORD_TYPE) {
-                  return "bytes";
-                } else {
-                  return "unknown";
-                }
-              })
-          .orElse(null);
+      if (iCurrentResult.isRecord()) {
+        var r = iCurrentResult.castToRecord();
+        var recordType = RecordInternal.getRecordType(ctx.getDatabaseSession(), r);
+        if (recordType == EntityImpl.RECORD_TYPE) {
+          return "document";
+        } else if (recordType == RecordBytes.RECORD_TYPE) {
+          return "bytes";
+        } else {
+          return "unknown";
+        }
+      }
+      return null;
     } else if (name.equals("@size")) {
-      return iCurrentRecord
-          .getRecord()
-          .map(r -> ((RecordAbstract) r).toStream().length)
-          .orElse(null);
+      if (iCurrentResult.isRecord()) {
+        return ((RecordAbstract) iCurrentResult.castToRecord()).toStream().length;
+      }
     } else if (name.equals("@raw")) {
-      return iCurrentRecord.getRecord().map(r -> ((RecordAbstract) r).toStream()).orElse(null);
+      if (iCurrentResult.isRecord()) {
+        return ((RecordAbstract) iCurrentResult.castToRecord()).toStream();
+      }
+      return null;
     } else if (name.equals("@rid")) {
-      return iCurrentRecord.getIdentity().orElse(null);
+      return iCurrentResult.getIdentity();
     }
 
     return null;
@@ -133,8 +137,11 @@ public class SQLRecordAttribute extends SimpleNode {
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
-      return iCurrentRecord.getSchemaType().map(schemaClass -> schemaClass.getName(session))
-          .orElse(null);
+      var schemaClass = iCurrentRecord.getSchemaClass();
+      if (schemaClass != null) {
+        return schemaClass.getName(session);
+      }
+      return null;
     } else if (name.equalsIgnoreCase("@version")) {
       try {
         var record = iCurrentRecord.getRecord(session);

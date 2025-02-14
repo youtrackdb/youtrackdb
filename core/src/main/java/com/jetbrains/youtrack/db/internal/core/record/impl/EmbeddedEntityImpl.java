@@ -1,12 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.api.record.Edge;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import java.lang.ref.WeakReference;
-import java.util.Optional;
-import javax.annotation.Nullable;
 
 public class EmbeddedEntityImpl extends EntityImpl {
 
@@ -42,34 +38,12 @@ public class EmbeddedEntityImpl extends EntityImpl {
   }
 
   @Override
-  public Optional<Vertex> asVertex() {
-    return Optional.empty();
-  }
-
-  @Override
-  @Nullable
-  public Vertex toVertex() {
-    return null;
-  }
-
-  @Override
-  public Optional<Edge> asEdge() {
-    return Optional.empty();
-  }
-
-  @Override
-  @Nullable
-  public Edge toEdge() {
-    return null;
-  }
-
-  @Override
   public boolean isVertex() {
     return false;
   }
 
   @Override
-  public boolean isEdge() {
+  public boolean isStatefulEdge() {
     return false;
   }
 

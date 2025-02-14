@@ -171,7 +171,7 @@ public class SystemDBImporter extends Thread {
             count++;
 
             db.activateOnCurrentThread();
-            db.delete(entity.getIdentity().get());
+            db.delete(entity.castToEntity());
           } catch (Exception ex) {
             LogManager.instance().error(this, "importDB()", ex);
           }

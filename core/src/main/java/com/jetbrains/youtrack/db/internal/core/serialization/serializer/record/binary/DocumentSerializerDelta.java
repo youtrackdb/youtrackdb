@@ -101,7 +101,7 @@ public class DocumentSerializerDelta {
       name = clazz.getName(db);
     }
     if (name == null) {
-      name = entity.getClassName();
+      name = entity.getSchemaClassName();
     }
 
     if (name != null) {

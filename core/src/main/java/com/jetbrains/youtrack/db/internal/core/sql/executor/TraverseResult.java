@@ -2,6 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -19,7 +20,7 @@ public class TraverseResult extends ResultInternal {
   }
 
   @Override
-  public <T> T getProperty(String name) {
+  public <T> T getProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
     if ("$depth".equalsIgnoreCase(name)) {
       return (T) depth;

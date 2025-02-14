@@ -24,8 +24,8 @@ public class DeleteStep extends AbstractExecutionStep {
 
   private Result mapResult(Result result, CommandContext ctx) {
     var id = result.getIdentity();
-    if (id.isPresent()) {
-      ctx.getDatabaseSession().delete(id.get());
+    if (id != null) {
+      ctx.getDatabaseSession().delete(id);
     }
     return result;
   }

@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -45,12 +44,10 @@ public class ExplainResultSet implements ResultSet {
     }
 
     var result = new ResultInternal(session);
-    getExecutionPlan().ifPresent(x -> result.setProperty("executionPlan", x.toResult(
-        session)));
-    getExecutionPlan()
-        .ifPresent(x -> result.setProperty("executionPlanAsString", x.prettyPrint(0, 3)));
-    getExecutionPlan().ifPresent(x -> result.setProperty("dbStats", dbStats.toResult(
-        session)));
+    if (executionPlan != null) {
+      result.setProperty("executionPlan", executionPlan.toResult(session));
+      result.setProperty("executionPlanAsString", executionPlan.prettyPrint(0, 3));
+    }
 
     hasNext = false;
     return result;
@@ -62,9 +59,9 @@ public class ExplainResultSet implements ResultSet {
   }
 
   @Override
-  public Optional<ExecutionPlan> getExecutionPlan() {
+  public ExecutionPlan getExecutionPlan() {
     assert session == null || session.assertIfNotActive();
-    return Optional.of(executionPlan);
+    return executionPlan;
   }
 
   @Override

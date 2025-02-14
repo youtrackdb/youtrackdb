@@ -314,9 +314,9 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
       var queries = database.getActiveQueries();
       return queries.values().stream()
           .map(x -> x.getResultSet().getExecutionPlan())
-          .filter(x -> (x.isPresent() && x.get() instanceof InternalExecutionPlan))
+          .filter(x -> (x instanceof InternalExecutionPlan))
           .map(InternalExecutionPlan.class::cast)
-          .map(x -> x.getStatement())
+          .map(InternalExecutionPlan::getStatement)
           .collect(Collectors.toList());
     } catch (Exception e) {
       e.printStackTrace();

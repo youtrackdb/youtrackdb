@@ -112,7 +112,7 @@ public class RecordSerializerJackson {
 
     var defaultRecordType = record != null ? record.getRecordType() : EntityImpl.RECORD_TYPE;
     if (record instanceof EntityImpl entity) {
-      defaultClassName = entity.getClassName();
+      defaultClassName = entity.getSchemaClassName();
     } else {
       defaultClassName = null;
     }
@@ -166,10 +166,10 @@ public class RecordSerializerJackson {
       throw new SerializationException(session,
           "Record type mismatch: " + record.getRecordType() + " != " + recordMetaData.recordType);
     }
-    if (record instanceof EntityImpl entity && !Objects.equals(entity.getClassName(),
+    if (record instanceof EntityImpl entity && !Objects.equals(entity.getSchemaClassName(),
         recordMetaData.className)) {
       throw new SerializationException(session,
-          "Record class name mismatch: " + entity.getClassName() + " != "
+          "Record class name mismatch: " + entity.getSchemaClassName() + " != "
               + recordMetaData.className);
     }
     if (recordMetaData.recordId != null && !record.getIdentity().equals(recordMetaData.recordId)) {

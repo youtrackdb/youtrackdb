@@ -1,6 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Blob;
@@ -13,7 +14,11 @@ import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -34,9 +39,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -50,9 +55,10 @@ public class ResultInternal implements Result {
 
   @Nullable
   protected Identifiable identifiable;
-
   @Nullable
   protected DatabaseSessionInternal session;
+  @Nullable
+  protected Edge lightweightEdge;
 
   public ResultInternal(@Nullable DatabaseSessionInternal session) {
     content = new LinkedHashMap<>();
@@ -64,18 +70,116 @@ public class ResultInternal implements Result {
     this.session = session;
   }
 
+  public ResultInternal(@Nullable DatabaseSessionInternal session, Edge edge) {
+    this.session = session;
+    if (edge.isLightweight()) {
+      lightweightEdge = edge;
+    } else {
+      setIdentifiable(edge.castToStatefulEdge());
+    }
+  }
+
+  public static Object toMapValue(Object value, boolean includeMetadata) {
+    return switch (value) {
+      case null -> null;
+
+      case Edge edge -> {
+        if (edge.isLightweight()) {
+          yield edge.toMap();
+        } else {
+          yield edge.castToStatefulEdge().getIdentity();
+        }
+      }
+      case Blob blob -> blob.toStream();
+
+      case Entity entity -> {
+        if (entity.isEmbedded()) {
+          yield entity.toMap(includeMetadata);
+        } else {
+          yield entity.getIdentity();
+        }
+      }
+
+      case DBRecord record -> {
+        yield record.getIdentity();
+      }
+
+      case Result result -> result.toMap();
+
+      case LinkList linkList -> {
+        List<RID> list = new ArrayList<>(linkList.size());
+        for (var item : linkList) {
+          list.add(item.getIdentity());
+        }
+        yield list;
+      }
+
+      case LinkSet linkSet -> {
+        Set<RID> set = new HashSet<>(linkSet.size());
+        for (var item : linkSet) {
+          set.add(item.getIdentity());
+        }
+        yield set;
+      }
+      case LinkMap linkMap -> {
+        Map<Object, RID> map = new HashMap<>(linkMap.size());
+        for (var entry : linkMap.entrySet()) {
+          map.put(entry.getKey(), entry.getValue().getIdentity());
+        }
+        yield map;
+      }
+      case RidBag ridBag -> {
+        List<RID> list = new ArrayList<>(ridBag.size());
+        for (var rid : ridBag) {
+          list.add(rid);
+        }
+        yield list;
+      }
+      case List<?> trackedList -> {
+        List<Object> list = new ArrayList<>(trackedList.size());
+        for (var item : trackedList) {
+          list.add(toMapValue(item, true));
+        }
+        yield list;
+      }
+      case Set<?> trackedSet -> {
+        Set<Object> set = new HashSet<>(trackedSet.size());
+        for (var item : trackedSet) {
+          set.add(toMapValue(item, true));
+        }
+        yield set;
+      }
+
+      case Map<?, ?> trackedMap -> {
+        Map<Object, Object> map = new HashMap<>(trackedMap.size());
+        for (var entry : trackedMap.entrySet()) {
+          map.put(entry.getKey(), toMapValue(entry.getValue(), true));
+        }
+        yield map;
+      }
+
+      default -> {
+        if (PropertyType.getTypeByValue(value) == null) {
+          throw new IllegalArgumentException(
+              "Unexpected property value :" + value);
+        }
+
+        yield value;
+      }
+    };
+  }
+
   public void setProperty(String name, Object value) {
     assert session == null || session.assertIfNotActive();
     assert identifiable == null;
-    if (value instanceof Optional) {
-      value = ((Optional) value).orElse(null);
-    }
+
     if (content == null) {
       throw new IllegalStateException("Impossible to mutate result set");
     }
+
     checkType(value);
     if (value instanceof Result && ((Result) value).isEntity()) {
-      content.put(name, ((Result) value).getEntity().get());
+      content.put(name, ((Result) value).castToEntity());
     } else {
       content.put(name, value);
     }
@@ -85,17 +189,6 @@ public class ResultInternal implements Result {
   public boolean isRecord() {
     assert session == null || session.assertIfNotActive();
     return identifiable != null;
-  }
-
-  @Nullable
-  @Override
-  public RID getRecordId() {
-    assert session == null || session.assertIfNotActive();
-    if (identifiable == null) {
-      return null;
-    }
-
-    return identifiable.getIdentity();
   }
 
   private static void checkType(Object value) {
@@ -125,11 +218,9 @@ public class ResultInternal implements Result {
     if (temporaryContent == null) {
       temporaryContent = new HashMap<>();
     }
-    if (value instanceof Optional) {
-      value = ((Optional) value).orElse(null);
-    }
+
     if (value instanceof Result && ((Result) value).isEntity()) {
-      temporaryContent.put(name, ((Result) value).getEntity().get());
+      temporaryContent.put(name, ((Result) value).castToEntity());
     } else {
       temporaryContent.put(name, value);
     }
@@ -153,28 +244,31 @@ public class ResultInternal implements Result {
     }
   }
 
-  public <T> T getProperty(String name) {
+  public <T> T getProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
     T result = null;
     if (content != null && content.containsKey(name)) {
+      //noinspection unchecked
       result = (T) wrap(session, content.get(name));
     } else {
       if (isEntity()) {
+        //noinspection unchecked
         result = (T) wrap(session,
             EntityInternalUtils.rawPropertyRead((Entity) identifiable, name));
       }
     }
     if (result instanceof Identifiable && ((Identifiable) result).getIdentity()
         .isPersistent()) {
+      //noinspection unchecked
       result = (T) ((Identifiable) result).getIdentity();
     }
     return result;
   }
 
   @Override
-  public Entity getEntityProperty(String name) {
+  public Entity getEntityProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
@@ -188,7 +282,7 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof Result) {
-      result = ((Result) result).getRecord().orElse(null);
+      result = ((Result) result).castToRecord();
     }
 
     if (result instanceof RID) {
@@ -200,8 +294,9 @@ public class ResultInternal implements Result {
   }
 
   @Override
-  public Vertex getVertexProperty(String name) {
+  public Vertex getVertexProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
+
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
@@ -213,7 +308,7 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof Result) {
-      result = ((Result) result).getRecord().orElse(null);
+      result = ((Result) result).castToRecord();
     }
 
     if (result instanceof RID) {
@@ -221,12 +316,17 @@ public class ResultInternal implements Result {
       result = ((RID) result).getRecord(session);
     }
 
-    return result instanceof Entity ? ((Entity) result).asVertex().orElse(null) : null;
+    if (result instanceof Entity entity) {
+      return entity.castToVertex();
+    }
+
+    throw new IllegalStateException("Result is not a vertex");
   }
 
   @Override
-  public Edge getEdgeProperty(String name) {
+  public Edge getEdgeProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
+
     loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
@@ -238,7 +338,7 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof Result) {
-      result = ((Result) result).getRecord().orElse(null);
+      result = ((Result) result).castToRecord();
     }
 
     if (result instanceof RID) {
@@ -246,7 +346,11 @@ public class ResultInternal implements Result {
       result = ((RID) result).getRecord(session);
     }
 
-    return result instanceof Entity ? ((Entity) result).asEdge().orElse(null) : null;
+    if (result instanceof Entity entity) {
+      return entity.castToStateFullEdge();
+    }
+
+    throw new IllegalStateException("Result is not an edge");
   }
 
   @Override
@@ -263,7 +367,7 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof Result) {
-      result = ((Result) result).getRecord().orElse(null);
+      result = ((Result) result).castToRecord();
     }
 
     if (result instanceof RID) {
@@ -274,6 +378,38 @@ public class ResultInternal implements Result {
     return result instanceof Blob ? (Blob) result : null;
   }
 
+  @Nullable
+  @Override
+  public Identifiable getLinkProperty(@Nonnull String name) {
+    assert session == null || session.assertIfNotActive();
+
+    Object result = null;
+    if (content != null && content.containsKey(name)) {
+      result = content.get(name);
+    } else {
+      if (isEntity()) {
+        result = EntityInternalUtils.rawPropertyRead(identifiable.getEntity(session), name);
+      }
+    }
+
+    if (result instanceof Result) {
+      result = ((Result) result).castToRecord();
+    }
+
+    if (result instanceof RID rid) {
+      return rid;
+    }
+
+    if (result == null) {
+      return null;
+    }
+    if (result instanceof Identifiable) {
+      return (Identifiable) result;
+    }
+
+    throw new IllegalStateException("Property " + name + " is not a link");
+  }
+
   private static Object wrap(DatabaseSessionInternal session, Object input) {
     if (input instanceof EntityInternal elem
         && !((RecordId) ((Entity) input).getIdentity()).isValid()) {
@@ -281,14 +417,19 @@ public class ResultInternal implements Result {
       for (var prop : elem.getPropertyNamesInternal()) {
         result.setProperty(prop, elem.getPropertyInternal(prop));
       }
-      elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName(session)));
+
+      var schemaClass = elem.getSchemaClass();
+      if (schemaClass != null) {
+        result.setProperty("@class", schemaClass.getName(session));
+      }
+
       return result;
     } else {
       if (isEmbeddedList(input)) {
-        return ((List) input).stream().map(in -> wrap(session, in)).collect(Collectors.toList());
+        return ((List<?>) input).stream().map(in -> wrap(session, in)).collect(Collectors.toList());
       } else {
         if (isEmbeddedSet(input)) {
-          var mappedSet = ((Set) input).stream().map(in -> wrap(session, in));
+          var mappedSet = ((Set<?>) input).stream().map(in -> wrap(session, in));
           if (input instanceof LinkedHashSet<?>) {
             return mappedSet.collect(Collectors.toCollection(LinkedHashSet::new));
           } else {
@@ -296,8 +437,9 @@ public class ResultInternal implements Result {
           }
         } else {
           if (isEmbeddedMap(input)) {
-            Map result = new HashMap();
-            for (var o : ((Map<Object, Object>) input).entrySet()) {
+            var result = new HashMap<String, Object>();
+            //noinspection unchecked
+            for (var o : ((Map<String, Object>) input).entrySet()) {
               result.put(o.getKey(), wrap(session, o.getValue()));
             }
             return result;
@@ -320,7 +462,7 @@ public class ResultInternal implements Result {
     return input instanceof List && PropertyType.getTypeByValue(input) == PropertyType.EMBEDDEDLIST;
   }
 
-  public Collection<String> getPropertyNames() {
+  public @Nonnull Collection<String> getPropertyNames() {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     if (isEntity()) {
@@ -334,7 +476,7 @@ public class ResultInternal implements Result {
     }
   }
 
-  public boolean hasProperty(String propName) {
+  public boolean hasProperty(@Nonnull String propName) {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     if (isEntity() && ((Entity) identifiable).hasProperty(propName)) {
@@ -351,6 +493,27 @@ public class ResultInternal implements Result {
   public DatabaseSession getBoundedToSession() {
     return session;
   }
+
+  @Override
+  public @Nonnull Result detach() {
+    var detached = new ResultInternal(null);
+    if (content != null) {
+      var detachedMap = new LinkedHashMap<String, Object>(content.size());
+
+      for (var entry : content.entrySet()) {
+        detachedMap.put(entry.getKey(), toMapValue(entry.getValue(), false));
+      }
+
+      detached.content = detachedMap;
+    }
+
+    if (identifiable != null) {
+      detached.identifiable = identifiable.getIdentity();
+    }
+
+    return detached;
+  }
+
 
   @Override
   public boolean isEntity() {
@@ -373,67 +536,106 @@ public class ResultInternal implements Result {
     return identifiable instanceof Entity;
   }
 
-  public Optional<Entity> getEntity() {
+  @Nonnull
+  public Entity castToEntity() {
     assert session == null || session.assertIfNotActive();
-    loadIdentifiable();
+
     if (isEntity()) {
-      return Optional.ofNullable((Entity) identifiable);
+      loadIdentifiable();
+      return identifiable.getEntity(session);
     }
-    return Optional.empty();
+
+    throw new IllegalStateException("Result is not an entity");
   }
 
+  @Nullable
   @Override
   public Entity asEntity() {
     assert session == null || session.assertIfNotActive();
-    loadIdentifiable();
+
     if (isEntity()) {
-      return (Entity) identifiable;
+      loadIdentifiable();
+      return identifiable.getEntitySilently(session);
     }
 
     return null;
   }
 
+
   @Override
-  public Optional<RID> getIdentity() {
+  public RID getIdentity() {
     assert session == null || session.assertIfNotActive();
-    if (identifiable != null) {
-      return Optional.of(identifiable.getIdentity());
-    }
-    return Optional.empty();
+
+    return identifiable.getIdentity();
   }
 
   @Override
   public boolean isProjection() {
     assert session == null || session.assertIfNotActive();
+
     return this.identifiable == null;
   }
 
+  @Nonnull
   @Override
-  public Optional<DBRecord> getRecord() {
+  public DBRecord castToRecord() {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
-    return Optional.ofNullable((DBRecord) this.identifiable);
+
+    if (identifiable == null) {
+      throw new IllegalStateException("Result is not a record");
+    }
+
+    return this.identifiable.getRecord(session);
+  }
+
+  @Nullable
+  @Override
+  public DBRecord asRecord() {
+    assert session == null || session.assertIfNotActive();
+    loadIdentifiable();
+
+    if (identifiable == null) {
+      return null;
+    }
+
+    return this.identifiable.getRecordSilently(session);
   }
 
   @Override
   public boolean isBlob() {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
+
     return this.identifiable instanceof Blob;
   }
 
+  @Nonnull
   @Override
-  public Optional<Blob> getBlob() {
+  public Blob castToBlob() {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
     if (isBlob()) {
-      return Optional.ofNullable((Blob) this.identifiable);
+      return this.identifiable.getBlob(session);
     }
-    return Optional.empty();
+
+    throw new IllegalStateException("Result is not a blob");
   }
 
+  @Nullable
   @Override
+  public Blob asBlob() {
+    assert session == null || session.assertIfNotActive();
+    loadIdentifiable();
+
+    if (isBlob()) {
+      return this.identifiable.getBlobSilently(session);
+    }
+
+    return null;
+  }
+
   public Object getMetadata(String key) {
     assert session == null || session.assertIfNotActive();
     if (key == null) {
@@ -465,7 +667,6 @@ public class ResultInternal implements Result {
     this.metadata.putAll(values);
   }
 
-  @Override
   public Set<String> getMetadataKeys() {
     assert session == null || session.assertIfNotActive();
     return metadata == null ? Collections.emptySet() : metadata.keySet();
@@ -515,77 +716,74 @@ public class ResultInternal implements Result {
     this.content = null;
   }
 
+  @Nonnull
   @Override
-  public Map<String, ?> toMap() {
+  public Map<String, Object> toMap() {
     assert session == null || session.assertIfNotActive();
+
     if (isEntity()) {
-      return getEntity().orElseThrow().toMap();
+      return castToEntity().toMap();
     }
 
     var map = new HashMap<String, Object>();
-
     for (var prop : getPropertyNames()) {
       var propVal = getProperty(prop);
-      map.put(prop, convertToMapEntry(propVal));
+      map.put(prop, toMapValue(propVal, false));
     }
 
     return map;
   }
 
-  private static Object convertToMapEntry(Object value) {
-    if (value instanceof Result result) {
-      return result.toMap();
-    }
-    if (value instanceof Entity entity) {
-      return entity.toMap();
-    }
+  @Override
+  public boolean isEdge() {
+    assert session == null || session.assertIfNotActive();
+    loadIdentifiable();
 
-    if (value instanceof Blob blob) {
-      return blob.toStream();
+    if (isStatefulEdge()) {
+      return true;
     }
 
-    if (value instanceof List<?> list) {
-      var mapValue = new ArrayList<>();
-
-      for (var originalItem : list) {
-        mapValue.add(convertToMapEntry(originalItem));
-      }
-
-      return mapValue;
-    }
-
-    if (value instanceof Set<?> set) {
-      var mapValue = new HashSet<>();
-
-      for (var originalItem : set) {
-        mapValue.add(convertToMapEntry(originalItem));
-      }
-
-      return mapValue;
-    }
-
-    if (value instanceof Map<?, ?> mapValue) {
-      var newMap = new HashMap<String, Object>();
-
-      for (var entry : mapValue.entrySet()) {
-        newMap.put(entry.getKey().toString(), convertToMapEntry(entry.getValue()));
-      }
-
-      return newMap;
-    }
-
-    if (PropertyType.getTypeByValue(value) == null) {
-      throw new IllegalArgumentException(
-          "Unexpected Result property value :" + value);
-    }
-
-    return value;
+    return lightweightEdge != null;
   }
 
-  public String toJSON() {
+  @Nonnull
+  @Override
+  public Edge castToEdge() {
+    assert session == null || session.assertIfNotActive();
+    loadIdentifiable();
+
+    if (isStatefulEdge()) {
+      return castToStateFullEdge();
+    }
+
+    if (lightweightEdge != null) {
+      return lightweightEdge;
+    }
+
+    throw new DatabaseException("Result is not an edge");
+  }
+
+  @Nullable
+  @Override
+  public Edge asEdge() {
+    assert session == null || session.assertIfNotActive();
+    loadIdentifiable();
+
+    if (isStatefulEdge()) {
+      return castToStateFullEdge();
+    }
+
+    if (lightweightEdge != null) {
+      return lightweightEdge;
+    }
+
+    return null;
+  }
+
+  public @Nonnull String toJSON() {
     assert session == null || session.assertIfNotActive();
     if (isEntity()) {
-      return getEntity().orElseThrow().toJSON();
+      return castToEntity().toJSON();
     }
     var result = new StringBuilder();
     result.append("{");
@@ -613,34 +811,22 @@ public class ResultInternal implements Result {
       jsonVal = val.toString();
     } else if (val instanceof Result) {
       jsonVal = ((Result) val).toJSON();
-    } else if (val instanceof Entity) {
-      var id = ((Entity) val).getIdentity();
-      if (id.isPersistent()) {
-        //        jsonVal = "{\"@rid\":\"" + id + "\"}"; //TODO enable this syntax when Studio and
-        // the parsing are OK
-        jsonVal = "\"" + id + "\"";
-      } else {
-        jsonVal = ((Entity) val).toJSON();
-      }
     } else if (val instanceof RID) {
-      //      jsonVal = "{\"@rid\":\"" + val + "\"}"; //TODO enable this syntax when Studio and the
-      // parsing are OK
       jsonVal = "\"" + val + "\"";
     } else if (val instanceof Iterable) {
       var builder = new StringBuilder();
       builder.append("[");
       var first = true;
-      var iterator = ((Iterable) val).iterator();
-      while (iterator.hasNext()) {
+      for (var o : (Iterable<?>) val) {
         if (!first) {
           builder.append(", ");
         }
-        builder.append(toJson(iterator.next()));
+        builder.append(toJson(o));
         first = false;
       }
       builder.append("]");
       jsonVal = builder.toString();
-    } else if (val instanceof Iterator iterator) {
+    } else if (val instanceof Iterator<?> iterator) {
       var builder = new StringBuilder();
       builder.append("[");
       var first = true;
@@ -657,8 +843,9 @@ public class ResultInternal implements Result {
       var builder = new StringBuilder();
       builder.append("{");
       var first = true;
-      Map<Object, Object> map = (Map) val;
-      for (Map.Entry entry : map.entrySet()) {
+      @SuppressWarnings("unchecked")
+      var map = (Map<Object, Object>) val;
+      for (var entry : map.entrySet()) {
         if (!first) {
           builder.append(", ");
         }
@@ -713,12 +900,9 @@ public class ResultInternal implements Result {
       return false;
     }
     if (identifiable != null) {
-      if (!resultObj.getEntity().isPresent()) {
-        return false;
-      }
-      return identifiable.equals(resultObj.getEntity().get());
+      return identifiable.equals(resultObj.identifiable);
     } else {
-      if (resultObj.getEntity().isPresent()) {
+      if (resultObj.identifiable == null) {
         return false;
       }
       if (content != null) {

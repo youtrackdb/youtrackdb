@@ -535,7 +535,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
   private String getClassName(final Object iValue) {
     if (iValue instanceof EntityImpl) {
-      return ((EntityImpl) iValue).getClassName();
+      return ((EntityImpl) iValue).getSchemaClassName();
     }
 
     return iValue != null ? iValue.getClass().getSimpleName() : null;

@@ -59,15 +59,13 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
         Assert.fail("There is an item in result set that is not an instance of ResultInternal");
       }
       if (!currentItem
-          .getEntity()
-          .get()
+          .castToEntity()
           .getProperty(STRING_PROPERTY)
           .equals(documents.get(counter).getProperty(STRING_PROPERTY))) {
         Assert.fail("String EntityImpl property inside Result instance is not preserved");
       }
       if (!currentItem
-          .getEntity()
-          .get()
+          .castToEntity()
           .getProperty(INTEGER_PROPERTY)
           .equals(documents.get(counter).getProperty(INTEGER_PROPERTY))) {
         Assert.fail("Integer EntityImpl property inside Result instance is not preserved");

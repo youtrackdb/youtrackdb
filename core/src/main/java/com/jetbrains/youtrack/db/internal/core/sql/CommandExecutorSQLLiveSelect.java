@@ -126,7 +126,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       execDb.checkSecurity(
           Rule.ResourceGeneric.CLASS,
           Role.PERMISSION_READ,
-          ((EntityImpl) value.getRecord(execDb)).getClassName());
+          ((EntityImpl) value.getRecord(execDb)).getSchemaClassName());
     } catch (SecurityException ignore) {
       return false;
     }
@@ -152,7 +152,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     if (!(value instanceof EntityImpl)) {
       return false;
     }
-    final var className = ((EntityImpl) value).getClassName();
+    final var className = ((EntityImpl) value).getSchemaClassName();
     if (className == null) {
       return false;
     }

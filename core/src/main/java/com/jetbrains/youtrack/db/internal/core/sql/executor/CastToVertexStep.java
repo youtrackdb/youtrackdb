@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -24,15 +23,16 @@ public class CastToVertexStep extends AbstractExecutionStep {
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
-    if (result.getEntity().orElse(null) instanceof Vertex) {
+    if (!result.isVertex()) {
       return result;
     }
+
     var db = ctx.getDatabaseSession();
     if (result.isVertex()) {
       if (result instanceof ResultInternal) {
-        ((ResultInternal) result).setIdentifiable(result.asEntity().toVertex());
+        ((ResultInternal) result).setIdentifiable(result.castToVertex());
       } else {
-        result = new ResultInternal(db, result.asEntity().toVertex());
+        result = new ResultInternal(db, result.castToVertex());
       }
     } else {
       throw new CommandExecutionException(ctx.getDatabaseSession(),

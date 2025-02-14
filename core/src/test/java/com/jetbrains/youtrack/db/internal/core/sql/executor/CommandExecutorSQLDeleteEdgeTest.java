@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -44,7 +45,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
     session.begin();
     edges =
         session.command("create edge CanAccess from " + userId1 + " to " + folderId1).stream()
-            .map((x) -> x.getIdentity().get())
+            .map(Result::getIdentity)
             .collect(Collectors.toList());
     session.commit();
   }
@@ -57,7 +58,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
             "delete edge CanAccess from (select from User where username = 'gongolo') to "
                 + folderId1);
     session.commit();
-    Assert.assertEquals((long) res.next().getProperty("count"), 1);
+    Assert.assertEquals(1, (long) res.next().getProperty("count"));
     Assert.assertFalse(session.query("select expand(out(CanAccess)) from " + userId1).hasNext());
   }
 
@@ -70,7 +71,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
                 + " from Folder where keyId = '01234567893' )");
     session.commit();
 
-    assertEquals((long) res.next().getProperty("count"), 1);
+    assertEquals(1, (long) res.next().getProperty("count"));
     assertFalse(session.query("select expand(out(CanAccess)) from " + userId1).hasNext());
   }
 
@@ -79,7 +80,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
     session.begin();
     var result = session.command("delete edge [" + edges.get(0).getIdentity() + "]");
     session.commit();
-    assertEquals((long) result.next().getProperty("count"), 1L);
+    assertEquals(1L, (long) result.next().getProperty("count"));
   }
 
   @Test
@@ -87,7 +88,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
     var vertexes = session.command("select from v limit 1");
     try {
       session.begin();
-      session.command("delete edge [" + vertexes.next().getIdentity().get() + "]").close();
+      session.command("delete edge [" + vertexes.next().getIdentity() + "]").close();
       session.commit();
       Assert.fail("Error on deleting an edge with a rid of a vertex");
     } catch (Exception e) {
@@ -116,6 +117,6 @@ public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
     session.commit();
 
     var result = session.query("select expand( in('CanAccess') ) from " + folderId1);
-    assertEquals(result.stream().count(), 0);
+    assertEquals(0, result.stream().count());
   }
 }

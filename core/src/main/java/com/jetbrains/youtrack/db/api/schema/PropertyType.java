@@ -617,7 +617,7 @@ public enum PropertyType {
                     e, session.getDatabaseName());
               }
             } else if (o instanceof Result res && res.isEntity()) {
-              result.add(res.getRecordId());
+              result.add(res.getIdentity());
             }
           }
 

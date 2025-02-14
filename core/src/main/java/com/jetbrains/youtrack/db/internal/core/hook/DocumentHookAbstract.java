@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import javax.annotation.Nonnull;
 
 /**
  * Hook abstract class that calls separate methods for EntityImpl records.
@@ -161,7 +162,8 @@ public abstract class DocumentHookAbstract implements RecordHook {
   }
 
   @Override
-  public RESULT onTrigger(DatabaseSession session, final TYPE iType, final DBRecord iRecord) {
+  public RESULT onTrigger(@Nonnull DatabaseSession session, @Nonnull final TYPE iType,
+      @Nonnull final DBRecord iRecord) {
     if (this.session.getStatus() != STATUS.OPEN) {
       return RESULT.RECORD_NOT_CHANGED;
     }

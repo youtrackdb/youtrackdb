@@ -36,9 +36,9 @@ public class SaveElementStep extends AbstractExecutionStep {
       var db = ctx.getDatabaseSession();
 
       if (cluster == null) {
-        db.save(result.getEntity().orElse(null));
+        db.save(result.castToEntity());
       } else {
-        db.save(result.getEntity().orElse(null), cluster.getStringValue());
+        db.save(result.castToEntity(), cluster.getStringValue());
       }
     }
     return result;

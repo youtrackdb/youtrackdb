@@ -134,7 +134,7 @@ public class GraphRepair {
             final var beginTime = System.currentTimeMillis();
 
             for (var edge : session.browseClass(edgeClass.getName(session))) {
-              if (!edge.isEdge()) {
+              if (!edge.isStatefulEdge()) {
                 continue;
               }
               final RID edgeId = edge.getIdentity();
@@ -173,7 +173,7 @@ public class GraphRepair {
 
               var removalReason = "";
 
-              final Identifiable out = edge.asEdge().get().getFrom();
+              final Identifiable out = edge.castToStatefulEdge().getFrom();
               if (out == null) {
                 outVertexMissing = true;
               } else {
@@ -189,7 +189,7 @@ public class GraphRepair {
                 } else {
                   final var outFieldName =
                       VertexInternal.getEdgeLinkFieldName(
-                          Direction.OUT, edge.getClassName(), useVertexFieldsForEdgeLabels);
+                          Direction.OUT, edge.getSchemaClassName(), useVertexFieldsForEdgeLabels);
 
                   final var outEdges = outVertex.field(outFieldName);
                   if (outEdges == null) {
@@ -216,7 +216,7 @@ public class GraphRepair {
 
               var inVertexMissing = false;
 
-              final Identifiable in = edge.asEdge().get().getTo();
+              final Identifiable in = edge.castToStatefulEdge().getTo();
               if (in == null) {
                 inVertexMissing = true;
               } else {
@@ -233,7 +233,7 @@ public class GraphRepair {
                 } else {
                   final var inFieldName =
                       VertexInternal.getEdgeLinkFieldName(
-                          Direction.IN, edge.getClassName(), useVertexFieldsForEdgeLabels);
+                          Direction.IN, edge.getSchemaClassName(), useVertexFieldsForEdgeLabels);
 
                   final var inEdges = inVertex.field(inFieldName);
                   if (inEdges == null) {
@@ -349,8 +349,7 @@ public class GraphRepair {
                         + " secs)\n");
               }
 
-              final var v = vertex.asVertex().orElse(null);
-              if (v == null) {
+              if (!vertex.isVertex()) {
                 return;
               }
 
@@ -564,8 +563,8 @@ public class GraphRepair {
             }
           } else {
             // EDGE -> REGULAR EDGE, OK
-            var edge = record.asEdge().orElse(null);
-            if (edge != null) {
+            if (record.isStatefulEdge()) {
+              var edge = record.castToStatefulEdge();
               final Identifiable backRID = edge.getVertex(direction);
               if (backRID == null || !backRID.equals(vertex))
               // BACK RID POINTS TO ANOTHER VERTEX

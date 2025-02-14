@@ -19,11 +19,11 @@ public class SQLUpdateMapTest extends DbTestBase {
 
     session.begin();
     try (var rs = session.command("insert into vRecord (title) values('first record')")) {
-      ret = (EntityImpl) rs.next().getRecord().get();
+      ret = (EntityImpl) rs.next().castToRecord();
     }
 
     try (var rs = session.command("insert into vRecord (title) values('second record')")) {
-      ret1 = (EntityImpl) rs.next().getRecord().get();
+      ret1 = (EntityImpl) rs.next().castToRecord();
     }
     session.commit();
 

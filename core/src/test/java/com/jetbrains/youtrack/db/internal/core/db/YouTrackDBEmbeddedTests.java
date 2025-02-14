@@ -39,20 +39,17 @@ public class YouTrackDBEmbeddedTests {
 
   @Test
   public void testCompatibleUrl() {
-    try (YouTrackDB youTrackDb = new YouTrackDBImpl(
+    new YouTrackDBImpl(
         "plocal:" + DbTestBase.getDirectoryPath(getClass()) + "compatibleUrl",
-        YouTrackDBConfig.defaultConfig())) {
-    }
-    try (YouTrackDB youTrackDb = new YouTrackDBImpl(
+        YouTrackDBConfig.defaultConfig()).close();
+    new YouTrackDBImpl(
         "memory:" + DbTestBase.getDirectoryPath(getClass()) + "compatibleUrl",
-        YouTrackDBConfig.defaultConfig())) {
-    }
+        YouTrackDBConfig.defaultConfig()).close();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongUrlFalure() {
-    try (YouTrackDB wrong = new YouTrackDBImpl("wrong", YouTrackDBConfig.defaultConfig())) {
-    }
+    new YouTrackDBImpl("wrong", YouTrackDBConfig.defaultConfig()).close();
   }
 
   @Test
@@ -73,28 +70,22 @@ public class YouTrackDBEmbeddedTests {
 
   @Test(expected = DatabaseException.class)
   public void testEmbeddedDoubleCreate() {
-    YouTrackDB youTrackDb = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
-        YouTrackDBConfig.defaultConfig());
-    try {
+    try (YouTrackDB youTrackDb = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       youTrackDb.create("test", DatabaseType.MEMORY);
       youTrackDb.create("test", DatabaseType.MEMORY);
-    } finally {
-      youTrackDb.close();
     }
   }
 
   @Test
   public void createDropEmbeddedDatabase() {
-    YouTrackDB youTrackDb = new YouTrackDBImpl(
+    try (YouTrackDB youTrackDb = new YouTrackDBImpl(
         DbTestBase.embeddedDBUrl(getClass()) + "createDropEmbeddedDatabase",
-        YouTrackDBConfig.defaultConfig());
-    try {
+        YouTrackDBConfig.defaultConfig())) {
       youTrackDb.create("test", DatabaseType.MEMORY);
       assertTrue(youTrackDb.exists("test"));
       youTrackDb.drop("test");
       assertFalse(youTrackDb.exists("test"));
-    } finally {
-      youTrackDb.close();
     }
   }
 
@@ -111,13 +102,10 @@ public class YouTrackDBEmbeddedTests {
       // do a query and assert on other thread
       Runnable acquirer =
           () -> {
-            var db = pool.acquire();
-            try {
+            try (var db = pool.acquire()) {
               assertThat(db.isActiveOnCurrentThread()).isTrue();
               final var res = db.query("SELECT * FROM OUser");
               assertThat(res).hasSize(1); // Only 'admin' created in this test
-            } finally {
-              db.close();
             }
           };
 
@@ -746,8 +734,7 @@ public class YouTrackDBEmbeddedTests {
                 .build());
     youTrackDB.execute(
         "create database test memory users(admin identified by 'adminpwd' role admin)");
-    try (var session = youTrackDB.open("test", "admin", "adminpwd")) {
-    }
+    youTrackDB.open("test", "admin", "adminpwd").close();
 
     youTrackDB.close();
   }
@@ -768,9 +755,7 @@ public class YouTrackDBEmbeddedTests {
         "create database test memory if not exists users(admin identified by 'adminpwd' role"
             + " admin)");
 
-    try (var session = youTrackDB.open("test", "admin", "adminpwd")) {
-    }
-
+    youTrackDB.open("test", "admin", "adminpwd").close();
     youTrackDB.close();
   }
 }

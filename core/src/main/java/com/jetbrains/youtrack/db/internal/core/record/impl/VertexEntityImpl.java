@@ -24,19 +24,19 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public VertexEntityImpl(DatabaseSessionInternal session, String klass) {
     super(session, klass);
     if (!getImmutableSchemaClass().isVertexType(session)) {
-      throw new IllegalArgumentException(getClassName() + " is not a vertex class");
+      throw new IllegalArgumentException(getSchemaClassName() + " is not a vertex class");
     }
   }
 
   @Override
-  public Collection<String> getPropertyNames() {
+  public @Nonnull Collection<String> getPropertyNames() {
     checkForBinding();
 
     return VertexInternal.filterPropertyNames(super.getPropertyNames());
   }
 
   @Override
-  public <RET> RET getProperty(String fieldName) {
+  public <RET> RET getProperty(@Nonnull String fieldName) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(fieldName);
@@ -46,7 +46,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
 
   @Nullable
   @Override
-  public Identifiable getLinkProperty(String fieldName) {
+  public Identifiable getLinkProperty(@Nonnull String fieldName) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(fieldName);
@@ -55,7 +55,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   }
 
   @Override
-  public void setProperty(String fieldName, Object propertyValue) {
+  public void setProperty(@Nonnull String fieldName, @Nullable Object propertyValue) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(fieldName);
@@ -63,7 +63,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   }
 
   @Override
-  public void setProperty(String name, Object propertyValue, PropertyType types) {
+  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType types) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(name);
@@ -71,7 +71,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   }
 
   @Override
-  public <RET> RET removeProperty(String fieldName) {
+  public <RET> RET removeProperty(@Nonnull String fieldName) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(fieldName);

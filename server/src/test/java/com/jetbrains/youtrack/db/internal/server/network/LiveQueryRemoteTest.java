@@ -5,16 +5,11 @@ import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -26,11 +21,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nonnull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -88,29 +82,30 @@ public class LiveQueryRemoteTest {
     public List<Result> ops = new ArrayList<Result>();
 
     @Override
-    public void onCreate(DatabaseSessionInternal session, Result data) {
+    public void onCreate(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(DatabaseSessionInternal session, Result before, Result after) {
+    public void onUpdate(@Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+        @Nonnull Result after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(DatabaseSessionInternal session, Result data) {
+    public void onDelete(@Nonnull DatabaseSessionInternal session, @Nonnull Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(DatabaseSession session, BaseException exception) {
+    public void onError(@Nonnull DatabaseSession session, @Nonnull BaseException exception) {
     }
 
     @Override
-    public void onEnd(DatabaseSession session) {
+    public void onEnd(@Nonnull DatabaseSession session) {
       ended.countDown();
     }
   }
@@ -180,7 +175,7 @@ public class LiveQueryRemoteTest {
     var liveMatch = 1;
     var query = db.query("select from OUSer where name = 'reader'");
 
-    final Identifiable reader = query.next().getIdentity().orElse(null);
+    final Identifiable reader = query.next().getIdentity();
     final var current = db.geCurrentUser().getIdentity();
 
     var executorService = Executors.newSingleThreadExecutor();
@@ -201,30 +196,34 @@ public class LiveQueryRemoteTest {
                     new LiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(DatabaseSessionInternal session, Result data) {
+                      public void onCreate(@Nonnull DatabaseSessionInternal session,
+                          @Nonnull Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          DatabaseSessionInternal session, Result before, Result after) {
+                          @Nonnull DatabaseSessionInternal session, @Nonnull Result before,
+                          @Nonnull Result after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(DatabaseSessionInternal session, Result data) {
+                      public void onDelete(@Nonnull DatabaseSessionInternal session,
+                          @Nonnull Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onError(DatabaseSession session, BaseException exception) {
+                      public void onError(@Nonnull DatabaseSession session,
+                          @Nonnull BaseException exception) {
                       }
 
                       @Override
-                      public void onEnd(DatabaseSession session) {
+                      public void onEnd(@Nonnull DatabaseSession session) {
                       }
                     });
 

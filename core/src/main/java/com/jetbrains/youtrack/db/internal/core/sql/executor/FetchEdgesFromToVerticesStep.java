@@ -85,9 +85,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
                 false)
             .filter((e) -> filterResult(db, e, toList))
             .map(
-                (edge) -> {
-                  return (Result) new ResultInternal(db, edge);
-                })
+                (edge) -> (Result) new ResultInternal(db, edge))
             .iterator());
   }
 
@@ -107,7 +105,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       while (toIter.hasNext()) {
         var elem = toIter.next();
         if (elem instanceof Result result && result.isEntity()) {
-          elem = result.asEntity();
+          elem = result.castToEntity();
         }
         if (elem instanceof Identifiable && !(elem instanceof Entity)) {
           elem = ((Identifiable) elem).getRecord(session);
@@ -115,7 +113,10 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
         if (!(elem instanceof Entity)) {
           throw new CommandExecutionException(session, "Invalid vertex: " + elem);
         }
-        ((Entity) elem).asVertex().ifPresent(x -> toList.add(x.getIdentity()));
+        var vertex = ((Entity) elem).asVertex();
+        if (vertex != null) {
+          toList.add(vertex.getIdentity());
+        }
       }
 
       return toList;
@@ -150,8 +151,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       from = ((Identifiable) from).getRecord(session);
     }
     if (from instanceof Entity && ((Entity) from).isVertex()) {
-      var vertex = ((Entity) from).toVertex();
-      assert vertex != null;
+      var vertex = ((Entity) from).castToVertex();
       return vertex.getEdges(Direction.OUT);
     } else {
       throw new CommandExecutionException(session, "Invalid vertex: " + from);
@@ -162,9 +162,14 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     if (targetCluster == null) {
       return true;
     }
-    var clusterId = edge.getIdentity().getClusterId();
-    var clusterName = ctx.getDatabaseSession().getClusterNameById(clusterId);
-    return clusterName.equals(targetCluster.getStringValue());
+    if (edge.isStateful()) {
+      var statefulEdge = edge.castToStatefulEdge();
+      var clusterId = statefulEdge.getIdentity().getClusterId();
+      var clusterName = ctx.getDatabaseSession().getClusterNameById(clusterId);
+      return clusterName.equals(targetCluster.getStringValue());
+    }
+
+    return false;
   }
 
   private boolean matchesClass(DatabaseSessionInternal db, Edge edge) {

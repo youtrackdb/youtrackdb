@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
@@ -126,7 +126,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     vrt.save();
     session.commit();
     session.begin();
-    vrt.getEdges(Direction.OUT, edgeClass).forEach(Entity::delete);
+    vrt.getEdges(Direction.OUT, edgeClass).forEach(Edge::delete);
     vrt.save();
     session.commit();
   }
@@ -166,7 +166,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.commit();
     session.begin();
     vrt = session.bindToSession(vrt);
-    vrt.getEdges(Direction.OUT, edgeClass).forEach(Entity::delete);
+    vrt.getEdges(Direction.OUT, edgeClass).forEach(Edge::delete);
     vrt.save();
     var link2 = session.newVertex(linkClass.getName(session));
     link2.save();

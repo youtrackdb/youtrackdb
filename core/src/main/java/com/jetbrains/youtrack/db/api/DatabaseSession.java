@@ -39,6 +39,7 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
+import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -416,8 +417,8 @@ public interface DatabaseSession extends AutoCloseable {
    * @param to   the endpoint vertex
    * @return the edge
    */
-  default Edge newRegularEdge(Vertex from, Vertex to) {
-    return newRegularEdge(from, to, "E");
+  default StatefulEdge newStatefulEdge(Vertex from, Vertex to) {
+    return newStatefulEdge(from, to, "E");
   }
 
   /**
@@ -428,7 +429,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @param type the edge type
    * @return the edge
    */
-  Edge newRegularEdge(Vertex from, Vertex to, SchemaClass type);
+  StatefulEdge newStatefulEdge(Vertex from, Vertex to, SchemaClass type);
 
   /**
    * Creates a new lightweight edge of provided type (class). Provided class should be an abstract
@@ -449,7 +450,7 @@ public interface DatabaseSession extends AutoCloseable {
    * @param type the edge type
    * @return the edge
    */
-  Edge newRegularEdge(Vertex from, Vertex to, String type);
+  StatefulEdge newStatefulEdge(Vertex from, Vertex to, String type);
 
   /**
    * Creates a new lightweight edge of provided type (class). Provided class should be an abstract

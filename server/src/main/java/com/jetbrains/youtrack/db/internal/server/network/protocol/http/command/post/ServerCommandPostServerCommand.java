@@ -104,9 +104,10 @@ public class ServerCommandPostServerCommand extends ServerCommandAuthenticatedSe
 
     Map<String, Object> additionalContent = new HashMap<>();
     if (returnExecutionPlan) {
-      result
-          .getExecutionPlan()
-          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(null).toMap()));
+      var plan = result.getExecutionPlan();
+      if (plan != null) {
+        additionalContent.put("executionPlan", plan.toResult(null).toMap());
+      }
     }
 
     result.close();

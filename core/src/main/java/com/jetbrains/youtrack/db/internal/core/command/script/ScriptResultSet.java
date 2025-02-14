@@ -23,7 +23,7 @@ public class ScriptResultSet extends IteratorResultSet {
 
   @Override
   public Result next() {
-
+    assert session == null || session.assertIfNotActive();
     var next = iterator.next();
     return transformer.toResult(session, next);
   }

@@ -140,12 +140,14 @@ public class SQLSuffixIdentifier extends SimpleNode {
         if (iCurrentRecord.hasProperty(varName)) {
           return iCurrentRecord.getProperty(varName);
         }
-        if (iCurrentRecord.getMetadataKeys().contains(varName)) {
-          return iCurrentRecord.getMetadata(varName);
+
+        if (iCurrentRecord instanceof ResultInternal resultInternal
+            && resultInternal.getMetadataKeys().contains(varName)) {
+          return resultInternal.getMetadata(varName);
         }
-        if (iCurrentRecord instanceof ResultInternal
-            && ((ResultInternal) iCurrentRecord).getTemporaryProperties().contains(varName)) {
-          return ((ResultInternal) iCurrentRecord).getTemporaryProperty(varName);
+        if (iCurrentRecord instanceof ResultInternal resultInternal
+            && resultInternal.getTemporaryProperties().contains(varName)) {
+          return resultInternal.getTemporaryProperty(varName);
         }
       }
       return null;
@@ -464,16 +466,16 @@ public class SQLSuffixIdentifier extends SimpleNode {
     return true;
   }
 
-  public Collate getCollate(Result currentRecord, CommandContext ctx) {
-    if (identifier != null && currentRecord != null) {
+  public Collate getCollate(Result currentResult, CommandContext ctx) {
+    if (identifier != null && currentResult != null) {
       var session = ctx.getDatabaseSession();
-      return currentRecord
-          .getRecord()
-          .map(x -> (Entity) x)
-          .flatMap(Entity::getSchemaType)
-          .map(clazz -> clazz.getProperty(session, identifier.getStringValue()))
-          .map(schemaProperty -> schemaProperty.getCollate(session))
-          .orElse(null);
+      if (currentResult.isEntity()) {
+        var record = currentResult.castToEntity();
+        var schemaClass = record.getSchemaClass();
+        if (schemaClass != null) {
+          return schemaClass.getProperty(session, identifier.getStringValue()).getCollate(session);
+        }
+      }
     }
     return null;
   }

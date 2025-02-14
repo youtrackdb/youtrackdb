@@ -214,7 +214,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       for (var item : MultiValue.getMultiValueIterable(rightValue)) {
         if (item instanceof Result) {
           if (((Result) item).isEntity()) {
-            item = ((Result) item).getEntity().orElseThrow(IllegalStateException::new);
+            item = ((Result) item).castToEntity();
           } else if (((Result) item).getPropertyNames().size() == 1) {
             item =
                 ((Result) item).getProperty(
@@ -467,7 +467,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     }
     if (value instanceof Result) {
       if (((Result) value).isEntity()) {
-        return ((Result) value).getIdentity().orElse(null);
+        return ((Result) value).getIdentity();
       }
 
       var props = ((Result) value).getPropertyNames();

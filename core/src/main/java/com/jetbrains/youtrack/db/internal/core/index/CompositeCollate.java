@@ -22,6 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Collate implementation used on composite indexes.
@@ -45,13 +46,13 @@ public class CompositeCollate implements Collate {
   }
 
   @Override
-  public String getName() {
+  public @Nonnull String getName() {
     throw new UnsupportedOperationException("getName");
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Object transform(final Object obj) {
+  public @Nonnull Object transform(final @Nonnull Object obj) {
     final List<Object> keys;
     if (obj instanceof CompositeKey compositeKey) {
       keys = compositeKey.getKeys();

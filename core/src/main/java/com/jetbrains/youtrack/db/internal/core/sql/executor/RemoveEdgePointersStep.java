@@ -30,21 +30,23 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
     for (var propName :
         propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       var val = result.getProperty(propName);
-      if (val instanceof Entity) {
-        if (((Entity) val).getSchemaType().map(x -> x.isSubClassOf(db, "E")).orElse(false)) {
+      if (val instanceof Entity entity) {
+        var schemaClass = entity.getSchemaClass();
+        if (schemaClass != null && schemaClass.isSubClassOf(db, "E")) {
           ((ResultInternal) result).removeProperty(propName);
         }
       } else if (val instanceof Iterable<?> iterable) {
         for (var o : iterable) {
-          if (o instanceof Entity) {
-            if (((Entity) o).getSchemaType().map(x -> x.isSubClassOf(db, "E")).orElse(false)) {
+          if (o instanceof Entity entity) {
+            var schemaClass = entity.getSchemaClass();
+            if (schemaClass != null && schemaClass.isSubClassOf(db, "E")) {
               ((ResultInternal) result).removeProperty(propName);
-              break;
             }
           }
         }
       }
     }
+
     return result;
   }
 

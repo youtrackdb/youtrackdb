@@ -57,6 +57,7 @@ public class Placeholder implements Identifiable, Streamable {
     recordVersion = iRecord.getVersion();
   }
 
+  @Nonnull
   @Override
   public RID getIdentity() {
     return rid;
@@ -64,8 +65,8 @@ public class Placeholder implements Identifiable, Streamable {
 
   @Nonnull
   @Override
-  public <T extends DBRecord> T getRecord(DatabaseSession db) {
-    return rid.getRecord(db);
+  public <T extends DBRecord> T getRecord(@Nonnull DatabaseSession session) {
+    return rid.getRecord(session);
   }
 
   @Override

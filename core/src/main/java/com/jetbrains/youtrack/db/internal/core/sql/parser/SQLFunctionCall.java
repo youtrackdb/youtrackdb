@@ -5,6 +5,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -104,7 +105,7 @@ public class SQLFunctionCall extends SimpleNode {
     if (targetObjects instanceof Identifiable) {
       record = targetObjects;
     } else if (targetObjects instanceof Result result && result.isEntity()) {
-      record = result.asEntity();
+      record = result.castToEntity();
     } else {
       record = targetObjects;
     }
@@ -115,7 +116,7 @@ public class SQLFunctionCall extends SimpleNode {
         if (current instanceof Identifiable) {
           record = current;
         } else if (current instanceof Result result && result.isEntity()) {
-          record = result.asEntity();
+          record = result.castToEntity();
         } else {
           record = current;
         }
@@ -145,10 +146,14 @@ public class SQLFunctionCall extends SimpleNode {
       if (record instanceof Identifiable) {
         return function.execute(
             targetObjects, (Identifiable) record, null, paramValues.toArray(), ctx);
-      } else if (record instanceof Result) {
+      } else if (record instanceof Result result) {
+        Entity entity = null;
+        if (result.isEntity()) {
+          entity = result.castToEntity();
+        }
         return function.execute(
             targetObjects,
-            ((Result) record).getEntity().orElse(null),
+            entity,
             null,
             paramValues.toArray(),
             ctx);
