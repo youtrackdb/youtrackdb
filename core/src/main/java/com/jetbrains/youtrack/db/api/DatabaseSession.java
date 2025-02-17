@@ -805,14 +805,7 @@ public interface DatabaseSession extends AutoCloseable {
    *
    * @param record The entity to delete.
    */
-  void delete(DBRecord record);
-
-  /**
-   * Deletes the entity with the received RID from the database.
-   *
-   * @param iRID The RecordID to delete.
-   */
-  void delete(RID iRID);
+  void delete(@Nonnull DBRecord record);
 
   /**
    * Begins a new transaction.If a previous transaction is running a nested call counter is

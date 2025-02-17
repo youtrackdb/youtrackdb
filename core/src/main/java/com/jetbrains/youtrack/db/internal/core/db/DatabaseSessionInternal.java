@@ -239,20 +239,17 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   /**
    * Executed the commit on the storage hiding away storage concepts from the transaction
    */
-  void internalCommit(FrontendTransactionOptimistic transaction);
+  void internalCommit(@Nonnull FrontendTransactionOptimistic transaction);
 
   boolean isClusterVertex(int cluster);
 
   boolean isClusterEdge(int cluster);
 
+  void deleteInternal(@Nonnull DBRecord record);
 
   void internalClose(boolean recycle);
 
-  String getClusterName(final DBRecord record);
-
-  default ResultSet indexQuery(String indexName, String query, Object... args) {
-    return command(query, args);
-  }
+  String getClusterName(@Nonnull final DBRecord record);
 
   default boolean isRemote() {
     return false;
@@ -268,7 +265,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
 
   String getClusterRecordConflictStrategy(int clusterId);
 
-  int[] getClustersIds(Set<String> filterClusters);
+  int[] getClustersIds(@Nonnull Set<String> filterClusters);
 
   default void startExclusiveMetadataChange() {
   }
@@ -330,10 +327,10 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * instances of Vehicle and Car. The order of the returned instance starts from record id with
    * position 0 until the end. Base classes are worked at first.
    *
-   * @param iClassName Class name to iterate
+   * @param className Class name to iterate
    * @return Iterator of EntityImpl instances
    */
-  RecordIteratorClass<EntityImpl> browseClass(String iClassName);
+  RecordIteratorClass<EntityImpl> browseClass(@Nonnull String className);
 
   /**
    * Browses all the records of the specified class and if iPolymorphic is true also all the
@@ -342,11 +339,11 @@ public interface DatabaseSessionInternal extends DatabaseSession {
    * the returned instance starts from record id with position 0 until the end. Base classes are
    * worked at first.
    *
-   * @param iClassName   Class name to iterate
+   * @param className   Class name to iterate
    * @param iPolymorphic Consider also the instances of the subclasses or not
    * @return Iterator of EntityImpl instances
    */
-  RecordIteratorClass<EntityImpl> browseClass(String iClassName, boolean iPolymorphic);
+  RecordIteratorClass<EntityImpl> browseClass(@Nonnull String className, boolean iPolymorphic);
 
   /**
    * Counts the entities contained in the specified class and sub classes (polymorphic).

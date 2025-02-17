@@ -383,7 +383,7 @@ public class SQLInsertTest extends BaseDBTest {
             .command(
                 "  INSERT INTO Account SET id= 3232,name= 'my name',map="
                     + " {\"key\":\"value\"},dir= '',user= #3:"
-                    + positions.get(0))
+                    + positions.getFirst())
             .next()
             .castToEntity();
     session.commit();
@@ -397,7 +397,7 @@ public class SQLInsertTest extends BaseDBTest {
     Map<String, String> map = record.field("map");
     Assert.assertEquals(map.get("key"), "value");
     Assert.assertEquals(record.field("dir"), "");
-    Assert.assertEquals(record.field("user"), new RecordId(3, positions.get(0)));
+    Assert.assertEquals(record.field("user"), new RecordId(3, positions.getFirst()));
   }
 
   @Test
@@ -473,8 +473,8 @@ public class SQLInsertTest extends BaseDBTest {
                 + "]";
         List res3 = session.command(new CommandSQL(sql)).execute(session);
         Assert.assertEquals(res3.size(), 2);
-        Assert.assertTrue(((List<?>) res3).get(0) instanceof EntityImpl);
-        final var res3doc = (EntityImpl) res3.get(0);
+        Assert.assertTrue(((List<?>) res3).getFirst() instanceof EntityImpl);
+        final var res3doc = (EntityImpl) res3.getFirst();
         Assert.assertTrue(res3doc.containsField("result"));
         Assert.assertTrue(
             "FFFF".equalsIgnoreCase(res3doc.field("result"))
@@ -700,13 +700,13 @@ public class SQLInsertTest extends BaseDBTest {
         .close();
     session.commit();
 
-    var result =
+    var resultList =
         session.query("select from TestEmbeddedDates").stream().collect(Collectors.toList());
 
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(resultList.size(), 1);
     var found = false;
-    var doc = result.get(0);
-    Collection events = doc.getProperty("events");
+    var result = resultList.getFirst();
+    Collection events = result.getProperty("events");
     for (var event : events) {
       Assert.assertTrue(event instanceof Map);
       var dateObj = ((Map) event).get("on");
@@ -718,7 +718,7 @@ public class SQLInsertTest extends BaseDBTest {
     }
 
     session.begin();
-    session.delete(doc.getIdentity());
+    session.delete(result.castToRecord());
     session.commit();
 
     Assert.assertTrue(found);
@@ -827,7 +827,7 @@ public class SQLInsertTest extends BaseDBTest {
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
-    Assert.assertEquals(result.get(0).getProperty("cluster"), "foo");
+    Assert.assertEquals(result.getFirst().getProperty("cluster"), "foo");
   }
 
   @Test
@@ -848,7 +848,7 @@ public class SQLInsertTest extends BaseDBTest {
         session.query("SELECT FROM TestInsertEmbeddedBigDecimal").stream()
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
-    Iterable ed = result.get(0).getProperty("ed");
+    Iterable ed = result.getFirst().getProperty("ed");
     var o = ed.iterator().next();
     Assert.assertEquals(o.getClass(), BigDecimal.class);
     Assert.assertEquals(((BigDecimal) o).intValue(), 5);

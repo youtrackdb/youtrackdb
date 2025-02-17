@@ -97,7 +97,10 @@ public class SecurityUserImpl extends IdentityWrapper implements SecurityUser {
     entity.setProperty(NAME_PROPERTY, name);
     entity.setProperty(PASSWORD_PROPERTY, password);
     entity.setProperty(STATUS_PROPERTY, status.name());
-    entity.getOrCreateLinkList(ROLES_PROPERTY).addAll(roles);
+
+    var storedRoles = entity.getOrCreateLinkList(ROLES_PROPERTY);
+    storedRoles.clear();
+    storedRoles.addAll(roles);
   }
 
   public static String encryptPassword(final String password) {

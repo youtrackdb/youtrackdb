@@ -499,15 +499,16 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public RecordIteratorClass<EntityImpl> browseClass(String iClassName) {
+  public RecordIteratorClass<EntityImpl> browseClass(@Nonnull String className) {
     checkOpenness();
-    return internal.browseClass(iClassName);
+    return internal.browseClass(className);
   }
 
   @Override
-  public RecordIteratorClass<EntityImpl> browseClass(String iClassName, boolean iPolymorphic) {
+  public RecordIteratorClass<EntityImpl> browseClass(@Nonnull String className,
+      boolean iPolymorphic) {
     checkOpenness();
-    return internal.browseClass(iClassName, iPolymorphic);
+    return internal.browseClass(className, iPolymorphic);
   }
 
   @Override
@@ -633,15 +634,9 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public void delete(DBRecord record) {
+  public void delete(@Nonnull DBRecord record) {
     checkOpenness();
     internal.delete(record);
-  }
-
-  @Override
-  public void delete(RID iRID) {
-    checkOpenness();
-    internal.delete(iRID);
   }
 
   @Override
@@ -1263,7 +1258,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public void internalCommit(FrontendTransactionOptimistic transaction) {
+  public void internalCommit(@Nonnull FrontendTransactionOptimistic transaction) {
     internal.internalCommit(transaction);
   }
 
@@ -1277,6 +1272,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public boolean isClusterEdge(int cluster) {
     checkOpenness();
     return internal.isClusterEdge(cluster);
+  }
+
+  @Override
+  public void deleteInternal(@Nonnull DBRecord record) {
+    checkOpenness();
+    internal.deleteInternal(record);
   }
 
   @Override
@@ -1325,7 +1326,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public String getClusterName(DBRecord record) {
+  public String getClusterName(@Nonnull DBRecord record) {
     return internal.getClusterName(record);
   }
 
@@ -1365,7 +1366,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public int[] getClustersIds(Set<String> filterClusters) {
+  public int[] getClustersIds(@Nonnull Set<String> filterClusters) {
     return internal.getClustersIds(filterClusters);
   }
 

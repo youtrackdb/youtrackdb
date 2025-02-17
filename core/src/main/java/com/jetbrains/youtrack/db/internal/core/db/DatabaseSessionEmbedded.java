@@ -35,7 +35,6 @@ import com.jetbrains.youtrack.db.api.query.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
@@ -67,11 +66,8 @@ import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListenerV2;
 import com.jetbrains.youtrack.db.internal.core.query.live.YTLiveQueryMonitorEmbedded;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
@@ -101,6 +97,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -939,53 +936,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
    *
    * @param record record to delete
    */
-  public void delete(DBRecord record) {
+  public void delete(@Nonnull DBRecord record) {
     checkOpenness();
     assert assertIfNotActive();
 
-    if (record == null) {
-      throw new DatabaseException(getDatabaseName(), "Cannot delete null entity");
-    }
-
-    if (record instanceof Entity) {
-      if (((Entity) record).isVertex()) {
-        VertexInternal.deleteLinks(((Entity) record).castToVertex());
-      } else {
-        if (((Entity) record).isStatefulEdge()) {
-          EdgeEntityImpl.deleteLinks(this, ((Entity) record).castToStateFullEdge());
-        }
-      }
-    }
-
-    // CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-    if (record instanceof EntityImpl && ((EntityImpl) record).getSchemaClassName() != null) {
-      checkSecurity(
-          Rule.ResourceGeneric.CLASS,
-          Role.PERMISSION_DELETE,
-          ((EntityImpl) record).getSchemaClassName());
-    }
-
-    try {
-      currentTx.deleteRecord((RecordAbstract) record);
-    } catch (BaseException e) {
-      throw e;
-    } catch (Exception e) {
-      if (record instanceof EntityImpl) {
-        throw BaseException.wrapException(
-            new DatabaseException(getDatabaseName(),
-                "Error on deleting record "
-                    + record.getIdentity()
-                    + " of class '"
-                    + ((EntityImpl) record).getSchemaClassName()
-                    + "'"),
-            e, getDatabaseName());
-      } else {
-        throw BaseException.wrapException(
-            new DatabaseException(getDatabaseName(),
-                "Error on deleting record " + record.getIdentity()),
-            e, getDatabaseName());
-      }
-    }
+    record.delete();
   }
 
   @Override
@@ -1223,7 +1178,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     LiveQueryHookV2.removePendingDatabaseOps(this);
   }
 
-  public String getClusterName(final DBRecord record) {
+  public String getClusterName(final @Nonnull DBRecord record) {
     assert assertIfNotActive();
 
     var clusterId = record.getIdentity().getClusterId();
@@ -1728,7 +1683,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   @Override
-  public void internalCommit(FrontendTransactionOptimistic transaction) {
+  public void internalCommit(@Nonnull FrontendTransactionOptimistic transaction) {
     assert assertIfNotActive();
     this.storage.commit(transaction);
   }
@@ -1790,7 +1745,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   @Override
-  public int[] getClustersIds(Set<String> filterClusters) {
+  public int[] getClustersIds(@Nonnull Set<String> filterClusters) {
     assert assertIfNotActive();
     return storage.getClustersIds(filterClusters);
   }

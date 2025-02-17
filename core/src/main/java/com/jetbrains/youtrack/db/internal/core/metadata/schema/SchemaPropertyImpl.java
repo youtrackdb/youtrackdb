@@ -650,7 +650,11 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
     }
 
     if (customFields != null && customFields.isEmpty()) {
-      entity.getOrCreateEmbeddedMap("customFields").putAll(customFields);
+      var storedCustomFields = entity.getOrCreateEmbeddedMap("customFields");
+      storedCustomFields.clear();
+      storedCustomFields.putAll(customFields);
+    } else {
+      entity.removeProperty("customFields");
     }
 
     if (collate != null) {

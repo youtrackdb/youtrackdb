@@ -423,9 +423,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
     return session.executeReadRecord((RecordId) rid);
   }
 
-  public void deleteRecord(final RecordAbstract iRecord) {
+  public void deleteRecord(final RecordAbstract record) {
     try {
-      addRecordOperation(iRecord, RecordOperation.DELETED, null);
+      addRecordOperation(record, RecordOperation.DELETED, null);
     } catch (Exception e) {
       rollback(true, 0);
       throw e;

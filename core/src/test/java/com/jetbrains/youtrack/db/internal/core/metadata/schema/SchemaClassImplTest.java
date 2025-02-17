@@ -55,7 +55,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     oClass.setAbstract(session, false);
 
     assertNotEquals(-1, oClass.getClusterIds(session)[0]);
-    assertNotEquals(oClass.getClusterIds(session)[0], session.getClusterIdByName("Test2"));
+    assertEquals(oClass.getClusterIds(session)[0], session.getClusterIdByName("Test2"));
   }
 
   @Test

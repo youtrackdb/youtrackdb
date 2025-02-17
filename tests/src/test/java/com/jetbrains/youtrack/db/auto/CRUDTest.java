@@ -340,7 +340,7 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertTrue(
         ((Collection<?>) loadedElement.getProperty("dateField")).iterator().next() instanceof Date);
 
-    session.delete(id);
+    session.delete(session.load(id));
     session.commit();
   }
 
@@ -396,7 +396,7 @@ public class CRUDTest extends BaseDBTest {
     session = createSessionInstance();
 
     session.begin();
-    session.delete(id);
+    session.delete(session.load(id));
     session.commit();
   }
 

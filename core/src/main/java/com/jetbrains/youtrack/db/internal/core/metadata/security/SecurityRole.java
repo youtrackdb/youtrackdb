@@ -56,7 +56,7 @@ public interface SecurityRole extends Serializable {
 
  Identifiable getIdentity();
 
- Map<String, ? extends SecurityPolicy> getPolicies(DatabaseSession session);
+ Map<String, SecurityPolicy> getPolicies(DatabaseSession session);
 
   SecurityPolicy getPolicy(DatabaseSession session, String resource);
 }

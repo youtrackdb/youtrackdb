@@ -528,6 +528,52 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return unmodifiableHooks;
   }
 
+  @Override
+  public void deleteInternal(@Nonnull DBRecord record) {
+    assert assertIfNotActive();
+    checkOpenness();
+
+    if (record instanceof Entity) {
+      if (((Entity) record).isVertex()) {
+        VertexInternal.deleteLinks(((Entity) record).castToVertex());
+      } else {
+        if (((Entity) record).isStatefulEdge()) {
+          EdgeEntityImpl.deleteLinks(this, ((Entity) record).castToStateFullEdge());
+        }
+      }
+    }
+
+    // CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
+    if (record instanceof EntityImpl && ((EntityImpl) record).getSchemaClassName() != null) {
+      checkSecurity(
+          Rule.ResourceGeneric.CLASS,
+          Role.PERMISSION_DELETE,
+          ((EntityImpl) record).getSchemaClassName());
+    }
+
+    try {
+      currentTx.deleteRecord((RecordAbstract) record);
+    } catch (BaseException e) {
+      throw e;
+    } catch (Exception e) {
+      if (record instanceof EntityImpl) {
+        throw BaseException.wrapException(
+            new DatabaseException(getDatabaseName(),
+                "Error on deleting record "
+                    + record.getIdentity()
+                    + " of class '"
+                    + ((EntityImpl) record).getSchemaClassName()
+                    + "'"),
+            e, getDatabaseName());
+      } else {
+        throw BaseException.wrapException(
+            new DatabaseException(getDatabaseName(),
+                "Error on deleting record " + record.getIdentity()),
+            e, getDatabaseName());
+      }
+    }
+  }
+
   /**
    * Callback the registered hooks if any.
    *
@@ -1421,24 +1467,24 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   /**
    * {@inheritDoc}
    */
-  public RecordIteratorClass<EntityImpl> browseClass(final String iClassName) {
+  public RecordIteratorClass<EntityImpl> browseClass(final @Nonnull String className) {
     assert assertIfNotActive();
-    return browseClass(iClassName, true);
+    return browseClass(className, true);
   }
 
   /**
    * {@inheritDoc}
    */
   public RecordIteratorClass<EntityImpl> browseClass(
-      final String iClassName, final boolean iPolymorphic) {
+      final @Nonnull String className, final boolean iPolymorphic) {
     assert assertIfNotActive();
-    if (getMetadata().getImmutableSchemaSnapshot().getClass(iClassName) == null) {
+    if (getMetadata().getImmutableSchemaSnapshot().getClass(className) == null) {
       throw new IllegalArgumentException(
-          "Class '" + iClassName + "' not found in current database");
+          "Class '" + className + "' not found in current database");
     }
 
-    checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_READ, iClassName);
-    return new RecordIteratorClass<>(this, iClassName, iPolymorphic, false);
+    checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_READ, className);
+    return new RecordIteratorClass<>(this, className, iPolymorphic, false);
   }
 
   /**

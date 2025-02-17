@@ -4,11 +4,9 @@ import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -215,8 +213,7 @@ public class SecurityEngineTest {
 
     db.begin();
     db.command(
-        "Update " + Role.CLASS_NAME + " set roles = roles || (select from " + Role.CLASS_NAME
-            + " where name = 'reader') where name ="
+        "Update OUser set roles = roles || (select from orole where name = 'reader') where name ="
             + " 'admin'");
     db.commit();
     db.close();

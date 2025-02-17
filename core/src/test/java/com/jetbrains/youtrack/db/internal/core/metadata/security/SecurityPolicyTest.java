@@ -141,7 +141,7 @@ public class SecurityPolicyTest extends DbTestBase {
     security.setSecurityPolicy(session, reader, resource, policy);
     session.commit();
 
-    var policyRid = policy.getElement(session).getIdentity();
+    var policyRid = policy.getEntity(session).getIdentity();
     try (var rs = session.query("select from " + Role.CLASS_NAME + " where name = 'reader'")) {
       Map<String, Identifiable> rolePolicies = rs.next().getProperty("policies");
       var id = rolePolicies.get(resource);
@@ -170,7 +170,6 @@ public class SecurityPolicyTest extends DbTestBase {
     var reader = security.getRole(session, "reader");
     var resource = "database.class.Person";
     security.setSecurityPolicy(session, reader, resource, policy);
-
     security.removeSecurityPolicy(session, reader, resource);
     session.commit();
 

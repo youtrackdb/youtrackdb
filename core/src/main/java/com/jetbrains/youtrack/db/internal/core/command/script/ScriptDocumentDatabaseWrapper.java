@@ -240,10 +240,6 @@ public class ScriptDocumentDatabaseWrapper {
     return database.getRecordType();
   }
 
-  public void delete(RID iRid) {
-    database.delete(iRid);
-  }
-
   public <RET extends DBRecord> RET load(RID iRecordId) {
     return database.load(iRecordId);
   }

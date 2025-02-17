@@ -111,7 +111,8 @@ public class SequenceLibraryImpl {
     final var seq = getSequence(session, iName);
     if (seq != null) {
       try {
-        session.delete(seq.entityRid);
+        var entity = session.loadEntity(seq.entityRid);
+        session.delete(entity);
         sequences.remove(iName.toUpperCase(Locale.ENGLISH));
       } catch (NeedRetryException e) {
         var rec = session.load(seq.entityRid);

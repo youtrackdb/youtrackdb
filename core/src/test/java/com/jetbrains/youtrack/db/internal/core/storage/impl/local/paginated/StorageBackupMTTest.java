@@ -26,7 +26,6 @@ import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.Assert;
@@ -302,10 +301,11 @@ public class StorageBackupMTTest {
 
               final var num = random.nextInt();
               if (!ids.isEmpty() && i % 8 == 0) {
-                var id = ids.remove(0);
-                db.delete(id);
+                var id = ids.removeFirst();
+                var record = db.load(id);
+                db.delete(record);
               } else if (!ids.isEmpty() && i % 4 == 0) {
-                var id = ids.remove(0);
+                var id = ids.removeFirst();
                 final EntityImpl document = db.load(id);
                 document.field("data", data);
               } else {

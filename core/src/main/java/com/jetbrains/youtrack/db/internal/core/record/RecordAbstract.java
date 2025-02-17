@@ -338,7 +338,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
 
   public void delete() {
     dirty++;
-    getSession().delete(this);
+    getSession().deleteInternal(this);
   }
 
   public int getSize() {

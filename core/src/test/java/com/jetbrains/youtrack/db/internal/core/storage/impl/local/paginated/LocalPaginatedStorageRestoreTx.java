@@ -334,7 +334,8 @@ public class LocalPaginatedStorageRestoreTx {
                 deleteIndex = random.nextInt(firstDocs.size());
                 if (deleteIndex >= 0) {
                   var rid = firstDocs.get(deleteIndex);
-                  db.delete(rid);
+                  var record = db.load(rid);
+                  db.delete(record);
                 }
               }
             }

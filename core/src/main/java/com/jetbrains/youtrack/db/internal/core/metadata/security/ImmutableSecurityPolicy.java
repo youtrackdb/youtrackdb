@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import javax.annotation.Nonnull;
 
@@ -50,42 +50,42 @@ public class ImmutableSecurityPolicy implements SecurityPolicy {
   }
 
   @Override
-  public String getName(@Nonnull DatabaseSessionInternal db) {
+  public String getName(@Nonnull DatabaseSessionInternal session) {
     return name;
   }
 
   @Override
-  public boolean isActive(@Nonnull DatabaseSessionInternal db) {
+  public boolean isActive(@Nonnull DatabaseSessionInternal session) {
     return active;
   }
 
   @Override
-  public String getCreateRule(@Nonnull DatabaseSessionInternal db) {
+  public String getCreateRule(@Nonnull DatabaseSessionInternal session) {
     return create;
   }
 
   @Override
-  public String getReadRule(@Nonnull DatabaseSessionInternal db) {
+  public String getReadRule(@Nonnull DatabaseSessionInternal session) {
     return read;
   }
 
   @Override
-  public String getBeforeUpdateRule(@Nonnull DatabaseSessionInternal db) {
+  public String getBeforeUpdateRule(@Nonnull DatabaseSessionInternal session) {
     return beforeUpdate;
   }
 
   @Override
-  public String getAfterUpdateRule(@Nonnull DatabaseSessionInternal db) {
+  public String getAfterUpdateRule(@Nonnull DatabaseSessionInternal session) {
     return afterUpdate;
   }
 
   @Override
-  public String getDeleteRule(@Nonnull DatabaseSessionInternal db) {
+  public String getDeleteRule(@Nonnull DatabaseSessionInternal session) {
     return delete;
   }
 
   @Override
-  public String getExecuteRule(@Nonnull DatabaseSessionInternal db) {
+  public String getExecuteRule(@Nonnull DatabaseSessionInternal session) {
     return execute;
   }
 

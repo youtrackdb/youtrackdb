@@ -74,6 +74,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -358,28 +359,6 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public ResultSet indexQuery(String indexName, String query, Object... args) {
-    checkOpenness();
-
-    assert assertIfNotActive();
-    if (getTransaction().isActive()) {
-      var changes = getTransaction().getIndexChanges(indexName);
-      var changedIndexes =
-          ((FrontendTransactionOptimisticClient) getTransaction()).getIndexChanged();
-      if (changedIndexes.contains(indexName) || changes != null) {
-        checkAndSendTransaction();
-      }
-    }
-
-    var result = storage.command(this, query, args);
-    if (result.isReloadMetadata()) {
-      reload();
-    }
-
-    return result.getResult();
-  }
-
-  @Override
   public ResultSet command(String query, Object... args) {
     checkOpenness();
     assert assertIfNotActive();
@@ -603,12 +582,12 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
     }
   }
 
-  public String getClusterName(final DBRecord record) {
+  public String getClusterName(final @Nonnull DBRecord record) {
     // DON'T ASSIGN CLUSTER WITH REMOTE: SERVER KNOWS THE RIGHT CLUSTER BASED ON LOCALITY
     return null;
   }
 
-  public void delete(final DBRecord record) {
+  public void delete(final @Nonnull DBRecord record) {
     checkOpenness();
     assert assertIfNotActive();
     if (record == null) {
@@ -898,7 +877,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public void internalCommit(FrontendTransactionOptimistic transaction) {
+  public void internalCommit(@Nonnull FrontendTransactionOptimistic transaction) {
     assert assertIfNotActive();
     this.storage.commit(transaction);
   }
@@ -973,7 +952,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   }
 
   @Override
-  public int[] getClustersIds(Set<String> filterClusters) {
+  public int[] getClustersIds(@Nonnull Set<String> filterClusters) {
     assert assertIfNotActive();
     return filterClusters.stream().map(this::getClusterIdByName).mapToInt(i -> i).toArray();
   }

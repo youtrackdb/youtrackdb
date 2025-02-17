@@ -144,7 +144,7 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
         } else if (type.equals("d")) {
           // DELETE
           final var entity = getRecord(db, operation);
-          db.delete(entity.getIdentity());
+          db.delete(entity);
           lastResult = entity.getIdentity();
         } else if (type.equals("cmd")) {
           // COMMAND

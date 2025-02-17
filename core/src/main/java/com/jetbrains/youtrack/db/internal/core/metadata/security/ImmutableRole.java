@@ -22,7 +22,7 @@ public class ImmutableRole implements SecurityRole {
       new HashMap<Rule.ResourceGeneric, Rule>();
   private final String name;
   private final RID rid;
-  private final Map<String, ? extends SecurityPolicy> policies;
+  private final Map<String, SecurityPolicy> policies;
 
   public ImmutableRole(DatabaseSessionInternal session, SecurityRole role) {
     if (role.getParentRole() == null) {
@@ -52,7 +52,7 @@ public class ImmutableRole implements SecurityRole {
       ImmutableRole parent,
       String name,
       Map<ResourceGeneric, Rule> rules,
-      Map<String, ? extends SecurityPolicy> policies) {
+      Map<String, SecurityPolicy> policies) {
     this.parentRole = parent;
     this.name = name;
     this.rid = new RecordId(-1, -1);
@@ -183,7 +183,7 @@ public class ImmutableRole implements SecurityRole {
   }
 
   @Override
-  public Map<String, ? extends SecurityPolicy> getPolicies(DatabaseSession session) {
+  public Map<String, SecurityPolicy> getPolicies(DatabaseSession session) {
     return policies;
   }
 

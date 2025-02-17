@@ -250,7 +250,7 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(loadedObj.<Set<Object>>getProperty("set").size(), 4);
     Assert.assertEquals(loadedObj.<Set<Identifiable>>getProperty("set").size(), 4);
 
-    session.delete(rid);
+    session.delete(session.load(rid));
     session.commit();
   }
 

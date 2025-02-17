@@ -556,25 +556,25 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public void setSecurityPolicy(
-      DatabaseSessionInternal session, SecurityRole role, String resource,
+      DatabaseSessionInternal session, SecurityRole securityRole, String resource,
       SecurityPolicyImpl policy) {
-    var currentResource = normalizeSecurityResource(session, resource);
-    Entity roleEntity = session.load(role.getIdentity().getIdentity());
-    validatePolicyWithIndexes(session, currentResource);
-    Map<String, Identifiable> policies = roleEntity.getProperty("policies");
-    if (policies == null) {
-      policies = new HashMap<>();
-      roleEntity.setProperty("policies", policies);
-    }
+    if (securityRole instanceof Role role) {
+      var currentResource = normalizeSecurityResource(session, resource);
 
-    policies.put(currentResource, policy.getElement(session));
-    session.save(roleEntity);
-    if (session.geCurrentUser() != null && session.geCurrentUser()
-        .hasRole(session, role.getName(session), true)) {
-      session.reloadUser();
+      validatePolicyWithIndexes(session, currentResource);
+      role.getPolicies(session).put(currentResource, policy);
+      role.save(session);
+
+      if (session.geCurrentUser() != null && session.geCurrentUser()
+          .hasRole(session, role.getName(session), true)) {
+        session.reloadUser();
+      }
+
+      updateAllFilteredProperties(session);
+      initPredicateSecurityOptimizations(session);
+    } else {
+      setSecurityPolicy(session, getRole(session, securityRole.getIdentity()), resource, policy);
     }
-    updateAllFilteredProperties(session);
-    initPredicateSecurityOptimizations(session);
   }
 
   private static void validatePolicyWithIndexes(DatabaseSessionInternal session, String resource)
@@ -635,7 +635,7 @@ public class SecurityShared implements SecurityInternal {
   @Override
   public void saveSecurityPolicy(DatabaseSession session, SecurityPolicyImpl policy) {
     var sessionInternal = (DatabaseSessionInternal) session;
-    sessionInternal.save(policy.getElement(sessionInternal));
+    sessionInternal.save(policy.getEntity(sessionInternal));
   }
 
   @Override
@@ -649,14 +649,8 @@ public class SecurityShared implements SecurityInternal {
   public void removeSecurityPolicy(DatabaseSession session, Role role, String resource) {
     var sessionInternal = (DatabaseSessionInternal) session;
     var calculatedResource = normalizeSecurityResource(session, resource);
-    final Entity roleEntity = session.load(role.getIdentity().getIdentity());
-    Map<String, Identifiable> policies = roleEntity.getProperty("policies");
-    if (policies == null) {
-      return;
-    }
-    policies.remove(calculatedResource);
-
-    roleEntity.save();
+    role.getPolicies(session).remove(calculatedResource);
+    role.save(sessionInternal);
 
     updateAllFilteredProperties(sessionInternal);
     initPredicateSecurityOptimizations(sessionInternal);
@@ -1268,9 +1262,8 @@ public class SecurityShared implements SecurityInternal {
     return rules;
   }
 
-  public static Map<String, ImmutableSecurityPolicy> createrRootSecurityPolicy(String resource) {
-    Map<String, ImmutableSecurityPolicy> policies =
-        new HashMap<String, ImmutableSecurityPolicy>();
+  public static Map<String, SecurityPolicy> createrRootSecurityPolicy(String resource) {
+    Map<String, SecurityPolicy> policies = new HashMap<>();
     policies.put(
         resource,
         new ImmutableSecurityPolicy(resource, "true", "true", "true", "true", "true", "true"));

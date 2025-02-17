@@ -1295,7 +1295,10 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     // remove all records which were absent in new database but
     // exist in old database
     for (final var leftOverRid : recordsBeforeImport) {
-      session.executeInTx(() -> session.delete(leftOverRid));
+      session.executeInTx(() -> {
+        var record = session.load(leftOverRid);
+        session.delete(record);
+      });
     }
 
     session.getMetadata().reload();

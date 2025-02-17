@@ -370,7 +370,8 @@ public class LocalPaginatedStorageRestoreFromWALIT {
           var deleteDoc = random.nextDouble() <= 0.2;
           if (deleteDoc) {
             var rid = firstDocs.remove(random.nextInt(firstDocs.size()));
-            db.delete(rid);
+            var entityToDelete = db.load(rid);
+            db.delete(entityToDelete);
           }
         }
       } finally {

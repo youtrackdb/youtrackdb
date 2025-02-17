@@ -97,7 +97,7 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", "abc");
 
-    session.delete(results.getFirst().castToEntity().getIdentity());
+    session.delete(results.getFirst().castToEntity());
 
     Collection<Object> coll;
     try (var vertices = session.query(query)) {

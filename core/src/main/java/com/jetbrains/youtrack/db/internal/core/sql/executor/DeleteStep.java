@@ -19,13 +19,12 @@ public class DeleteStep extends AbstractExecutionStep {
   public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     var upstream = prev.start(ctx);
-    return upstream.map(this::mapResult);
+    return upstream.map(DeleteStep::mapResult);
   }
 
-  private Result mapResult(Result result, CommandContext ctx) {
-    var id = result.getIdentity();
-    if (id != null) {
-      ctx.getDatabaseSession().delete(id);
+  private static Result mapResult(Result result, CommandContext ctx) {
+    if (result.isRecord()) {
+      ctx.getDatabaseSession().delete(result.castToRecord());
     }
     return result;
   }
