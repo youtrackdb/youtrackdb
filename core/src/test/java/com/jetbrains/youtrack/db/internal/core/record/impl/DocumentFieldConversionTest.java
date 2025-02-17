@@ -67,6 +67,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testDateToSchemaConversion() {
+    session.begin();
     var calendare = Calendar.getInstance();
     calendare.set(Calendar.MILLISECOND, 0);
     var date = calendare.getTime();
@@ -93,10 +94,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     doc.field("date", 20304L);
     assertTrue(doc.field("date") instanceof Date);
     assertEquals(20304L, ((Date) doc.field("date")).getTime());
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionInteger() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("integer", 2L);
     assertTrue(doc.field("integer") instanceof Integer);
@@ -127,15 +130,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
     assertThat(doc.<Integer>field("integer")).isEqualTo(6);
 
-    // doc.field("integer", true);
-    // assertTrue(doc.field("integer") instanceof Integer);
-    // assertEquals(1, doc.field("integer"));
-
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionString() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("string", 1);
@@ -161,11 +161,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     doc.field("string", true);
     assertTrue(doc.field("string") instanceof String);
     assertEquals("true", doc.field("string"));
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionFloat() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("float", 1);
@@ -197,56 +198,45 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
     assertThat(doc.<Float>field("float")).isEqualTo(6f);
 
-    // doc.field("float", true);
-    // assertTrue(doc.field("float") instanceof Float);
-    // assertEquals(1f, doc.field("float"));
-
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionDouble() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("double", 1);
     assertTrue(doc.field("double") instanceof Double);
-    //    assertEquals(1d, doc.field("double"));
 
     assertThat(doc.<Double>field("double")).isEqualTo(1d);
 
     doc.field("double", 2L);
     assertTrue(doc.field("double") instanceof Double);
-    //    assertEquals(2d, doc.field("double"));
 
     assertThat(doc.<Double>field("double")).isEqualTo(2d);
 
     doc.field("double", "3");
     assertTrue(doc.field("double") instanceof Double);
-    //    assertEquals(3d, doc.field("double"));
 
     assertThat(doc.<Double>field("double")).isEqualTo(3d);
 
     doc.field("double", 4f);
     assertTrue(doc.field("double") instanceof Double);
-    //    assertEquals(4d, doc.field("double"));
 
     assertThat(doc.<Double>field("double")).isEqualTo(4d);
 
     doc.field("double", new BigDecimal("6"));
     assertTrue(doc.field("double") instanceof Double);
-    //    assertEquals(6d, doc.field("double"));
 
     assertThat(doc.<Double>field("double")).isEqualTo(6d);
 
-    // doc.field("double", true);
-    // assertTrue(doc.field("double") instanceof Double);
-    // assertEquals(1d, doc.field("double"));
-
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionLong() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("long", 1);
@@ -275,19 +265,14 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
     doc.field("long", new BigDecimal("6"));
     assertTrue(doc.field("long") instanceof Long);
-    //    assertEquals(6L, doc.field("long"));
-
     assertThat(doc.<Long>field("long")).isEqualTo(6L);
 
-    // doc.field("long", true);
-    // assertTrue(doc.field("long") instanceof Long);
-    // assertEquals(1, doc.field("long"));
-
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionBoolean() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("boolean", 0);
@@ -313,11 +298,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     doc.field("boolean", new BigDecimal("6"));
     assertTrue(doc.field("boolean") instanceof Boolean);
     assertEquals(true, doc.field("boolean"));
+    session.rollback();
   }
 
   @Test
   public void testLiteralToSchemaConversionDecimal() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("decimal", 0);
@@ -343,41 +329,36 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     doc.field("boolean", new BigDecimal("6"));
     assertTrue(doc.field("boolean") instanceof Boolean);
     assertEquals(true, doc.field("boolean"));
+    session.rollback();
   }
 
   @Test
   public void testConversionAlsoWithWrongType() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity(clazz);
 
     doc.field("float", 2, PropertyType.INTEGER);
     assertTrue(doc.field("float") instanceof Float);
-    //    assertEquals(2f, doc.field("float"));
-
     assertThat(doc.<Float>field("float")).isEqualTo(2f);
 
     doc.field("integer", 3f, PropertyType.FLOAT);
     assertTrue(doc.field("integer") instanceof Integer);
-    //    assertEquals(3, doc.field("integer"));
-
     assertThat(doc.<Integer>field("integer")).isEqualTo(3);
 
     doc.field("double", 1L, PropertyType.LONG);
     assertTrue(doc.field("double") instanceof Double);
-    //    assertEquals(1d, doc.field("double"));
-
     assertThat(doc.<Double>field("double")).isEqualTo(1d);
 
     doc.field("long", 1d, PropertyType.DOUBLE);
     assertTrue(doc.field("long") instanceof Long);
-    //    assertEquals(1L, doc.field("long"));
 
     assertThat(doc.<Long>field("long")).isEqualTo(1L);
+    session.rollback();
   }
 
   @Test
   public void testLiteralConversionAfterSchemaSet() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
 
     doc.field("float", 1);
@@ -416,12 +397,13 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
     assertTrue(doc.field("date") instanceof Date);
     assertEquals(20304L, ((Date) doc.field("date")).getTime());
+    session.rollback();
   }
 
   @SuppressWarnings({"rawtypes"})
   @Test
   public void testListByteCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("byteList", values);
@@ -444,12 +426,13 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     for (var i = 1; i < 7; i++) {
       assertTrue(set.contains((byte) i));
     }
+    session.rollback();
   }
 
   @Test
   @SuppressWarnings({"rawtypes"})
   public void testCollectionIntegerCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("integerList", values);
@@ -472,12 +455,13 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     for (var i = 1; i < 7; i++) {
       assertTrue(set.contains(i));
     }
+    session.rollback();
   }
 
   @Test
   @SuppressWarnings({"rawtypes"})
   public void testCollectionLongCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("longList", values);
@@ -500,12 +484,13 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     for (var i = 1; i < 7; i++) {
       assertTrue(set.contains((long) i));
     }
+    session.rollback();
   }
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void testCollectionBooleanCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("booleanList", values);
@@ -542,12 +527,14 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     assertEquals(1, set.size());
     assertTrue(set.iterator().next() instanceof Boolean);
     assertTrue((Boolean) set.iterator().next());
+    session.rollback();
   }
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void testCollectionStringCoversion() {
 
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("stringList", values);
@@ -583,6 +570,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       }
       assertTrue(contain);
     }
+    session.rollback();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -600,7 +588,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   @SuppressWarnings({"rawtypes"})
   public void testCollectionFloatCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("floatList", values);
@@ -624,6 +612,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     for (var i = 1; i < 7; i++) {
       assertTrue(set.contains(Float.valueOf(i)));
     }
+    session.rollback();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -641,7 +630,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   @Test
   @SuppressWarnings({"rawtypes"})
   public void testCollectionDoubleCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("doubleList", values);
@@ -665,12 +654,13 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     for (var i = 1; i < 7; i++) {
       assertTrue(set.contains(Double.valueOf(i)));
     }
+    session.rollback();
   }
 
   @Test
   @SuppressWarnings({"rawtypes"})
   public void testCollectionDecimalCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("decimalList", values);
@@ -700,12 +690,13 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       }
       assertTrue(contain);
     }
+    session.rollback();
   }
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void testCollectionDateCoversion() {
-
+    session.begin();
     List values = new ArrayList();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("dateList", values);
@@ -738,11 +729,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     for (var i = 1; i < 7; i++) {
       assertTrue(set.contains(new Date(i)));
     }
+    session.rollback();
   }
 
   @Test
   public void testMapIntegerConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("integerMap", values);
@@ -753,11 +745,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Integer);
       assertEquals(1, val);
     }
+    session.rollback();
   }
 
   @Test
   public void testMapLongConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("longMap", values);
@@ -768,11 +761,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Long);
       assertEquals(1L, val);
     }
+    session.rollback();
   }
 
   @Test
   public void testMapByteConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("byteMap", values);
@@ -783,11 +777,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Byte);
       assertEquals((byte) 1, val);
     }
+    session.rollback();
   }
 
   @Test
   public void testMapFloatConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("floatMap", values);
@@ -798,11 +793,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Float);
       assertEquals(1f, val);
     }
+    session.rollback();
   }
 
   @Test
   public void testMapDoubleConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("doubleMap", values);
@@ -813,11 +809,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Double);
       assertEquals(1d, val);
     }
+    session.rollback();
   }
 
   @Test
   public void testMapDecimalConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("decimalMap", values);
@@ -828,11 +825,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof BigDecimal);
       assertTrue(val.toString().contains("1"));
     }
+    session.rollback();
   }
 
   @Test
   public void testMapStringConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("stringMap", values);
@@ -843,11 +841,12 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof String);
       assertTrue(val.toString().contains("1"));
     }
+    session.rollback();
   }
 
   @Test
   public void testMapDateConversion() {
-
+    session.begin();
     Map<String, Object> values = new HashMap<String, Object>();
     var doc = (EntityImpl) session.newEntity(clazz);
     doc.field("dateMap", values);
@@ -864,6 +863,7 @@ public class DocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Date);
       assertEquals(1, ((Date) val).getTime());
     }
+    session.rollback();
   }
 
   private void fillMap(Map<String, Object> values) {
