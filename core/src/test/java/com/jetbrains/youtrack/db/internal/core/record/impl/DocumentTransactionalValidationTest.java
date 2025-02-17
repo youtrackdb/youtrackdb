@@ -138,7 +138,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
         .setMin(session, "1");
     session.begin();
     var vrt = session.newVertex(clazz.getName(session));
-    vrt.setProperty("arr", Arrays.asList(1, 2, 3));
+    vrt.getOrCreateEmbeddedList("arr").addAll(Arrays.asList(1, 2, 3));
     vrt.save();
     session.commit();
     session.begin();
