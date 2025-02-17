@@ -23,6 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPagina
  *
  */
 public class SharedContextEmbedded extends SharedContext {
+
   public SharedContextEmbedded(Storage storage, YouTrackDBEmbedded youtrackDB) {
     this.youtrackDB = youtrackDB;
     this.storage = storage;
@@ -123,27 +124,36 @@ public class SharedContextEmbedded extends SharedContext {
     scheduler.load(database);
   }
 
-  public synchronized void create(DatabaseSessionInternal database) {
-    schema.create(database);
-    indexManager.create(database);
-    security.create(database);
-    FunctionLibraryImpl.create(database);
-    SequenceLibraryImpl.create(database);
-    security.createClassTrigger(database);
-    SchedulerImpl.create(database);
-    schema.forceSnapshot(database);
+  public synchronized void create(DatabaseSessionInternal session) {
+    schema.create(session);
+    indexManager.create(session);
+    security.create(session);
+    FunctionLibraryImpl.create(session);
+    SequenceLibraryImpl.create(session);
+    security.createClassTrigger(session);
+    SchedulerImpl.create(session);
+    schema.forceSnapshot(session);
 
     // CREATE BASE VERTEX AND EDGE CLASSES
-    schema.createClass(database, Entity.DEFAULT_CLASS_NAME);
-    schema.createClass(database, "V");
-    schema.createClass(database, "E");
+    schema.createClass(session, Entity.DEFAULT_CLASS_NAME);
+    schema.createClass(session, "V");
+    schema.createClass(session, "E");
+
+    var config = storage.getConfiguration();
+    var blobClustersCount = config.getContextConfiguration()
+        .getValueAsInteger(GlobalConfiguration.STORAGE_BLOB_CLUSTERS_COUNT);
+
+    for (var i = 0; i < blobClustersCount; i++) {
+      var blobClusterId = session.addCluster("$blob" + i);
+      schema.addBlobCluster(session, blobClusterId);
+    }
 
     // create geospatial classes
     try {
       var factory = Indexes.getFactory(SchemaClass.INDEX_TYPE.SPATIAL.toString(),
           "LUCENE");
       if (factory instanceof DatabaseLifecycleListener) {
-        ((DatabaseLifecycleListener) factory).onCreate(database);
+        ((DatabaseLifecycleListener) factory).onCreate(session);
       }
     } catch (IndexException x) {
       // the index does not exist

@@ -374,6 +374,10 @@ public enum GlobalConfiguration {
       Integer.class,
       null),
 
+  STORAGE_BLOB_CLUSTERS_COUNT("youtrackdb.storage.blob.clusters.count",
+      "Amount storage clusters allocated for storing blobs", Integer.class,
+      8),
+
   WAL_SYNC_ON_PAGE_FLUSH(
       "storage.wal.syncOnPageFlush",
       "Indicates whether a force sync should be performed during WAL page flush",
@@ -1436,23 +1440,6 @@ public enum GlobalConfiguration {
   AUTO_CLOSE_DELAY(
       "storage.autoCloseDelay", "Storage auto close delay time in minutes", Integer.class, 20),
 
-  /**
-   * @since 3.1
-   */
-  DISTRIBUTED(
-      "distributed", "Enable the clustering mode", Boolean.class, false, false, false, true),
-
-  /**
-   * @since 3.1
-   */
-  DISTRIBUTED_NODE_NAME(
-      "distributed.nodeName",
-      "Name of the YouTrackDB node in the cluster",
-      String.class,
-      null,
-      false,
-      false,
-      true),
 
   CLIENT_CHANNEL_IDLE_CLOSE(
       "client.channel.idleAutoClose",
@@ -1479,11 +1466,6 @@ public enum GlobalConfiguration {
   CLIENT_CHANNEL_IDLE_TIMEOUT(
       "client.channel.idleTimeout", "sockets maximum time idle in seconds", Integer.class, 900),
 
-  DISTRIBUTED_AUTO_CREATE_CLUSTERS(
-      "distributed.autoCreateClusters",
-      "if true enable auto creation of cluster when a new node join",
-      Boolean.class,
-      true),
   ENTERPRISE_METRICS_MAX(
       "emterprise.metrics.max",
       "Top limit of number of metrics that the enterprise edition can keep in memory",
