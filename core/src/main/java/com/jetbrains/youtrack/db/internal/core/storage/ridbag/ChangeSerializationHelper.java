@@ -31,7 +31,7 @@ public class ChangeSerializationHelper {
     return createChangeInstance(ByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
   }
 
-  public static Map<RID, Change> deserializeChanges(DatabaseSessionInternal db,
+  public static Map<RID, Change> deserializeChanges(DatabaseSessionInternal session,
       final byte[] stream, int offset) {
     final var count = IntegerSerializer.deserializeLiteral(stream, offset);
     offset += IntegerSerializer.INT_SIZE;
@@ -44,13 +44,14 @@ public class ChangeSerializationHelper {
       offset += Change.SIZE;
 
       RID identifiable;
-      try {
-        if (rid.isTemporary()) {
-          identifiable = rid.getRecord(db).getIdentity();
+      if (rid.isTemporary()) {
+        var mappedRid = session.refreshRid(rid, false);
+        if (mappedRid != null) {
+          identifiable = mappedRid;
         } else {
           identifiable = rid;
         }
-      } catch (RecordNotFoundException rnf) {
+      } else {
         identifiable = rid;
       }
 

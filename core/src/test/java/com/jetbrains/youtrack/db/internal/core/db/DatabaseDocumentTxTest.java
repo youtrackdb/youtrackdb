@@ -3,8 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.exception.CommitSerializationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.Vertex;
@@ -72,7 +72,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     Assert.assertEquals("GMT", newTimezone);
   }
 
-  @Test(expected = CommitSerializationException.class)
+  @Test(expected = RecordNotFoundException.class)
   public void testSaveInvalidRid() {
     session.begin();
     var doc = (EntityImpl) session.newEntity();

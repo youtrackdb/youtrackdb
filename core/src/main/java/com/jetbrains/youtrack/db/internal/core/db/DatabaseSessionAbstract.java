@@ -117,6 +117,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Entity API entrypoint.
@@ -518,6 +519,39 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public LocalRecordCache getLocalCache() {
     return localCache;
+  }
+
+  @Nullable
+  @Override
+  public RID refreshRid(@Nonnull RID rid, boolean checkPresence) {
+    if (rid.isPersistent()) {
+      return rid;
+    }
+
+    if (!currentTx.isActive()) {
+      throw new TransactionException(
+          "Temporary rids can not be processed because transaction is not active");
+    }
+
+    var record = currentTx.getRecordEntry(rid);
+    if (record == null) {
+      if (checkPresence) {
+        throw new RecordNotFoundException(this, rid);
+      }
+      return rid;
+    }
+
+    if (record.type == RecordOperation.DELETED) {
+      throw new RecordNotFoundException(this, rid);
+    }
+
+    return record.record.getIdentity();
+  }
+
+  @Nonnull
+  @Override
+  public RID refreshRid(@Nonnull RID rid) {
+    return refreshRid(rid, true);
   }
 
   /**
@@ -1087,7 +1121,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       if (schemaClass == null && clusterName != null) {
         throw new DatabaseException(getDatabaseName(),
             "Impossible to set cluster for record " + record
-            + " both cluster name and class are null");
+                + " both cluster name and class are null");
       }
 
       throw new DatabaseException(getDatabaseName(),

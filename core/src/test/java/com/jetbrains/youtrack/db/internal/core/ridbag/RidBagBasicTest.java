@@ -17,7 +17,7 @@ import org.junit.Test;
 public class RidBagBasicTest extends DbTestBase {
   @Test(expected = IllegalArgumentException.class)
   public void testExceptionInCaseOfNull() {
-    var bag = new EmbeddedRidBag();
+    var bag = new EmbeddedRidBag(session);
     bag.add(null);
   }
 

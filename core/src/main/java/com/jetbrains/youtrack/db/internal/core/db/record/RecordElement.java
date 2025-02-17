@@ -19,7 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import javax.annotation.Nonnull;
 
 /**
  * Base interface that represents a record element.
@@ -63,5 +65,10 @@ public interface RecordElement {
       }
       owner = owner.getOwner();
     }
+  }
+
+  @Nonnull
+  default DatabaseSessionInternal getSession() {
+    return getOwnerRecord().getSession();
   }
 }

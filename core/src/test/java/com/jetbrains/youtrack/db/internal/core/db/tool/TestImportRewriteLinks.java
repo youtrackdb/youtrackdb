@@ -73,7 +73,6 @@ public class TestImportRewriteLinks {
         emb.field("emb1", emb1, PropertyType.EMBEDDED);
         emb1.field("link", new RecordId(10, 4));
         emb1.field("brokenLink", new RecordId(10, 5));
-        emb1.field("negativeLink", new RecordId(-1, -42));
 
         List<Identifiable> linkList = new ArrayList<>();
 
@@ -106,7 +105,6 @@ public class TestImportRewriteLinks {
             brokenRids);
 
         Assert.assertEquals(new RecordId(10, 3), emb1.getLinkProperty("link"));
-        Assert.assertEquals(new RecordId(-1, -42), emb1.getLinkProperty("negativeLink"));
         Assert.assertNull(emb1.field("brokenLink"));
 
         List<Identifiable> resLinkList = new ArrayList<>();

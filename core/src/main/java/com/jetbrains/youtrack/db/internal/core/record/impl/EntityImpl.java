@@ -121,7 +121,6 @@ public class EntityImpl extends RecordAbstract
   private boolean trackingChanges = true;
   protected boolean ordered = true;
   private boolean lazyLoad = true;
-  private boolean allowChainedAccess = true;
   protected transient WeakReference<RecordElement> owner = null;
 
   protected ImmutableSchema schema;
@@ -1076,13 +1075,15 @@ public class EntityImpl extends RecordAbstract
       }
     }
     entry.disableTracking(this, oldValue);
+    if (value instanceof RID rid) {
+      value = refreshNonPersistentRid(rid);
+    }
     entry.value = value;
     if (!entry.exists()) {
       entry.setExists(true);
       fieldSize++;
     }
     entry.enableTracking(this);
-
 
     if (!entry.isChanged()) {
       entry.original = oldValue;
@@ -1803,13 +1804,6 @@ public class EntityImpl extends RecordAbstract
       return null;
     }
 
-    // OPTIMIZATION
-    if (!allowChainedAccess
-        || (iFieldName.charAt(0) != '@'
-        && StringSerializerHelper.indexOf(iFieldName, 0, '.', '[') == -1)) {
-      return (RET) accessProperty(iFieldName);
-    }
-
     // NOT FOUND, PARSE THE FIELD NAME
     return EntityHelper.getFieldValue(getSession(), this, iFieldName);
   }
@@ -1876,7 +1870,11 @@ public class EntityImpl extends RecordAbstract
         if (!iFieldName.contains(".")) {
           var entry = fields.get(iFieldName);
           entry.disableTracking(this, entry.value);
-          entry.value = value;
+          if (value instanceof RID rid) {
+            entry.value = refreshNonPersistentRid(rid);
+          } else {
+            entry.value = value;
+          }
           entry.enableTracking(this);
         }
       } catch (RecordNotFoundException e) {
@@ -1980,8 +1978,7 @@ public class EntityImpl extends RecordAbstract
    * Writes the field value. This method sets the current entity as dirty.
    *
    * @param iFieldName     field name. If contains dots (.) the change is applied to the nested
-   *                       documents in chain. To disable this feature call
-   *                       {@link #setAllowChainedAccess(boolean)} to false.
+   *                       documents in chain.
    * @param iPropertyValue field value
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
    * in chain.
@@ -2314,8 +2311,7 @@ public class EntityImpl extends RecordAbstract
    * java casting rules with possible precision loss.
    *
    * @param iFieldName     field name. If contains dots (.) the change is applied to the nested
-   *                       documents in chain. To disable this feature call
-   *                       {@link #setAllowChainedAccess(boolean)} to false.
+   *                       documents in chain.
    * @param iPropertyValue field value.
    * @param iFieldType     Forced type (not auto-determined)
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
@@ -2354,8 +2350,8 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    final var lastDotSep = allowChainedAccess ? iFieldName.lastIndexOf('.') : -1;
-    final var lastArraySep = allowChainedAccess ? iFieldName.lastIndexOf('[') : -1;
+    final var lastDotSep = iFieldName.lastIndexOf('.');
+    final var lastArraySep = iFieldName.lastIndexOf('[');
 
     final var lastSep = Math.max(lastArraySep, lastDotSep);
     final var lastIsArray = lastArraySep > lastDotSep;
@@ -2561,13 +2557,16 @@ public class EntityImpl extends RecordAbstract
       }
     }
     entry.disableTracking(this, oldValue);
+    if (iPropertyValue instanceof RID rid) {
+      iPropertyValue = refreshNonPersistentRid(rid);
+    }
+
     entry.value = iPropertyValue;
     if (!entry.exists()) {
       entry.setExists(true);
       fieldSize++;
     }
     entry.enableTracking(this);
-
 
     if (!entry.isChanged()) {
       entry.original = oldValue;
@@ -3337,17 +3336,6 @@ public class EntityImpl extends RecordAbstract
     return true;
   }
 
-  /**
-   * Change the behavior of field() methods allowing access to the sub documents with dot notation
-   * ('.'). Default is true. Set it to false if you allow to store properties with the dot.
-   */
-  public EntityImpl setAllowChainedAccess(final boolean allowChainedAccess) {
-    checkForBinding();
-
-    this.allowChainedAccess = allowChainedAccess;
-    return this;
-  }
-
   public void setClassNameIfExists(final String iClassName) {
     checkForBinding();
 
@@ -3710,7 +3698,13 @@ public class EntityImpl extends RecordAbstract
 
     var entry = getOrCreate(iFieldName);
     entry.disableTracking(this, entry.value);
-    entry.value = iFieldValue;
+
+    if (iFieldValue instanceof RID rid && !rid.isPersistent()) {
+      entry.value = refreshNonPersistentRid(rid);
+    } else {
+      entry.value = iFieldValue;
+    }
+
     entry.type = iFieldType;
     entry.enableTracking(this);
     if (iFieldValue instanceof RidBag) {
@@ -4382,6 +4376,14 @@ public class EntityImpl extends RecordAbstract
     }
 
     return fieldType;
+  }
+
+  private RID refreshNonPersistentRid(RID identifiable) {
+    if (!identifiable.isPersistent()) {
+      identifiable = session.refreshRid(identifiable);
+    }
+
+    return identifiable;
   }
 
   private void removeAllCollectionChangeListeners() {

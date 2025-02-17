@@ -68,8 +68,9 @@ import javax.annotation.Nonnull;
  * way.
  */
 public class BTreeBasedRidBag implements RidBagDelegate {
-
   private final BTreeCollectionManager collectionManager;
+
+  @Nonnull
   private final DatabaseSessionInternal session;
 
   private final ConcurrentSkipListMap<RID, Change> changes =
@@ -87,314 +88,9 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   private final SimpleMultiValueTracker<RID, RID> tracker =
       new SimpleMultiValueTracker<>(this);
 
-  private transient RecordElement owner;
+  private RecordElement owner;
   private boolean dirty;
   private boolean transactionDirty = false;
-
-  @Override
-  public void setSize(int size) {
-    this.size = size;
-  }
-
-  private static class IdentifiableIntegerEntry implements Entry<RID, Integer> {
-
-    private final Entry<RID, Integer> entry;
-    private final int newValue;
-
-    IdentifiableIntegerEntry(Entry<RID, Integer> entry, int newValue) {
-      this.entry = entry;
-      this.newValue = newValue;
-    }
-
-    @Override
-    public RID getKey() {
-      return entry.getKey();
-    }
-
-    @Override
-    public Integer getValue() {
-      return newValue;
-    }
-
-    @Override
-    public Integer setValue(Integer value) {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  private final class RIDBagIterator implements Iterator<RID>, Resettable, Sizeable {
-
-    private final NavigableMap<RID, Change> changedValues;
-    private final SBTreeMapEntryIterator sbTreeIterator;
-    private Iterator<Map.Entry<RID, ModifiableInteger>> newEntryIterator;
-    private Iterator<Map.Entry<RID, Change>> changedValuesIterator;
-    private Map.Entry<RID, Change> nextChange;
-    private Map.Entry<RID, Integer> nextSBTreeEntry;
-    private RID currentValue;
-    private int currentFinalCounter;
-    private int currentCounter;
-    private boolean currentRemoved;
-
-    private RIDBagIterator(
-        IdentityHashMap<RID, ModifiableInteger> newEntries,
-        NavigableMap<RID, Change> changedValues,
-        SBTreeMapEntryIterator sbTreeIterator) {
-      newEntryIterator = newEntries.entrySet().iterator();
-      this.changedValues = changedValues;
-
-      this.changedValuesIterator = changedValues.entrySet().iterator();
-      this.sbTreeIterator = sbTreeIterator;
-
-      nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
-
-      if (sbTreeIterator != null) {
-        nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
-      }
-    }
-
-    @Override
-    public boolean hasNext() {
-      return newEntryIterator.hasNext()
-          || nextChange != null
-          || nextSBTreeEntry != null
-          || (currentValue != null && currentCounter < currentFinalCounter);
-    }
-
-    @Override
-    public RID next() {
-      currentRemoved = false;
-      if (currentCounter < currentFinalCounter) {
-        currentCounter++;
-        return currentValue;
-      }
-
-      if (newEntryIterator.hasNext()) {
-        var entry = newEntryIterator.next();
-        currentValue = entry.getKey();
-        currentFinalCounter = entry.getValue().intValue();
-        currentCounter = 1;
-        return currentValue;
-      }
-
-      if (nextChange != null && nextSBTreeEntry != null) {
-        if (nextChange.getKey().compareTo(nextSBTreeEntry.getKey()) < 0) {
-          currentValue = nextChange.getKey();
-          currentFinalCounter = nextChange.getValue().applyTo(0);
-          currentCounter = 1;
-
-          nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
-        } else {
-          currentValue = nextSBTreeEntry.getKey();
-          currentFinalCounter = nextSBTreeEntry.getValue();
-          currentCounter = 1;
-
-          nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
-          if (nextChange != null && nextChange.getKey().equals(currentValue)) {
-            nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
-          }
-        }
-      } else if (nextChange != null) {
-        currentValue = nextChange.getKey();
-        currentFinalCounter = nextChange.getValue().applyTo(0);
-        currentCounter = 1;
-
-        nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
-      } else if (nextSBTreeEntry != null) {
-        currentValue = nextSBTreeEntry.getKey();
-        currentFinalCounter = nextSBTreeEntry.getValue();
-        currentCounter = 1;
-
-        nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
-      } else {
-        throw new NoSuchElementException();
-      }
-
-      return currentValue;
-    }
-
-    @Override
-    public void remove() {
-      if (currentRemoved) {
-        throw new IllegalStateException("Current entity has already been removed");
-      }
-
-      if (currentValue == null) {
-        throw new IllegalStateException("Next method was not called for given iterator");
-      }
-
-      if (removeFromNewEntries(currentValue)) {
-        if (size >= 0) {
-          size--;
-        }
-      } else {
-        var counter = changedValues.get(currentValue);
-        if (counter != null) {
-          counter.decrement();
-          if (size >= 0) {
-            if (counter.isUndefined()) {
-              size = -1;
-            } else {
-              size--;
-            }
-          }
-        } else {
-          if (nextChange != null) {
-            changedValues.put(currentValue, new DiffChange(-1));
-            changedValuesIterator =
-                changedValues.tailMap(nextChange.getKey(), false).entrySet().iterator();
-          } else {
-            changedValues.put(currentValue, new DiffChange(-1));
-          }
-
-          size = -1;
-        }
-      }
-
-      removeEvent(currentValue);
-      currentRemoved = true;
-    }
-
-    @Override
-    public void reset() {
-      newEntryIterator = newEntries.entrySet().iterator();
-
-      this.changedValuesIterator = changedValues.entrySet().iterator();
-      if (sbTreeIterator != null) {
-        this.sbTreeIterator.reset();
-      }
-
-      nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
-
-      if (sbTreeIterator != null) {
-        nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
-      }
-    }
-
-    @Override
-    public int size() {
-      return BTreeBasedRidBag.this.size();
-    }
-
-    private static Map.Entry<RID, Change> nextChangedNotRemovedEntry(
-        Iterator<Map.Entry<RID, Change>> iterator) {
-      Map.Entry<RID, Change> entry;
-
-      while (iterator.hasNext()) {
-        entry = iterator.next();
-        // TODO workaround
-        if (entry.getValue().applyTo(0) > 0) {
-          return entry;
-        }
-      }
-
-      return null;
-    }
-  }
-
-  private final class SBTreeMapEntryIterator
-      implements Iterator<Map.Entry<RID, Integer>>, Resettable {
-
-    private final int prefetchSize;
-    private LinkedList<Map.Entry<RID, Integer>> preFetchedValues;
-    private RID firstKey;
-
-    SBTreeMapEntryIterator(int prefetchSize) {
-      this.prefetchSize = prefetchSize;
-
-      init();
-    }
-
-    @Override
-    public boolean hasNext() {
-      return preFetchedValues != null;
-    }
-
-    @Override
-    public Map.Entry<RID, Integer> next() {
-      final var entry = preFetchedValues.removeFirst();
-      if (preFetchedValues.isEmpty()) {
-        prefetchData(false);
-      }
-
-      return entry;
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void reset() {
-      init();
-    }
-
-    private void prefetchData(boolean firstTime) {
-      final var tree = loadTree();
-      if (tree == null) {
-        throw new IllegalStateException(
-            "RidBag is not properly initialized, can not load tree implementation");
-      }
-
-      try {
-        tree.loadEntriesMajor(
-            firstKey,
-            firstTime,
-            true,
-            entry -> {
-              preFetchedValues.add(
-                  new Entry<>() {
-                    @Override
-                    public RID getKey() {
-                      return entry.getKey();
-                    }
-
-                    @Override
-                    public Integer getValue() {
-                      return entry.getValue();
-                    }
-
-                    @Override
-                    public Integer setValue(Integer v) {
-                      throw new UnsupportedOperationException("setValue");
-                    }
-                  });
-
-              return preFetchedValues.size() <= prefetchSize;
-            });
-      } finally {
-        releaseTree();
-      }
-
-      if (preFetchedValues.isEmpty()) {
-        preFetchedValues = null;
-      } else {
-        firstKey = preFetchedValues.getLast().getKey();
-      }
-    }
-
-    private void init() {
-      var tree = loadTree();
-      if (tree == null) {
-        throw new IllegalStateException(
-            "RidBag is not properly initialized, can not load tree implementation");
-      }
-
-      try {
-        firstKey = tree.firstKey();
-      } finally {
-        releaseTree();
-      }
-
-      if (firstKey == null) {
-        this.preFetchedValues = null;
-        return;
-      }
-
-      this.preFetchedValues = new LinkedList<>();
-      prefetchData(true);
-    }
-  }
 
   public BTreeBasedRidBag(BonsaiCollectionPointer pointer, Map<RID, Change> changes,
       @Nonnull DatabaseSessionInternal session) {
@@ -409,6 +105,11 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     this.session = session;
     collectionPointer = null;
     this.collectionManager = session.getSbTreeCollectionManager();
+  }
+
+  @Override
+  public void setSize(int size) {
+    this.size = size;
   }
 
   @Override
@@ -439,11 +140,11 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   public void mergeChanges(BTreeBasedRidBag treeRidBag) {
     for (var entry : treeRidBag.newEntries.entrySet()) {
-      mergeDiffEntry(entry.getKey(), entry.getValue().getValue());
+      mergeDiffEntry(refreshNonPersistentRid(entry.getKey()), entry.getValue().getValue());
     }
 
     for (var entry : treeRidBag.changes.entrySet()) {
-      final var rec = entry.getKey();
+      final var rec = refreshNonPersistentRid(entry.getKey());
       final var change = entry.getValue();
       final int diff;
       if (change instanceof DiffChange) {
@@ -458,6 +159,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     }
   }
 
+
   @Override
   public void addAll(Collection<RID> values) {
     for (var identifiable : values) {
@@ -471,11 +173,12 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void add(final RID rid) {
+  public void add(RID rid) {
     if (rid == null) {
       throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
     }
 
+    rid = refreshNonPersistentRid(rid);
     if (((RecordId) rid.getIdentity()).isValid()) {
       var counter = changes.get(rid);
       if (counter == null) {
@@ -505,6 +208,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   @Override
   public void remove(RID rid) {
+    rid = refreshNonPersistentRid(rid);
     if (removeFromNewEntries(rid)) {
       if (size >= 0) {
         size--;
@@ -538,23 +242,24 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public boolean contains(RID identifiable) {
-    if (newEntries.containsKey(identifiable)) {
+  public boolean contains(RID rid) {
+    rid = refreshNonPersistentRid(rid);
+    if (newEntries.containsKey(rid)) {
       return true;
     }
 
-    var counter = changes.get(identifiable);
+    var counter = changes.get(rid);
 
     if (counter != null) {
-      var absoluteValue = getAbsoluteValue(identifiable);
+      var absoluteValue = getAbsoluteValue(rid);
 
       if (counter.isUndefined()) {
-        changes.put(identifiable, absoluteValue);
+        changes.put(rid, absoluteValue);
       }
 
       counter = absoluteValue;
     } else {
-      counter = getAbsoluteValue(identifiable);
+      counter = getAbsoluteValue(rid);
     }
 
     return counter.applyTo(0) > 0;
@@ -630,7 +335,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   private void rearrangeChanges() {
     for (var change : this.changes.entrySet()) {
       Identifiable key = change.getKey();
-      if (session != null && session.getTransaction().isActive()) {
+      if (session.getTransaction().isActive()) {
         if (!key.getIdentity().isPersistent()) {
           var record = session.getTransaction().getRecord(key.getIdentity());
           if (record != null && record != FrontendTransactionAbstract.DELETED_RECORD) {
@@ -1037,4 +742,312 @@ public class BTreeBasedRidBag implements RidBagDelegate {
   public MultiValueChangeTimeLine<RID, RID> getTransactionTimeLine() {
     return this.tracker.getTransactionTimeLine();
   }
+
+  private RID refreshNonPersistentRid(RID identifiable) {
+    if (!identifiable.isPersistent()) {
+      identifiable = session.refreshRid(identifiable);
+    }
+    return identifiable;
+  }
+
+  private static class IdentifiableIntegerEntry implements Entry<RID, Integer> {
+
+    private final Entry<RID, Integer> entry;
+    private final int newValue;
+
+    IdentifiableIntegerEntry(Entry<RID, Integer> entry, int newValue) {
+      this.entry = entry;
+      this.newValue = newValue;
+    }
+
+    @Override
+    public RID getKey() {
+      return entry.getKey();
+    }
+
+    @Override
+    public Integer getValue() {
+      return newValue;
+    }
+
+    @Override
+    public Integer setValue(Integer value) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  private final class RIDBagIterator implements Iterator<RID>, Resettable, Sizeable {
+
+    private final NavigableMap<RID, Change> changedValues;
+    private final SBTreeMapEntryIterator sbTreeIterator;
+    private Iterator<Map.Entry<RID, ModifiableInteger>> newEntryIterator;
+    private Iterator<Map.Entry<RID, Change>> changedValuesIterator;
+    private Map.Entry<RID, Change> nextChange;
+    private Map.Entry<RID, Integer> nextSBTreeEntry;
+    private RID currentValue;
+    private int currentFinalCounter;
+    private int currentCounter;
+    private boolean currentRemoved;
+
+    private RIDBagIterator(
+        IdentityHashMap<RID, ModifiableInteger> newEntries,
+        NavigableMap<RID, Change> changedValues,
+        SBTreeMapEntryIterator sbTreeIterator) {
+      newEntryIterator = newEntries.entrySet().iterator();
+      this.changedValues = changedValues;
+
+      this.changedValuesIterator = changedValues.entrySet().iterator();
+      this.sbTreeIterator = sbTreeIterator;
+
+      nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
+
+      if (sbTreeIterator != null) {
+        nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
+      }
+    }
+
+    @Override
+    public boolean hasNext() {
+      return newEntryIterator.hasNext()
+          || nextChange != null
+          || nextSBTreeEntry != null
+          || (currentValue != null && currentCounter < currentFinalCounter);
+    }
+
+    @Override
+    public RID next() {
+      currentRemoved = false;
+      if (currentCounter < currentFinalCounter) {
+        currentCounter++;
+        return currentValue;
+      }
+
+      if (newEntryIterator.hasNext()) {
+        var entry = newEntryIterator.next();
+        currentValue = entry.getKey();
+        currentFinalCounter = entry.getValue().intValue();
+        currentCounter = 1;
+        return currentValue;
+      }
+
+      if (nextChange != null && nextSBTreeEntry != null) {
+        if (nextChange.getKey().compareTo(nextSBTreeEntry.getKey()) < 0) {
+          currentValue = nextChange.getKey();
+          currentFinalCounter = nextChange.getValue().applyTo(0);
+          currentCounter = 1;
+
+          nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
+        } else {
+          currentValue = nextSBTreeEntry.getKey();
+          currentFinalCounter = nextSBTreeEntry.getValue();
+          currentCounter = 1;
+
+          nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
+          if (nextChange != null && nextChange.getKey().equals(currentValue)) {
+            nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
+          }
+        }
+      } else if (nextChange != null) {
+        currentValue = nextChange.getKey();
+        currentFinalCounter = nextChange.getValue().applyTo(0);
+        currentCounter = 1;
+
+        nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
+      } else if (nextSBTreeEntry != null) {
+        currentValue = nextSBTreeEntry.getKey();
+        currentFinalCounter = nextSBTreeEntry.getValue();
+        currentCounter = 1;
+
+        nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
+      } else {
+        throw new NoSuchElementException();
+      }
+
+      return currentValue;
+    }
+
+    @Override
+    public void remove() {
+      if (currentRemoved) {
+        throw new IllegalStateException("Current entity has already been removed");
+      }
+
+      if (currentValue == null) {
+        throw new IllegalStateException("Next method was not called for given iterator");
+      }
+
+      if (removeFromNewEntries(currentValue)) {
+        if (size >= 0) {
+          size--;
+        }
+      } else {
+        var counter = changedValues.get(currentValue);
+        if (counter != null) {
+          counter.decrement();
+          if (size >= 0) {
+            if (counter.isUndefined()) {
+              size = -1;
+            } else {
+              size--;
+            }
+          }
+        } else {
+          if (nextChange != null) {
+            changedValues.put(currentValue, new DiffChange(-1));
+            changedValuesIterator =
+                changedValues.tailMap(nextChange.getKey(), false).entrySet().iterator();
+          } else {
+            changedValues.put(currentValue, new DiffChange(-1));
+          }
+
+          size = -1;
+        }
+      }
+
+      removeEvent(currentValue);
+      currentRemoved = true;
+    }
+
+    @Override
+    public void reset() {
+      newEntryIterator = newEntries.entrySet().iterator();
+
+      this.changedValuesIterator = changedValues.entrySet().iterator();
+      if (sbTreeIterator != null) {
+        this.sbTreeIterator.reset();
+      }
+
+      nextChange = nextChangedNotRemovedEntry(changedValuesIterator);
+
+      if (sbTreeIterator != null) {
+        nextSBTreeEntry = nextChangedNotRemovedSBTreeEntry(sbTreeIterator);
+      }
+    }
+
+    @Override
+    public int size() {
+      return BTreeBasedRidBag.this.size();
+    }
+
+    private static Map.Entry<RID, Change> nextChangedNotRemovedEntry(
+        Iterator<Map.Entry<RID, Change>> iterator) {
+      Map.Entry<RID, Change> entry;
+
+      while (iterator.hasNext()) {
+        entry = iterator.next();
+        // TODO workaround
+        if (entry.getValue().applyTo(0) > 0) {
+          return entry;
+        }
+      }
+
+      return null;
+    }
+  }
+
+  private final class SBTreeMapEntryIterator
+      implements Iterator<Map.Entry<RID, Integer>>, Resettable {
+
+    private final int prefetchSize;
+    private LinkedList<Map.Entry<RID, Integer>> preFetchedValues;
+    private RID firstKey;
+
+    SBTreeMapEntryIterator(int prefetchSize) {
+      this.prefetchSize = prefetchSize;
+
+      init();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return preFetchedValues != null;
+    }
+
+    @Override
+    public Map.Entry<RID, Integer> next() {
+      final var entry = preFetchedValues.removeFirst();
+      if (preFetchedValues.isEmpty()) {
+        prefetchData(false);
+      }
+
+      return entry;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void reset() {
+      init();
+    }
+
+    private void prefetchData(boolean firstTime) {
+      final var tree = loadTree();
+      if (tree == null) {
+        throw new IllegalStateException(
+            "RidBag is not properly initialized, can not load tree implementation");
+      }
+
+      try {
+        tree.loadEntriesMajor(
+            firstKey,
+            firstTime,
+            true,
+            entry -> {
+              preFetchedValues.add(
+                  new Entry<>() {
+                    @Override
+                    public RID getKey() {
+                      return entry.getKey();
+                    }
+
+                    @Override
+                    public Integer getValue() {
+                      return entry.getValue();
+                    }
+
+                    @Override
+                    public Integer setValue(Integer v) {
+                      throw new UnsupportedOperationException("setValue");
+                    }
+                  });
+
+              return preFetchedValues.size() <= prefetchSize;
+            });
+      } finally {
+        releaseTree();
+      }
+
+      if (preFetchedValues.isEmpty()) {
+        preFetchedValues = null;
+      } else {
+        firstKey = preFetchedValues.getLast().getKey();
+      }
+    }
+
+    private void init() {
+      var tree = loadTree();
+      if (tree == null) {
+        throw new IllegalStateException(
+            "RidBag is not properly initialized, can not load tree implementation");
+      }
+
+      try {
+        firstKey = tree.firstKey();
+      } finally {
+        releaseTree();
+      }
+
+      if (firstKey == null) {
+        this.preFetchedValues = null;
+        return;
+      }
+
+      this.preFetchedValues = new LinkedList<>();
+      prefetchData(true);
+    }
+  }
+
 }

@@ -73,6 +73,7 @@ import java.util.Set;
 import java.util.TimerTask;
 import java.util.UUID;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface DatabaseSessionInternal extends DatabaseSession {
 
@@ -887,6 +888,12 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   void setValidationEnabled(boolean value);
 
   LocalRecordCache getLocalCache();
+
+  @Nonnull
+  RID refreshRid(@Nonnull RID rid);
+
+  @Nullable
+  RID refreshRid(@Nonnull RID rid, boolean checkPresence);
 
   /**
    * retrieves a class from the schema

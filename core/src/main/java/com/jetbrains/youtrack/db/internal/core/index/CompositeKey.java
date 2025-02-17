@@ -57,9 +57,6 @@ public class CompositeKey
 
   private Set<IdentityChangeListener> identityChangeListeners;
 
-  /**
-   *
-   */
   private final List<Object> keys;
 
   public CompositeKey(final List<?> keys) {

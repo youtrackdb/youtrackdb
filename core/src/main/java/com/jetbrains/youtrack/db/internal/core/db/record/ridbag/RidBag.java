@@ -100,41 +100,47 @@ public class RidBag
   private int bottomThreshold;
   private UUID uuid;
 
-  private DatabaseSessionInternal database;
+  @Nonnull
+  private final DatabaseSessionInternal session;
 
-  public RidBag(DatabaseSessionInternal session, final RidBag ridBag) {
+  public RidBag(@Nonnull DatabaseSessionInternal session, final RidBag ridBag) {
     initThresholds(session);
     init();
     for (var identifiable : ridBag) {
       add(identifiable);
     }
-    this.database = session;
+    this.session = session;
   }
 
-  public RidBag(DatabaseSessionInternal session) {
+  public RidBag(@Nonnull DatabaseSessionInternal session) {
+    this.session = session;
     initThresholds(session);
     init();
   }
 
-  public RidBag(DatabaseSessionInternal session, UUID uuid) {
+  public RidBag(@Nonnull DatabaseSessionInternal session, UUID uuid) {
+    this.session = session;
     initThresholds(session);
     init();
     this.uuid = uuid;
   }
 
-  public RidBag(DatabaseSessionInternal session, BonsaiCollectionPointer pointer,
+  public RidBag(@Nonnull DatabaseSessionInternal session, BonsaiCollectionPointer pointer,
       Map<RID, Change> changes, UUID uuid) {
+    this.session = session;
     initThresholds(session);
     delegate = new BTreeBasedRidBag(pointer, changes, session);
     this.uuid = uuid;
   }
 
-  private RidBag(DatabaseSessionInternal db, final byte[] stream) {
-    initThresholds(db);
-    fromStream(db, stream);
+  private RidBag(@Nonnull DatabaseSessionInternal session, final byte[] stream) {
+    this.session = session;
+    initThresholds(session);
+    fromStream(session, stream);
   }
 
-  public RidBag(DatabaseSessionInternal session, RidBagDelegate delegate) {
+  public RidBag(@Nonnull DatabaseSessionInternal session, RidBagDelegate delegate) {
+    this.session = session;
     initThresholds(session);
     this.delegate = delegate;
   }
@@ -266,9 +272,9 @@ public class RidBag
   }
 
   public void checkAndConvert() {
-    if (database != null && !database.isRemote()) {
+    if (session != null && !session.isRemote()) {
       if (isEmbedded()
-          && database.getSbTreeCollectionManager() != null
+          && session.getSbTreeCollectionManager() != null
           && delegate.size() >= topThreshold) {
         convertToTree();
       } else if (bottomThreshold >= 0 && !isEmbedded() && delegate.size() <= bottomThreshold) {
@@ -280,7 +286,7 @@ public class RidBag
   private void convertToEmbedded() {
     var oldDelegate = delegate;
     var isTransactionModified = oldDelegate.isTransactionModified();
-    delegate = new EmbeddedRidBag();
+    delegate = new EmbeddedRidBag(session);
 
     final var owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
@@ -303,7 +309,7 @@ public class RidBag
   private void convertToTree() {
     var oldDelegate = delegate;
     var isTransactionModified = oldDelegate.isTransactionModified();
-    delegate = new BTreeBasedRidBag(database);
+    delegate = new BTreeBasedRidBag(session);
 
     final var owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
@@ -355,9 +361,9 @@ public class RidBag
   public void fromStream(DatabaseSessionInternal db, BytesContainer stream) {
     final var first = stream.bytes[stream.offset++];
     if ((first & 1) == 1) {
-      delegate = new EmbeddedRidBag();
+      delegate = new EmbeddedRidBag(session);
     } else {
-      delegate = new BTreeBasedRidBag(database);
+      delegate = new BTreeBasedRidBag(session);
     }
 
     if ((first & 2) == 2) {
@@ -384,7 +390,7 @@ public class RidBag
   public void setOwner(RecordElement owner) {
     if ((!(owner instanceof EntityImpl) && owner != null)
         || (owner != null && ((EntityImpl) owner).isEmbedded())) {
-      throw new DatabaseException(database.getDatabaseName(),
+      throw new DatabaseException(session.getDatabaseName(),
           "RidBag are supported only at entity root");
     }
     delegate.setOwner(owner);
@@ -483,13 +489,13 @@ public class RidBag
 
   protected void init() {
     if (topThreshold < 0) {
-      if (database.isRemote()) {
-        delegate = new BTreeBasedRidBag(database);
+      if (session.isRemote()) {
+        delegate = new BTreeBasedRidBag(session);
       } else {
-        delegate = new EmbeddedRidBag();
+        delegate = new EmbeddedRidBag(session);
       }
     } else {
-      delegate = new EmbeddedRidBag();
+      delegate = new EmbeddedRidBag(session);
     }
   }
 

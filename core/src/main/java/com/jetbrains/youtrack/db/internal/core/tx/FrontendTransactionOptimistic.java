@@ -279,7 +279,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       final String iIndexName,
       final OPERATION iOperation,
       final Object key,
-      final Identifiable iValue) {
+      final Identifiable value) {
     // index changes are tracked on server in case of client-server deployment
     assert session.getStorage() instanceof AbstractPaginatedStorage;
 
@@ -295,7 +295,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         indexEntry.setCleared();
       } else {
         var changes = indexEntry.getChangesPerKey(key);
-        changes.add(iValue, iOperation);
+        changes.add(value, iOperation);
 
         if (changes.key == key
             && key instanceof ChangeableIdentity changeableIdentity
@@ -303,16 +303,16 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           changeableIdentity.addIdentityChangeListener(indexEntry);
         }
 
-        if (iValue == null) {
+        if (value == null) {
           return;
         }
 
         var transactionIndexOperations =
-            recordIndexOperations.get(iValue.getIdentity());
+            recordIndexOperations.get(value.getIdentity());
 
         if (transactionIndexOperations == null) {
           transactionIndexOperations = new ArrayList<>();
-          recordIndexOperations.put(((RecordId) iValue.getIdentity()).copy(),
+          recordIndexOperations.put(((RecordId) value.getIdentity()).copy(),
               transactionIndexOperations);
         }
 

@@ -56,9 +56,11 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   private RecordId ownerRecord;
   private String fieldName;
   private final BonsaiCollectionPointer collectionPointer;
+  @Nonnull
   private final DatabaseSessionInternal session;
 
-  public RemoteTreeRidBag(BonsaiCollectionPointer pointer, DatabaseSessionInternal session) {
+  public RemoteTreeRidBag(BonsaiCollectionPointer pointer,
+      @Nonnull DatabaseSessionInternal session) {
     this.session = session;
     this.size = -1;
     this.collectionPointer = pointer;
@@ -96,7 +98,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     List<RID> list;
     try (var result =
         session.query("select list(@this.field(?)) as entities from ?", fieldName,
-            ownerRecord.getIdentity())) {
+            ownerRecord)) {
       if (result.hasNext()) {
         list = (result.next().getProperty("entities"));
       } else {
@@ -121,11 +123,12 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void add(final RID rid) {
+  public void add(RID rid) {
     if (rid == null) {
       throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
     }
 
+    rid = refreshNonPersistentRid(rid);
     if (size >= 0) {
       size++;
     }
@@ -135,13 +138,16 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public void remove(RID rid) {
+    rid = refreshNonPersistentRid(rid);
+
     size--;
     removeEvent(rid);
   }
 
   @Override
-  public boolean contains(RID identifiable) {
-    return loadElements(session).contains(identifiable);
+  public boolean contains(RID rid) {
+    rid = refreshNonPersistentRid(rid);
+    return loadElements(session).contains(rid);
   }
 
   @Override
@@ -332,6 +338,13 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   public void setRecordAndField(RecordId id, String fieldName) {
     this.ownerRecord = id;
     this.fieldName = fieldName;
+  }
+
+  private RID refreshNonPersistentRid(RID identifiable) {
+    if (!identifiable.isPersistent()) {
+      identifiable = session.refreshRid(identifiable);
+    }
+    return identifiable;
   }
 
   public BonsaiCollectionPointer getCollectionPointer() {
