@@ -98,7 +98,6 @@ public class AsyncReadCacheTestIT {
             + " megabytes, "
             + ((long) pageCount * pageSize) / 1024 / 1024
             + " megabytes were accessed.");
-//    System.out.println("Hit rate " + readCache.hitRate());
 
     timer.cancel();
 
@@ -175,7 +174,6 @@ public class AsyncReadCacheTestIT {
             + " megabytes, "
             + ((long) pageCount) * pageSize / 1024 / 1024
             + " megabytes were accessed.");
-//    System.out.println("Hit rate " + readCache.hitRate());
     final long total = end - start;
     final long nsPerPage = total / pageCount;
     final long opPerSec = 1_000_000_000 / nsPerPage;

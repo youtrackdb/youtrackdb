@@ -168,9 +168,4 @@ public class MemoryWriteAheadLog extends AbstractWriteAheadLog {
   public boolean appendNewSegment() {
     return false;
   }
-
-  @Override
-  public Path getPath() {
-    return null;
-  }
 }

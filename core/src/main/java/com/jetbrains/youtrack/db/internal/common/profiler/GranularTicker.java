@@ -1,9 +1,8 @@
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
-import java.util.concurrent.Executors;
+import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.Validate;
 
 /**
  * Default implementation of {@link Ticker} that updates its internal time at a certain granularity
@@ -17,13 +16,13 @@ public class GranularTicker implements Ticker, AutoCloseable {
   private final ScheduledExecutorService executor;
 
   public GranularTicker(long granularity) {
-    this.executor = Executors.newSingleThreadScheduledExecutor();
+    this.executor = ThreadPoolExecutors.newSingleThreadScheduledPool("GranularTicker");
     this.granularity = granularity;
   }
 
   @Override
   public void start() {
-    Validate.isTrue(time == 0, "Ticker is already started");
+    assert time == 0 : "Ticker is already started";
     this.time = System.nanoTime();
     executor.scheduleAtFixedRate(
         () -> time = System.nanoTime(),

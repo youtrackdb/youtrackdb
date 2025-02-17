@@ -1366,11 +1366,6 @@ public final class CASDiskWriteAheadLog implements WriteAheadLog {
     checkpointRequestListeners.removeAll(itemsToRemove);
   }
 
-  @Override
-  public Path getPath() {
-    return walLocation;
-  }
-
   private void doFlush(final boolean forceSync) {
     final Future<?> future = commitExecutor.submit(new RecordsWriter(this, forceSync, true));
     try {

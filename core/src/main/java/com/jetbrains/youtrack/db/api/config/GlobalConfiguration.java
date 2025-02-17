@@ -993,14 +993,15 @@ public enum GlobalConfiguration {
    * @since 2.2.27
    */
   PROFILER_MEMORYCHECK_INTERVAL(
-      "profiler.memoryCheckInterval",
+      "youtrackdb.profiler.memoryCheckInterval",
       "Checks the memory usage every configured milliseconds. Use 0 to disable it",
       Long.class,
       120000),
 
   PROFILER_TICKER_GRANULARITY(
-      "profiler.tickerGranularity",
-      "Ticker granularity in nanoseconds",
+      "youtrackdb.profiler.tickerGranularity",
+      "Granularity (in nanoseconds) of the profiler ticker. Controls the precision of metrics"
+          + " collection and long-running queries detection.",
       Long.class,
       10_000_000L
   ),

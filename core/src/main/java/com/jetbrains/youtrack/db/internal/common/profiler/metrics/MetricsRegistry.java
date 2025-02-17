@@ -203,12 +203,12 @@ public class MetricsRegistry {
     @Override
     public Object invoke(String actionName, Object[] params, String[] signature)
         throws MBeanException, ReflectionException {
-      return null;
+      throw new UnsupportedOperationException("invoke");
     }
 
     @Override
     public AttributeList setAttributes(AttributeList attributes) {
-      return null;
+      throw new UnsupportedOperationException("setAttributes");
     }
 
     @Override
@@ -222,7 +222,7 @@ public class MetricsRegistry {
 
     @Override
     public void setAttribute(Attribute attribute) {
-
+      throw new UnsupportedOperationException("setAttribute");
     }
 
     @Override

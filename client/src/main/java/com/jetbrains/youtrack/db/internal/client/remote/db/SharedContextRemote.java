@@ -12,11 +12,14 @@ import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibrary
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
  */
 public class SharedContextRemote extends SharedContext {
+
+  private final ReentrantLock lock = new ReentrantLock();
 
   public SharedContextRemote(StorageInfo storage, YouTrackDBRemote youTrackDbRemote) {
     stringCache =
@@ -34,41 +37,60 @@ public class SharedContextRemote extends SharedContext {
     sequenceLibrary = new SequenceLibraryImpl();
   }
 
-  public synchronized void load(DatabaseSessionInternal database) {
+  public void load(DatabaseSessionInternal database) {
     if (loaded) {
       return;
     }
 
-    schema.load(database);
-    indexManager.load(database);
-    // The Immutable snapshot should be after index and schema that require and before
-    // everything else that use it
-    schema.forceSnapshot(database);
-    security.load(database);
-    sequenceLibrary.load(database);
-    schema.onPostIndexManagement(database);
-    loaded = true;
+    lock.lock();
+
+    try {
+      if (loaded) {
+        return;
+      }
+      schema.load(database);
+      indexManager.load(database);
+      // The Immutable snapshot should be after index and schema that require and before
+      // everything else that use it
+      schema.forceSnapshot(database);
+      security.load(database);
+      sequenceLibrary.load(database);
+      schema.onPostIndexManagement(database);
+      loaded = true;
+    } finally {
+      lock.unlock();
+    }
   }
 
   @Override
-  public synchronized void close() {
-    stringCache.close();
-    schema.close();
-    security.close();
-    indexManager.close();
-    sequenceLibrary.close();
-    loaded = false;
+  public void close() {
+    lock.lock();
+    try {
+      stringCache.close();
+      schema.close();
+      security.close();
+      indexManager.close();
+      sequenceLibrary.close();
+      loaded = false;
+    } finally {
+      lock.unlock();
+    }
   }
 
-  public synchronized void reload(DatabaseSessionInternal database) {
-    schema.reload(database);
-    indexManager.reload(database);
-    // The Immutable snapshot should be after index and schema that require and before everything
-    // else that use it
-    schema.forceSnapshot(database);
-    security.load(database);
-    scheduler.load(database);
-    sequenceLibrary.load(database);
-    functionLibrary.load(database);
+  public void reload(DatabaseSessionInternal database) {
+    lock.lock();
+    try {
+      schema.reload(database);
+      indexManager.reload(database);
+      // The Immutable snapshot should be after index and schema that require and before everything
+      // else that use it
+      schema.forceSnapshot(database);
+      security.load(database);
+      scheduler.load(database);
+      sequenceLibrary.load(database);
+      functionLibrary.load(database);
+    } finally {
+      lock.unlock();
+    }
   }
 }

@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
 /**
- * Entity that provides a way to approximate the current time. Because operations like
- * {@link System#nanoTime()} are CPU-intensive, it is not recommended to use them in high-frequency
- * operations. Instead, a ticker can be used to provide a less precise but more efficient way to
- * measure time. Internally, a ticker is based on a tick counter that is updated at a certain
- * granularity.
+ * Entity that provides a way to approximate the current time. Because functions like
+ * {@link System#nanoTime()} have a significant latency, it is not recommended to use them in
+ * high-frequency operations. Instead, a ticker can be used to provide a less precise but more
+ * efficient way to measure time. Internally, a ticker is based on a tick counter that is updated at
+ * a certain granularity.
  */
 public interface Ticker {
 

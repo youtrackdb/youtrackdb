@@ -1,5 +1,7 @@
 package com.jetbrains.youtrack.db.internal.common.profiler.metrics;
 
+import com.jetbrains.youtrack.db.internal.common.profiler.Ticker;
+
 /**
  * Special type of Gauge for time measurements.
  */
@@ -11,12 +13,14 @@ public interface Stopwatch extends Gauge<Double> {
     void run() throws X;
   }
 
+  long currentApproxNanoTime();
+
   default <X extends Throwable> void timed(XRunnable<X> runnable) throws X {
-    long start = System.nanoTime();
+    long start = currentApproxNanoTime();
     try {
       runnable.run();
     } finally {
-      setNanos(System.nanoTime() - start);
+      setNanos(currentApproxNanoTime() - start);
     }
   }
 
@@ -35,6 +39,11 @@ public interface Stopwatch extends Gauge<Double> {
     }
 
     @Override
+    public long currentApproxNanoTime() {
+      return 0;
+    }
+
+    @Override
     public Double getValue() {
       return 0.0;
     }
@@ -45,13 +54,23 @@ public interface Stopwatch extends Gauge<Double> {
     }
   };
 
-  static Stopwatch create() {
-    return new Impl();
+  static Stopwatch create(Ticker ticker) {
+    return new Impl(ticker);
   }
 
   class Impl implements Stopwatch {
 
+    private final Ticker ticker;
     private volatile Double value;
+
+    public Impl(Ticker ticker) {
+      this.ticker = ticker;
+    }
+
+    @Override
+    public long currentApproxNanoTime() {
+      return ticker.lastNanoTime();
+    }
 
     public Double getValue() {
       return value;

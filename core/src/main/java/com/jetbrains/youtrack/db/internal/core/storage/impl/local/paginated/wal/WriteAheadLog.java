@@ -154,9 +154,4 @@ public interface WriteAheadLog extends AutoCloseable {
    * @return <code>true</code> if new segment is added, and <code>false</code> otherwise.
    */
   boolean appendNewSegment();
-
-  /**
-   * Returns the path of the log on disk, or null if the log is in-memory.
-   */
-  Path getPath();
 }

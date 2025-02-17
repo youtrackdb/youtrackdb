@@ -43,7 +43,7 @@ public interface MetricType<M extends Metric<?>> {
 
     @Override
     public Stopwatch create(Ticker ticker) {
-      return Stopwatch.create();
+      return Stopwatch.create(ticker);
     }
 
     @Override

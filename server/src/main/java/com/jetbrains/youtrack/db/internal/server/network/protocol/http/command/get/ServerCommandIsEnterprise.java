@@ -62,7 +62,7 @@ public class ServerCommandIsEnterprise extends ServerCommandAuthenticatedServerA
           HttpUtils.STATUS_OK_CODE,
           "OK",
           HttpUtils.CONTENT_JSON,
-          "{\"enterprise\": false}",
+          "{\"enterprise\": true}",
           null);
 
     } else {

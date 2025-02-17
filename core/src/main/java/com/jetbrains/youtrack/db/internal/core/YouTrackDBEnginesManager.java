@@ -379,6 +379,8 @@ public class YouTrackDBEnginesManager extends ListenerManger<YouTrackDBListener>
       }
 
       shutdownHandlers.clear();
+      unregisterWeakYouTrackDBStartupListener(profiler);
+      unregisterWeakYouTrackDBShutdownListener(profiler);
 
       LogManager.instance().info(this, "Clearing byte buffer pool");
       ByteBufferPool.instance(null).clear();
