@@ -19,17 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.core.type;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /**
  * Base abstract class to wrap a entity.
  */
-public abstract class IdentityWrapper implements Serializable {
+public abstract class IdentityWrapper implements Identifiable {
 
   private final @Nonnull RID rid;
 
@@ -44,6 +46,23 @@ public abstract class IdentityWrapper implements Serializable {
 
   protected abstract void toEntity(@Nonnull DatabaseSessionInternal db, @Nonnull EntityImpl entity);
 
+  @Nonnull
+  @Override
+  public <T extends DBRecord> T getRecord(@Nonnull DatabaseSession session) {
+    return rid.getRecord(session);
+  }
+
+  @Override
+  public int compareTo(@Nonnull Identifiable o) {
+    return 0;
+  }
+
+  @Override
+  public int compare(Identifiable o1, Identifiable o2) {
+    return 0;
+  }
+
+  @Nonnull
   public RID getIdentity() {
     return rid;
   }

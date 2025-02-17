@@ -133,7 +133,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
   @Test
   public void testOTypeFromValue() {
-
+    session.begin();
     assertEquals(PropertyType.BOOLEAN, PropertyType.getTypeByValue(true));
 
     assertEquals(PropertyType.LONG, PropertyType.getTypeByValue(2L));
@@ -195,10 +195,12 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(new DocumentSer()));
 
     assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByValue(new ClassSerializable()));
+    session.rollback();
   }
 
   @Test
   public void testOTypeFromValueInternal() {
+    session.begin();
     Map<String, RecordId> linkmap = new HashMap<String, RecordId>();
     linkmap.put("some", new ChangeableRecordId());
     assertEquals(PropertyType.LINKMAP, PropertyType.getTypeByValue(linkmap));
@@ -226,6 +228,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     var document = (EntityImpl) session.newEntity();
     EntityInternalUtils.addOwner(document, (EntityImpl) session.newEntity());
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(document));
+    session.rollback();
   }
 
   public class CustomClass implements SerializableStream {
