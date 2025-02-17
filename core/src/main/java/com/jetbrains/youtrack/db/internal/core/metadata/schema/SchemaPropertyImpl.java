@@ -649,10 +649,10 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
           linkedClass != null ? linkedClass.getName(session) : linkedClassName);
     }
 
-    entity.setProperty(
-        "customFields",
-        customFields != null && !customFields.isEmpty() ? customFields : null,
-        PropertyType.EMBEDDEDMAP);
+    if (customFields != null && customFields.isEmpty()) {
+      entity.getOrCreateEmbeddedMap("customFields").putAll(customFields);
+    }
+
     if (collate != null) {
       entity.setProperty("collate", collate.getName());
     }
