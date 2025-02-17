@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -165,14 +164,15 @@ public class TrackedSet<T> extends LinkedHashSet<T>
 
   @SuppressWarnings("unchecked")
   public TrackedSet<T> setDirty() {
+    this.dirty = true;
+    this.transactionDirty = true;
+
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof RecordAbstract)
           || !((RecordAbstract) sourceRecord).isDirty()) {
         sourceRecord.setDirty();
       }
     }
-    this.dirty = true;
-    this.transactionDirty = true;
     return this;
   }
 

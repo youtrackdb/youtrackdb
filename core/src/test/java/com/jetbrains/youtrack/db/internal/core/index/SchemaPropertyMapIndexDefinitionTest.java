@@ -162,6 +162,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueByKeyToIndex() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", mapToTest);
@@ -175,10 +176,12 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains("st1"));
     Assert.assertTrue(collectionResult.contains("st2"));
+    session.rollback();
   }
 
   @Test
   public void testGetDocumentValueByValueToIndex() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", mapToTest);
@@ -192,6 +195,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(1));
     Assert.assertTrue(collectionResult.contains(2));
+    session.rollback();
   }
 
   @Test

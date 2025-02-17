@@ -11,16 +11,12 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.BeginTransaction
 import com.jetbrains.youtrack.db.internal.client.remote.message.BeginTransactionResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Commit37Request;
 import com.jetbrains.youtrack.db.internal.client.remote.message.Commit37Response;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.FetchTransactionRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.FetchTransactionResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.QueryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.QueryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RebeginTransactionRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.RollbackTransactionRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordResponse;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
@@ -316,44 +312,6 @@ public class ConnectionExecutorTransactionTest {
     var resposne = rollback.execute(executor);
     assertFalse(db.getTransaction().isActive());
   }
-
-  @Test
-  public void testEmptyBeginCommitTransaction() {
-
-    db.begin();
-    EntityImpl rec = db.save(((EntityImpl) db.newEntity("test")).field("name", "foo"));
-    db.commit();
-
-    var executor = new ConnectionBinaryExecutor(connection, server);
-    var request = new BeginTransactionRequest(db, 10, false, true, null
-    );
-    var response = request.execute(executor);
-    assertTrue(db.getTransaction().isActive());
-    assertTrue(response instanceof BeginTransactionResponse);
-
-    var createRecordRequest =
-        new CreateRecordRequest(
-            new EntityImpl(db, "test"), new RecordId(-1, -1), EntityImpl.RECORD_TYPE);
-    var createResponse = createRecordRequest.execute(executor);
-    assertTrue(createResponse instanceof CreateRecordResponse);
-
-    rec = db.load(rec.getIdentity());
-    rec.setProperty("name", "bar");
-    var updateRecordRequest =
-        new UpdateRecordRequest(
-            rec.getIdentity(), rec, rec.getVersion(), true, EntityImpl.RECORD_TYPE);
-    var updateResponse = updateRecordRequest.execute(executor);
-    assertTrue(updateResponse instanceof UpdateRecordResponse);
-
-    var commit = new Commit37Request(db, 10, false, true, null
-    );
-    var commitResponse = commit.execute(executor);
-    assertFalse(db.getTransaction().isActive());
-    assertTrue(commitResponse instanceof Commit37Response);
-    assertEquals(1, ((Commit37Response) commitResponse).getUpdatedRids().size());
-    assertEquals(2, db.countClass("test"));
-  }
-
   @Test
   public void testBeginSQLInsertCommitTransaction() {
 

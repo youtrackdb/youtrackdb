@@ -33,17 +33,23 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
         .close();
     for (var i = 0; i < 150000; i++) {
+      session.begin();
       var rec = session.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
-      rec.setProperty(
-          "tags",
+
+      rec.getOrCreateEmbeddedList(
+          "tags").addAll(
           Arrays.asList(
               "soem long and more complex tezxt just un case it may be important", "two"));
+
       rec.setProperty("name", "name" + i);
-      rec.save();
+      session.commit();
     }
+
+    session.begin();
     session.command("delete from CompositeIndex").close();
+    session.commit();
   }
 
   @Test
@@ -61,15 +67,16 @@ public class CompositeIndexGrowShrinkIT extends DbTestBase {
         .close();
 
     for (var i = 0; i < 150000; i++) {
+      session.begin();
       var rec = session.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
-      rec.setProperty(
-          "tags",
+      rec.getOrCreateEmbeddedList(
+          "tags").addAll(
           Arrays.asList(
               "soem long and more complex tezxt just un case it may be important", "two"));
       rec.setProperty("name", "name" + i);
-      rec.save();
+      session.commit();
     }
     session.command("drop index CompositeIndex_id_tags_name").close();
   }

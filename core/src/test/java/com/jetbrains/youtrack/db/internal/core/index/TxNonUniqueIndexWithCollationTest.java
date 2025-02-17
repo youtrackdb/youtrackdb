@@ -83,7 +83,7 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
 
     session.command("update user set name='Abd' where name='Aby'").close();
 
-    final var r = session.command("select * from user where name >= 'abd' order by name");
+    final var r = session.query("select * from user where name >= 'abd' order by name");
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));

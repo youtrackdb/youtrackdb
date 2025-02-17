@@ -55,6 +55,7 @@ public class SchemaPropertyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", "15");
@@ -62,6 +63,7 @@ public class SchemaPropertyIndexDefinitionTest extends DbTestBase {
 
     final var result = propertyIndex.getDocumentValueToIndex(session, document);
     Assert.assertEquals(15, result);
+    session.rollback();
   }
 
   @Test

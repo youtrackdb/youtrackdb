@@ -178,21 +178,18 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     if (index.getDefinition() == null) {
       return Collections.emptyList();
     }
-    if (condition == null) {
-      return processFlatIteration(ctx.getDatabaseSession(), index, isOrderAsc);
-    } else if (condition instanceof SQLBinaryCondition) {
-      return processBinaryCondition(ctx.getDatabaseSession(), index, condition, isOrderAsc, ctx);
-    } else if (condition instanceof SQLBetweenCondition) {
-      return processBetweenCondition(index, condition, isOrderAsc, ctx);
-    } else if (condition instanceof SQLAndBlock) {
-      return processAndBlock(index, condition, additionalRangeCondition, isOrderAsc, ctx);
-    } else if (condition instanceof SQLInCondition) {
-      return processInCondition(index, condition, ctx, isOrderAsc);
-    } else {
-      // TODO process containsAny
-      throw new CommandExecutionException(ctx.getDatabaseSession(),
+    return switch (condition) {
+      case null -> processFlatIteration(ctx.getDatabaseSession(), index, isOrderAsc);
+      case SQLBinaryCondition sqlBinaryCondition ->
+          processBinaryCondition(ctx.getDatabaseSession(), index, condition, isOrderAsc, ctx);
+      case SQLBetweenCondition sqlBetweenCondition ->
+          processBetweenCondition(index, condition, isOrderAsc, ctx);
+      case SQLAndBlock sqlAndBlock ->
+          processAndBlock(index, condition, additionalRangeCondition, isOrderAsc, ctx);
+      case SQLInCondition sqlInCondition -> processInCondition(index, condition, ctx, isOrderAsc);
+      default -> throw new CommandExecutionException(ctx.getDatabaseSession(),
           "search for index for " + condition + " is not supported yet");
-    }
+    };
   }
 
   private static List<Stream<RawPair<Object, RID>>> processInCondition(

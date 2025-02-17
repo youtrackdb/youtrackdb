@@ -29,7 +29,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
  * Implementation of ArrayList bound to a source Record object to keep track of changes for literal
@@ -212,14 +211,16 @@ public class TrackedList<T> extends ArrayList<T>
 
   @SuppressWarnings("unchecked")
   public <RET> RET setDirty() {
+    this.dirty = true;
+    this.transactionDirty = true;
+
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof RecordAbstract)
           || !((RecordAbstract) sourceRecord).isDirty()) {
         sourceRecord.setDirty();
       }
     }
-    this.dirty = true;
-    this.transactionDirty = true;
+
     return (RET) this;
   }
 

@@ -12,7 +12,6 @@ import com.jetbrains.youtrack.db.api.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Blob;
-import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
@@ -46,8 +45,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.CountRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
@@ -139,8 +136,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribLiveQu
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeLiveQueryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeResponse;
-import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
@@ -156,12 +151,10 @@ import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchListener;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchListener;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
@@ -449,99 +442,6 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     final var rid = request.getRecordId();
     final var recordExists = connection.getDatabaseSession().exists(rid);
     return new RecordExistsResponse(recordExists);
-  }
-
-  @Override
-  public BinaryResponse executeCreateRecord(CreateRecordRequest request) {
-
-    final var record = request.getContent();
-    RecordInternal.setIdentity(record, request.getRid());
-    RecordInternal.setVersion(record, 0);
-    if (record instanceof EntityImpl) {
-      // Force conversion of value to class for trigger default values.
-      EntityInternalUtils.autoConvertValueToClass(connection.getDatabaseSession(),
-          (EntityImpl) record);
-    }
-    connection.getDatabaseSession().save(record);
-
-    if (request.getMode() < 2) {
-      Map<UUID, BonsaiCollectionPointer> changedIds;
-      var session = connection.getDatabaseSession();
-      var collectionManager =
-          session.getSbTreeCollectionManager();
-      if (collectionManager != null) {
-        changedIds = new HashMap<>(collectionManager.changedIds(session));
-        collectionManager.clearChangedIds(session);
-      } else {
-        changedIds = new HashMap<>();
-      }
-
-      return new CreateRecordResponse(
-          (RecordId) record.getIdentity(), record.getVersion(), changedIds);
-    }
-    return null;
-  }
-
-  @Override
-  public BinaryResponse executeUpdateRecord(UpdateRecordRequest request) {
-    var session = connection.getDatabaseSession();
-    final var newRecord = request.getContent();
-    RecordInternal.setIdentity(newRecord, request.getRid());
-    RecordInternal.setVersion(newRecord, request.getVersion());
-
-    RecordInternal.setContentChanged(newRecord, request.isUpdateContent());
-    DBRecord currentRecord = null;
-    if (newRecord instanceof EntityImpl) {
-      try {
-        currentRecord = session.load(request.getRid());
-      } catch (RecordNotFoundException e) {
-        // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
-        if (e.getCause() instanceof OfflineClusterException)
-        //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-        {
-          throw (OfflineClusterException) e.getCause();
-        }
-      }
-
-      if (currentRecord == null) {
-        throw new RecordNotFoundException(session, request.getRid());
-      }
-
-      ((EntityImpl) currentRecord).merge((EntityImpl) newRecord, false, false);
-      if (request.isUpdateContent()) {
-        ((EntityImpl) currentRecord).setDirty();
-      }
-    } else {
-      currentRecord = newRecord;
-    }
-
-    RecordInternal.setVersion(currentRecord, request.getVersion());
-
-    session.save(currentRecord);
-
-    if (currentRecord
-        .getIdentity()
-        .toString()
-        .equals(session.getStorageInfo().getConfiguration().getIndexMgrRecordId())) {
-      // FORCE INDEX MANAGER UPDATE. THIS HAPPENS FOR DIRECT CHANGES FROM REMOTE LIKE IN GRAPH
-      session.getMetadata().getIndexManagerInternal().reload(connection.getDatabaseSession());
-    }
-    final var newVersion = currentRecord.getVersion();
-
-    if (request.getMode() < 2) {
-      Map<UUID, BonsaiCollectionPointer> changedIds;
-      var collectionManager =
-          connection.getDatabaseSession().getSbTreeCollectionManager();
-      if (collectionManager != null) {
-        changedIds = new HashMap<>(collectionManager.changedIds(session));
-        collectionManager.clearChangedIds(session);
-      } else {
-        changedIds = new HashMap<>();
-      }
-
-      return new UpdateRecordResponse(newVersion, changedIds);
-    }
-    return null;
   }
 
   @Override

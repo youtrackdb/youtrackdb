@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -152,14 +151,15 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @SuppressWarnings({"unchecked"})
   public TrackedMap<T> setDirty() {
+    this.dirty = true;
+    this.transactionDirty = true;
+
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof RecordAbstract)
           || !((RecordAbstract) sourceRecord).isDirty()) {
         sourceRecord.setDirty();
       }
     }
-    this.dirty = true;
-    this.transactionDirty = true;
     return this;
   }
 

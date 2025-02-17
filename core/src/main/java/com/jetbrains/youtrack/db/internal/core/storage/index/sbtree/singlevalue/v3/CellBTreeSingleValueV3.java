@@ -109,7 +109,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
   private long nullBucketFileId = -1;
   private int keySize;
   private BinarySerializer<K> keySerializer;
-  private BinarySerializerFactory serializerFactory;
+  private final BinarySerializerFactory serializerFactory;
   private PropertyType[] keyTypes;
 
   public CellBTreeSingleValueV3(
@@ -121,6 +121,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
     acquireExclusiveLock();
     try {
       this.nullFileExtension = nullFileExtension;
+      serializerFactory = storage.getComponentsFactory().binarySerializerFactory;
     } finally {
       releaseExclusiveLock();
     }
@@ -146,8 +147,6 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
             }
 
             this.keySerializer = keySerializer;
-            this.serializerFactory = serializerFactory;
-
             fileId = addFile(atomicOperation, getFullName());
             nullBucketFileId = addFile(atomicOperation, getName() + nullFileExtension);
 
@@ -431,7 +430,6 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       this.keySize = keySize;
       this.keyTypes = keyTypes;
       this.keySerializer = keySerializer;
-      this.serializerFactory = serializerFactory;
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new CellBTreeSingleValueV3Exception("Exception during loading of sbtree " + name, this),

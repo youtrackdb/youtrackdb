@@ -1083,11 +1083,13 @@ public class EntityImpl extends RecordAbstract
     }
     entry.enableTracking(this);
 
-    setDirty();
+
     if (!entry.isChanged()) {
       entry.original = oldValue;
       entry.markChanged();
     }
+
+    setDirty();
   }
 
   public <RET> RET removeProperty(@Nonnull final String iFieldName) {
@@ -2566,11 +2568,13 @@ public class EntityImpl extends RecordAbstract
     }
     entry.enableTracking(this);
 
-    setDirty();
+
     if (!entry.isChanged()) {
       entry.original = oldValue;
       entry.markChanged();
     }
+
+    setDirty();
 
     return this;
   }
@@ -2873,6 +2877,11 @@ public class EntityImpl extends RecordAbstract
    */
   @Override
   public RecordAbstract setDirty() {
+    // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
+    // _SOURCE IS NULL
+    checkForFields();
+    super.setDirty();
+
     if (owner != null) {
       // PROPAGATES TO THE OWNER
       var ownerEntity = owner.get();
@@ -2881,11 +2890,6 @@ public class EntityImpl extends RecordAbstract
         ownerEntity.setDirty();
       }
     }
-
-    // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
-    // _SOURCE IS NULL
-    checkForFields();
-    super.setDirty();
 
     return this;
   }

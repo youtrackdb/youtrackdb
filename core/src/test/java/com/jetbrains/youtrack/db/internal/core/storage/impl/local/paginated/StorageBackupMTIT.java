@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -262,7 +261,7 @@ public class StorageBackupMTIT {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (var db = youTrackDB.open(dbName, "admin", "admin")) {
+      try (var session = youTrackDB.open(dbName, "admin", "admin")) {
         final var random = new Random();
         while (!stop) {
           try {
@@ -271,11 +270,11 @@ public class StorageBackupMTIT {
 
             final var num = random.nextInt();
 
-            final var document = ((EntityImpl) db.newEntity("BackupClass"));
+            session.begin();
+            final var document = ((EntityImpl) session.newEntity("BackupClass"));
             document.field("num", num);
             document.field("data", data);
-
-            document.save();
+            session.commit();
           } catch (ModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited ... wait ...");
             //noinspection BusyWait

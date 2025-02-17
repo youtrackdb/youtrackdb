@@ -38,7 +38,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.ConnectRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRecordsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseRequest;
@@ -80,7 +79,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.SetGlobalConfigu
 import com.jetbrains.youtrack.db.internal.client.remote.message.ShutdownRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordRequest;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import java.util.function.Function;
 
@@ -132,8 +130,6 @@ public class NetworkBinaryProtocolFactory {
       case ChannelBinaryProtocol.REQUEST_RECORD_EXISTS -> new RecordExistsRequest();
       case ChannelBinaryProtocol.REQUEST_SEND_TRANSACTION_STATE ->
           new SendTransactionStateRequest();
-      case ChannelBinaryProtocol.REQUEST_RECORD_CREATE -> new CreateRecordRequest();
-      case ChannelBinaryProtocol.REQUEST_RECORD_UPDATE -> new UpdateRecordRequest();
       case ChannelBinaryProtocol.REQUEST_POSITIONS_HIGHER -> new HigherPhysicalPositionsRequest();
       case ChannelBinaryProtocol.REQUEST_POSITIONS_CEILING -> new CeilingPhysicalPositionsRequest();
       case ChannelBinaryProtocol.REQUEST_POSITIONS_LOWER -> new LowerPhysicalPositionsRequest();
@@ -192,8 +188,6 @@ public class NetworkBinaryProtocolFactory {
       case ChannelBinaryProtocol.REQUEST_CLUSTER_DROP -> new DropClusterRequest();
       case ChannelBinaryProtocol.REQUEST_RECORD_METADATA -> new GetRecordMetadataRequest();
       case ChannelBinaryProtocol.REQUEST_RECORD_LOAD -> new ReadRecordRequest();
-      case ChannelBinaryProtocol.REQUEST_RECORD_CREATE -> new CreateRecordRequest();
-      case ChannelBinaryProtocol.REQUEST_RECORD_UPDATE -> new UpdateRecordRequest();
       case ChannelBinaryProtocol.REQUEST_POSITIONS_HIGHER -> new HigherPhysicalPositionsRequest();
       case ChannelBinaryProtocol.REQUEST_POSITIONS_CEILING -> new CeilingPhysicalPositionsRequest();
       case ChannelBinaryProtocol.REQUEST_POSITIONS_LOWER -> new LowerPhysicalPositionsRequest();

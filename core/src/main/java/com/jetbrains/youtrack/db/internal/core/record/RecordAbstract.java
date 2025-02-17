@@ -116,11 +116,11 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     size = 0;
 
     source = null;
-    setDirty();
     if (recordId != null) {
       recordId.reset();
     }
 
+    setDirty();
     return this;
   }
 

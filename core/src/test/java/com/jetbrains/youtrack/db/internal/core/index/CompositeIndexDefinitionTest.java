@@ -336,6 +336,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testDocumentToIndexSuccessful() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
@@ -343,10 +344,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     final var result = compositeIndex.getDocumentValueToIndex(session, document);
     Assert.assertEquals(result, new CompositeKey(Arrays.asList(12, "test")));
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexMapValueSuccessful() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     final Map<String, String> stringMap = new HashMap<String, String>();
@@ -372,10 +375,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     Assert.assertEquals(2, collectionResult.size());
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key1")));
     Assert.assertTrue(collectionResult.contains(new CompositeKey(12, "key2")));
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulOne() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
@@ -397,10 +402,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     expectedResult.add(new CompositeKey(12, 2));
 
     Assert.assertEquals(result, expectedResult);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOne() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
@@ -416,10 +423,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     final var result = compositeIndexDefinition.getDocumentValueToIndex(session, document);
     Assert.assertNull(result);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwo() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", Collections.emptyList());
@@ -435,10 +444,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     final var result = compositeIndexDefinition.getDocumentValueToIndex(session, document);
     Assert.assertNull(result);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOneNullValuesSupport() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
@@ -455,10 +466,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     final var result = compositeIndexDefinition.getDocumentValueToIndex(session, document);
     Assert.assertEquals(result, List.of(new CompositeKey(12, null)));
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwoNullValuesSupport() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", Collections.emptyList());
@@ -475,10 +488,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     final var result = compositeIndexDefinition.getDocumentValueToIndex(session, document);
     Assert.assertEquals(result, List.of(new CompositeKey(null, 12)));
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulOne() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     final var ridBag = new RidBag(session);
@@ -506,10 +521,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     expectedResult.add(new CompositeKey(12, new RecordId("#1:11")));
 
     Assert.assertEquals(result, expectedResult);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulTwo() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
@@ -531,10 +548,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     expectedResult.add(new CompositeKey(2, 12));
 
     Assert.assertEquals(result, expectedResult);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulTwo() {
+    session.begin();
     final var ridBag = new RidBag(session);
     ridBag.add(new RecordId("#1:10"));
     ridBag.add(new RecordId("#1:11"));
@@ -562,10 +581,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     expectedResult.add(new CompositeKey(new RecordId("#1:11"), 12));
 
     Assert.assertEquals(result, expectedResult);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulThree() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
@@ -590,10 +611,12 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     expectedResult.add(new CompositeKey(12, 2, "test"));
 
     Assert.assertEquals(result, expectedResult);
+    session.rollback();
   }
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulThree() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     final var ridBag = new RidBag(session);
@@ -624,6 +647,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     expectedResult.add(new CompositeKey(12, new RecordId("#1:11"), "test"));
 
     Assert.assertEquals(result, expectedResult);
+    session.rollback();
   }
 
   @Test(expected = BaseException.class)
@@ -726,6 +750,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeListEventsOne() {
+    session.begin();
     final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
@@ -763,6 +788,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l1", 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l3", 3)));
+    session.rollback();
   }
 
   @Test
@@ -806,6 +832,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testProcessChangeListEventsTwo() {
+    session.begin();
     final var compositeIndexDefinition = new CompositeIndexDefinition();
 
     compositeIndexDefinition.addIndex(
@@ -847,6 +874,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l4", 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, "l1", 3)));
+    session.rollback();
   }
 
   @Test
@@ -902,6 +930,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
+    session.begin();
     final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -931,6 +960,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l1", 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l3", 3)));
+    session.rollback();
   }
 
   @Test
@@ -944,6 +974,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
+    session.begin();
     final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -976,6 +1007,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "l4", 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, "l1", 3)));
+    session.rollback();
   }
 
   @Test
@@ -991,6 +1023,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
+    session.begin();
     final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -1019,6 +1052,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "k1", 3)));
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "k3", 3)));
+    session.rollback();
   }
 
   @Test
@@ -1034,6 +1068,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     compositeIndexDefinition.addIndex(
         new PropertyIndexDefinition("testCollectionClass", "fThree", PropertyType.INTEGER));
 
+    session.begin();
     final var doc = (EntityImpl) session.newEntity();
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -1066,6 +1101,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(keysToAdd.containsKey(new CompositeKey(2, "k4", 3)));
     Assert.assertTrue(keysToRemove.containsKey(new CompositeKey(2, "k1", 3)));
+    session.rollback();
   }
 
   @Test

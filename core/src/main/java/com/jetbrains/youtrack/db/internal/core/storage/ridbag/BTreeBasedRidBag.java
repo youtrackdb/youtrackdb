@@ -1001,11 +1001,12 @@ public class BTreeBasedRidBag implements RidBagDelegate {
 
   @Override
   public <RET> RET setDirty() {
+    this.dirty = true;
+    this.transactionDirty = true;
+
     if (owner != null) {
       owner.setDirty();
     }
-    this.dirty = true;
-    this.transactionDirty = true;
     return (RET) this;
   }
 

@@ -127,6 +127,7 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
     ridBag.add(new RecordId("#1:12"));
     ridBag.add(new RecordId("#1:23"));
 
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", ridBag);
@@ -142,6 +143,7 @@ public abstract class SchemaPropertyRidBagAbstractIndexDefinition extends DbTest
     Assert.assertTrue(collectionResult.contains(new RecordId("#1:23")));
 
     assertEmbedded(ridBag);
+    session.rollback();
   }
 
   @Test

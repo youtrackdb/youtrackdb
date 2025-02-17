@@ -98,6 +98,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
+    session.begin();
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", Arrays.asList("12", "23"));
@@ -111,6 +112,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
 
     Assert.assertTrue(collectionResult.contains(12));
     Assert.assertTrue(collectionResult.contains(23));
+    session.rollback();
   }
 
   @Test

@@ -21,15 +21,19 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.schema.Collate;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -123,17 +127,43 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
   @Nonnull
   @Override
   public Map<String, Object> toMap() {
-    return Map.of();
+    var map = new HashMap<String, Object>();
+    serializeToMap(map);
+    return map;
   }
 
   @Override
   public void toJson(@Nonnull JsonGenerator jsonGenerator) {
+    try {
+      jsonGenerator.writeStartObject();
+
+      jsonGenerator.writeArrayFieldStart("keyTypes");
+      for (var keyType : keyTypes) {
+        jsonGenerator.writeString(keyType.toString());
+      }
+      jsonGenerator.writeEndArray();
+
+      if (collate instanceof CompositeCollate) {
+        jsonGenerator.writeArrayFieldStart("collates");
+        for (var curCollate : ((CompositeCollate) this.collate).getCollates()) {
+          jsonGenerator.writeString(curCollate.getName());
+        }
+        jsonGenerator.writeEndArray();
+      } else {
+        jsonGenerator.writeStringField("collate", collate.getName());
+      }
+
+      jsonGenerator.writeBooleanField("nullValuesIgnored", isNullValuesIgnored());
+    } catch (IOException e) {
+      throw BaseException.wrapException(
+          new SerializationException("Error serializing index defenition"), e, (String) null);
+    }
+
+
   }
 
   @Override
   protected void serializeToMap(@Nonnull Map<String, Object> map) {
-    super.serializeToMap(map);
-
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
     for (final var keyType : keyTypes) {

@@ -147,6 +147,8 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test(expected = IndexException.class)
   public void testGetDocumentValueToIndex() {
+    session.begin();
     simpleKeyIndexDefinition.getDocumentValueToIndex(session, (EntityImpl) session.newEntity());
+    session.rollback();
   }
 }

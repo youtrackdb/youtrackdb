@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.query.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
@@ -149,41 +148,6 @@ public class LiveQueryTest {
     Assert.assertEquals(2, listener.created.size());
     for (var res : listener.created) {
       Assert.assertEquals("foo", res.getProperty("name"));
-    }
-  }
-
-  @Test
-  public void testLiveInsertOnCluster() {
-
-    var clazz = session.getMetadata().getSchema().createClass("test");
-
-    var defaultCluster = clazz.getClusterIds(session)[0];
-    final var storage = session.getStorage();
-
-    var listener = new MyLiveQueryListener(new CountDownLatch(1));
-
-    session.live("live select from cluster:" + storage.getClusterNameById(defaultCluster),
-        listener);
-
-    session.begin();
-    session.command(
-            "insert into cluster:"
-                + storage.getClusterNameById(defaultCluster)
-                + " set name = 'foo', surname = 'bar'")
-        .close();
-    session.commit();
-
-    try {
-      Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    Assert.assertEquals(1, listener.created.size());
-    for (var doc : listener.created) {
-      Assert.assertEquals("foo", doc.getProperty("name"));
-      RID rid = doc.getProperty("@rid");
-      Assert.assertNotNull(rid);
-      Assert.assertTrue(rid.getClusterPosition() >= 0);
     }
   }
 

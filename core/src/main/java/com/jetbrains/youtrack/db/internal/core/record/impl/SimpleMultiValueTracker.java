@@ -87,12 +87,6 @@ public final class SimpleMultiValueTracker<K, V> {
       return;
     }
 
-    if (changeOwner) {
-      entity.setDirty();
-    } else {
-      entity.setDirtyNoChanged();
-    }
-
     if (timeLine == null) {
       timeLine = new MultiValueChangeTimeLine<>();
     }
@@ -102,6 +96,12 @@ public final class SimpleMultiValueTracker<K, V> {
       transactionTimeLine = new MultiValueChangeTimeLine<K, V>();
     }
     transactionTimeLine.addCollectionChangeEvent(event);
+
+    if (changeOwner) {
+      entity.setDirty();
+    } else {
+      entity.setDirtyNoChanged();
+    }
   }
 
   public void enable() {

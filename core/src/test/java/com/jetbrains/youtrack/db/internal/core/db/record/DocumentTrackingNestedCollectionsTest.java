@@ -83,7 +83,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
 
     assertTrue(document.isDirty());
     var nestedTimiline =
-        ((TrackedMultiValue<Object, Object>) subObjects).getTimeLine();
+        ((TrackedMultiValue<Object, Object>) subObjects).getTransactionTimeLine();
     assertEquals(1, nestedTimiline.getMultiValueChangeEvents().size());
     var multiValueChangeEvents =
         nestedTimiline.getMultiValueChangeEvents();
@@ -117,7 +117,8 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
 
     assertTrue(document.isDirty());
     var multiValueChangeEvents =
-        ((TrackedMultiValue<Object, Object>) subObjects).getTimeLine().getMultiValueChangeEvents();
+        ((TrackedMultiValue<Object, Object>) subObjects).getTransactionTimeLine()
+            .getMultiValueChangeEvents();
     assertEquals(1, multiValueChangeEvents.get(0).getKey());
     assertEquals("one", multiValueChangeEvents.get(0).getValue());
     assertEquals(2, multiValueChangeEvents.get(1).getKey());
@@ -150,7 +151,8 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
 
     assertTrue(document.isDirty());
     var multiValueChangeEvents =
-        ((TrackedMultiValue<Object, Object>) subObjects).getTimeLine().getMultiValueChangeEvents();
+        ((TrackedMultiValue<Object, Object>) subObjects).getTransactionTimeLine()
+            .getMultiValueChangeEvents();
     assertEquals("one", multiValueChangeEvents.get(0).getKey());
     assertEquals("String", multiValueChangeEvents.get(0).getValue());
     assertEquals("two", multiValueChangeEvents.get(1).getKey());

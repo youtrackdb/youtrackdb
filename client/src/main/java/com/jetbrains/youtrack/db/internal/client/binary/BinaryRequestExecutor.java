@@ -17,7 +17,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.ConnectRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRecordsRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CountRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.CreateDatabaseRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.CreateRecordRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropClusterRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.DropDatabaseRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.ExistsDatabaseRequest;
@@ -64,7 +63,6 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeSequenc
 import com.jetbrains.youtrack.db.internal.client.remote.message.SubscribeStorageConfigurationRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeLiveQueryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.UnsubscribeRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.message.UpdateRecordRequest;
 
 public interface BinaryRequestExecutor {
 
@@ -102,9 +100,6 @@ public interface BinaryRequestExecutor {
 
   BinaryResponse executeRecordExists(RecordExistsRequest request);
 
-  BinaryResponse executeCreateRecord(CreateRecordRequest request);
-
-  BinaryResponse executeUpdateRecord(UpdateRecordRequest request);
 
   BinaryResponse executeHigherPosition(HigherPhysicalPositionsRequest request);
 
