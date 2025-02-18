@@ -28,7 +28,7 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
     final var linkedDoc = (EntityImpl) session.newEntity();
 
     doc.setProperty("country", linkedDoc, PropertyType.LINK);
-    doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
+    doc.newEmbeddedList("numbers").addAll(Arrays.asList(0, 1, 2, 3, 4, 5));
     doc.save();
 
     session.commit();
@@ -36,24 +36,26 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
 
   @Test(expected = DatabaseException.class)
   public void testRidBagInEmbeddedDocument() {
-    var doc = (EntityImpl) session.newEntity();
-    var rids = new RidBag(session);
-    rids.add(new RecordId(2, 3));
-    rids.add(new RecordId(2, 4));
-    rids.add(new RecordId(2, 5));
-    rids.add(new RecordId(2, 6));
-    List<EntityImpl> docs = new ArrayList<EntityImpl>();
-    var doc1 = (EntityImpl) session.newEntity();
-    doc1.setProperty("rids", rids);
-    docs.add(doc1);
-    var doc2 = (EntityImpl) session.newEntity();
-    doc2.setProperty("text", "text");
-    docs.add(doc2);
-    doc.setProperty("emb", docs, PropertyType.EMBEDDEDLIST);
-    doc.setProperty("some", "test");
+    session.executeInTx(() -> {
+      var doc = (EntityImpl) session.newEntity();
+      var rids = new RidBag(session);
+      rids.add(new RecordId(2, 3));
+      rids.add(new RecordId(2, 4));
+      rids.add(new RecordId(2, 5));
+      rids.add(new RecordId(2, 6));
+      List<EntityImpl> docs = new ArrayList<EntityImpl>();
+      var doc1 = (EntityImpl) session.newEntity();
+      doc1.setProperty("rids", rids);
+      docs.add(doc1);
+      var doc2 = (EntityImpl) session.newEntity();
+      doc2.setProperty("text", "text");
+      docs.add(doc2);
+      doc.setProperty("emb", docs, PropertyType.EMBEDDEDLIST);
+      doc.setProperty("some", "test");
 
-    var res = session.getSerializer().toStream(session, doc);
-    session.getSerializer()
-        .fromStream(session, res, (EntityImpl) session.newEntity(), new String[]{});
+      var res = session.getSerializer().toStream(session, doc);
+      session.getSerializer()
+          .fromStream(session, res, (EntityImpl) session.newEntity(), new String[]{});
+    });
   }
 }
