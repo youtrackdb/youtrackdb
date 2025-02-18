@@ -52,6 +52,7 @@ public class DateConversionTestCase extends DbTestBase {
     var format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     var dateToInsert = format.parse("1975-06-01 01:00:00");
 
+    session.begin();
     var document = (EntityImpl) session.newEntity();
     document.field("date", dateToInsert, PropertyType.DATE);
     var res = serializer.toStream(session, document);
@@ -72,6 +73,7 @@ public class DateConversionTestCase extends DbTestBase {
     assertEquals(cal.get(Calendar.YEAR), cal1.get(Calendar.YEAR));
     assertEquals(cal.get(Calendar.MONTH), cal1.get(Calendar.MONTH));
     assertEquals(cal.get(Calendar.DAY_OF_MONTH), cal1.get(Calendar.DAY_OF_MONTH));
+    session.rollback();
   }
 
   @Test
@@ -79,20 +81,22 @@ public class DateConversionTestCase extends DbTestBase {
     try (YouTrackDB ctx = new YouTrackDBImpl(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (var db = (DatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
+      try (var session = (DatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
 
         var format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
         var date = format.parse("2016-08-31 23:30:00");
 
-        db.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "GMT");
+        session.set(DatabaseSession.ATTRIBUTES.TIMEZONE, "GMT");
 
-        var doc = (EntityImpl) db.newEntity();
+        session.begin();
+        var doc = (EntityImpl) session.newEntity();
 
         doc.setProperty("dateTime", date);
         var formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();
 
         Assert.assertEquals("2016-08-31", formatted);
+        session.rollback();
       }
       ctx.drop("test");
     }
