@@ -119,6 +119,9 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     if (txStartCounter == 0) {
       status = TXSTATUS.BEGUN;
+      database.transactionMeters()
+          .totalTransactions()
+          .record();
 
       var localCache = database.getLocalCache();
       localCache.unloadNotModifiedRecords();
@@ -381,6 +384,9 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
   public void internalRollback() {
     status = TXSTATUS.ROLLBACKING;
+    database.transactionMeters()
+        .rollbackTransactions()
+        .record();
 
     invalidateChangesInCache();
 
@@ -775,6 +781,9 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
       if (sentToServer || !recordOperations.isEmpty() || !indexEntries.isEmpty()) {
         database.internalCommit(this);
+        database.transactionMeters()
+            .writeTransactions()
+            .record();
 
         try {
           database.afterCommitOperations();
