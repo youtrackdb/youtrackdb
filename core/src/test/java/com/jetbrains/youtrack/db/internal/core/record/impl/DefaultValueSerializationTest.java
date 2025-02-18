@@ -18,6 +18,7 @@ public class DefaultValueSerializationTest extends DbTestBase {
     var prop = classA.createProperty(session, "name", PropertyType.STRING);
     prop.setDefaultValue(session, "uuid()");
 
+    session.begin();
     var doc = (EntityImpl) session.newEntity("ClassC");
 
     var val = doc.toStream();
@@ -26,5 +27,6 @@ public class DefaultValueSerializationTest extends DbTestBase {
     doc1.fromStream(val);
     doc1.deserializeFields();
     Assert.assertEquals(doc.field("name").toString(), doc1.field("name").toString());
+    session.rollback();
   }
 }
