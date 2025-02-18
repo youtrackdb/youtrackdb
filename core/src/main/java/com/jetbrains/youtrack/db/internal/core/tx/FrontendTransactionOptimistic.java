@@ -598,6 +598,12 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
               + DatabaseSession.class.getSimpleName()
               + ".bindToSession(record) before changing it");
     }
+    if (record.isEmbedded()) {
+      throw new DatabaseException(session,
+          "Record "
+              + record
+              + " is embedded and can not added to list of records to be saved");
+    }
     checkTransactionValid();
   }
 
