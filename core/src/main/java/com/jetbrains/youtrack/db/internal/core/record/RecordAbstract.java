@@ -336,8 +336,12 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   }
 
   public void delete() {
+    checkForBinding();
+
     dirty++;
     getSession().deleteInternal(this);
+
+    unload();
   }
 
   public int getSize() {
@@ -441,7 +445,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
 
   public abstract byte getRecordType();
 
-  protected void checkForBinding() {
+  public void checkForBinding() {
     assert loadingCounter >= 0;
 
     if (loadingCounter > 0 || status == STATUS.UNMARSHALLING) {

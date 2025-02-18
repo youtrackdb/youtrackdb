@@ -20,7 +20,6 @@ public class CreateEdgeExecutionPlanner {
 
   private final SQLCreateEdgeStatement statement;
   protected SQLIdentifier targetClass;
-  protected SQLIdentifier targetClusterName;
   protected SQLExpression leftExpression;
   protected SQLExpression rightExpression;
 
@@ -35,8 +34,6 @@ public class CreateEdgeExecutionPlanner {
     this.statement = statement;
     this.targetClass =
         statement.getTargetClass() == null ? null : statement.getTargetClass().copy();
-    this.targetClusterName =
-        statement.getTargetClusterName() == null ? null : statement.getTargetClusterName().copy();
     this.leftExpression =
         statement.getLeftExpression() == null ? null : statement.getLeftExpression().copy();
     this.rightExpression =
@@ -61,20 +58,7 @@ public class CreateEdgeExecutionPlanner {
     var planningStart = System.currentTimeMillis();
 
     if (targetClass == null) {
-      if (targetClusterName == null) {
-        targetClass = new SQLIdentifier("E");
-      } else {
-        var clazz =
-            session.getMetadata()
-                .getImmutableSchemaSnapshot()
-                .getClassByClusterId(
-                    session.getClusterIdByName(targetClusterName.getStringValue()));
-        if (clazz != null) {
-          targetClass = new SQLIdentifier(clazz.getName(session));
-        } else {
-          targetClass = new SQLIdentifier("E");
-        }
-      }
+      targetClass = new SQLIdentifier("E");
     }
 
     var result = new InsertExecutionPlan(ctx);
@@ -128,7 +112,6 @@ public class CreateEdgeExecutionPlanner {
     result.chain(
         new CreateEdgesStep(
             targetClass,
-            targetClusterName,
             uniqueIndexName,
             new SQLIdentifier("$__YOUTRACKDB_CREATE_EDGE_fromV"),
             new SQLIdentifier("$__YOUTRACKDB_CREATE_EDGE_toV"),
@@ -139,8 +122,6 @@ public class CreateEdgeExecutionPlanner {
             enableProfiling));
 
     handleSetFields(result, body, ctx, enableProfiling);
-    handleSave(result, targetClusterName, ctx, enableProfiling);
-    // TODO implement batch, wait and retry
 
     if (useCache
         && !enableProfiling
@@ -170,15 +151,7 @@ public class CreateEdgeExecutionPlanner {
     }
   }
 
-  private void handleSave(
-      InsertExecutionPlan result,
-      SQLIdentifier targetClusterName,
-      CommandContext ctx,
-      boolean profilingEnabled) {
-    result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
-  }
-
-  private void handleSetFields(
+  private static void handleSetFields(
       InsertExecutionPlan result,
       SQLInsertBody insertBody,
       CommandContext ctx,

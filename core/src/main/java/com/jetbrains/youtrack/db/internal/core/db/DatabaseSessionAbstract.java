@@ -75,13 +75,14 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImp
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeDelegate;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.record.impl.StatefulEdgeImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
@@ -1213,7 +1214,19 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public Blob newBlob(byte[] bytes) {
     assert assertIfNotActive();
-    return new RecordBytes(this, bytes);
+
+    if (!currentTx.isActive()) {
+      throw new DatabaseException(getDatabaseName(),
+          "New instance can be created only if transaction is active");
+    }
+
+    var blob = new RecordBytes(this, bytes);
+    assignAndCheckCluster(blob, null);
+
+    var tx = (FrontendTransactionOptimistic) currentTx;
+    tx.addRecordOperation(blob, RecordOperation.CREATED, null);
+
+    return blob;
   }
 
   @Override
@@ -1329,21 +1342,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return vertex;
   }
 
-  private EdgeInternal newEdgeInternal(final String className) {
+  private StatefulEdgeImpl newStatefulEdgeInternal(final String className) {
     if (!currentTx.isActive()) {
       throw new DatabaseException(getDatabaseName(),
           "New instance can be created only if transaction is active");
     }
 
     checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, className);
-
-    var edge = new EdgeEntityImpl(this, className);
-    assignAndCheckCluster(edge, null);
-
-    var tx = (FrontendTransactionOptimistic) currentTx;
-    tx.addRecordOperation(edge, RecordOperation.CREATED, null);
-
-    return edge;
+    return new StatefulEdgeImpl(newInstance(className), this);
   }
 
   @Override
@@ -1459,23 +1465,25 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     final var inFieldName = Vertex.getEdgeLinkFieldName(Direction.IN, className);
 
     if (createLightweightEdge) {
-      edge = newLightweightEdgeInternal(className, toVertex, inVertex);
+      var lightWeightEdge = newLightweightEdgeInternal(className, toVertex, inVertex);
       VertexInternal.createLink(this, toVertex.getRecord(this), inVertex.getRecord(this),
           outFieldName);
       VertexInternal.createLink(this, inVertex.getRecord(this), toVertex.getRecord(this),
           inFieldName);
+      edge = lightWeightEdge;
     } else {
-      edge = newEdgeInternal(className);
-      edge.setPropertyInternal(EdgeInternal.DIRECTION_OUT, toVertex.getRecord(this));
-      edge.setPropertyInternal(Edge.DIRECTION_IN, inEntity.getRecord(this));
+      var statefulEdge = newStatefulEdgeInternal(className);
+      statefulEdge.setPropertyInternal(EdgeInternal.DIRECTION_OUT, toVertex.getRecord(this));
+      statefulEdge.setPropertyInternal(Edge.DIRECTION_IN, inEntity.getRecord(this));
 
       if (!outEntityModified) {
         // OUT-VERTEX ---> IN-VERTEX/EDGE
-        VertexInternal.createLink(this, outEntity, edge.getRecord(this), outFieldName);
+        VertexInternal.createLink(this, outEntity, statefulEdge.getRecord(this), outFieldName);
       }
 
       // IN-VERTEX ---> OUT-VERTEX/EDGE
-      VertexInternal.createLink(this, inEntity, edge.getRecord(this), inFieldName);
+      VertexInternal.createLink(this, inEntity, statefulEdge.getRecord(this), inFieldName);
+      edge = statefulEdge;
     }
     // OK
 
@@ -2094,7 +2102,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     var clazz =
         (SchemaImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
-    return new EdgeDelegate(this, from, to, clazz, iClassName);
+    return new EdgeImpl(this, from, to, clazz);
   }
 
   public Edge newRegularEdge(String iClassName, Vertex from, Vertex to) {

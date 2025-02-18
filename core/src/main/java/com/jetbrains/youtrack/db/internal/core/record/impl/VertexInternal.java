@@ -82,11 +82,27 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return getBaseEntity().getOrCreateEmbeddedList(name);
   }
 
+  @Nonnull
+  @Override
+  default <T> List<T> newEmbeddedList(@Nonnull String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().newEmbeddedList(name);
+  }
+
   @Override
   default @Nonnull <T> Set<T> getOrCreateEmbeddedSet(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateEmbeddedSet(name);
+  }
+
+  @Nonnull
+  @Override
+  default <T> Set<T> newEmbeddedSet(@Nonnull String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().newEmbeddedSet(name);
   }
 
   @Override
@@ -96,11 +112,27 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return getBaseEntity().getOrCreateEmbeddedMap(name);
   }
 
+  @Nonnull
+  @Override
+  default <T> Map<String, T> newEmbeddedMap(@Nonnull String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().newEmbeddedMap(name);
+  }
+
   @Override
   default @Nonnull List<Identifiable> getOrCreateLinkList(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateLinkList(name);
+  }
+
+  @Nonnull
+  @Override
+  default List<Identifiable> newLinkList(@Nonnull String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().newLinkList(name);
   }
 
   @Nonnull
@@ -113,10 +145,26 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nonnull
   @Override
+  default Set<Identifiable> newLinkSet(@Nonnull String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().newLinkSet(name);
+  }
+
+  @Nonnull
+  @Override
   default Map<String, Identifiable> getOrCreateLinkMap(@Nonnull String name) {
     checkPropertyName(name);
 
     return getBaseEntity().getOrCreateLinkMap(name);
+  }
+
+  @Nonnull
+  @Override
+  default Map<String, Identifiable> newLinkMap(@Nonnull String name) {
+    checkPropertyName(name);
+
+    return getBaseEntity().newLinkMap(name);
   }
 
   @Nullable
@@ -735,7 +783,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
         replaceLinks(outRecord, outFieldName, oldIdentity, newIdentity);
       } else {
         // REPLACE WITH NEW VERTEX
-        ((EdgeInternal) ine).setPropertyInternal(Edge.DIRECTION_IN, newIdentity);
+        ((EntityImpl) ine.castToStatefulEdge().castToEntity()).setPropertyInternal(
+            Edge.DIRECTION_IN, newIdentity);
       }
     }
 

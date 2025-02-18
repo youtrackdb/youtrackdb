@@ -15,8 +15,6 @@ import java.util.Objects;
 public class SQLCreateEdgeStatement extends SQLStatement {
 
   protected SQLIdentifier targetClass;
-  protected SQLIdentifier targetClusterName;
-
   protected boolean upsert = false;
 
   protected SQLExpression leftExpression;
@@ -104,10 +102,6 @@ public class SQLCreateEdgeStatement extends SQLStatement {
     if (targetClass != null) {
       builder.append(" ");
       targetClass.toString(params, builder);
-      if (targetClusterName != null) {
-        builder.append(" CLUSTER ");
-        targetClusterName.toString(params, builder);
-      }
     }
     if (upsert) {
       builder.append(" UPSERT");
@@ -141,10 +135,6 @@ public class SQLCreateEdgeStatement extends SQLStatement {
     if (targetClass != null) {
       builder.append(" ");
       targetClass.toGenericStatement(builder);
-      if (targetClusterName != null) {
-        builder.append(" CLUSTER ");
-        targetClusterName.toGenericStatement(builder);
-      }
     }
     if (upsert) {
       builder.append(" UPSERT");
@@ -193,7 +183,6 @@ public class SQLCreateEdgeStatement extends SQLStatement {
     }
 
     result.targetClass = targetClass == null ? null : targetClass.copy();
-    result.targetClusterName = targetClusterName == null ? null : targetClusterName.copy();
 
     result.upsert = this.upsert;
 
@@ -225,9 +214,6 @@ public class SQLCreateEdgeStatement extends SQLStatement {
     if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
     }
-    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
-      return false;
-    }
     if (!Objects.equals(leftExpression, that.leftExpression)) {
       return false;
     }
@@ -249,7 +235,6 @@ public class SQLCreateEdgeStatement extends SQLStatement {
   @Override
   public int hashCode() {
     var result = targetClass != null ? targetClass.hashCode() : 0;
-    result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
     result = 31 * result + (upsert ? 1 : 0);
     result = 31 * result + (leftExpression != null ? leftExpression.hashCode() : 0);
     result = 31 * result + (rightExpression != null ? rightExpression.hashCode() : 0);
@@ -268,13 +253,6 @@ public class SQLCreateEdgeStatement extends SQLStatement {
     this.targetClass = targetClass;
   }
 
-  public SQLIdentifier getTargetClusterName() {
-    return targetClusterName;
-  }
-
-  public void setTargetClusterName(SQLIdentifier targetClusterName) {
-    this.targetClusterName = targetClusterName;
-  }
 
   public SQLExpression getLeftExpression() {
     return leftExpression;

@@ -84,12 +84,6 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
     return VertexInternal.super.getVertices(direction);
   }
 
-  @Override
-  public void delete() {
-    checkForBinding();
-
-    super.delete();
-  }
 
   @Override
   @Nonnull

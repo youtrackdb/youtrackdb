@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.api.record.Edge;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public interface EdgeInternal extends Edge, EntityInternal {
+public interface EdgeInternal extends Edge {
 
   static void checkPropertyName(String name) {
     if (name.equals(DIRECTION_OUT) || name.equals(DIRECTION_IN)) {

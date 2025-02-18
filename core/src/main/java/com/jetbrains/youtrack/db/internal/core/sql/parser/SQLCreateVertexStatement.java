@@ -16,8 +16,6 @@ import java.util.Objects;
 public class SQLCreateVertexStatement extends SQLStatement {
 
   SQLIdentifier targetClass;
-  SQLIdentifier targetClusterName;
-  SQLCluster targetCluster;
   SQLProjection returnStatement;
   SQLInsertBody insertBody;
 
@@ -89,20 +87,13 @@ public class SQLCreateVertexStatement extends SQLStatement {
     builder.append("CREATE VERTEX ");
     if (targetClass != null) {
       targetClass.toString(params, builder);
-      if (targetClusterName != null) {
-        builder.append(" CLUSTER ");
-        targetClusterName.toString(params, builder);
-      }
-    }
-    if (targetCluster != null) {
-      targetCluster.toString(params, builder);
     }
     if (returnStatement != null) {
       builder.append(" RETURN ");
       returnStatement.toString(params, builder);
     }
     if (insertBody != null) {
-      if (targetClass != null || targetCluster != null || returnStatement != null) {
+      if (targetClass != null || returnStatement != null) {
         builder.append(" ");
       }
       insertBody.toString(params, builder);
@@ -114,20 +105,13 @@ public class SQLCreateVertexStatement extends SQLStatement {
     builder.append("CREATE VERTEX ");
     if (targetClass != null) {
       targetClass.toGenericStatement(builder);
-      if (targetClusterName != null) {
-        builder.append(" CLUSTER ");
-        targetClusterName.toGenericStatement(builder);
-      }
-    }
-    if (targetCluster != null) {
-      targetCluster.toGenericStatement(builder);
     }
     if (returnStatement != null) {
       builder.append(" RETURN ");
       returnStatement.toGenericStatement(builder);
     }
     if (insertBody != null) {
-      if (targetClass != null || targetCluster != null || returnStatement != null) {
+      if (targetClass != null || returnStatement != null) {
         builder.append(" ");
       }
       insertBody.toGenericStatement(builder);
@@ -143,8 +127,6 @@ public class SQLCreateVertexStatement extends SQLStatement {
       throw new RuntimeException(e);
     }
     result.targetClass = targetClass == null ? null : targetClass.copy();
-    result.targetClusterName = targetClusterName == null ? null : targetClusterName.copy();
-    result.targetCluster = targetCluster == null ? null : targetCluster.copy();
     result.returnStatement = returnStatement == null ? null : returnStatement.copy();
     result.insertBody = insertBody == null ? null : insertBody.copy();
     return result;
@@ -164,12 +146,6 @@ public class SQLCreateVertexStatement extends SQLStatement {
     if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
     }
-    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
-      return false;
-    }
-    if (!Objects.equals(targetCluster, that.targetCluster)) {
-      return false;
-    }
     if (!Objects.equals(returnStatement, that.returnStatement)) {
       return false;
     }
@@ -179,8 +155,6 @@ public class SQLCreateVertexStatement extends SQLStatement {
   @Override
   public int hashCode() {
     var result = targetClass != null ? targetClass.hashCode() : 0;
-    result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
-    result = 31 * result + (targetCluster != null ? targetCluster.hashCode() : 0);
     result = 31 * result + (returnStatement != null ? returnStatement.hashCode() : 0);
     result = 31 * result + (insertBody != null ? insertBody.hashCode() : 0);
     return result;
@@ -192,22 +166,6 @@ public class SQLCreateVertexStatement extends SQLStatement {
 
   public void setTargetClass(SQLIdentifier targetClass) {
     this.targetClass = targetClass;
-  }
-
-  public SQLIdentifier getTargetClusterName() {
-    return targetClusterName;
-  }
-
-  public void setTargetClusterName(SQLIdentifier targetClusterName) {
-    this.targetClusterName = targetClusterName;
-  }
-
-  public SQLCluster getTargetCluster() {
-    return targetCluster;
-  }
-
-  public void setTargetCluster(SQLCluster targetCluster) {
-    this.targetCluster = targetCluster;
   }
 
   public SQLProjection getReturnStatement() {

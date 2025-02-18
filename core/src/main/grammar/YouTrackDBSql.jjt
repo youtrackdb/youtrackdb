@@ -1732,10 +1732,7 @@ SQLInsertStatement InsertStatement():
 	    LOOKAHEAD(IndexIdentifier())
     	jjtThis.targetIndex = IndexIdentifier()
     	|
-	    jjtThis.targetClass = Identifier() [<CLUSTER> jjtThis.targetClusterName = Identifier()]
-	    |
-	    jjtThis.targetCluster = Cluster()
-
+	    jjtThis.targetClass = Identifier()
 	)
     [ LOOKAHEAD(InsertBody()) jjtThis.insertBody = InsertBody() ]
     [ <RETURN> jjtThis.returnStatement = Projection() ]
@@ -1876,14 +1873,7 @@ SQLCreateVertexStatement CreateVertexStatement():
 	    LOOKAHEAD( Identifier() )
 	    (
 	        jjtThis.targetClass = Identifier()
-	        [
-	            <CLUSTER>
-	            jjtThis.targetClusterName = Identifier()
-	        ]
 	    )
-	    |
-	    LOOKAHEAD( Cluster() )
-	    jjtThis.targetCluster = Cluster()
 	)
 	[ <RETURN> jjtThis.returnStatement = Projection() ]
 	[ LOOKAHEAD(InsertBody()) jjtThis.insertBody = InsertBody() ]
@@ -1908,15 +1898,11 @@ SQLMoveVertexStatement MoveVertexStatement():
      <MOVE> <VERTEX>
      jjtThis.source = FromItem()
      <TO>
-     (
-        jjtThis.targetCluster = Cluster()
-        |
         (
           <CLASS>
           <COLON>
           jjtThis.targetClass = Identifier()
         )
-     )
      [ jjtThis.updateOperations = UpdateOperations() ]
      [ jjtThis.batch = Batch() ]
   ){ return jjtThis; }
@@ -1931,7 +1917,7 @@ SQLCreateEdgeStatement CreateEdgeStatement():
 (
 	<CREATE>
 	<EDGE>
-	[ jjtThis.targetClass = Identifier() [<CLUSTER> jjtThis.targetClusterName = Identifier()]]
+	[ jjtThis.targetClass = Identifier()]
 	[ <UPSERT> { jjtThis.upsert = true; } ]
 	<FROM>
 	(

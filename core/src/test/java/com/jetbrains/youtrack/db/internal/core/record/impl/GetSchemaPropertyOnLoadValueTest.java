@@ -64,16 +64,16 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
   public void testOnLoadValueForScalarList() throws IllegalArgumentException {
     session.createVertexClass("test");
     session.begin();
-    var doc = session.newVertex("test");
-    doc.setProperty("list", Arrays.asList(1, 2, 3));
-    doc.save();
+    var vertex = session.newVertex("test");
+    vertex.getOrCreateEmbeddedList("list").addAll(Arrays.asList(1, 2, 3));
+    vertex.save();
     session.commit();
     session.begin();
-    doc = session.load(doc.getIdentity());
-    List<Integer> storedList = doc.getProperty("list");
+    vertex = session.load(vertex.getIdentity());
+    List<Integer> storedList = vertex.getProperty("list");
     storedList.add(4);
-    doc.save();
-    List<Integer> onLoad = doc.getPropertyOnLoadValue("list");
+    vertex.save();
+    List<Integer> onLoad = vertex.getPropertyOnLoadValue("list");
     Assert.assertEquals(3, onLoad.size());
   }
 
@@ -82,7 +82,7 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     session.createVertexClass("test");
     session.begin();
     var doc = session.newVertex("test");
-    doc.setProperty("set", new HashSet<>(Arrays.asList(1, 2, 3)));
+    doc.getOrCreateEmbeddedSet("set").addAll(new HashSet<>(Arrays.asList(1, 2, 3)));
     doc.save();
     session.commit();
     session.begin();
@@ -107,24 +107,23 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     var oBlob = session.newBlob(byteArrayBefore);
     var oBlob2 = session.newBlob(byteArrayAfter);
 
-    var doc = (VertexEntityImpl) session.newVertex("test");
-    doc.setProperty("stringBlob", oBlob);
-    doc.save();
+    var entity = (VertexEntityImpl) session.newVertex("test");
+    entity.setProperty("stringBlob", oBlob);
     session.commit();
-    session.begin();
 
-    doc = session.bindToSession(doc);
-    doc.setLazyLoad(true);
-    doc = session.load(doc.getIdentity());
-    doc.setProperty("stringBlob", oBlob2);
-    doc.save();
-    RecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
+    session.begin();
+    entity = session.load(entity.getIdentity());
+    oBlob2 = session.bindToSession(oBlob2);
+
+    entity.setLazyLoad(true);
+    entity.setProperty("stringBlob", oBlob2);
+    RecordBytes onLoad = entity.getPropertyOnLoadValue("stringBlob");
     Assert.assertEquals(before, new String(onLoad.toStream()));
     Assert.assertEquals(
-        after, new String(((RecordBytes) doc.getProperty("stringBlob")).toStream()));
+        after, new String(((RecordBytes) entity.getProperty("stringBlob")).toStream()));
     // no lazy load
-    doc.setLazyLoad(false);
-    Assert.assertTrue(doc.getPropertyOnLoadValue("stringBlob") instanceof RID);
+    entity.setLazyLoad(false);
+    Assert.assertTrue(entity.getPropertyOnLoadValue("stringBlob") instanceof RID);
   }
 
   @Test

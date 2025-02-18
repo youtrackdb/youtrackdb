@@ -330,7 +330,7 @@ public class EntityImpl extends RecordAbstract
     }
     var session = getSession();
     if (type.isEdgeType(session)) {
-      return new EdgeDelegate(this);
+      return new StatefulEdgeImpl(this, session);
     }
 
     throw new DatabaseException("Entity is not an edge");
@@ -349,7 +349,7 @@ public class EntityImpl extends RecordAbstract
     var session = getSession();
 
     if (type.isEdgeType(session)) {
-      return new EdgeDelegate(this);
+      return new StatefulEdgeImpl(this, session);
     }
 
     return null;
@@ -652,7 +652,7 @@ public class EntityImpl extends RecordAbstract
     var session = getSession();
 
     if (type.isEdgeType(session)) {
-      return new EdgeDelegate(this);
+      return new StatefulEdgeImpl(this, session);
     }
 
     throw new DatabaseException("Entity is not an edge");
@@ -745,6 +745,16 @@ public class EntityImpl extends RecordAbstract
     return value;
   }
 
+  @Nonnull
+  @Override
+  public <T> List<T> newEmbeddedList(@Nonnull String name) {
+    removePropertyInternal(name);
+
+    var value = new TrackedList<T>(this);
+    setPropertyInternal(name, value, PropertyType.EMBEDDEDLIST);
+    return value;
+  }
+
   @Override
   public @Nonnull <T> Set<T> getOrCreateEmbeddedSet(@Nonnull String name) {
     var value = this.<Set<T>>getPropertyInternal(name);
@@ -753,6 +763,16 @@ public class EntityImpl extends RecordAbstract
       setPropertyInternal(name, value, PropertyType.EMBEDDEDSET);
     }
 
+    return value;
+  }
+
+  @Nonnull
+  @Override
+  public <T> Set<T> newEmbeddedSet(@Nonnull String name) {
+    removePropertyInternal(name);
+
+    var value = new TrackedSet<T>(this);
+    setPropertyInternal(name, value, PropertyType.EMBEDDEDSET);
     return value;
   }
 
@@ -767,6 +787,16 @@ public class EntityImpl extends RecordAbstract
     return value;
   }
 
+  @Nonnull
+  @Override
+  public <T> Map<String, T> newEmbeddedMap(@Nonnull String name) {
+    removePropertyInternal(name);
+
+    var value = new TrackedMap<T>(this);
+    setPropertyInternal(name, value, PropertyType.EMBEDDEDMAP);
+    return value;
+  }
+
   @Override
   public @Nonnull List<Identifiable> getOrCreateLinkList(@Nonnull String name) {
     var value = this.<List<Identifiable>>getPropertyInternal(name);
@@ -775,6 +805,16 @@ public class EntityImpl extends RecordAbstract
       setPropertyInternal(name, value, PropertyType.LINKLIST);
     }
 
+    return value;
+  }
+
+  @Nonnull
+  @Override
+  public List<Identifiable> newLinkList(@Nonnull String name) {
+    removePropertyInternal(name);
+
+    var value = new LinkList(this);
+    setPropertyInternal(name, value, PropertyType.LINKLIST);
     return value;
   }
 
@@ -792,6 +832,16 @@ public class EntityImpl extends RecordAbstract
 
   @Nonnull
   @Override
+  public Set<Identifiable> newLinkSet(@Nonnull String name) {
+    removePropertyInternal(name);
+
+    var value = new LinkSet(this);
+    setPropertyInternal(name, value, PropertyType.LINKSET);
+    return value;
+  }
+
+  @Nonnull
+  @Override
   public Map<String, Identifiable> getOrCreateLinkMap(@Nonnull String name) {
     var value = this.<Map<String, Identifiable>>getPropertyInternal(name);
     if (value == null) {
@@ -799,6 +849,16 @@ public class EntityImpl extends RecordAbstract
       setPropertyInternal(name, value, PropertyType.LINKMAP);
     }
 
+    return value;
+  }
+
+  @Nonnull
+  @Override
+  public Map<String, Identifiable> newLinkMap(@Nonnull String name) {
+    removePropertyInternal(name);
+
+    var value = new LinkMap(this);
+    setPropertyInternal(name, value, PropertyType.LINKMAP);
     return value;
   }
 
@@ -936,6 +996,15 @@ public class EntityImpl extends RecordAbstract
 
     if (name.isEmpty()) {
       throw new IllegalArgumentException("Field name is empty");
+    }
+
+    if (value instanceof RecordAbstract recordAbstract) {
+      recordAbstract.checkForBinding();
+
+      if (recordAbstract.getSession() != getSession()) {
+        throw new DatabaseException(getSession().getDatabaseName(),
+            "Entity instance is bound to another session instance");
+      }
     }
 
     final var begin = name.charAt(0);

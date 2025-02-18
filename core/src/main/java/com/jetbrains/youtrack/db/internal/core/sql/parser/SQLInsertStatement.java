@@ -15,8 +15,6 @@ import java.util.Objects;
 public class SQLInsertStatement extends SQLStatement {
 
   SQLIdentifier targetClass;
-  SQLIdentifier targetClusterName;
-  SQLCluster targetCluster;
   SQLIndexIdentifier targetIndex;
   SQLInsertBody insertBody;
   SQLProjection returnStatement;
@@ -37,13 +35,6 @@ public class SQLInsertStatement extends SQLStatement {
     builder.append("INSERT INTO ");
     if (targetClass != null) {
       targetClass.toString(params, builder);
-      if (targetClusterName != null) {
-        builder.append(" CLUSTER ");
-        targetClusterName.toString(params, builder);
-      }
-    }
-    if (targetCluster != null) {
-      targetCluster.toString(params, builder);
     }
     if (targetIndex != null) {
       targetIndex.toString(params, builder);
@@ -78,13 +69,6 @@ public class SQLInsertStatement extends SQLStatement {
     builder.append("INSERT INTO ");
     if (targetClass != null) {
       targetClass.toGenericStatement(builder);
-      if (targetClusterName != null) {
-        builder.append(" CLUSTER ");
-        targetClusterName.toGenericStatement(builder);
-      }
-    }
-    if (targetCluster != null) {
-      targetCluster.toGenericStatement(builder);
     }
     if (targetIndex != null) {
       targetIndex.toGenericStatement(builder);
@@ -119,8 +103,6 @@ public class SQLInsertStatement extends SQLStatement {
   public SQLInsertStatement copy() {
     var result = new SQLInsertStatement(-1);
     result.targetClass = targetClass == null ? null : targetClass.copy();
-    result.targetClusterName = targetClusterName == null ? null : targetClusterName.copy();
-    result.targetCluster = targetCluster == null ? null : targetCluster.copy();
     result.targetIndex = targetIndex == null ? null : targetIndex.copy();
     result.insertBody = insertBody == null ? null : insertBody.copy();
     result.returnStatement = returnStatement == null ? null : returnStatement.copy();
@@ -208,12 +190,6 @@ public class SQLInsertStatement extends SQLStatement {
     if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
     }
-    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
-      return false;
-    }
-    if (!Objects.equals(targetCluster, that.targetCluster)) {
-      return false;
-    }
     if (!Objects.equals(targetIndex, that.targetIndex)) {
       return false;
     }
@@ -229,8 +205,6 @@ public class SQLInsertStatement extends SQLStatement {
   @Override
   public int hashCode() {
     var result = targetClass != null ? targetClass.hashCode() : 0;
-    result = 31 * result + (targetClusterName != null ? targetClusterName.hashCode() : 0);
-    result = 31 * result + (targetCluster != null ? targetCluster.hashCode() : 0);
     result = 31 * result + (targetIndex != null ? targetIndex.hashCode() : 0);
     result = 31 * result + (insertBody != null ? insertBody.hashCode() : 0);
     result = 31 * result + (returnStatement != null ? returnStatement.hashCode() : 0);
@@ -243,14 +217,6 @@ public class SQLInsertStatement extends SQLStatement {
 
   public SQLIdentifier getTargetClass() {
     return targetClass;
-  }
-
-  public SQLIdentifier getTargetClusterName() {
-    return targetClusterName;
-  }
-
-  public SQLCluster getTargetCluster() {
-    return targetCluster;
   }
 
   public SQLIndexIdentifier getTargetIndex() {

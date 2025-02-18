@@ -29,7 +29,6 @@ import java.util.stream.StreamSupport;
 public class CreateEdgesStep extends AbstractExecutionStep {
 
   private final SQLIdentifier targetClass;
-  private final SQLIdentifier targetCluster;
   private final String uniqueIndexName;
   private final SQLIdentifier fromAlias;
   private final SQLIdentifier toAlias;
@@ -39,7 +38,6 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   public CreateEdgesStep(
       SQLIdentifier targetClass,
-      SQLIdentifier targetClusterName,
       String uniqueIndex,
       SQLIdentifier fromAlias,
       SQLIdentifier toAlias,
@@ -50,7 +48,6 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.targetClass = targetClass;
-    this.targetCluster = targetClusterName;
     this.uniqueIndexName = uniqueIndex;
     this.fromAlias = fromAlias;
     this.toAlias = toAlias;
@@ -158,19 +155,13 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               if (edgeToUpdate == null) {
                 edgeToUpdate =
                     (EdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
-                if (targetCluster != null) {
-                  if (edgeToUpdate.isLightweight()) {
-                    throw new CommandExecutionException(session,
-                        "Cannot set target cluster on lightweight edges");
-                  }
-                }
               }
 
-              currentFrom.save();
-              currentTo.save();
-              edgeToUpdate.save();
-
-              return new UpdatableResult(session, edgeToUpdate);
+              if (edgeToUpdate.isStateful()) {
+                return new UpdatableResult(session, edgeToUpdate.castToStatefulEdge());
+              } else {
+                return new ResultInternal(session, edgeToUpdate);
+              }
             });
   }
 
@@ -221,9 +212,6 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }
-    if (targetCluster != null) {
-      result += "\n" + spaces + "       (target cluster " + targetCluster + ")";
-    }
     return result;
   }
 
@@ -236,7 +224,6 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   public ExecutionStep copy(CommandContext ctx) {
     return new CreateEdgesStep(
         targetClass == null ? null : targetClass.copy(),
-        targetCluster == null ? null : targetCluster.copy(),
         uniqueIndexName,
         fromAlias == null ? null : fromAlias.copy(),
         toAlias == null ? null : toAlias.copy(),

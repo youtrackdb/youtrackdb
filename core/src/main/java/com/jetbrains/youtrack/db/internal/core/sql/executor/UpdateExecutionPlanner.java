@@ -77,7 +77,6 @@ public class UpdateExecutionPlanner {
     handleLimit(result, ctx, this.limit, enableProfiling);
     handleReturnBefore(result, ctx, this.returnBefore, enableProfiling);
     handleOperations(result, ctx, this.operations, enableProfiling);
-    handleSave(result, ctx, enableProfiling);
     handleResultForReturnBefore(result, ctx, this.returnBefore, returnProjection, enableProfiling);
     handleResultForReturnAfter(result, ctx, this.returnAfter, returnProjection, enableProfiling);
     handleResultForReturnCount(result, ctx, this.returnCount, enableProfiling);
@@ -133,11 +132,6 @@ public class UpdateExecutionPlanner {
         result.chain(new ProjectionCalculationStep(returnProjection, ctx, profilingEnabled));
       }
     }
-  }
-
-  private void handleSave(
-      UpdateExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
-    result.chain(new SaveElementStep(ctx, profilingEnabled));
   }
 
   private void handleTimeout(

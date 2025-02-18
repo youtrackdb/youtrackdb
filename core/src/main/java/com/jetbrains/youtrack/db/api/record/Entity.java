@@ -57,6 +57,24 @@ public interface Entity extends DBRecord, Result {
   void setProperty(@Nonnull String name, @Nullable Object value);
 
   @Nonnull
+  <T> List<T> newEmbeddedList(@Nonnull String name);
+
+  @Nonnull
+  <T> Set<T> newEmbeddedSet(@Nonnull String name);
+
+  @Nonnull
+  <T> Map<String, T> newEmbeddedMap(@Nonnull String name);
+
+  @Nonnull
+  List<Identifiable> newLinkList(@Nonnull String name);
+
+  @Nonnull
+  Set<Identifiable> newLinkSet(@Nonnull String name);
+
+  @Nonnull
+  Map<String, Identifiable> newLinkMap(@Nonnull String name);
+
+  @Nonnull
   <T> List<T> getOrCreateEmbeddedList(@Nonnull String name);
 
   @Nonnull

@@ -38,7 +38,6 @@ public class MoveVertexExecutionPlanner {
     handleTarget(result, targetClass, targetCluster, ctx, enableProfiling);
     handleOperations(result, ctx, this.updateOperations, enableProfiling);
     handleBatch(result, ctx, this.batch, enableProfiling);
-    handleSave(result, ctx, enableProfiling);
     return result;
   }
 
@@ -65,17 +64,13 @@ public class MoveVertexExecutionPlanner {
    * @param plan the execution plan
    * @param ctx  the executino context
    */
-  private void convertToModifiableResult(
+  private static void convertToModifiableResult(
       UpdateExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
     plan.chain(new ConvertToUpdatableResultStep(ctx, profilingEnabled));
   }
 
-  private void handleSave(
-      UpdateExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
-    result.chain(new SaveElementStep(ctx, profilingEnabled));
-  }
 
-  private void handleOperations(
+  private static void handleOperations(
       UpdateExecutionPlan plan,
       CommandContext ctx,
       SQLUpdateOperations op,

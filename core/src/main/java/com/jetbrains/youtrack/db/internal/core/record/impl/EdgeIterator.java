@@ -117,12 +117,12 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       }
       if (connection.getKey() == Direction.OUT) {
         edge =
-            new EdgeDelegate(db,
-                this.sourceVertex, value.castToVertex(), clazz, connection.getValue());
+            new EdgeImpl(db,
+                this.sourceVertex, value.castToVertex(), clazz);
       } else {
         edge =
-            new EdgeDelegate(db,
-                value.castToVertex(), this.sourceVertex, clazz, connection.getValue());
+            new EdgeImpl(db,
+                value.castToVertex(), this.sourceVertex, clazz);
       }
     } else if (value.isStatefulEdge()) {
       // EDGE

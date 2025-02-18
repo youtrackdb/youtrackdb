@@ -1,9 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertBody;
@@ -20,8 +18,6 @@ import java.util.List;
 public class InsertExecutionPlanner {
 
   protected SQLIdentifier targetClass;
-  protected SQLIdentifier targetClusterName;
-  protected SQLCluster targetCluster;
   protected SQLIndexIdentifier targetIndex;
   protected SQLInsertBody insertBody;
   protected SQLProjection returnStatement;
@@ -33,10 +29,6 @@ public class InsertExecutionPlanner {
   public InsertExecutionPlanner(SQLInsertStatement statement) {
     this.targetClass =
         statement.getTargetClass() == null ? null : statement.getTargetClass().copy();
-    this.targetClusterName =
-        statement.getTargetClusterName() == null ? null : statement.getTargetClusterName().copy();
-    this.targetCluster =
-        statement.getTargetCluster() == null ? null : statement.getTargetCluster().copy();
     this.targetIndex =
         statement.getTargetIndex() == null ? null : statement.getTargetIndex().copy();
     this.insertBody = statement.getInsertBody() == null ? null : statement.getInsertBody().copy();
@@ -61,26 +53,9 @@ public class InsertExecutionPlanner {
       }
       handleTargetClass(ctx);
       handleSetFields(result, insertBody, ctx, enableProfiling);
-      if (targetCluster != null) {
-        var name = targetCluster.getClusterName();
-        if (name == null) {
-          name = session.getClusterNameById(targetCluster.getClusterNumber());
-        }
-        handleSave(result, new SQLIdentifier(name), ctx, enableProfiling);
-      } else {
-        handleSave(result, targetClusterName, ctx, enableProfiling);
-      }
       handleReturn(result, returnStatement, ctx, enableProfiling);
     }
     return result;
-  }
-
-  private static void handleSave(
-      InsertExecutionPlan result,
-      SQLIdentifier targetClusterName,
-      CommandContext ctx,
-      boolean profilingEnabled) {
-    result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
   }
 
   private static void handleReturn(
@@ -130,27 +105,9 @@ public class InsertExecutionPlanner {
   }
 
   private SQLIdentifier handleTargetClass(CommandContext ctx) {
-    var session = ctx.getDatabaseSession();
-    Schema schema = session.getMetadata().getSchema();
     SQLIdentifier tc = null;
     if (targetClass != null) {
       tc = targetClass;
-    } else if (targetCluster != null) {
-      var name = targetCluster.getClusterName();
-      if (name == null) {
-        name = session.getClusterNameById(targetCluster.getClusterNumber());
-      }
-      var targetClass = schema.getClassByClusterId(session.getClusterIdByName(name));
-      if (targetClass != null) {
-        tc = new SQLIdentifier(targetClass.getName(session));
-      }
-    } else {
-      var targetClass =
-          schema.getClassByClusterId(
-              session.getClusterIdByName(targetClusterName.getStringValue()));
-      if (targetClass != null) {
-        tc = new SQLIdentifier(targetClass.getName(session));
-      }
     }
 
     return tc;

@@ -27,6 +27,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
     super(database, rid);
   }
 
+  @Nonnull
   @Override
   public Vertex getFrom() {
     var result = getPropertyInternal(DIRECTION_OUT);
@@ -71,8 +72,8 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
   }
 
 
+  @Nonnull
   @Override
-  @Nullable
   public Identifiable getFromLink() {
     var db = getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
@@ -90,6 +91,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
     return null;
   }
 
+  @Nonnull
   @Override
   public Vertex getTo() {
     var result = getPropertyInternal(DIRECTION_IN);
@@ -104,6 +106,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
     return v.castToVertex();
   }
 
+  @Nonnull
   @Override
   public Identifiable getToLink() {
     var db = getSession();
@@ -126,12 +129,6 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
   public boolean isLightweight() {
     // LIGHTWEIGHT EDGES MANAGED BY EdgeDelegate, IN FUTURE MAY BE WE NEED TO HANDLE THEM WITH THIS
     return false;
-  }
-
-  public void delete() {
-    checkForBinding();
-
-    super.delete();
   }
 
 

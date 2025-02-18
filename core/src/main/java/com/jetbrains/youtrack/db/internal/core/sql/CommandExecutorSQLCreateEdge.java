@@ -228,8 +228,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
           edge = (EdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
           if (fields != null && !fields.isEmpty()) {
-            SQLHelper.bindParameters(
-                edge.getRecord(session), fields, new CommandParameters(iArgs), context);
+            throw new UnsupportedOperationException();
           }
 
           fromVertex.save();
