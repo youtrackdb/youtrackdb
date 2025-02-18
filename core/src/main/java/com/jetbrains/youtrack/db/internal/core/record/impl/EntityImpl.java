@@ -108,9 +108,7 @@ import javax.annotation.Nullable;
  */
 @SuppressWarnings({"unchecked"})
 public class EntityImpl extends RecordAbstract
-    implements Iterable<Entry<String, Object>>,
-    RecordSchemaAware,
-    EntityInternal {
+    implements Iterable<Entry<String, Object>>, RecordSchemaAware, EntityInternal {
 
   public static final byte RECORD_TYPE = 'd';
   private static final String[] EMPTY_STRINGS = new String[]{};
@@ -2875,7 +2873,7 @@ public class EntityImpl extends RecordAbstract
    * another one.
    */
   @Override
-  public RecordAbstract setDirty() {
+  public void setDirty() {
     // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
     // _SOURCE IS NULL
     checkForFields();
@@ -2889,8 +2887,6 @@ public class EntityImpl extends RecordAbstract
         ownerEntity.setDirty();
       }
     }
-
-    return this;
   }
 
   @Override

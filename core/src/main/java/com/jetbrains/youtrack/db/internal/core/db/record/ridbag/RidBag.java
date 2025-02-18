@@ -577,8 +577,8 @@ public class RidBag
   }
 
   @Override
-  public <RET> RET setDirty() {
-    return delegate.setDirty();
+  public void setDirty() {
+    delegate.setDirty();
   }
 
   @Override

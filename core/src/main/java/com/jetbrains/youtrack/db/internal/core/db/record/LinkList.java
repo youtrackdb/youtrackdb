@@ -313,7 +313,7 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
   }
 
   public boolean clearDeletedRecords() {
-    var db = getOwnerRecord().getSession();
+    var db = getOwnerEntity().getSession();
 
     var removed = false;
     var it = super.iterator();

@@ -150,7 +150,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
   }
 
   @SuppressWarnings({"unchecked"})
-  public TrackedMap<T> setDirty() {
+  public void setDirty() {
     this.dirty = true;
     this.transactionDirty = true;
 
@@ -160,7 +160,6 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
         sourceRecord.setDirty();
       }
     }
-    return this;
   }
 
   @Override

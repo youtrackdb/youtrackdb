@@ -379,15 +379,13 @@ public class EmbeddedRidBag implements RidBagDelegate {
   }
 
   @Override
-  public <RET> RET setDirty() {
+  public void setDirty() {
     this.dirty = true;
     this.transactionDirty = true;
 
     if (owner != null) {
       owner.setDirty();
     }
-    //noinspection unchecked
-    return (RET) this;
   }
 
   public void setTransactionModified(boolean transactionDirty) {

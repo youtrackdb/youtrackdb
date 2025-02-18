@@ -209,8 +209,7 @@ public class TrackedList<T> extends ArrayList<T>
     super.clear();
   }
 
-  @SuppressWarnings("unchecked")
-  public <RET> RET setDirty() {
+  public void setDirty() {
     this.dirty = true;
     this.transactionDirty = true;
 
@@ -220,8 +219,6 @@ public class TrackedList<T> extends ArrayList<T>
         sourceRecord.setDirty();
       }
     }
-
-    return (RET) this;
   }
 
   @Override

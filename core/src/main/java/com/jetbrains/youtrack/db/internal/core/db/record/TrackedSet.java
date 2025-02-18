@@ -162,8 +162,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public TrackedSet<T> setDirty() {
+  public void setDirty() {
     this.dirty = true;
     this.transactionDirty = true;
 
@@ -173,7 +172,6 @@ public class TrackedSet<T> extends LinkedHashSet<T>
         sourceRecord.setDirty();
       }
     }
-    return this;
   }
 
   @Override

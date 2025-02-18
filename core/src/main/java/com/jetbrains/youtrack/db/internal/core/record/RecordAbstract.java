@@ -154,7 +154,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     return false;
   }
 
-  public RecordAbstract setDirty() {
+  public void setDirty() {
     dirty++;
     if (dirty == 1 && status != STATUS.UNMARSHALLING) {
       checkForBinding();
@@ -163,7 +163,6 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     }
 
     contentChanged = true;
-    return this;
   }
 
   @Override

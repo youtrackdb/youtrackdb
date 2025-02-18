@@ -41,10 +41,8 @@ public interface RecordElement {
   /**
    * Marks the instance as dirty. The dirty status could be propagated up if the implementation
    * supports ownership concept.
-   *
-   * @return The object it self. Useful to call methods in chain.
    */
-  <RET> RET setDirty();
+  void setDirty();
 
   void setDirtyNoChanged();
 
@@ -53,22 +51,24 @@ public interface RecordElement {
    */
   RecordElement getOwner();
 
-  default EntityImpl getOwnerRecord() {
+  default EntityImpl getOwnerEntity() {
     var owner = getOwner();
 
     while (true) {
       if (owner instanceof EntityImpl entity) {
         return entity;
       }
+
       if (owner == null) {
         return null;
       }
+
       owner = owner.getOwner();
     }
   }
 
   @Nonnull
   default DatabaseSessionInternal getSession() {
-    return getOwnerRecord().getSession();
+    return getOwnerEntity().getSession();
   }
 }
