@@ -19,8 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.DB_CUSTOM_SUPPORT;
-
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
@@ -1120,15 +1118,6 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (fieldType == PropertyType.CUSTOM) {
-      if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-        throw new DatabaseException(getSession().getDatabaseName(),
-            String.format(
-                "PropertyType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
-                    + " `db.custom.support` to true for enable it",
-                value));
-      }
-    }
 
     if (oldType != fieldType) {
       // can be made in a better way, but "keeping type" issue should be solved before
@@ -2600,16 +2589,6 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (fieldType == PropertyType.CUSTOM) {
-      if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-        throw new DatabaseException(getSession().getDatabaseName(),
-            String.format(
-                "PropertyType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
-                    + " `db.custom.support` to true for enable it",
-                iPropertyValue));
-      }
-    }
-
     if (oldType != fieldType) {
       // can be made in a better way, but "keeping type" issue should be solved before
       if (iPropertyValue == null
@@ -3268,13 +3247,6 @@ public class EntityImpl extends RecordAbstract
         fields = ordered ? new LinkedHashMap<>() : new HashMap<>();
       }
 
-      if (iFieldType == PropertyType.CUSTOM) {
-        if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-          throw new DatabaseException(getSession().getDatabaseName(),
-              "PropertyType CUSTOM used by serializable types is not enabled, set `db.custom.support`"
-                  + " to true for enable it");
-        }
-      }
       // SET THE FORCED TYPE
       var entry = getOrCreate(iFieldName);
       if (entry.type != iFieldType) {

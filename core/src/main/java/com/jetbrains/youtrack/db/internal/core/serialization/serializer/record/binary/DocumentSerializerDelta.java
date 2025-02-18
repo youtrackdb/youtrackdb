@@ -45,13 +45,11 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
-import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ChangeSerializationHelper;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.ridbagbtree.RidBagBucketPointer;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1125,15 +1123,6 @@ public class DocumentSerializerDelta {
       case LINKBAG:
         writeRidBag(session, bytes, (RidBag) value);
         break;
-      case CUSTOM:
-        if (!(value instanceof SerializableStream)) {
-          value = new SerializableWrapper((Serializable) value);
-        }
-        writeString(bytes, value.getClass().getName());
-        writeBinary(bytes, ((SerializableStream) value).toStream());
-        break;
-      case TRANSIENT:
-        break;
       case ANY:
         break;
     }
@@ -1317,23 +1306,6 @@ public class DocumentSerializerDelta {
         var bag = readRidBag(session, bytes);
         bag.setOwner(owner);
         value = bag;
-        break;
-      case TRANSIENT:
-        break;
-      case CUSTOM:
-        try {
-          var className = readString(bytes);
-          var clazz = Class.forName(className);
-          var stream = (SerializableStream) clazz.newInstance();
-          stream.fromStream(readBinary(bytes));
-          if (stream instanceof SerializableWrapper) {
-            value = ((SerializableWrapper) stream).getSerializable();
-          } else {
-            value = stream;
-          }
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
         break;
       case ANY:
         break;

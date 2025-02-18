@@ -32,7 +32,6 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerAnyStreamable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerEmbedded;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.StringWriter;
@@ -91,15 +90,6 @@ public abstract class RecordSerializerStringAbstract {
         // EMBEDDED OBJECT
         return embeddedObject;
       }
-
-      case CUSTOM:
-        // RECORD
-        final var result = StringSerializerAnyStreamable.INSTANCE.fromStream(session,
-            (String) iValue);
-        if (result instanceof EntityImpl) {
-          EntityInternalUtils.addOwner((EntityImpl) result, entity);
-        }
-        return result;
 
       case EMBEDDEDSET:
       case EMBEDDEDLIST: {
@@ -305,14 +295,6 @@ public abstract class RecordSerializerStringAbstract {
             timer);
         break;
 
-      case CUSTOM:
-        StringSerializerAnyStreamable.INSTANCE.toStream(session, iBuffer, iValue);
-        PROFILER.stopChrono(
-            PROFILER.getProcessMetric("serializer.record.string.custom2string"),
-            "Serialize custom to string",
-            timer);
-        break;
-
       default:
         throw new IllegalArgumentException(
             "Type " + iType + " not supported to convert value: " + iValue);
@@ -350,8 +332,6 @@ public abstract class RecordSerializerStringAbstract {
       return PropertyType.EMBEDDEDSET;
     } else if (firstChar == StringSerializerHelper.MAP_BEGIN) {
       return PropertyType.EMBEDDEDMAP;
-    } else if (firstChar == StringSerializerHelper.CUSTOM_TYPE) {
-      return PropertyType.CUSTOM;
     }
 
     // BOOLEAN?

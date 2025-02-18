@@ -30,9 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -170,25 +168,12 @@ public class JSONWriter {
     } else if (iValue instanceof Iterable<?>) {
       iteratorToJSON(db, ((Iterable<?>) iValue).iterator(), iFormat, buffer);
     } else {
-      if (valueType == null) {
-        valueType = PropertyType.getTypeByValue(iValue);
-      }
+      // TREAT IT AS STRING
+      final var v = iValue.toString();
+      buffer.append('"');
+      buffer.append(encode(v));
+      buffer.append('"');
 
-      if (valueType == PropertyType.CUSTOM) {
-        var baos = new ByteArrayOutputStream();
-        var object = new ObjectOutputStream(baos);
-        object.writeObject(iValue);
-        object.flush();
-        buffer.append('"');
-        buffer.append(Base64.getEncoder().encodeToString(baos.toByteArray()));
-        buffer.append('"');
-      } else {
-        // TREAT IT AS STRING
-        final var v = iValue.toString();
-        buffer.append('"');
-        buffer.append(encode(v));
-        buffer.append('"');
-      }
     }
 
     return buffer.toString();

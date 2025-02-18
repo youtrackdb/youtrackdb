@@ -65,7 +65,6 @@ public abstract class StringSerializerHelper {
   public static final char BAG_BEGIN = '%';
   public static final char BAG_END = ';';
   public static final char BINARY_BEGINEND = '_';
-  public static final char CUSTOM_TYPE = '^';
   public static final char ENTRY_SEPARATOR = ':';
   public static final char PARAMETER_NAMED = ':';
   public static final char PARAMETER_POSITIONAL = '?';

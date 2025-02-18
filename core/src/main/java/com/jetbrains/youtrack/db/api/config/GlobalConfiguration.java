@@ -639,9 +639,6 @@ public enum GlobalConfiguration {
   DB_VALIDATION(
       "db.validation", "Enables or disables validation of records", Boolean.class, true, true),
 
-  DB_CUSTOM_SUPPORT(
-      "db.custom.support", "Enables or disables use of custom types", Boolean.class, false, false),
-
   // INDEX
   INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD(
       "index.embeddedToSbtreeBonsaiThreshold",

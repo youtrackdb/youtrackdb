@@ -116,10 +116,6 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
     assertEquals(PropertyType.LINKBAG, PropertyType.getTypeByClass(RidBag.class));
 
-    assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByClass(SerializableStream.class));
-
-    assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByClass(CustomClass.class));
-
     assertEquals(PropertyType.EMBEDDEDLIST, PropertyType.getTypeByClass(Object[].class));
 
     assertEquals(PropertyType.EMBEDDEDLIST, PropertyType.getTypeByClass(String[].class));
@@ -127,8 +123,6 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByClass(EntitySerializable.class));
 
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByClass(DocumentSer.class));
-
-    assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByClass(ClassSerializable.class));
   }
 
   @Test
@@ -186,15 +180,12 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
     assertEquals(PropertyType.LINKBAG, PropertyType.getTypeByValue(new RidBag(session)));
 
-    assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByValue(new CustomClass()));
-
     assertEquals(PropertyType.EMBEDDEDLIST, PropertyType.getTypeByValue(new Object[]{}));
 
     assertEquals(PropertyType.EMBEDDEDLIST, PropertyType.getTypeByValue(new String[]{}));
 
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(new DocumentSer()));
 
-    assertEquals(PropertyType.CUSTOM, PropertyType.getTypeByValue(new ClassSerializable()));
     session.rollback();
   }
 

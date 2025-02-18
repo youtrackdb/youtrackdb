@@ -414,7 +414,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
         .setMin(session, "2010-01-01 00:00:00");
     cls.createProperty(session, "lastAccessOn", PropertyType.DATETIME)
         .setMin(session, "2010-01-01 00:00:00");
-    cls.createProperty(session, "photo", PropertyType.TRANSIENT);
   }
 
   protected SchemaClass createInheritanceTestAbstractClass() {

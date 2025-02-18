@@ -60,7 +60,6 @@ public class YouTrackDbJdbcResultSetMetaData implements ResultSetMetaData {
     typesSqlTypes.put(PropertyType.LINKLIST, Types.ARRAY);
     typesSqlTypes.put(PropertyType.LINKMAP, Types.JAVA_OBJECT);
     typesSqlTypes.put(PropertyType.LINKSET, Types.ARRAY);
-    typesSqlTypes.put(PropertyType.TRANSIENT, Types.NULL);
   }
 
   private final String[] fieldNames;

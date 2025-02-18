@@ -570,7 +570,6 @@ public class RecordSerializerJackson {
       case LINKMAP -> "m";
       case LINK -> "x";
       case LINKSET -> "n";
-      case CUSTOM -> "u";
       default -> null;
     };
   }
@@ -614,7 +613,6 @@ public class RecordSerializerJackson {
       case "m" -> PropertyType.LINKMAP;
       case "x" -> PropertyType.LINK;
       case "n" -> PropertyType.LINKSET;
-      case "u" -> PropertyType.CUSTOM;
       case "w" -> PropertyType.EMBEDDED;
       case null -> null;
       default -> throw new IllegalArgumentException("Invalid type: " + charType);

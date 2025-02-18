@@ -229,8 +229,6 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
                     }
                   } else if (value.charAt(0) == StringSerializerHelper.EMBEDDED_BEGIN) {
                     linkedType = PropertyType.EMBEDDED;
-                  } else if (value.charAt(0) == StringSerializerHelper.CUSTOM_TYPE) {
-                    linkedType = PropertyType.CUSTOM;
                   } else if (Character.isDigit(value.charAt(0))
                       || value.charAt(0) == '+'
                       || value.charAt(0) == '-') {
@@ -511,12 +509,6 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
             }
           }
         }
-      }
-
-      if (type == PropertyType.TRANSIENT)
-      // TRANSIENT FIELD
-      {
-        continue;
       }
 
       if (type == null) {

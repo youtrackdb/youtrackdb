@@ -70,12 +70,10 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
-import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.MapRecordInfo;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.RecordInfo;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.Tuple;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -762,32 +760,6 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
         bag.setOwner(owner);
         value = bag;
         break;
-      case TRANSIENT:
-        break;
-      case CUSTOM:
-        try {
-          var className = readString(bytes);
-          var clazz = Class.forName(className);
-          var stream = (SerializableStream) clazz.newInstance();
-          var bytesRepresentation = readBinary(bytes);
-          if (embeddedAsDocument) {
-            stream.fromStream(bytesRepresentation);
-            if (stream instanceof SerializableWrapper) {
-              value = ((SerializableWrapper) stream).getSerializable();
-            } else {
-              value = stream;
-            }
-          } else {
-            var retVal =
-                new ResultBinary(session, schema, bytesRepresentation, 0,
-                    bytesRepresentation.length,
-                    this);
-            return retVal;
-          }
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-        break;
       case ANY:
         break;
     }
@@ -1050,15 +1022,6 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
         break;
       case LINKBAG:
         pointer = writeRidBag(session, bytes, (RidBag) value);
-        break;
-      case CUSTOM:
-        if (!(value instanceof SerializableStream)) {
-          value = new SerializableWrapper((Serializable) value);
-        }
-        pointer = writeString(bytes, value.getClass().getName());
-        writeBinary(bytes, ((SerializableStream) value).toStream());
-        break;
-      case TRANSIENT:
         break;
       case ANY:
         break;

@@ -46,7 +46,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -145,19 +144,8 @@ public enum PropertyType {
 
   BYTE("Byte", 17, Byte.class, new Class<?>[]{Number.class}),
 
-  TRANSIENT("Transient", 18, null, new Class<?>[]{}),
 
   DATE("Date", 19, Date.class, new Class<?>[]{Number.class}),
-
-  /**
-   * @deprecated Deprecated and will be removed in next major release. Use {@link #BINARY} instead.
-   */
-  @Deprecated
-  CUSTOM(
-      "Custom",
-      20,
-      SerializableStream.class,
-      new Class<?>[]{SerializableStream.class, Serializable.class}),
 
   DECIMAL("Decimal", 21, BigDecimal.class, new Class<?>[]{BigDecimal.class, Number.class}),
 
@@ -168,7 +156,7 @@ public enum PropertyType {
   // Don't change the order, the type discover get broken if you change the order.
   private static final PropertyType[] TYPES =
       new PropertyType[]{
-          EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP, LINK, CUSTOM, EMBEDDED, STRING, DATETIME
+          EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP, LINK, EMBEDDED, STRING, DATETIME
       };
 
   private static final PropertyType[] TYPES_BY_ID = new PropertyType[24];

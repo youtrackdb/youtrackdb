@@ -50,8 +50,6 @@ public class FieldTypesString {
       return PropertyType.LINK;
     } else if (iCharType == 'n') {
       return PropertyType.LINKSET;
-    } else if (iCharType == 'u') {
-      return PropertyType.CUSTOM;
     }
 
     return PropertyType.STRING;
@@ -86,8 +84,6 @@ public class FieldTypesString {
       return PropertyType.LINK;
     } else if (iCharType == 'n') {
       return PropertyType.LINKSET;
-    } else if (iCharType == 'u') {
-      return PropertyType.CUSTOM;
     }
 
     return PropertyType.STRING;

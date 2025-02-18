@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -1893,27 +1892,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
   }
 
   @Test
-  public void testDocumentWithCostum() {
-    var old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
-    GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-
-    var document = (EntityImpl) session.newEntity();
-    document.field("test", "test");
-    document.field("custom", new DocumentSchemalessBinarySerializationTest.Custom());
-
-    var serializerDelta = DocumentSerializerDelta.instance();
-    var res = serializerDelta.serialize(session, document);
-    var extr = (EntityImpl) session.newEntity();
-    serializerDelta.deserialize(session, res, extr);
-
-    assertEquals(extr.getSchemaClassName(), document.getSchemaClassName());
-    assertEquals(extr.fields(), document.fields());
-    assertEquals(extr.<Object>field("test"), document.field("test"));
-    assertEquals(extr.<Object>field("custom"), document.field("custom"));
-    GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
-  }
-
-  @Test
   public void testDocumentWithCostumDocument() {
     var document = (EntityImpl) session.newEntity();
     document.field("test", "test");
@@ -2080,27 +2058,6 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     assertTrue("not found record in the set after serilize", ok);
   }
 
-  @Test
-  public void testSerializableValue() {
-    var old = GlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
-    GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-
-    var document = (EntityImpl) session.newEntity();
-    var ser = new SimpleSerializableClass();
-    ser.name = "testName";
-    document.field("seri", ser);
-
-    var serializerDelta = DocumentSerializerDelta.instance();
-    var res = serializerDelta.serialize(session, document);
-    var extr = (EntityImpl) session.newEntity();
-    serializerDelta.deserialize(session, res, extr);
-
-    assertNotNull(extr.field("seri"));
-    assertEquals(PropertyType.CUSTOM, extr.getPropertyType("seri"));
-    SimpleSerializableClass newser = extr.field("seri");
-    assertEquals(newser.name, ser.name);
-    GlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
-  }
 
   @Test
   public void testFieldNames() {

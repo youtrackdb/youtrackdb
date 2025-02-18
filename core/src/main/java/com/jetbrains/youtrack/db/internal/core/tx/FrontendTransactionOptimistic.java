@@ -1000,7 +1000,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
   private static Dependency getTypeRidDependency(PropertyType type) {
     // fallback to the safest variant, just in case
     return switch (type) {
-      case CUSTOM, ANY -> Dependency.Unknown;
+      case ANY -> Dependency.Unknown;
       case EMBEDDED, LINK -> Dependency.Yes;
       case LINKLIST, LINKSET, LINKMAP, LINKBAG, EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP ->
         // under normal conditions, collection field type is already resolved to its

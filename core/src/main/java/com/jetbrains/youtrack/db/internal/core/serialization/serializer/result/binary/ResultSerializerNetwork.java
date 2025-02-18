@@ -33,16 +33,13 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.SerializableWrapper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.VarIntSerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -259,23 +256,6 @@ public class ResultSerializerNetwork {
         break;
       case LINKBAG:
         throw new UnsupportedOperationException("LINKBAG should never appear in a projection");
-      case TRANSIENT:
-        break;
-      case CUSTOM:
-        try {
-          var className = readString(bytes);
-          var clazz = Class.forName(className);
-          var stream = (SerializableStream) clazz.newInstance();
-          stream.fromStream(readBinary(bytes));
-          if (stream instanceof SerializableWrapper) {
-            value = ((SerializableWrapper) stream).getSerializable();
-          } else {
-            value = stream;
-          }
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-        break;
       case ANY:
         break;
     }
@@ -458,15 +438,6 @@ public class ResultSerializerNetwork {
         break;
       case LINKBAG:
         throw new UnsupportedOperationException("LINKBAG should never appear in a projection");
-      case CUSTOM:
-        if (!(value instanceof SerializableStream)) {
-          value = new SerializableWrapper((Serializable) value);
-        }
-        writeString(bytes, value.getClass().getName());
-        writeBinary(bytes, ((SerializableStream) value).toStream());
-        break;
-      case TRANSIENT:
-        break;
       case ANY:
         break;
     }

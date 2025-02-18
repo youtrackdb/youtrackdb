@@ -755,10 +755,6 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           }
         }
 
-        if (iLinkedType == PropertyType.CUSTOM) {
-          item = item.substring(1, item.length() - 1);
-        }
-
         objectToAdd = fieldTypeFromStream(session, e, linkedType, item);
       }
 
@@ -852,9 +848,8 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         // EMBEDDED LITERALS
         if (iLinkedType == null) {
           linkedType = PropertyType.getTypeByClass(o.getClass());
-        } else if (iLinkedType == PropertyType.CUSTOM) {
-          iOutput.append(StringSerializerHelper.CUSTOM_TYPE);
         }
+
         fieldTypeToString(session, iOutput, linkedType, o);
       }
 
