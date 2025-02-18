@@ -17,6 +17,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkSet() {
+    session.begin();
     var doc1 = (EntityImpl) session.newEntity();
     doc1.field("value", "item 1");
     var doc2 = (EntityImpl) session.newEntity();
@@ -28,7 +29,6 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
     nested.field("set", set);
 
-    session.begin();
     var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
     Identifiable id = session.save(base);
@@ -44,6 +44,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkList() {
+    session.begin();
     var doc1 = (EntityImpl) session.newEntity();
     doc1.field("value", "item 1");
     var doc2 = (EntityImpl) session.newEntity();
@@ -55,7 +56,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
     nested.field("list", list);
 
-    session.begin();
+
     var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
     Identifiable id = session.save(base);
@@ -69,6 +70,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkMap() {
+    session.begin();
     var doc1 = (EntityImpl) session.newEntity();
     doc1.field("value", "item 1");
     var doc2 = (EntityImpl) session.newEntity();
@@ -80,7 +82,6 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
     nested.field("map", map);
 
-    session.begin();
     var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
     Identifiable id = session.save(base);
