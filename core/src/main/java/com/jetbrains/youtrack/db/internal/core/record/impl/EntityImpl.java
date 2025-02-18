@@ -4450,12 +4450,14 @@ public class EntityImpl extends RecordAbstract
     var session = getSession();
 
     var tx = session.getTransaction();
-    var txEntry = tx.getRecordEntry(rid);
-    if (txEntry != null) {
-      if (txEntry.type == RecordOperation.DELETED) {
-        throw new DatabaseException("Record with rid : " + rid + " is already deleted");
-      } else {
-        throw new DatabaseException("Record with rid : " + rid + " is already created");
+    if (tx.isActive()) {
+      var txEntry = tx.getRecordEntry(rid);
+      if (txEntry != null) {
+        if (txEntry.type == RecordOperation.DELETED) {
+          throw new DatabaseException("Record with rid : " + rid + " is already deleted");
+        } else {
+          throw new DatabaseException("Record with rid : " + rid + " is already created");
+        }
       }
     }
 
