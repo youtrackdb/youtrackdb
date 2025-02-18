@@ -16,7 +16,6 @@ import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.r
 import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.writeOType;
 import static com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.writeString;
 
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -1550,46 +1549,32 @@ public class DocumentSerializerDelta {
     return PropertyType.getById(typeId);
   }
 
-  public static RecordId readOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes) {
+  public static RID readOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes) {
     var clusterId = VarIntSerializer.readAsInteger(bytes);
     var clusterPos = VarIntSerializer.readAsLong(bytes);
 
     if (clusterId == -2 && clusterPos == -2) {
       return null;
     } else {
-      var rid = new RecordId(clusterId, clusterPos);
+      RID rid = new RecordId(clusterId, clusterPos);
 
       if (rid.isTemporary()) {
-        try {
-          // rid will be changed during commit we need to keep track original rid
-          var record = rid.getRecord(db);
-
-          rid = (RecordId) record.getIdentity();
-          if (rid == null) {
-            rid = new RecordId(clusterId, clusterPos);
-          }
-
-        } catch (RecordNotFoundException rnf) {
-          return rid;
-        }
+        rid = db.refreshRid(rid);
       }
 
       return rid;
     }
   }
 
-  public static void writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+  public static void writeOptimizedLink(DatabaseSessionInternal session, final BytesContainer bytes,
       Identifiable link) {
     if (link == null) {
       VarIntSerializer.write(bytes, -2);
       VarIntSerializer.write(bytes, -2);
     } else {
-      if (!link.getIdentity().isPersistent()) {
-        try {
-          link = link.getRecord(db);
-        } catch (RecordNotFoundException ignored) {
-          // IGNORE IT WILL FAIL THE ASSERT IN CASE
-        }
+      var rid = link.getIdentity();
+      if (!rid.isPersistent()) {
+        rid = session.refreshRid(rid);
       }
 
       VarIntSerializer.write(bytes, link.getIdentity().getClusterId());

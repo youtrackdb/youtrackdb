@@ -225,20 +225,18 @@ public class HelperClasses {
 
   public static int writeOptimizedLink(DatabaseSessionInternal session, final BytesContainer bytes,
       Identifiable link) {
-    if (!link.getIdentity().isPersistent()) {
-      try {
-        link = link.getRecord(session);
-      } catch (RecordNotFoundException ignored) {
-        // IGNORE IT WILL FAIL THE ASSERT IN CASE
-      }
+    var rid = link.getIdentity();
+    if (!rid.isPersistent()) {
+      rid = session.refreshRid(rid);
     }
-    if (link.getIdentity().getClusterId() < 0) {
+    if (rid.getClusterId() < 0) {
       throw new DatabaseException(session.getDatabaseName(),
           "Impossible to serialize invalid link " + link.getIdentity());
     }
 
-    final var pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
-    VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
+    final var pos = VarIntSerializer.write(bytes, rid.getClusterId());
+    VarIntSerializer.write(bytes, rid.getClusterPosition());
+
     return pos;
   }
 
@@ -529,23 +527,19 @@ public class HelperClasses {
     RID rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
     if (rid.isTemporary()) {
-      try {
-        rid = rid.getRecord(db).getIdentity();
-      } catch (RecordNotFoundException rnf) {
-        //ignore
-      }
+      rid = db.refreshRid(rid);
     }
 
     return rid;
   }
 
-  private static RID readLinkOptimizedSBTree(DatabaseSessionInternal db,
+  private static RID readLinkOptimizedSBTree(DatabaseSessionInternal session,
       final BytesContainer bytes) {
     RID rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
     if (rid.isTemporary()) {
       try {
-        rid = rid.getRecord(db).getIdentity();
+        rid = session.refreshRid(rid);
       } catch (RecordNotFoundException rnf) {
         //ignore
       }

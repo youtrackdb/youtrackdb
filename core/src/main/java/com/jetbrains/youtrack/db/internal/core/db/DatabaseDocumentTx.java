@@ -76,7 +76,6 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  *
@@ -954,13 +953,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public RID refreshRid(@Nonnull RID rid) {
     checkOpenness();
     return internal.refreshRid(rid);
-  }
-
-  @Nullable
-  @Override
-  public RID refreshRid(@Nonnull RID rid, boolean checkPresence) {
-    checkOpenness();
-    return internal.refreshRid(rid, checkPresence);
   }
 
   @Override

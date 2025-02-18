@@ -118,7 +118,6 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Entity API entrypoint.
@@ -522,9 +521,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     return localCache;
   }
 
-  @Nullable
+
+  @Nonnull
   @Override
-  public RID refreshRid(@Nonnull RID rid, boolean checkPresence) {
+  public RID refreshRid(@Nonnull RID rid) {
     if (rid.isPersistent()) {
       return rid;
     }
@@ -535,25 +535,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     var record = currentTx.getRecordEntry(rid);
-    if (record == null) {
-      if (checkPresence) {
-        throw new RecordNotFoundException(this, rid);
-      }
-      return rid;
-    }
-
-    if (record.type == RecordOperation.DELETED) {
+    if (record == null || record.type == RecordOperation.DELETED) {
       throw new RecordNotFoundException(this, rid);
     }
 
     return record.record.getIdentity();
   }
 
-  @Nonnull
-  @Override
-  public RID refreshRid(@Nonnull RID rid) {
-    return refreshRid(rid, true);
-  }
 
   /**
    * {@inheritDoc}

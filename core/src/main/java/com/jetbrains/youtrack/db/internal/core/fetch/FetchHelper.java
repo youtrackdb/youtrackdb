@@ -736,45 +736,36 @@ public class FetchHelper {
       final var o = linked.get(key.toString());
 
       if (o instanceof Identifiable identifiable) {
-        DBRecord r = null;
-        try {
-          r = identifiable.getRecord(db);
-        } catch (RecordNotFoundException ignore) {
-        }
-        if (r != null) {
-          if (r instanceof EntityImpl d) {
-            // GO RECURSIVELY
-            final var fieldDepthLevel = parsedRecords.getInt(d.getIdentity());
-            if (!d.getIdentity().isValid()
-                || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
-              removeParsedFromMap(parsedRecords, d);
-              iContext.onBeforeDocument(db, iRootRecord, d, key.toString(), iUserObject);
-              final var userObject =
-                  iListener.fetchLinkedMapEntry(
-                      iRootRecord, iUserObject, fieldName, key.toString(), d, iContext);
-              processRecord(db,
-                  d,
-                  userObject,
-                  iFetchPlan,
-                  iCurrentLevel,
-                  iLevelFromRoot,
-                  iFieldDepthLevel,
-                  parsedRecords,
-                  iFieldPathFromRoot,
-                  iListener,
-                  iContext, getTypesFormat(settings.keepTypes)); // ""
-              iContext.onAfterDocument(db, iRootRecord, d, key.toString(), iUserObject);
-            } else {
-              iListener.parseLinked(db, iRootRecord, d, iUserObject, key.toString(), iContext);
-            }
+        var r = identifiable.getRecord(db);
+        if (r instanceof EntityImpl d) {
+          // GO RECURSIVELY
+          final var fieldDepthLevel = parsedRecords.getInt(d.getIdentity());
+          if (!d.getIdentity().isValid()
+              || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
+            removeParsedFromMap(parsedRecords, d);
+            iContext.onBeforeDocument(db, iRootRecord, d, key.toString(), iUserObject);
+            final var userObject =
+                iListener.fetchLinkedMapEntry(
+                    iRootRecord, iUserObject, fieldName, key.toString(), d, iContext);
+            processRecord(db,
+                d,
+                userObject,
+                iFetchPlan,
+                iCurrentLevel,
+                iLevelFromRoot,
+                iFieldDepthLevel,
+                parsedRecords,
+                iFieldPathFromRoot,
+                iListener,
+                iContext, getTypesFormat(settings.keepTypes)); // ""
+            iContext.onAfterDocument(db, iRootRecord, d, key.toString(), iUserObject);
           } else {
-            iListener.parseLinked(db, iRootRecord, r, iUserObject, key.toString(), iContext);
+            iListener.parseLinked(db, iRootRecord, d, iUserObject, key.toString(), iContext);
           }
-
         } else {
-          iListener.processStandardField(db,
-              iRootRecord, o, key.toString(), iContext, iUserObject, "", null);
+          iListener.parseLinked(db, iRootRecord, r, iUserObject, key.toString(), iContext);
         }
+
       } else {
         iListener.processStandardField(db,
             iRootRecord, o, key.toString(), iContext, iUserObject, "", null);
@@ -977,12 +968,7 @@ public class FetchHelper {
     if (!((RecordId) fieldValue.getIdentity()).isValid()
         || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
       removeParsedFromMap(parsedRecords, fieldValue);
-      final EntityImpl linked;
-      try {
-        linked = fieldValue.getRecord(db);
-      } catch (RecordNotFoundException rnf) {
-        return;
-      }
+      final EntityImpl linked = fieldValue.getRecord(db);
 
       iContext.onBeforeDocument(db, iRootRecord, linked, fieldName, iUserObject);
       var userObject =

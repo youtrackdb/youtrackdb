@@ -20,7 +20,6 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.result.binary;
 
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -534,17 +533,16 @@ public class ResultSerializerNetwork {
     VarIntSerializer.write(bytes, NULL_RECORD_ID.getIdentity().getClusterPosition());
   }
 
-  private static void writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+  private static void writeOptimizedLink(DatabaseSessionInternal session,
+      final BytesContainer bytes,
       Identifiable link) {
-    if (!link.getIdentity().isPersistent()) {
-      try {
-        link = link.getRecord(db);
-      } catch (RecordNotFoundException rnf) {
-        // IGNORE THIS
-      }
+    var rid = link.getIdentity();
+    if (!rid.isPersistent()) {
+      rid = session.refreshRid(rid);
     }
-    VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
-    VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
+
+    VarIntSerializer.write(bytes, rid.getClusterId());
+    VarIntSerializer.write(bytes, rid.getClusterPosition());
   }
 
   private static void writeLinkCollection(

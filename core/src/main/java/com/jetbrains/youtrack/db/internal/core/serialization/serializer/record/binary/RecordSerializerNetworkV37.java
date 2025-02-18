@@ -20,7 +20,6 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
@@ -531,17 +530,13 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
 
   protected static RID readOptimizedLink(DatabaseSessionInternal db,
       final BytesContainer bytes) {
-    var id =
+    var rid =
         new RecordId(VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
-    if (id.isTemporary()) {
-      try {
-        return id.getRecord(db).getIdentity();
-      } catch (RecordNotFoundException rnf) {
-        return id;
-      }
+    if (rid.isTemporary()) {
+      return db.refreshRid(rid);
     }
 
-    return id;
+    return rid;
   }
 
   private Collection<?> readEmbeddedList(DatabaseSessionInternal db, final BytesContainer bytes,
@@ -751,17 +746,15 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     VarIntSerializer.write(bytes, NULL_RECORD_ID.getIdentity().getClusterPosition());
   }
 
-  protected void writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+  protected void writeOptimizedLink(DatabaseSessionInternal session, final BytesContainer bytes,
       Identifiable link) {
-    if (!link.getIdentity().isPersistent()) {
-      try {
-        link = link.getRecord(db);
-      } catch (RecordNotFoundException rnfe) {
-        //
-      }
+    var rid = link.getIdentity();
+    if (!rid.isPersistent()) {
+      rid = session.refreshRid(rid);
     }
-    VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
-    VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
+
+    VarIntSerializer.write(bytes, rid.getClusterId());
+    VarIntSerializer.write(bytes, rid.getClusterPosition());
   }
 
   private void writeLinkCollection(

@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
@@ -45,12 +44,7 @@ public class ChangeSerializationHelper {
 
       RID identifiable;
       if (rid.isTemporary()) {
-        var mappedRid = session.refreshRid(rid, false);
-        if (mappedRid != null) {
-          identifiable = mappedRid;
-        } else {
-          identifiable = rid;
-        }
+        identifiable = session.refreshRid(rid);
       } else {
         identifiable = rid;
       }
@@ -69,17 +63,9 @@ public class ChangeSerializationHelper {
     for (var entry : changes.entrySet()) {
       var rid = entry.getKey();
       if (rid.isTemporary()) {
-        try {
-          rid = rid.getRecord(db).getIdentity();
-        } catch (RecordNotFoundException e) {
-          //ignore
-        }
+        rid = db.refreshRid(rid);
       } else if (rid instanceof DBRecord record && record.getIdentity().isTemporary()) {
-        try {
-          rid = record.getIdentity().getRecord(db);
-        } catch (RecordNotFoundException e) {
-          //ignore
-        }
+        rid = db.refreshRid(record.getIdentity());
       }
 
       LinkSerializer.staticSerialize(rid, stream, offset);

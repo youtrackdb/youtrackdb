@@ -21,7 +21,6 @@
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary;
 
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
-import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -739,18 +738,15 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
     return pos;
   }
 
-  private static int writeOptimizedLink(DatabaseSessionInternal db, final BytesContainer bytes,
+  private static int writeOptimizedLink(DatabaseSessionInternal session, final BytesContainer bytes,
       Identifiable link) {
-    if (!link.getIdentity().isPersistent()) {
-      try {
-        link = link.getRecord(db);
-      } catch (RecordNotFoundException rnf) {
-        // ignore it
-      }
+    var rid = link.getIdentity();
+    if (!rid.isPersistent()) {
+      rid = session.refreshRid(rid);
     }
 
-    final var pos = VarIntSerializer.write(bytes, link.getIdentity().getClusterId());
-    VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
+    final var pos = VarIntSerializer.write(bytes, rid.getClusterId());
+    VarIntSerializer.write(bytes, rid.getClusterPosition());
     return pos;
   }
 
