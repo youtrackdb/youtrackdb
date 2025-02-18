@@ -127,6 +127,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
 
   @Test
   public void testSimpleSerialization() {
+    session.begin();
     var document = (EntityImpl) session.newEntity(simple);
 
     document.field(STRING_FIELD, NAME);
@@ -155,11 +156,13 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     assertEquals(extr.<Object>field(BOOLEAN_FIELD), document.field(BOOLEAN_FIELD));
     assertEquals(extr.<Object>field(DATE_FIELD), document.field(DATE_FIELD));
     assertEquals(extr.getProperty(RECORDID_FIELD), document.getProperty(RECORDID_FIELD));
+    session.rollback();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralList() {
+    session.begin();
     var document = (EntityImpl) session.newEntity(embSimp);
     List<String> strings = new ArrayList<String>();
     strings.add("a");
@@ -246,10 +249,12 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     assertEquals(extr.<Object>field(LIST_BYTES), document.field(LIST_BYTES));
     assertEquals(extr.<Object>field(LIST_BOOLEANS), document.field(LIST_BOOLEANS));
     assertEquals(extr.<Object>field(LIST_MIXED), document.field(LIST_MIXED));
+    session.rollback();
   }
 
   @Test
   public void testSimpleMapStringLiteral() {
+    session.begin();
     var document = (EntityImpl) session.newEntity(embMapSimple);
 
     Map<String, String> mapString = new HashMap<String, String>();
@@ -302,10 +307,12 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     assertEquals(extr.<Object>field(MAP_DATE), document.field(MAP_DATE));
     assertEquals(extr.<Object>field(MAP_DOUBLE), document.field(MAP_DOUBLE));
     assertEquals(extr.<Object>field(MAP_BYTES), document.field(MAP_BYTES));
+    session.rollback();
   }
 
   @Test
   public void testSimpleEmbeddedDoc() {
+    session.begin();
     var document = (EntityImpl) session.newEntity(simple);
     var embedded = (EntityImpl) session.newEntity(address);
     embedded.field(NAME, "test");
@@ -322,10 +329,12 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     assertEquals(emb.<Object>field(NAME), embedded.field(NAME));
     assertEquals(emb.<Object>field(NUMBER), embedded.field(NUMBER));
     assertEquals(emb.<Object>field(CITY), embedded.field(CITY));
+    session.rollback();
   }
 
   @Test
   public void testUpdateBooleanWithPropertyTypeAny() {
+    session.begin();
     var document = (EntityImpl) session.newEntity(simple);
     document.field(ANY_FIELD, false);
 
@@ -333,7 +342,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(document.fields(), extr.fields());
-    assertEquals(extr.field(ANY_FIELD), false);
+    assertEquals(false, extr.field(ANY_FIELD));
 
     extr.field(ANY_FIELD, false);
 
@@ -341,11 +350,13 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     var extr2 = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
     assertEquals(extr.fields(), extr2.fields());
-    assertEquals(extr2.field(ANY_FIELD), false);
+    assertEquals(false, extr2.field(ANY_FIELD));
+    session.rollback();
   }
 
   @Test
   public void simpleTypeKeepingTest() {
+    session.begin();
     var document = (EntityImpl) session.newEntity();
     document.field("name", "test");
 
@@ -354,5 +365,6 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     RecordInternal.unsetDirty(extr);
     extr.fromStream(res);
     assertEquals(PropertyType.STRING, extr.getPropertyType("name"));
+    session.rollback();
   }
 }
