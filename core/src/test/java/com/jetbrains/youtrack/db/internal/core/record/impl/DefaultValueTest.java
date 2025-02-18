@@ -23,6 +23,7 @@ public class DefaultValueTest extends DbTestBase {
     var prop = classA.createProperty(session, "name", PropertyType.STRING);
     prop.setDefaultValue(session, "uuid()");
 
+    session.begin();
     var doc = (EntityImpl) session.newEntity("ClassC");
 
     var val = doc.toStream();
@@ -31,6 +32,7 @@ public class DefaultValueTest extends DbTestBase {
     doc1.fromStream(val);
     doc1.deserializeFields();
     assertEquals(doc.field("name"), (String) doc1.field("name"));
+    session.rollback();
   }
 
   @Test
@@ -48,12 +50,12 @@ public class DefaultValueTest extends DbTestBase {
     EntityImpl saved = session.save(doc);
     session.commit();
 
+    session.begin();
     saved = session.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
 
-    session.begin();
     var inserted = session.command("insert into ClassA content {}").next();
     session.commit();
 
