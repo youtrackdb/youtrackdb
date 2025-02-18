@@ -55,6 +55,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
@@ -141,6 +142,8 @@ public class EntityImpl extends RecordAbstract
 
   public EntityImpl(DatabaseSessionInternal database, RecordId rid) {
     super(database);
+    assert assertIfAlreadyLoaded(rid);
+
     setup();
 
     this.recordId.setClusterId(rid.getClusterId());
@@ -170,6 +173,8 @@ public class EntityImpl extends RecordAbstract
   public EntityImpl(DatabaseSessionInternal session, final String iClassName,
       final RecordId recordId) {
     this(session, iClassName);
+
+    assert assertIfAlreadyLoaded(recordId);
 
     this.recordId.setClusterId(recordId.getClusterId());
     this.recordId.setClusterPosition(recordId.getClusterPosition());
@@ -727,7 +732,9 @@ public class EntityImpl extends RecordAbstract
         || propertyValue != null && propertyValue.getClass()
         .isArray()) {
       throw new DatabaseException(getSession().getDatabaseName(),
-          "Data containers have to be created using appropriate getOrCreateXxx methods");
+          "Property with name " + iFieldName +
+              " is a multi-value property with class " + propertyValue.getClass().getName()
+              + " and has to be created using appropriate getOrCreateXxx methods.");
     }
 
     setPropertyInternal(iFieldName, propertyValue);
@@ -748,8 +755,6 @@ public class EntityImpl extends RecordAbstract
   @Nonnull
   @Override
   public <T> List<T> newEmbeddedList(@Nonnull String name) {
-    removePropertyInternal(name);
-
     var value = new TrackedList<T>(this);
     setPropertyInternal(name, value, PropertyType.EMBEDDEDLIST);
     return value;
@@ -769,8 +774,6 @@ public class EntityImpl extends RecordAbstract
   @Nonnull
   @Override
   public <T> Set<T> newEmbeddedSet(@Nonnull String name) {
-    removePropertyInternal(name);
-
     var value = new TrackedSet<T>(this);
     setPropertyInternal(name, value, PropertyType.EMBEDDEDSET);
     return value;
@@ -790,8 +793,6 @@ public class EntityImpl extends RecordAbstract
   @Nonnull
   @Override
   public <T> Map<String, T> newEmbeddedMap(@Nonnull String name) {
-    removePropertyInternal(name);
-
     var value = new TrackedMap<T>(this);
     setPropertyInternal(name, value, PropertyType.EMBEDDEDMAP);
     return value;
@@ -811,8 +812,6 @@ public class EntityImpl extends RecordAbstract
   @Nonnull
   @Override
   public List<Identifiable> newLinkList(@Nonnull String name) {
-    removePropertyInternal(name);
-
     var value = new LinkList(this);
     setPropertyInternal(name, value, PropertyType.LINKLIST);
     return value;
@@ -833,8 +832,6 @@ public class EntityImpl extends RecordAbstract
   @Nonnull
   @Override
   public Set<Identifiable> newLinkSet(@Nonnull String name) {
-    removePropertyInternal(name);
-
     var value = new LinkSet(this);
     setPropertyInternal(name, value, PropertyType.LINKSET);
     return value;
@@ -855,8 +852,6 @@ public class EntityImpl extends RecordAbstract
   @Nonnull
   @Override
   public Map<String, Identifiable> newLinkMap(@Nonnull String name) {
-    removePropertyInternal(name);
-
     var value = new LinkMap(this);
     setPropertyInternal(name, value, PropertyType.LINKMAP);
     return value;
@@ -4449,6 +4444,27 @@ public class EntityImpl extends RecordAbstract
     }
 
     return identifiable;
+  }
+
+  private boolean assertIfAlreadyLoaded(RID rid) {
+    var session = getSession();
+
+    var tx = session.getTransaction();
+    var txEntry = tx.getRecordEntry(rid);
+    if (txEntry != null) {
+      if (txEntry.type == RecordOperation.DELETED) {
+        throw new DatabaseException("Record with rid : " + rid + " is already deleted");
+      } else {
+        throw new DatabaseException("Record with rid : " + rid + " is already created");
+      }
+    }
+
+    var localCache = session.getLocalCache();
+    if (localCache.findRecord(rid) != null) {
+      throw new DatabaseException("Instance of record with rid : " + rid + " is already created");
+    }
+
+    return true;
   }
 
   private void removeAllCollectionChangeListeners() {

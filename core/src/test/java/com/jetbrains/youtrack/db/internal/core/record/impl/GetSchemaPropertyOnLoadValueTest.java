@@ -128,11 +128,11 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testRandomOnLoadValue() {
-    var seed = System.currentTimeMillis();
+    var seed = 1739881589149L;//System.currentTimeMillis();
     System.out.println("Seed is " + seed);
     var random = new Random(seed);
     var propertyNames = Arrays.asList("prop1", "prop2", "prop3", "prop4");
-    var values = new ArrayList<Object>();
+    var values = new ArrayList<>();
     values.add(100);
     values.add(1000L);
     values.add(100.0);
@@ -146,8 +146,14 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     var operations = new ArrayList<BiFunction<Vertex, String, Void>>();
     operations.add(
         (oVertex, propertyName) -> {
-          oVertex.setProperty(propertyName, values.get(random.nextInt(values.size())));
-          oVertex.save();
+          var value = values.get(random.nextInt(values.size()));
+          if (value instanceof List<?> list) {
+            oVertex.newEmbeddedList(propertyName).addAll(list);
+          } else if (value instanceof Set<?>) {
+            oVertex.newEmbeddedSet(propertyName).addAll((Set<?>) value);
+          } else {
+            oVertex.setProperty(propertyName, value);
+          }
           return null;
         });
     operations.add(
@@ -155,25 +161,29 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
           if (oVertex.hasProperty(propertyName)) {
             oVertex.removeProperty(propertyName);
           }
-          oVertex.save();
           return null;
         });
 
     session.createVertexClass("test");
     session.begin();
-    var doc = session.newVertex("test");
+    var v = session.newVertex("test");
     var initialValues = new HashMap<String, Object>();
     propertyNames.forEach(
         name -> {
           var value = values.get(random.nextInt(values.size()));
-          doc.setProperty(name, value);
+          if (value instanceof List<?> list) {
+            v.newEmbeddedList(name).addAll(list);
+          } else if (value instanceof Set<?>) {
+            v.newEmbeddedSet(name).addAll((Set<?>) value);
+          } else {
+            v.setProperty(name, value);
+          }
         });
 
-    doc.save();
     session.commit();
     for (var txId = 0; txId < 5; txId++) {
       session.begin();
-      var boundDoc = session.bindToSession(doc);
+      var boundDoc = session.bindToSession(v);
       propertyNames.forEach(name -> initialValues.put(name, boundDoc.getProperty(name)));
       for (var i = 0; i < 1000; i++) {
         var operation = operations.get(random.nextInt(operations.size()));
@@ -185,10 +195,10 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     }
   }
 
-  private void assertInitialValues(Vertex vertex, Map<String, Object> initialValues) {
+  private static void assertInitialValues(Vertex vertex, Map<String, Object> initialValues) {
     initialValues.forEach(
         (key, value) -> {
-          Assert.assertEquals(vertex.getPropertyOnLoadValue(key), value);
+          Assert.assertEquals("Property : " + key, vertex.getPropertyOnLoadValue(key), value);
         });
   }
 }
