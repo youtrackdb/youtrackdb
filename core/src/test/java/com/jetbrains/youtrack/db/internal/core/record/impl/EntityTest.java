@@ -11,6 +11,7 @@ public class EntityTest extends DbTestBase {
 
   @Test
   public void testGetSetProperty() {
+    session.begin();
     var elem = session.newEntity();
     elem.setProperty("foo", "foo1");
     elem.setProperty("foo.bar", "foobar");
@@ -20,6 +21,7 @@ public class EntityTest extends DbTestBase {
     Assert.assertTrue(names.contains("foo"));
     Assert.assertTrue(names.contains("foo.bar"));
     Assert.assertTrue(names.contains("  "));
+    session.rollback();
   }
 
   @Test
