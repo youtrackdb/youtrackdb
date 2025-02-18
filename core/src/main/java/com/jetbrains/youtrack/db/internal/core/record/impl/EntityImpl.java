@@ -822,7 +822,7 @@ public class EntityImpl extends RecordAbstract
    * @param from Entity from which properties are copied.
    */
   public void copyPropertiesFromOtherEntity(@Nonnull EntityImpl from) {
-    deserializeFields();
+    checkForFields();
     from.deserializeFields();
 
     var fromFields = from.fields;

@@ -410,6 +410,10 @@ public interface DatabaseSession extends AutoCloseable {
 
   Entity entityFromJson(String json);
 
+  Entity newEmbededEntity(SchemaClass schemaClass);
+
+  Entity newEmbededEntity();
+
   /**
    * Creates a new Edge of type E
    *

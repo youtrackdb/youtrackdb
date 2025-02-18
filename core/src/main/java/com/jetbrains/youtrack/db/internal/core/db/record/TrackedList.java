@@ -62,12 +62,18 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   @Override
+  public boolean isEmbeddedContainer() {
+    return embeddedCollection;
+  }
+
+  @Override
   public RecordElement getOwner() {
     return sourceRecord;
   }
 
   @Override
   public boolean add(T element) {
+    checkEmbedded(element);
     final var result = super.add(element);
 
     if (result) {
@@ -78,6 +84,7 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   public boolean addInternal(T element) {
+    checkEmbedded(element);
     final var result = super.add(element);
 
     if (result) {
@@ -97,11 +104,13 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public void add(int index, T element) {
+    checkEmbedded(element);
     super.add(index, element);
     addEvent(index, element);
   }
 
   public void setInternal(int index, T element) {
+    checkEmbedded(element);
     final var oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
@@ -115,6 +124,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public T set(int index, T element) {
+    checkEmbedded(element);
     final var oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {

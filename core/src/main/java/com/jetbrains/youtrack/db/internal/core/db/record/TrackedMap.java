@@ -60,6 +60,11 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
   }
 
   @Override
+  public boolean isEmbeddedContainer() {
+    return embeddedCollection;
+  }
+
+  @Override
   public RecordElement getOwner() {
     return sourceRecord;
   }
@@ -69,16 +74,17 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     throw new UnsupportedOperationException();
   }
 
-  public T putInternal(final String key, final T value) {
+  public void putInternal(final String key, final T value) {
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
+    checkEmbedded(value);
     var containsKey = containsKey(key);
 
     var oldValue = super.put(key, value);
 
     if (containsKey && oldValue == value) {
-      return oldValue;
+      return;
     }
 
     if (oldValue instanceof EntityImpl) {
@@ -87,7 +93,6 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
     addOwnerToEmbeddedDoc(value);
 
-    return oldValue;
   }
 
   @Override
@@ -95,6 +100,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
+    checkEmbedded(value);
     var containsKey = containsKey(key);
 
     var oldValue = super.put(key, value);
@@ -149,7 +155,6 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     }
   }
 
-  @SuppressWarnings({"unchecked"})
   public void setDirty() {
     this.dirty = true;
     this.transactionDirty = true;

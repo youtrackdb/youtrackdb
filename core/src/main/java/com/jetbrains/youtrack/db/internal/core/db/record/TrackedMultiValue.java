@@ -19,6 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -58,6 +61,23 @@ public interface TrackedMultiValue<K, V> {
   boolean isTransactionModified();
 
   MultiValueChangeTimeLine<Object, Object> getTimeLine();
+
+  boolean isEmbeddedContainer();
+
+  default void checkEmbedded(V value) {
+    if (isEmbeddedContainer()) {
+      if ((value instanceof RID
+          || value instanceof Entity entity && !entity.isEmbedded())) {
+        throw new DatabaseException(
+            "Cannot add a RID or a non-embedded entity to a embedded data container");
+      }
+    } else {
+      if (value instanceof Entity entity && entity.isEmbedded()) {
+        throw new DatabaseException(
+            "Cannot add an embedded entity to a link based data container");
+      }
+    }
+  }
 
   static <X> void nestedEnabled(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {

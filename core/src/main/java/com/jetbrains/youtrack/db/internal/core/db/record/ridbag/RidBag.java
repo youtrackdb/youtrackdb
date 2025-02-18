@@ -197,6 +197,11 @@ public class RidBag
     delegate.remove(identifiable);
   }
 
+  @Override
+  public boolean isEmbeddedContainer() {
+    return false;
+  }
+
   public boolean isEmpty() {
     return delegate.isEmpty();
   }

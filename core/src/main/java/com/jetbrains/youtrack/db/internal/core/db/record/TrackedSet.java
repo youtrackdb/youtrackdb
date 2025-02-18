@@ -94,6 +94,11 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   @Override
+  public boolean isEmbeddedContainer() {
+    return embeddedCollection;
+  }
+
+  @Override
   public boolean addAll(Collection<? extends T> c) {
 
     var modified = false;
@@ -107,6 +112,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   public boolean add(@Nullable final T e) {
+    checkEmbedded(e);
     if (super.add(e)) {
       addEvent(e);
       return true;
@@ -115,6 +121,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   public boolean addInternal(final T e) {
+    checkEmbedded(e);
     if (super.add(e)) {
       addOwnerToEmbeddedDoc(e);
       return true;

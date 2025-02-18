@@ -48,13 +48,18 @@ public interface RidBagDelegate
 
   int getSerializedSize();
 
+  @Override
+  default boolean isEmbeddedContainer() {
+    return false;
+  }
+
   /**
    * Writes content of bag to stream.
    *
    * <p>OwnerUuid is needed to notify db about changes of collection pointer if some happens during
    * serialization.
    *
-   * @param session Current database session instance
+   * @param session   Current database session instance
    * @param stream    to write content
    * @param offset    in stream where start to write content
    * @param ownerUuid id of delegate owner

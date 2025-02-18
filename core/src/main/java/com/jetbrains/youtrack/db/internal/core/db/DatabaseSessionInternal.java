@@ -34,7 +34,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
@@ -97,10 +96,6 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   EntityImpl newInternalInstance();
 
   Entity newEmbededEntity(String className);
-
-  Entity newEmbededEntity(SchemaClass schemaClass);
-
-  Entity newEmbededEntity();
 
   /**
    * Internal. Gets an instance of sb-tree collection manager for current database.
