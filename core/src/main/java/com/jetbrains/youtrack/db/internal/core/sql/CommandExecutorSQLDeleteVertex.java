@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * SQL DELETE VERTEX command.
@@ -232,17 +233,17 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   /**
    * Delete the current vertex.
    */
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     final var id = (Identifiable) iRecord;
     if (((RecordId) id.getIdentity()).isValid()) {
-      final EntityImpl record = id.getRecord(db);
-      final var v = toVertex(db, record);
+      final EntityImpl record = id.getRecord(session);
+      final var v = toVertex(session, record);
       if (v != null) {
         v.delete();
 
         if (!txAlreadyBegun && batch > 0 && removed % batch == 0) {
-          db.commit();
-          db.begin();
+          session.commit();
+          session.begin();
         }
 
         if (returning.equalsIgnoreCase("BEFORE")) {
@@ -264,9 +265,9 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
     if (!txAlreadyBegun) {
-      db.commit();
+      session.commit();
     }
   }
 

@@ -2122,9 +2122,9 @@ public class EntitySerializerDeltaTest extends DbTestBase {
   @Test
   public void testListOfMapsWithNull() {
     session.begin();
-    var document = (EntityImpl) session.newEntity();
+    var entity = (EntityImpl) session.newEntity();
 
-    List lista = new ArrayList<>();
+    List lista = entity.newEmbeddedList("list");
     Map mappa = new LinkedHashMap<>();
     mappa.put("prop1", "val1");
     mappa.put("prop2", null);
@@ -2133,15 +2133,14 @@ public class EntitySerializerDeltaTest extends DbTestBase {
     mappa = new HashMap();
     mappa.put("prop", "val");
     lista.add(mappa);
-    document.setProperty("list", lista);
 
     var serializerDelta = DocumentSerializerDelta.instance();
-    var res = serializerDelta.serialize(session, document);
+    var res = serializerDelta.serialize(session, entity);
     var extr = (EntityImpl) session.newEntity();
     serializerDelta.deserialize(session, res, extr);
 
-    assertEquals(extr.fields(), document.fields());
-    assertEquals(extr.<Object>field("list"), document.field("list"));
+    assertEquals(extr.fields(), entity.fields());
+    assertEquals(extr.<Object>field("list"), entity.field("list"));
     session.rollback();
   }
 

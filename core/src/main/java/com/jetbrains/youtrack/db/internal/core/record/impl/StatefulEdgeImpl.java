@@ -14,6 +14,7 @@ import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -36,10 +37,10 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
 
   @Nullable
   @Override
-  public Identifiable getLinkProperty(@Nonnull String fieldName) {
+  public RID getLink(@Nonnull String fieldName) {
 
     EdgeInternal.checkPropertyName(fieldName);
-    return entity.getLinkProperty(fieldName);
+    return entity.getLink(fieldName);
   }
 
   @Override
@@ -56,18 +57,18 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
 
   @Nullable
   @Override
-  public Entity getEntityProperty(@Nonnull String name) {
+  public Entity getEntity(@Nonnull String name) {
     EdgeInternal.checkPropertyName(name);
 
-    return entity.getEntityProperty(name);
+    return entity.getEntity(name);
   }
 
   @Nullable
   @Override
-  public Blob getBlobProperty(String propertyName) {
+  public Blob getBlob(String propertyName) {
     EdgeInternal.checkPropertyName(propertyName);
 
-    return entity.getBlobProperty(propertyName);
+    return entity.getBlob(propertyName);
   }
 
 
@@ -217,15 +218,20 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
 
   @Override
   public <RET> RET getPropertyOnLoadValue(@Nonnull String name) {
-
     return entity.getPropertyOnLoadValue(name);
   }
 
   @Nullable
   @Override
-  public Identifiable getLinkPropertyInternal(String name) {
+  public RID getLinkPropertyInternal(String name) {
 
     return entity.getLinkPropertyInternal(name);
+  }
+
+  @Nullable
+  @Override
+  public SchemaImmutableClass getImmutableSchemaClass(@Nonnull DatabaseSessionInternal session) {
+    return entity.getImmutableSchemaClass(session);
   }
 
   @Override
@@ -423,7 +429,7 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
   }
 
 
-  @Nonnull
+  @Nullable
   @Override
   public Vertex getFrom() {
     var result = entity.getProperty(DIRECTION_OUT);
@@ -438,10 +444,10 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
     return v.castToVertex();
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Identifiable getFromLink() {
-    var result = entity.getLinkProperty(DIRECTION_OUT);
+    var result = entity.getLink(DIRECTION_OUT);
     assert result != null;
 
     var id = result.getIdentity();
@@ -454,7 +460,7 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
     return null;
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Vertex getTo() {
     var result = entity.getProperty(DIRECTION_IN);
@@ -469,10 +475,10 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
     return v.castToVertex();
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Identifiable getToLink() {
-    var result = entity.getLinkProperty(DIRECTION_IN);
+    var result = entity.getLink(DIRECTION_IN);
     assert result != null;
 
     var id = result.getIdentity();
@@ -515,7 +521,7 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
     }
     Set<String> types = new HashSet<>();
 
-    var typeClass = getSchemaClass();
+    var typeClass = getImmutableSchemaClass(session);
 
     types.add(typeClass.getName(session));
     typeClass.getAllSuperClasses().stream()

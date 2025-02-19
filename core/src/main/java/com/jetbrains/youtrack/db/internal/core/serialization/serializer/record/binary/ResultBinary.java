@@ -22,7 +22,6 @@ import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -111,30 +110,30 @@ public class ResultBinary implements Result {
   }
 
   @Override
-  public Entity getEntityProperty(@Nonnull String name) {
+  public Entity getEntity(@Nonnull String name) {
     throw new UnsupportedOperationException(
         "Not supported yet.");
   }
 
   @Override
-  public Vertex getVertexProperty(@Nonnull String name) {
+  public Vertex getVertex(@Nonnull String name) {
     throw new UnsupportedOperationException(
         "Not supported yet.");
   }
 
   @Override
-  public Edge getEdgeProperty(@Nonnull String name) {
+  public Edge getEdge(@Nonnull String name) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
-  public Blob getBlobProperty(String name) {
+  public Blob getBlob(String name) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Nullable
   @Override
-  public Identifiable getLinkProperty(@Nonnull String name) {
+  public RID getLink(@Nonnull String name) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

@@ -69,10 +69,10 @@ public interface Vertex extends Entity {
   <RET> RET getProperty(@Nonnull String name);
 
   /**
-   * This method similar to {@link com.jetbrains.youtrack.db.api.query.Result#getProperty(String)} bun unlike before mentioned method it does
-   * not load link automatically. if the property name starts with {@link #DIRECTION_IN_PREFIX} or
-   * {@link #DIRECTION_OUT_PREFIX} method throws {@link IllegalArgumentException}. Those names are
-   * used to manage edges.
+   * This method similar to {@link com.jetbrains.youtrack.db.api.query.Result#getProperty(String)}
+   * bun unlike before mentioned method it does not load link automatically. if the property name
+   * starts with {@link #DIRECTION_IN_PREFIX} or {@link #DIRECTION_OUT_PREFIX} method throws
+   * {@link IllegalArgumentException}. Those names are used to manage edges.
    *
    * @param name the name of the link property
    * @return the link property value, or null if the property does not exist
@@ -82,7 +82,7 @@ public interface Vertex extends Entity {
    */
   @Nullable
   @Override
-  Identifiable getLinkProperty(@Nonnull String name);
+  RID getLink(@Nonnull String name);
 
   /**
    * Check if a property exists in the Element. if the property name starts with

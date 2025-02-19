@@ -8,6 +8,7 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
@@ -19,7 +20,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImp
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -234,10 +234,12 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   public Role getRole(final DatabaseSession session, final Identifiable iRole) {
-    final EntityImpl entity = session.load(iRole.getIdentity());
-    var clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    var sessionInternal = (DatabaseSessionInternal) session;
+    final EntityImpl entity = sessionInternal.load(iRole.getIdentity());
+    SchemaImmutableClass clazz = null;
+    clazz = entity.getImmutableSchemaClass(sessionInternal);
     if (clazz != null && clazz.isRole()) {
-      return new Role((DatabaseSessionInternal) session, entity);
+      return new Role(sessionInternal, entity);
     }
 
     return null;

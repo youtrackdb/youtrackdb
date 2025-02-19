@@ -35,9 +35,9 @@ import javax.annotation.Nullable;
 
 public class EdgeImpl implements EdgeInternal {
 
-  @Nonnull
+  @Nullable
   private final Vertex vOut;
-  @Nonnull
+  @Nullable
   private final Vertex vIn;
 
   @Nonnull
@@ -46,7 +46,7 @@ public class EdgeImpl implements EdgeInternal {
   private final DatabaseSessionInternal session;
 
   public EdgeImpl(@Nonnull DatabaseSessionInternal session,
-      @Nonnull Vertex out, @Nonnull Vertex in,
+      @Nullable Vertex out, @Nullable Vertex in,
       @Nonnull SchemaImmutableClass lightweightEdgeType) {
     vOut = out;
     vIn = in;
@@ -55,26 +55,26 @@ public class EdgeImpl implements EdgeInternal {
     this.session = session;
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Vertex getFrom() {
     return vOut;
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Identifiable getFromLink() {
     return vOut;
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Vertex getTo() {
     return vIn;
 
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Identifiable getToLink() {
     return vIn;
@@ -82,7 +82,7 @@ public class EdgeImpl implements EdgeInternal {
 
   @Override
   public boolean isLightweight() {
-    return false;
+    return true;
   }
 
   public void delete() {

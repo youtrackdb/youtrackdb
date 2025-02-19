@@ -49,10 +49,7 @@ import javax.annotation.Nullable;
 public abstract class RecordAbstract implements DBRecord, RecordElement, SerializableStream,
     ChangeableIdentity {
 
-  public static final String BASE_FORMAT =
-      "rid,version,class,type,attribSameRow,keepTypes,alwaysFetchEmbedded";
-  private static final String DEFAULT_FORMAT = BASE_FORMAT + "," + "fetchPlan:*:0";
-  public static final String OLD_FORMAT_WITH_LATE_TYPES = BASE_FORMAT + "," + "fetchPlan:*:0";
+  public static final String DEFAULT_FORMAT = "rid,version,class,type,keepTypes,markEmbeddedDocs";
 
   protected final RecordId recordId;
   protected int recordVersion = 0;
@@ -341,7 +338,9 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     dirty++;
     getSession().deleteInternal(this);
 
-    unload();
+    source = null;
+    status = STATUS.NOT_LOADED;
+    session = null;
   }
 
   public int getSize() {

@@ -25,27 +25,27 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testDeleteRidbagTx() throws InterruptedException {
-
-    var doc = (EntityImpl) session.newEntity();
+    session.begin();
+    var entity = (EntityImpl) session.newEntity();
     var bag = new RidBag(session);
     var size =
         GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() << 1;
     for (var i = 0; i < size; i++) {
       bag.add(new RecordId(10, i));
     }
-    doc.field("bag", bag);
 
-    session.begin();
-    var id = session.save(doc).getIdentity();
+    entity.setProperty("bag", bag);
+
+    var id = entity.getIdentity();
     session.commit();
 
-    doc = session.bindToSession(doc);
-    bag = doc.field("bag");
+    session.begin();
+    entity = session.bindToSession(entity);
+    bag = entity.field("bag");
     var pointer = bag.getPointer();
 
-    session.begin();
-    doc = session.bindToSession(doc);
-    session.delete(doc);
+    entity = session.bindToSession(entity);
+    session.delete(entity);
     session.commit();
 
     try {

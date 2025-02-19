@@ -118,11 +118,9 @@ public class GraphRecoveringTest {
         session.begin();
         for (var e :
             session.query("select from E").stream()
-                .map(Result::asEntity)
-                .map(Entity::castToStatefulEdge)
+                .map(Result::castToStatefulEdge)
                 .toList()) {
           e.<EntityImpl>getRecord(session).removeField("out");
-          e.save();
         }
         session.commit();
 

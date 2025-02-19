@@ -34,10 +34,10 @@ import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteStatement;
@@ -46,6 +46,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * SQL UPDATE command.
@@ -321,7 +322,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   /**
    * Deletes the current record.
    */
-  public boolean result(DatabaseSessionInternal session, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     final RecordAbstract record = ((Identifiable) iRecord).getRecord(session);
 
     if (record instanceof EntityImpl
@@ -341,7 +342,11 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
       if (!unsafe && record instanceof EntityImpl) {
         // CHECK IF ARE VERTICES OR EDGES
-        final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
+        SchemaImmutableClass result = null;
+        if (record != null) {
+          result = ((EntityImpl) record).getImmutableSchemaClass(session);
+        }
+        final SchemaClass cls = result;
         if (cls != null) {
           if (cls.isSubClassOf(session, "V"))
           // FOUND VERTEX
@@ -373,7 +378,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override

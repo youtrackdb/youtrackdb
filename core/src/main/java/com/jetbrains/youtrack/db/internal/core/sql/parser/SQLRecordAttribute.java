@@ -10,6 +10,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
@@ -89,7 +90,8 @@ public class SQLRecordAttribute extends SimpleNode {
       return identity;
     } else if (name.equalsIgnoreCase("@class")) {
       if (iCurrentResult.isEntity()) {
-        var schemaClass = iCurrentResult.castToEntity().getSchemaClass();
+        var schemaClass = ((EntityInternal) iCurrentResult.castToEntity()).getImmutableSchemaClass(
+            session);
         if (schemaClass != null) {
           return schemaClass.getName(session);
         }
@@ -137,11 +139,7 @@ public class SQLRecordAttribute extends SimpleNode {
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
-      var schemaClass = iCurrentRecord.getSchemaClass();
-      if (schemaClass != null) {
-        return schemaClass.getName(session);
-      }
-      return null;
+      return iCurrentRecord.getSchemaClassName();
     } else if (name.equalsIgnoreCase("@version")) {
       try {
         var record = iCurrentRecord.getRecord(session);

@@ -34,10 +34,10 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
@@ -50,6 +50,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nonnull;
 
 /**
  * SQL INSERT command.
@@ -312,9 +313,9 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     SchemaClass oldClass = null;
-    RecordAbstract rec = ((Identifiable) iRecord).getRecord(db);
+    RecordAbstract rec = ((Identifiable) iRecord).getRecord(session);
 
     if (rec instanceof EntityImpl) {
       if (className != null) {
@@ -325,7 +326,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     if (rec instanceof Entity) {
       var entity = (EntityInternal) rec;
 
-      if (oldClass != null && oldClass.isSubClassOf(db, "V")) {
+      if (oldClass != null && oldClass.isSubClassOf(session, "V")) {
         LogManager.instance()
             .warn(
                 this,
@@ -337,17 +338,22 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           if (field.startsWith("out_") || field.startsWith("in_")) {
             var edges = entity.getPropertyInternal(field);
             if (edges instanceof Identifiable) {
-              EntityImpl edgeRec = ((Identifiable) edges).getRecord(db);
-              SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(edgeRec);
-              if (clazz != null && clazz.isSubClassOf(db, "E")) {
+              EntityImpl edgeRec = ((Identifiable) edges).getRecord(session);
+              SchemaImmutableClass result = null;
+              if (edgeRec != null) {
+                result = edgeRec.getImmutableSchemaClass(session);
+              }
+              SchemaClass clazz = result;
+              if (clazz != null && clazz.isSubClassOf(session, "E")) {
                 entity.removeProperty(field);
               }
             } else if (edges instanceof Iterable) {
               for (var edge : (Iterable) edges) {
-                if (edge instanceof Identifiable) {
-                  Entity edgeRec = ((Identifiable) edge).getRecord(db);
-                  if (edgeRec.getSchemaClass() != null
-                      && edgeRec.getSchemaClass().isSubClassOf(db, "E")) {
+                if (edge instanceof Identifiable identifiable) {
+                  var edgeRec = (EntityInternal) identifiable.getEntity(session);
+                  var schemaClass = edgeRec.getImmutableSchemaClass(session);
+                  if (schemaClass != null
+                      && schemaClass.isSubClassOf(session, "E")) {
                     entity.removeProperty(field);
                     break;
                   }
@@ -370,7 +376,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
   }
 
   protected Object prepareReturnResult(DatabaseSessionInternal db, List<EntityImpl> res) {

@@ -10,8 +10,18 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
+import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -22,32 +32,337 @@ public interface Result {
    *
    * @param name the property name
    * @return the property value. If the property value is a persistent record, it only returns the
-   * RID. See also {@link #getEntityProperty(String)} {@link #getVertexProperty(String)}
-   * {@link #getEdgeProperty(String)} {@link #getBlobProperty(String)}
+   * RID. See also {@link #getEntity(String)} {@link #getVertex(String)} {@link #getEdge(String)}
+   * {@link #getBlob(String)}
    */
   @Nullable
   <T> T getProperty(@Nonnull String name);
 
-  /**
-   * returns an Entity property from the result
-   *
-   * @param name the property name
-   * @return the property value. Null if the property is not defined or if it's not an Entity
-   */
   @Nullable
-  Entity getEntityProperty(@Nonnull String name);
+  default Boolean getBooleanProperty(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Boolean) {
+      return (Boolean) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a boolean type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Byte getByte(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Byte) {
+      return (Byte) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a byte type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Short getShort(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Short) {
+      return (Short) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a short type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Integer getInt(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Integer) {
+      return (Integer) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not an integer type, but " + value.getClass().getName());
+
+  }
+
+  @Nullable
+  default Long getLong(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Long) {
+      return (Long) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a long type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Float getFloat(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Float) {
+      return (Float) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a float type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Double getDouble(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Double) {
+      return (Double) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a double type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default String getString(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof String) {
+      return (String) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a string type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default byte[] getBinary(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof byte[]) {
+      return (byte[]) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a binary type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Date getDate(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Date) {
+      return (Date) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a date type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default BigDecimal getDecimal(@Nonnull String name) {
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+
+    if (value instanceof BigDecimal) {
+      return (BigDecimal) value;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a decimal type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default <T> List<T> getEmbeddedList(@Nonnull String name) {
+    List<T> value;
+    if (isEntity()) {
+      var entity = castToEntity();
+      value = entity.getProperty(name);
+
+      if (value instanceof TrackedList<?> trackedList && trackedList.isEmbeddedContainer()) {
+        return (List<T>) trackedList;
+      }
+    } else {
+      value = getProperty(name);
+      if (value instanceof List<?> list && (!(value instanceof LinkList))) {
+        //noinspection unchecked
+        return (List<T>) list;
+      }
+    }
+
+    if (value == null) {
+      return null;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a embedded list type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default List<Identifiable> getLinkList(@Nonnull String name) {
+    if (isEntity()) {
+      var entity = castToEntity();
+      var value = entity.getProperty(name);
+
+      if (value == null) {
+        return null;
+      }
+
+      if (value instanceof LinkList list) {
+        return list;
+      }
+
+      throw new DatabaseException(
+          "Property " + name + " is not a link list type, but " + value.getClass().getName());
+    } else {
+      return getEmbeddedList(name);
+    }
+  }
+
+  @Nullable
+  default <T> Set<T> getEmbeddedSet(@Nonnull String name) {
+    Set<T> value;
+
+    if (isEntity()) {
+      var entity = castToEntity();
+      value = entity.getProperty(name);
+
+      if (value instanceof TrackedSet<?> trackedSet && trackedSet.isEmbeddedContainer()) {
+        //noinspection unchecked
+        return (Set<T>) trackedSet;
+      }
+    } else {
+      value = getProperty(name);
+
+      if (value instanceof Set<?> set && (!(value instanceof LinkSet))) {
+        //noinspection unchecked
+        return (Set<T>) set;
+      }
+    }
+
+    if (value == null) {
+      return null;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a embedded set type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Set<Identifiable> getLinkSet(@Nonnull String name) {
+    if (isEntity()) {
+      var entity = castToEntity();
+      var value = entity.getProperty(name);
+
+      if (value == null) {
+        return null;
+      }
+
+      if (value instanceof LinkSet set) {
+        return set;
+      }
+
+      throw new DatabaseException(
+          "Property " + name + " is not a link set type, but " + value.getClass().getName());
+    } else {
+      return getEmbeddedSet(name);
+    }
+  }
+
+  @Nullable
+  default <T> Map<String, T> getEmbeddedMap(@Nonnull String name) {
+    Map<String, T> value;
+
+    if (isEntity()) {
+      var entity = castToEntity();
+      value = entity.getProperty(name);
+
+      if (value instanceof TrackedMap<?> trackedMap && trackedMap.isEmbeddedContainer()) {
+        //noinspection unchecked
+        return (Map<String, T>) trackedMap;
+      }
+    } else {
+      value = getProperty(name);
+      if (value instanceof Map<?, ?> map && (!(value instanceof LinkMap))) {
+        //noinspection unchecked
+        return (Map<String, T>) map;
+      }
+    }
+
+    if (value == null) {
+      return null;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a embedded map type, but " + value.getClass().getName());
+  }
+
+  @Nullable
+  default Map<String, Identifiable> getLinkMap(@Nonnull String name) {
+    if (isEntity()) {
+      var entity = castToEntity();
+      var value = entity.getProperty(name);
+
+      if (value == null) {
+        return null;
+      }
+
+      if (value instanceof LinkMap map) {
+        return map;
+      }
+
+      throw new DatabaseException(
+          "Property " + name + " is not a link map type, but " + value.getClass().getName());
+    } else {
+      return getEmbeddedMap(name);
+    }
+  }
 
   /**
-   * Returns the property value as an Vertex. If the property is a link, it will be loaded and
-   * returned as an Vertex. If the property is an Vertex, exception will be thrown.
+   * Either loads the property value as an {@link Entity} if it is a
+   * {@link com.jetbrains.youtrack.db.api.schema.PropertyType#LINK} type or returns embedded
+   * entity.
    *
-   * @param propertyName the property name
-   * @return the property value as an Vertex
-   * @throws DatabaseException if the property is not an Vertex
+   * @param name the property name
+   * @return the property value. Null if the property is not defined.
+   * @throws DatabaseException if the property is not an Entity.
    */
   @Nullable
-  default Vertex getVertexProperty(@Nonnull String propertyName) {
-    var entity = getEntityProperty(propertyName);
+  Entity getEntity(@Nonnull String name);
+
+  /**
+   * Returns the property value as a vertex. If the property is a link, it will be loaded and
+   * returned as an Vertex. If the property is not vertex, exception will be thrown.
+   *
+   * @param propertyName the property name
+   * @return the property value as a vertex
+   * @throws DatabaseException if the property is not a vertex
+   */
+  @Nullable
+  default Vertex getVertex(@Nonnull String propertyName) {
+    var entity = getEntity(propertyName);
     if (entity == null) {
       return null;
     }
@@ -64,8 +379,8 @@ public interface Result {
    * @throws DatabaseException if the property is not an Edge
    */
   @Nullable
-  default Edge getEdgeProperty(@Nonnull String propertyName) {
-    var entity = getEntityProperty(propertyName);
+  default Edge getEdge(@Nonnull String propertyName) {
+    var entity = getEntity(propertyName);
     if (entity == null) {
       return null;
     }
@@ -79,7 +394,8 @@ public interface Result {
    * @param name the property name
    * @return the property value. Null if the property is not defined or if it's not an Blob
    */
-  Blob getBlobProperty(String name);
+  @Nullable
+  Blob getBlob(String name);
 
   /**
    * This method similar to {@link #getProperty(String)} bun unlike before mentioned method it does
@@ -91,7 +407,7 @@ public interface Result {
    * @see #getProperty(String)
    */
   @Nullable
-  Identifiable getLinkProperty(@Nonnull String name);
+  RID getLink(@Nonnull String name);
 
   /**
    * Returns all the names of defined properties

@@ -20,6 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import javax.annotation.Nonnull;
 
 /**
  * Callback interface called when the command returns results.
@@ -29,16 +30,15 @@ public interface CommandResultListener {
   /**
    * This method is called for each result.
    *
-   * @param db
    * @param iRecord Current record
    * @return True to continue the query, otherwise false
    */
-  boolean result(DatabaseSessionInternal db, Object iRecord);
+  boolean result(@Nonnull DatabaseSessionInternal session, Object iRecord);
 
   /**
    * Called at the end of processing. This is useful to clean-up local attributes.
    */
-  void end(DatabaseSessionInternal db);
+  void end(@Nonnull DatabaseSessionInternal session);
 
   Object getResult();
 }

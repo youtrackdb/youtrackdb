@@ -9,8 +9,8 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.Collections;
 import java.util.List;
@@ -38,9 +38,9 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
     DBRecord record;
-    var db = ctx.getDatabaseSession();
+    var session = ctx.getDatabaseSession();
     try {
-      record = currentRecord.getRecord(db);
+      record = currentRecord.getRecord(session);
     } catch (RecordNotFoundException rnf) {
       return false;
     }
@@ -48,14 +48,16 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     if (!(record instanceof EntityImpl entity)) {
       return false;
     }
-    SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    result = entity.getImmutableSchemaClass(session);
+    SchemaClass clazz = result;
     if (clazz == null) {
       return false;
     }
     if (right != null) {
-      return clazz.isSubClassOf(db, right.getStringValue());
+      return clazz.isSubClassOf(session, right.getStringValue());
     } else if (rightString != null) {
-      return clazz.isSubClassOf(db, decode(rightString));
+      return clazz.isSubClassOf(session, decode(rightString));
     }
     return false;
   }
@@ -69,19 +71,23 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
 
-    var db = ctx.getDatabaseSession();
-    var record = currentRecord.castToEntity().getRecord(db);
+    var session = ctx.getDatabaseSession();
+    var record = currentRecord.castToEntity().getRecord(session);
     if (!(record instanceof EntityImpl entity)) {
       return false;
     }
-    SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    SchemaClass clazz = result;
     if (clazz == null) {
       return false;
     }
     if (right != null) {
-      return clazz.isSubClassOf(db, right.getStringValue());
+      return clazz.isSubClassOf(session, right.getStringValue());
     } else if (rightString != null) {
-      return clazz.isSubClassOf(db, decode(rightString));
+      return clazz.isSubClassOf(session, decode(rightString));
     }
     return false;
   }

@@ -15,10 +15,10 @@ import com.jetbrains.youtrack.db.internal.common.util.PairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
 import com.jetbrains.youtrack.db.internal.core.sql.IterableRecordSource;
@@ -886,20 +886,21 @@ public final class SQLMatchStatement extends SQLStatement implements IterableRec
     return true;
   }
 
-  private static boolean matchesClass(DatabaseSessionInternal db, Identifiable identifiable,
+  private static boolean matchesClass(DatabaseSessionInternal session, Identifiable identifiable,
       SchemaClass oClass) {
     if (identifiable == null) {
       return false;
     }
     try {
-      var record = identifiable.getRecord(db);
+      var record = identifiable.getRecord(session);
       if (record instanceof EntityImpl) {
-        SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
-            ((EntityImpl) record));
+        SchemaImmutableClass result;
+        result = ((EntityImpl) record).getImmutableSchemaClass(session);
+        SchemaClass schemaClass = result;
         if (schemaClass == null) {
           return false;
         }
-        return schemaClass.isSubClassOf(db, oClass);
+        return schemaClass.isSubClassOf(session, oClass);
       }
       return false;
     } catch (RecordNotFoundException rnf) {

@@ -88,10 +88,6 @@ public class ScriptDatabaseWrapper {
     return this.database.newStatefulEdge(from, to, edgeClassName);
   }
 
-  public DBRecord save(DBRecord element) {
-    return this.database.save(element);
-  }
-
   public void delete(DBRecord record) {
     this.database.delete(record);
   }

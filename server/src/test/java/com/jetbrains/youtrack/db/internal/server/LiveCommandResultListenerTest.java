@@ -17,6 +17,7 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.LiveCom
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import com.jetbrains.youtrack.db.internal.server.token.TokenHandlerImpl;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -42,12 +43,12 @@ public class LiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   private static class TestResultListener implements CommandResultListener {
 
     @Override
-    public boolean result(DatabaseSessionInternal db, Object iRecord) {
+    public boolean result(@Nonnull DatabaseSessionInternal session, Object iRecord) {
       return false;
     }
 
     @Override
-    public void end(DatabaseSessionInternal db) {
+    public void end(@Nonnull DatabaseSessionInternal session) {
     }
 
     @Override

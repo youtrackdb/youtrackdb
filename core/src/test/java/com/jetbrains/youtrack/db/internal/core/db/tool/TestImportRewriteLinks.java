@@ -104,7 +104,7 @@ public class TestImportRewriteLinks {
         DatabaseImport.doRewriteLinksInDocument(db, doc,
             brokenRids);
 
-        Assert.assertEquals(new RecordId(10, 3), emb1.getLinkProperty("link"));
+        Assert.assertEquals(new RecordId(10, 3), emb1.getLink("link"));
         Assert.assertNull(emb1.field("brokenLink"));
 
         List<Identifiable> resLinkList = new ArrayList<>();

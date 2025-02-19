@@ -63,6 +63,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
@@ -766,17 +767,21 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
     return value;
   }
 
-  protected RidBag readRidbag(DatabaseSessionInternal db, BytesContainer bytes) {
-    var bag = new RidBag(db);
-    bag.fromStream(db, bytes);
+  protected static RidBag readRidbag(DatabaseSessionInternal session, BytesContainer bytes) {
+    var bag = new RidBag(session);
+    bag.fromStream(session, bytes);
     return bag;
   }
 
-  protected SchemaClass serializeClass(DatabaseSessionInternal db, final EntityImpl entity,
+  protected SchemaClass serializeClass(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    final SchemaClass clazz = result;
     if (clazz != null) {
-      writeString(bytes, clazz.getName(db));
+      writeString(bytes, clazz.getName(session));
     } else {
       writeEmptyString(bytes);
     }
@@ -905,7 +910,11 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
         && type != PropertyType.EMBEDDEDMAP) {
       return null;
     }
-    SchemaClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    SchemaClass immutableClass = result;
     if (immutableClass != null) {
       var prop = immutableClass.getProperty(session, key);
       if (prop != null) {

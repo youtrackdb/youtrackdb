@@ -38,11 +38,11 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * SQL UPDATE command.
@@ -365,7 +366,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * Update current record.
    */
   @SuppressWarnings("unchecked")
-  public boolean result(DatabaseSessionInternal session, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     final EntityImpl record = ((Identifiable) iRecord).getRecord(session);
 
     if (updateEdge && !isRecordInstanceOf(session, iRecord, "E")) {
@@ -405,12 +406,12 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   /**
    * checks if an object is an Identifiable and an instance of a particular (schema) class
    *
-   * @param db
+   * @param session
    * @param iRecord         The record object
    * @param youTrackDbClass The schema class
    * @return
    */
-  private boolean isRecordInstanceOf(DatabaseSessionInternal db, Object iRecord,
+  private static boolean isRecordInstanceOf(DatabaseSessionInternal session, Object iRecord,
       String youTrackDbClass) {
     if (iRecord == null) {
       return false;
@@ -418,11 +419,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (!(iRecord instanceof Identifiable)) {
       return false;
     }
-    EntityImpl record = ((Identifiable) iRecord).getRecord(db);
-    if (iRecord == null) {
-      return false;
-    }
-    return (EntityInternalUtils.getImmutableSchemaClass(record).isSubClassOf(db, youTrackDbClass));
+    EntityImpl record = ((Identifiable) iRecord).getRecord(session);
+    SchemaImmutableClass result;
+    result = record.getImmutableSchemaClass(session);
+    return (result.isSubClassOf(session, youTrackDbClass));
   }
 
   /**
@@ -485,7 +485,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     }
   }
 
-  private void validateOutInForEdge(DatabaseSessionInternal session, EntityImpl record,
+  private static void validateOutInForEdge(DatabaseSessionInternal session, EntityImpl record,
       Object currentOut, Object currentIn) {
     if (!isRecordInstanceOf(session, currentOut, "V")) {
       throw new CommandExecutionException(session,
@@ -505,7 +505,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
@@ -612,16 +612,25 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
               .getImmutableSchemaSnapshot()
               .getClass(Security.RESTRICTED_CLASSNAME);
 
-      if (restricted != null
-          && restricted.isSuperClassOf(session,
-          EntityInternalUtils.getImmutableSchemaClass(record))) {
-        for (var prop : restricted.properties(session)) {
-          fieldsToPreserve.field(prop.getName(session),
-              record.<Object>field(prop.getName(session)));
+      if (restricted != null) {
+        SchemaImmutableClass result = null;
+        if (record != null) {
+          result = record.getImmutableSchemaClass(session);
+        }
+        if (restricted.isSuperClassOf(session,
+            result)) {
+          for (var prop : restricted.properties(session)) {
+            fieldsToPreserve.field(prop.getName(session),
+                record.<Object>field(prop.getName(session)));
+          }
         }
       }
 
-      SchemaClass recordClass = EntityInternalUtils.getImmutableSchemaClass(record);
+      SchemaImmutableClass result = null;
+      if (record != null) {
+        result = record.getImmutableSchemaClass(session);
+      }
+      SchemaClass recordClass = result;
       if (recordClass != null && recordClass.isSubClassOf(session, "V")) {
         for (var fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -704,9 +713,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       RidBag bag = null;
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
-        if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+        SchemaImmutableClass result1 = null;
+        if (record != null) {
+          result1 = record.getImmutableSchemaClass(session);
+        }
+        if (result1 != null) {
+          SchemaImmutableClass result = null;
+          if (record != null) {
+            result = record.getImmutableSchemaClass(session);
+          }
           var prop =
-              EntityInternalUtils.getImmutableSchemaClass(record)
+              result
                   .getProperty(session, entry.getKey());
           if (prop != null && prop.getType(session) == PropertyType.LINKSET)
           // SET TYPE
@@ -778,9 +795,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         var fieldValue = record.field(entry.getKey());
 
         if (fieldValue == null) {
-          if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+          SchemaImmutableClass result1 = null;
+          if (record != null) {
+            result1 = record.getImmutableSchemaClass(session);
+          }
+          if (result1 != null) {
+            SchemaImmutableClass result = null;
+            if (record != null) {
+              result = record.getImmutableSchemaClass(session);
+            }
             final var property =
-                EntityInternalUtils.getImmutableSchemaClass(record)
+                result
                     .getProperty(session, entry.getKey());
             if (property != null
                 && (property.getType(session) != null
@@ -801,9 +826,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
           var value = extractValue(session, record, pair);
 
-          if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+          SchemaImmutableClass result1 = null;
+          if (record != null) {
+            result1 = record.getImmutableSchemaClass(session);
+          }
+          if (result1 != null) {
+            SchemaImmutableClass result = null;
+            if (record != null) {
+              result = record.getImmutableSchemaClass(session);
+            }
             final var property =
-                EntityInternalUtils.getImmutableSchemaClass(record)
+                result
                     .getProperty(session, entry.getKey());
             if (property != null
                 && property.getType(session).equals(PropertyType.LINKMAP)

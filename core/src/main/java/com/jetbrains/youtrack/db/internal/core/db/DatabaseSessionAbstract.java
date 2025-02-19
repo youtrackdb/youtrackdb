@@ -1704,8 +1704,9 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         if (op.type == RecordOperation.DELETED) {
           final DBRecord rec = op.record;
           if (rec instanceof EntityImpl) {
-            SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
-                ((EntityImpl) rec));
+            SchemaImmutableClass result = null;
+            result = ((EntityImpl) rec).getImmutableSchemaClass(this);
+            SchemaClass schemaClass = result;
             if (iPolymorphic) {
               if (schemaClass.isSubClassOf(this, className)) {
                 deletedInTx++;
@@ -1721,8 +1722,9 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         if (op.type == RecordOperation.CREATED) {
           final DBRecord rec = op.record;
           if (rec instanceof EntityImpl) {
-            SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
-                ((EntityImpl) rec));
+            SchemaImmutableClass result = null;
+            result = ((EntityImpl) rec).getImmutableSchemaClass(this);
+            SchemaClass schemaClass = result;
             if (schemaClass != null) {
               if (iPolymorphic) {
                 if (schemaClass.isSubClassOf(this, className)) {

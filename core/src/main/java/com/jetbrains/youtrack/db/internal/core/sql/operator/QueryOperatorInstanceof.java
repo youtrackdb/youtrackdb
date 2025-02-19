@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 
 /**
@@ -61,7 +61,11 @@ public class QueryOperatorInstanceof extends QueryOperatorEqualityNotNulls {
       // GET THE RECORD'S CLASS
       var record = ((Identifiable) iLeft).getRecord(iContext.getDatabaseSession());
       if (record instanceof EntityImpl) {
-        cls = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
+        SchemaImmutableClass result = null;
+        if (record != null) {
+          result = ((EntityImpl) record).getImmutableSchemaClass(session);
+        }
+        cls = result;
       }
     } else if (iLeft instanceof String)
     // GET THE CLASS BY NAME

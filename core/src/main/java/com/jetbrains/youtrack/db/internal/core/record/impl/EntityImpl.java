@@ -287,7 +287,7 @@ public class EntityImpl extends RecordAbstract
       return vertex;
     }
 
-    SchemaClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass(session);
     if (type == null) {
       throw new IllegalStateException("Entity is not a vertex");
     }
@@ -307,7 +307,7 @@ public class EntityImpl extends RecordAbstract
       return vertex;
     }
 
-    SchemaClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass(session);
     if (type == null) {
       return null;
     }
@@ -326,7 +326,7 @@ public class EntityImpl extends RecordAbstract
       return edge;
     }
 
-    SchemaClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass(session);
     if (type == null) {
       throw new DatabaseException("Entity is not an edge");
     }
@@ -344,11 +344,11 @@ public class EntityImpl extends RecordAbstract
       return edge;
     }
 
-    SchemaClass type = this.getImmutableSchemaClass();
+    var session = getSession();
+    SchemaClass type = this.getImmutableSchemaClass(session);
     if (type == null) {
       return null;
     }
-    var session = getSession();
 
     if (type.isEdgeType(session)) {
       return new StatefulEdgeImpl(this, session);
@@ -363,7 +363,7 @@ public class EntityImpl extends RecordAbstract
       return true;
     }
 
-    SchemaClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass(session);
     if (type == null) {
       return false;
     }
@@ -378,7 +378,7 @@ public class EntityImpl extends RecordAbstract
       return true;
     }
 
-    SchemaClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass(session);
     if (type == null) {
       return false;
     }
@@ -513,13 +513,14 @@ public class EntityImpl extends RecordAbstract
     return getPropertyInternal(fieldName);
   }
 
+
   @Nullable
   @Override
-  public Entity getEntityProperty(@Nonnull String name) {
+  public Entity getEntity(@Nonnull String name) {
     {
       var property = getProperty(name);
-
       var session = getSession();
+
       return switch (property) {
         case null -> null;
         case Entity entity -> entity;
@@ -536,7 +537,7 @@ public class EntityImpl extends RecordAbstract
 
   @Nullable
   @Override
-  public Blob getBlobProperty(String propertyName) {
+  public Blob getBlob(String propertyName) {
     var property = getProperty(propertyName);
 
     var session = getSession();
@@ -571,14 +572,8 @@ public class EntityImpl extends RecordAbstract
         && lazyLoad
         && value instanceof RID rid
         && (rid.isPersistent() || rid.isNew())) {
-      // CREATE THE ENTITY OBJECT IN LAZY WAY
       try {
         value = session.load((RID) value);
-
-        var entry = fields.get(name);
-        entry.disableTracking(this, entry.value);
-        entry.value = value;
-        entry.enableTracking(this);
       } catch (RecordNotFoundException e) {
         return null;
       }
@@ -651,13 +646,13 @@ public class EntityImpl extends RecordAbstract
    */
   @Nullable
   @Override
-  public Identifiable getLinkProperty(@Nonnull String fieldName) {
+  public RID getLink(@Nonnull String fieldName) {
     return getLinkPropertyInternal(fieldName);
   }
 
   @Nullable
   @Override
-  public Identifiable getLinkPropertyInternal(String name) {
+  public RID getLinkPropertyInternal(String name) {
     if (name == null) {
       return null;
     }
@@ -677,7 +672,7 @@ public class EntityImpl extends RecordAbstract
       throw new IllegalArgumentException("Requested property " + name + " is not a link.");
     }
 
-    return (Identifiable) convertToGraphElement(result);
+    return id;
   }
 
   /**
@@ -722,7 +717,7 @@ public class EntityImpl extends RecordAbstract
     var value = this.<List<T>>getPropertyInternal(name);
 
     if (value == null) {
-      value = new TrackedList<T>(this);
+      value = new TrackedList<>(this);
       setPropertyInternal(name, value, PropertyType.EMBEDDEDLIST);
     }
 
@@ -741,7 +736,7 @@ public class EntityImpl extends RecordAbstract
   public @Nonnull <T> Set<T> getOrCreateEmbeddedSet(@Nonnull String name) {
     var value = this.<Set<T>>getPropertyInternal(name);
     if (value == null) {
-      value = new TrackedSet<T>(this);
+      value = new TrackedSet<>(this);
       setPropertyInternal(name, value, PropertyType.EMBEDDEDSET);
     }
 
@@ -760,7 +755,7 @@ public class EntityImpl extends RecordAbstract
   public @Nonnull <T> Map<String, T> getOrCreateEmbeddedMap(@Nonnull String name) {
     var value = this.<Map<String, T>>getPropertyInternal(name);
     if (value == null) {
-      value = new TrackedMap<T>(this);
+      value = new TrackedMap<>(this);
       setPropertyInternal(name, value, PropertyType.EMBEDDEDMAP);
     }
 
@@ -836,9 +831,9 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   public void setPropertyInternal(String name, Object value) {
-    if (value instanceof Entity entity
-        && entity.getSchemaClass() == null
-        && !((RecordId) entity.getIdentity()).isValid()) {
+    if (value instanceof EntityImpl entity
+        && entity.getImmutableSchemaClass(session) == null
+        && !entity.getIdentity().isValid()) {
       setProperty(name, value, PropertyType.EMBEDDED);
     } else {
       setPropertyInternal(name, value, null);
@@ -936,9 +931,9 @@ public class EntityImpl extends RecordAbstract
    *
    * @param name          The property name
    * @param propertyValue The property value
-   * @param types         Forced type (not auto-determined)
+   * @param type          Forced type (not auto-determined)
    */
-  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType types) {
+  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType type) {
     if (propertyValue instanceof Collection<?> || propertyValue instanceof Map<?, ?>
         || propertyValue != null && propertyValue.getClass()
         .isArray()) {
@@ -946,7 +941,7 @@ public class EntityImpl extends RecordAbstract
           "Data containers have to be created using appropriate getOrCreateXxx methods");
     }
 
-    setPropertyInternal(name, propertyValue, types);
+    setPropertyInternal(name, propertyValue, type);
   }
 
   public void compareAndSetPropertyInternal(String name, Object value, PropertyType type) {
@@ -1523,32 +1518,32 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static void validateLink(
-      ImmutableSchema schema, DatabaseSessionInternal db, final SchemaProperty p,
+      ImmutableSchema schema, @Nonnull DatabaseSessionInternal session, final SchemaProperty p,
       final Object fieldValue, boolean allowNull) {
     if (fieldValue == null) {
       if (allowNull) {
         return;
       } else {
-        throw new ValidationException(db.getDatabaseName(),
+        throw new ValidationException(session.getDatabaseName(),
             "The field '"
-                + p.getFullName(db)
+                + p.getFullName(session)
                 + "' has been declared as "
-                + p.getType(db)
+                + p.getType(session)
                 + " but contains a null record (probably a deleted record?)");
       }
     }
 
     if (!(fieldValue instanceof Identifiable)) {
-      throw new ValidationException(db.getDatabaseName(),
+      throw new ValidationException(session.getDatabaseName(),
           "The field '"
-              + p.getFullName(db)
+              + p.getFullName(session)
               + "' has been declared as "
-              + p.getType(db)
+              + p.getType(session)
               + " but the value is not a record or a record-id");
     }
 
-    final var schemaClass = p.getLinkedClass(db);
-    if (schemaClass != null && !schemaClass.isSubClassOf(db, Identity.CLASS_NAME)) {
+    final var schemaClass = p.getLinkedClass(session);
+    if (schemaClass != null && !schemaClass.isSubClassOf(session, Identity.CLASS_NAME)) {
       // DON'T VALIDATE OUSER AND OROLE FOR SECURITY RESTRICTIONS
       var identifiable = (Identifiable) fieldValue;
       final var rid = identifiable.getIdentity();
@@ -1559,20 +1554,20 @@ public class EntityImpl extends RecordAbstract
         var clusterId = rid.getClusterId();
         if (clusterId != RID.CLUSTER_ID_INVALID) {
           cls = schema.getClassByClusterId(rid.getClusterId());
-        } else if (identifiable instanceof Entity element) {
-          cls = element.getSchemaClass();
+        } else if (identifiable instanceof EntityImpl entity) {
+          cls = entity.getImmutableSchemaClass(session);
         } else {
           cls = null;
         }
 
-        if (cls != null && !schemaClass.isSuperClassOf(db, cls)) {
-          throw new ValidationException(db.getDatabaseName(),
+        if (cls != null && !schemaClass.isSuperClassOf(session, cls)) {
+          throw new ValidationException(session.getDatabaseName(),
               "The field '"
-                  + p.getFullName(db)
+                  + p.getFullName(session)
                   + "' has been declared as "
-                  + p.getType(db)
+                  + p.getType(session)
                   + " of type '"
-                  + schemaClass.getName(db)
+                  + schemaClass.getName(session)
                   + "' but the value is the entity "
                   + rid
                   + " of class '"
@@ -1583,96 +1578,97 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private static void validateEmbedded(DatabaseSessionInternal db, final SchemaProperty p,
+  private static void validateEmbedded(@Nonnull DatabaseSessionInternal session,
+      final SchemaProperty p,
       final Object fieldValue) {
     if (fieldValue == null) {
       return;
     }
     if (fieldValue instanceof RecordId) {
-      throw new ValidationException(db.getDatabaseName(),
+      throw new ValidationException(session.getDatabaseName(),
           "The field '"
-              + p.getFullName(db)
+              + p.getFullName(session)
               + "' has been declared as "
-              + p.getType(db)
+              + p.getType(session)
               + " but the value is the RecordID "
               + fieldValue);
     } else {
       if (fieldValue instanceof Identifiable embedded) {
         if (((RecordId) embedded.getIdentity()).isValid()) {
-          throw new ValidationException(db.getDatabaseName(),
+          throw new ValidationException(session.getDatabaseName(),
               "The field '"
-                  + p.getFullName(db)
+                  + p.getFullName(session)
                   + "' has been declared as "
-                  + p.getType(db)
+                  + p.getType(session)
                   + " but the value is a entity with the valid RecordID "
                   + fieldValue);
         }
 
-        final var embeddedRecord = embedded.getRecord(db);
+        final var embeddedRecord = embedded.getRecord(session);
         if (embeddedRecord instanceof EntityImpl entity) {
-          final var embeddedClass = p.getLinkedClass(db);
+          final var embeddedClass = p.getLinkedClass(session);
           if (entity.isVertex()) {
-            throw new ValidationException(db.getDatabaseName(),
+            throw new ValidationException(session.getDatabaseName(),
                 "The field '"
-                    + p.getFullName(db)
+                    + p.getFullName(session)
                     + "' has been declared as "
-                    + p.getType(db)
+                    + p.getType(session)
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record is of class '"
-                    + entity.getImmutableSchemaClass().getName(db)
+                    + entity.getImmutableSchemaClass(session).getName(session)
                     + "' that is vertex class");
           }
 
           if (entity.isStatefulEdge()) {
-            throw new ValidationException(db.getDatabaseName(),
+            throw new ValidationException(session.getDatabaseName(),
                 "The field '"
-                    + p.getFullName(db)
+                    + p.getFullName(session)
                     + "' has been declared as "
-                    + p.getType(db)
+                    + p.getType(session)
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record is of class '"
-                    + entity.getImmutableSchemaClass().getName(db)
+                    + entity.getImmutableSchemaClass(session).getName(session)
                     + "' that is edge class");
           }
         }
 
-        final var embeddedClass = p.getLinkedClass(db);
+        final var embeddedClass = p.getLinkedClass(session);
         if (embeddedClass != null) {
 
           if (!(embeddedRecord instanceof EntityImpl entity)) {
-            throw new ValidationException(db.getDatabaseName(),
+            throw new ValidationException(session.getDatabaseName(),
                 "The field '"
-                    + p.getFullName(db)
+                    + p.getFullName(session)
                     + "' has been declared as "
-                    + p.getType(db)
+                    + p.getType(session)
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record was not a entity");
           }
 
-          if (entity.getImmutableSchemaClass() == null) {
-            throw new ValidationException(db.getDatabaseName(),
+          if (entity.getImmutableSchemaClass(session) == null) {
+            throw new ValidationException(session.getDatabaseName(),
                 "The field '"
-                    + p.getFullName(db)
+                    + p.getFullName(session)
                     + "' has been declared as "
-                    + p.getType(db)
+                    + p.getType(session)
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record has no class");
           }
 
-          if (!(entity.getImmutableSchemaClass().isSubClassOf(db, embeddedClass))) {
-            throw new ValidationException(db.getDatabaseName(),
+          if (!(entity.getImmutableSchemaClass(session).isSubClassOf(session, embeddedClass))) {
+            throw new ValidationException(session.getDatabaseName(),
                 "The field '"
-                    + p.getFullName(db)
+                    + p.getFullName(session)
                     + "' has been declared as "
-                    + p.getType(db)
+                    + p.getType(session)
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record is of class '"
-                    + entity.getImmutableSchemaClass().getName(db)
+                    + entity.getImmutableSchemaClass(session).getName(session)
                     + "' that is not a subclass of that");
           }
 
@@ -1680,11 +1676,11 @@ public class EntityImpl extends RecordAbstract
         }
 
       } else {
-        throw new ValidationException(db.getDatabaseName(),
+        throw new ValidationException(session.getDatabaseName(),
             "The field '"
-                + p.getFullName(db)
+                + p.getFullName(session)
                 + "' has been declared as "
-                + p.getType(db)
+                + p.getType(session)
                 + " but an incompatible type is used. Value: "
                 + fieldValue);
       }
@@ -1895,17 +1891,6 @@ public class EntityImpl extends RecordAbstract
       var db = getSession();
       try {
         value = db.load((RID) value);
-
-        if (!iFieldName.contains(".")) {
-          var entry = fields.get(iFieldName);
-          entry.disableTracking(this, entry.value);
-          if (value instanceof RID rid) {
-            entry.value = refreshNonPersistentRid(rid);
-          } else {
-            entry.value = value;
-          }
-          entry.enableTracking(this);
-        }
       } catch (RecordNotFoundException e) {
         return null;
       }
@@ -2059,7 +2044,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     var db = getSession();
-    var cls = getImmutableSchemaClass();
+    var cls = getImmutableSchemaClass(session);
 
     status = STATUS.UNMARSHALLING;
     try {
@@ -2663,8 +2648,8 @@ public class EntityImpl extends RecordAbstract
     iOther.checkForFields();
 
     var session = getSession();
-    if (className == null && iOther.getImmutableSchemaClass() != null) {
-      className = iOther.getImmutableSchemaClass().getName(session);
+    if (className == null && iOther.getImmutableSchemaClass(session) != null) {
+      className = iOther.getImmutableSchemaClass(session).getName(session);
     }
 
     return mergeMap(
@@ -2986,8 +2971,14 @@ public class EntityImpl extends RecordAbstract
     }
 
     internalReset();
-
     super.unload();
+  }
+
+  @Override
+  public void delete() {
+    super.delete();
+
+    internalReset();
   }
 
   /**
@@ -3443,7 +3434,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    final var immutableSchemaClass = getImmutableSchemaClass();
+    final var immutableSchemaClass = getImmutableSchemaClass(session);
     if (immutableSchemaClass != null) {
       if (immutableSchemaClass.isStrictMode(session)) {
         // CHECK IF ALL FIELDS ARE DEFINED
@@ -3671,28 +3662,31 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  protected SchemaImmutableClass getImmutableSchemaClass() {
-    return getImmutableSchemaClass(getSessionIfDefined());
-  }
 
-  protected SchemaImmutableClass getImmutableSchemaClass(
-      @Nullable DatabaseSessionInternal database) {
+  public SchemaImmutableClass getImmutableSchemaClass(
+      @Nonnull DatabaseSessionInternal session) {
+    var bounededSession = getBoundedToSession();
+    if (bounededSession != null && bounededSession != session) {
+      throw new DatabaseException("The entity is bounded to another session");
+    }
+
+    var immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
     if (immutableClazz == null) {
       if (className == null) {
         fetchClassName();
       }
 
       if (className != null) {
-        if (database != null && !database.isClosed()) {
-          final Schema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
-          if (immutableSchema == null) {
-            return null;
-          }
-          //noinspection deprecation
-          immutableSchemaVersion = immutableSchema.getVersion();
-          immutableClazz = (SchemaImmutableClass) immutableSchema.getClass(className);
+        if (immutableSchema == null) {
+          return null;
         }
+        //noinspection deprecation
+        immutableSchemaVersion = immutableSchema.getVersion();
+        immutableClazz = (SchemaImmutableClass) immutableSchema.getClass(className);
       }
+    } else if (immutableSchemaVersion != immutableSchema.getVersion()) {
+      immutableClazz = null;
+      return getImmutableSchemaClass(session);
     }
 
     return immutableClazz;
@@ -3741,7 +3735,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     var session = getSession();
-    SchemaClass clazz = getImmutableSchemaClass();
+    SchemaClass clazz = getImmutableSchemaClass(session);
     if (clazz != null) {
       for (var prop : clazz.properties(session)) {
         var type = prop.getType(session);
@@ -3807,7 +3801,7 @@ public class EntityImpl extends RecordAbstract
           }
 
           if (type == PropertyType.EMBEDDEDLIST) {
-            var list = new TrackedList<Object>(this);
+            var list = new TrackedList<>(this);
             var values = (Collection<Object>) value;
             for (var object : values) {
               list.add(PropertyType.convert(session, object, linkedType.getDefaultJavaType()));
@@ -3863,7 +3857,7 @@ public class EntityImpl extends RecordAbstract
     }
     try {
       if (value instanceof EntityImpl) {
-        SchemaClass entityClass = ((EntityImpl) value).getImmutableSchemaClass();
+        SchemaClass entityClass = ((EntityImpl) value).getImmutableSchemaClass(session);
         if (entityClass == null) {
           ((EntityImpl) value).setClass(linkedClass);
         } else {
@@ -3986,7 +3980,7 @@ public class EntityImpl extends RecordAbstract
 
       var fieldType = entry.type;
       if (fieldType == null) {
-        SchemaClass clazz = getImmutableSchemaClass();
+        SchemaClass clazz = getImmutableSchemaClass(session);
         if (clazz != null) {
           final var prop = clazz.getProperty(session, fieldEntry.getKey());
           fieldType = prop != null ? prop.getType(session) : null;
@@ -4091,7 +4085,7 @@ public class EntityImpl extends RecordAbstract
 
           } else {
             if (value instanceof Map) {
-              var newMap = new TrackedMap<Object>(this);
+              var newMap = new TrackedMap<>(this);
               fillTrackedMap(newMap, newMap, (Map<String, Object>) value);
               origin.replace(event, newMap);
             }
@@ -4117,12 +4111,12 @@ public class EntityImpl extends RecordAbstract
           cur = newList;
         } else {
           if (cur instanceof Set) {
-            var newSet = new TrackedSet<Object>(parent);
+            var newSet = new TrackedSet<>(parent);
             fillTrackedCollection(newSet, newSet, (Collection<Object>) cur);
             cur = newSet;
           } else {
             if (cur instanceof Map) {
-              var newMap = new TrackedMap<Object>(parent);
+              var newMap = new TrackedMap<>(parent);
               fillTrackedMap(newMap, newMap, (Map<String, Object>) cur);
               cur = newMap;
             } else {
@@ -4148,17 +4142,17 @@ public class EntityImpl extends RecordAbstract
         ((EntityImpl) value).clearTrackData();
       } else {
         if (cur.getValue() instanceof List) {
-          var newList = new TrackedList<Object>(parent);
+          var newList = new TrackedList<>(parent);
           fillTrackedCollection(newList, newList, (Collection<Object>) value);
           value = newList;
         } else {
           if (value instanceof Set) {
-            var newSet = new TrackedSet<Object>(parent);
+            var newSet = new TrackedSet<>(parent);
             fillTrackedCollection(newSet, newSet, (Collection<Object>) value);
             value = newSet;
           } else {
             if (value instanceof Map) {
-              var newMap = new TrackedMap<Object>(parent);
+              var newMap = new TrackedMap<>(parent);
               fillTrackedMap(newMap, newMap, (Map<String, Object>) value);
               value = newMap;
             } else {
@@ -4370,7 +4364,7 @@ public class EntityImpl extends RecordAbstract
 
   private PropertyType deriveFieldType(String iFieldName, EntityEntry entry,
       PropertyType fieldType) {
-    SchemaClass clazz = getImmutableSchemaClass();
+    SchemaClass clazz = getImmutableSchemaClass(session);
     var session = getSession();
 
     if (clazz != null) {
@@ -4395,7 +4389,6 @@ public class EntityImpl extends RecordAbstract
 
     return identifiable;
   }
-
 
 
   private void removeAllCollectionChangeListeners() {

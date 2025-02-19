@@ -111,7 +111,7 @@ public class Role extends IdentityWrapper implements SecurityRole {
     super(source);
 
     name = source.getProperty(NAME);
-    var inheritedParent = source.getLinkProperty(INHERITED_ROLE);
+    var inheritedParent = source.getLink(INHERITED_ROLE);
 
     if (inheritedParent != null) {
       parent = session.getMetadata().getSecurity().getRole(inheritedParent);

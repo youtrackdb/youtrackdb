@@ -4716,12 +4716,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jj_consume_token(CREATE);
       jj_consume_token(VERTEX);
-      if (jj_2_68(2147483647)) {
-
-      } else {
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
       jjtn000.targetClass = Identifier();
       switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
         case RETURN:
@@ -4731,7 +4725,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         default:
           jj_la1[135] = jj_gen;
       }
-      if (jj_2_69(2147483647)) {
+      if (jj_2_68(2147483647)) {
         jjtn000.insertBody = InsertBody();
       } else {
       }
@@ -4767,7 +4761,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);
         jjtn000.jjtSetLastToken(getToken(0));
-  }
+      }
     }
     throw new Error("Missing return statement in function");
   }
@@ -5373,7 +5367,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     java.util.List<SQLProjectionItem> items = new java.util.ArrayList<SQLProjectionItem>();
     SQLProjectionItem lastItem = null;
     try {
-      if (jj_2_70(2147483647)) {
+      if (jj_2_69(2147483647)) {
         lastItem = ProjectionItem();
         items.add(lastItem);
         label_18:
@@ -5823,11 +5817,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
-      if (jj_2_71(2147483647)) {
+      if (jj_2_70(2147483647)) {
         jjtn000.rid = Rid();
-      } else if (jj_2_72(2147483647)) {
+      } else if (jj_2_71(2147483647)) {
         jjtn000.inputParam = InputParameter();
-      } else if (jj_2_73(2147483647)) {
+      } else if (jj_2_72(2147483647)) {
         jjtn000.expression = Expression();
       } else {
         jj_consume_token(-1);
@@ -5884,9 +5878,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     Token tokenVal;
     try {
-      if (jj_2_74(2147483647)) {
+      if (jj_2_73(2147483647)) {
         jjtn000.inputValue = InputParameter();
-      } else if (jj_2_75(2147483647)) {
+      } else if (jj_2_74(2147483647)) {
         tokenVal = jj_consume_token(INTEGER_LITERAL);
         jjtn000.integer = Integer.parseInt(tokenVal.image);
       } else {
@@ -6695,7 +6689,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
-      if (jj_2_76(2147483647)) {
+      if (jj_2_75(2147483647)) {
         jjtn000.functionCall = FunctionCall();
       } else {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -6705,7 +6699,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             break;
           default:
             jj_la1[166] = jj_gen;
-            if (jj_2_77(2147483647)) {
+            if (jj_2_76(2147483647)) {
               jjtn000.collection = Collection();
             } else {
               jj_consume_token(-1);
@@ -6764,10 +6758,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLIdentifier identifier;
     try {
-      if (jj_2_78(2147483647)) {
+      if (jj_2_77(2147483647)) {
         identifier = Identifier();
         jjtn000.setIdentifier(identifier);
-      } else if (jj_2_79(2147483647)) {
+      } else if (jj_2_78(2147483647)) {
         jjtn000.recordAttribute = RecordAttribute();
       } else {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -6831,9 +6825,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtree.openNodeScope(jjtn000);
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
-      if (jj_2_80(2147483647)) {
+      if (jj_2_79(2147483647)) {
         jjtn000.levelZero = LevelZeroIdentifier();
-      } else if (jj_2_81(2147483647)) {
+      } else if (jj_2_80(2147483647)) {
         jjtn000.suffix = SuffixIdentifier();
       } else {
         jj_consume_token(-1);
@@ -6893,13 +6887,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         case LBRACKET:
           jj_consume_token(LBRACKET);
           jjtn000.squareBrackets = true;
-          if (jj_2_82(2147483647)) {
+          if (jj_2_81(2147483647)) {
             jjtn000.rightBinaryCondition = RightBinaryCondition();
-          } else if (jj_2_83(2147483647)) {
+          } else if (jj_2_82(2147483647)) {
             jjtn000.arrayRange = ArrayRangeSelector();
-          } else if (jj_2_84(2147483647)) {
+          } else if (jj_2_83(2147483647)) {
             jjtn000.condition = OrBlock();
-          } else if (jj_2_85(2147483647)) {
+          } else if (jj_2_84(2147483647)) {
             jjtn000.arraySingleValues = ArraySingleValuesSelector();
           } else {
             jj_consume_token(-1);
@@ -6909,7 +6903,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           break;
         default:
           jj_la1[168] = jj_gen;
-          if (jj_2_86(2147483647)) {
+          if (jj_2_85(2147483647)) {
             jjtn000.methodCall = MethodCall();
           } else {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -6924,7 +6918,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             }
         }
       }
-      if (jj_2_87(2147483647)) {
+      if (jj_2_86(2147483647)) {
         jjtn000.next = Modifier();
       } else {
       }
@@ -6979,7 +6973,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     Token token;
     try {
-      if (jj_2_88(2147483647)) {
+      if (jj_2_87(2147483647)) {
         jjtn000.arrayConcatExpression = ArrayConcatExpression();
         jjtn000.value = jjtn000.arrayConcatExpression;
       } else {
@@ -7001,10 +6995,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             break;
           default:
             jj_la1[170] = jj_gen;
-            if (jj_2_89(2147483647)) {
+            if (jj_2_88(2147483647)) {
               jjtn000.rid = Rid();
               jjtn000.value = jjtn000.rid;
-            } else if (jj_2_90(2147483647)) {
+            } else if (jj_2_89(2147483647)) {
               jjtn000.mathExpression = MathExpression();
               jjtn000.value = jjtn000.mathExpression;
             } else {
@@ -7155,10 +7149,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           break;
         default:
           jj_la1[173] = jj_gen;
-          if (jj_2_91(2147483647)) {
+          if (jj_2_90(2147483647)) {
             jjtn000.rid = Rid();
             jjtn000.value = jjtn000.rid;
-          } else if (jj_2_92(2147483647)) {
+          } else if (jj_2_91(2147483647)) {
             jjtn000.mathExpression = MathExpression();
             jjtn000.value = jjtn000.mathExpression;
           } else {
@@ -7227,7 +7221,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jjtn000.addChildExpression(sub);
       label_25:
       while (true) {
-        if (jj_2_93(2)) {
+        if (jj_2_92(2)) {
         } else {
           break;
         }
@@ -7337,9 +7331,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLMathExpression expr;
     try {
-      if (jj_2_94(2147483647)) {
+      if (jj_2_93(2147483647)) {
         expr = ParenthesisExpression();
-      } else if (jj_2_95(2147483647)) {
+      } else if (jj_2_94(2147483647)) {
         expr = BaseExpression();
       } else {
         jj_consume_token(-1);
@@ -7394,7 +7388,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
       jj_consume_token(LPAREN);
-      if (jj_2_96(2)) {
+      if (jj_2_95(2)) {
         jjtn000.statement = QueryStatement();
       } else {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -7705,7 +7699,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         case QUOTED_IDENTIFIER:
           identifier = BaseIdentifier();
           jjtn000.setIdentifier(identifier);
-          if (jj_2_97(2147483647)) {
+          if (jj_2_96(2147483647)) {
             jjtn000.modifier = Modifier();
           } else {
           }
@@ -7713,7 +7707,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         case HOOK:
         case COLON:
           jjtn000.inputParam = InputParameter();
-          if (jj_2_98(2147483647)) {
+          if (jj_2_97(2147483647)) {
             jjtn000.modifier = Modifier();
           } else {
           }
@@ -7735,7 +7729,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               jj_consume_token(-1);
               throw new ParseException();
           }
-          if (jj_2_99(2147483647)) {
+          if (jj_2_98(2147483647)) {
             jjtn000.modifier = Modifier();
           } else {
           }
@@ -7907,7 +7901,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.varName = Identifier();
       jj_consume_token(EQ);
-      if (jj_2_100(2147483647)) {
+      if (jj_2_99(2147483647)) {
         jjtn000.expression = Expression();
       } else {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -7987,7 +7981,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           break;
         default:
           jj_la1[185] = jj_gen;
-          if (jj_2_104(2)) {
+          if (jj_2_103(2)) {
             jj_consume_token(LBRACKET);
             lastRid = Rid();
             jjtn000.addRid(lastRid);
@@ -8060,7 +8054,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                 break;
               default:
                 jj_la1[186] = jj_gen;
-                if (jj_2_105(2147483647)) {
+                if (jj_2_104(2147483647)) {
                   jjtn000.index = IndexIdentifier();
                 } else {
                   switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -8071,7 +8065,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                       jj_consume_token(LPAREN);
                       jjtn000.statement = QueryStatement();
                       jj_consume_token(RPAREN);
-                      if (jj_2_101(2147483647)) {
+                      if (jj_2_100(2147483647)) {
                         jjtn000.modifier = Modifier();
                       } else {
                       }
@@ -8082,9 +8076,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                       break;
                     default:
                       jj_la1[187] = jj_gen;
-                      if (jj_2_106(2)) {
+                      if (jj_2_105(2)) {
                         jjtn000.functionCall = FunctionCall();
-                        if (jj_2_102(2147483647)) {
+                        if (jj_2_101(2147483647)) {
                           jjtn000.modifier = Modifier();
                         } else {
                         }
@@ -8199,7 +8193,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                           case QUOTED_IDENTIFIER:
                             identifier = Identifier();
                             jjtn000.setIdentifier(identifier);
-                            if (jj_2_103(2147483647)) {
+                            if (jj_2_102(2147483647)) {
                               jjtn000.modifier = Modifier();
                             } else {
                             }
@@ -8861,9 +8855,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         case NOT:
           jj_consume_token(NOT);
           jjtn000.negate = true;
-          if (jj_2_107(2147483647)) {
+          if (jj_2_106(2147483647)) {
             jjtn000.sub = ConditionBlock();
-          } else if (jj_2_108(2147483647)) {
+          } else if (jj_2_107(2147483647)) {
             jjtn000.sub = ParenthesisBlock();
           } else {
             jj_consume_token(-1);
@@ -8996,9 +8990,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         case IDENTIFIER:
         case QUOTED_IDENTIFIER:
         case 265:
-          if (jj_2_109(2147483647)) {
+          if (jj_2_108(2147483647)) {
             jjtn000.sub = ConditionBlock();
-          } else if (jj_2_110(2147483647)) {
+          } else if (jj_2_109(2147483647)) {
             jjtn000.sub = ParenthesisBlock();
           } else {
             jj_consume_token(-1);
@@ -9108,35 +9102,35 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     SQLBooleanExpression result = null;
     try {
-      if (jj_2_111(2147483647)) {
+      if (jj_2_110(2147483647)) {
         result = IsNotNullCondition();
-      } else if (jj_2_112(2147483647)) {
+      } else if (jj_2_111(2147483647)) {
         result = IsNullCondition();
-      } else if (jj_2_113(2147483647)) {
+      } else if (jj_2_112(2147483647)) {
         result = IsNotDefinedCondition();
-      } else if (jj_2_114(2147483647)) {
+      } else if (jj_2_113(2147483647)) {
         result = IsDefinedCondition();
-      } else if (jj_2_115(2147483647)) {
+      } else if (jj_2_114(2147483647)) {
         result = InCondition();
-      } else if (jj_2_116(2147483647)) {
+      } else if (jj_2_115(2147483647)) {
         result = NotInCondition();
-      } else if (jj_2_117(2147483647)) {
+      } else if (jj_2_116(2147483647)) {
         result = BinaryCondition();
-      } else if (jj_2_118(2147483647)) {
+      } else if (jj_2_117(2147483647)) {
         result = BetweenCondition();
-      } else if (jj_2_119(2147483647)) {
+      } else if (jj_2_118(2147483647)) {
         result = ContainsCondition();
-      } else if (jj_2_120(2147483647)) {
+      } else if (jj_2_119(2147483647)) {
         result = ContainsValueCondition();
-      } else if (jj_2_121(2147483647)) {
+      } else if (jj_2_120(2147483647)) {
         result = ContainsAllCondition();
-      } else if (jj_2_122(2147483647)) {
+      } else if (jj_2_121(2147483647)) {
         result = ContainsAnyCondition();
-      } else if (jj_2_123(2147483647)) {
+      } else if (jj_2_122(2147483647)) {
         result = ContainsTextCondition();
-      } else if (jj_2_124(2147483647)) {
+      } else if (jj_2_123(2147483647)) {
         result = MatchesCondition();
-      } else if (jj_2_125(2147483647)) {
+      } else if (jj_2_124(2147483647)) {
         result = InstanceofCondition();
       } else {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -9753,11 +9747,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.left = Expression();
       jjtn000.operator = ContainsValueOperator();
-      if (jj_2_126(3)) {
+      if (jj_2_125(3)) {
         jj_consume_token(LPAREN);
         jjtn000.condition = OrBlock();
         jj_consume_token(RPAREN);
-      } else if (jj_2_127(2147483647)) {
+      } else if (jj_2_126(2147483647)) {
         jjtn000.expression = Expression();
       } else {
         jj_consume_token(-1);
@@ -10225,11 +10219,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.left = Expression();
       jj_consume_token(CONTAINS);
-      if (jj_2_128(3)) {
+      if (jj_2_127(3)) {
         jj_consume_token(LPAREN);
         jjtn000.condition = OrBlock();
         jj_consume_token(RPAREN);
-      } else if (jj_2_129(2147483647)) {
+      } else if (jj_2_128(2147483647)) {
         jjtn000.right = Expression();
       } else {
         jj_consume_token(-1);
@@ -10309,9 +10303,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.left = Expression();
       jjtn000.operator = InOperator();
-      if (jj_2_131(2)) {
+      if (jj_2_130(2)) {
         jj_consume_token(LPAREN);
-        if (jj_2_130(2147483647)) {
+        if (jj_2_129(2147483647)) {
           jjtn000.rightStatement = SelectStatement();
         } else {
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -10325,7 +10319,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           }
         }
         jj_consume_token(RPAREN);
-      } else if (jj_2_132(2)) {
+      } else if (jj_2_131(2)) {
         jj_consume_token(LPAREN);
         jjtn000.rightParam = InputParameter();
         jj_consume_token(RPAREN);
@@ -10508,9 +10502,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jjtn000.left = Expression();
       jj_consume_token(NOT);
       InOperator();
-      if (jj_2_134(2)) {
+      if (jj_2_133(2)) {
         jj_consume_token(LPAREN);
-        if (jj_2_133(2147483647)) {
+        if (jj_2_132(2147483647)) {
           jjtn000.rightStatement = SelectStatement();
         } else {
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -10524,7 +10518,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           }
         }
         jj_consume_token(RPAREN);
-      } else if (jj_2_135(2)) {
+      } else if (jj_2_134(2)) {
         jj_consume_token(LPAREN);
         jjtn000.rightParam = InputParameter();
         jj_consume_token(RPAREN);
@@ -10709,11 +10703,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.left = Expression();
       jj_consume_token(CONTAINSALL);
-      if (jj_2_136(3)) {
+      if (jj_2_135(3)) {
         jj_consume_token(LPAREN);
         jjtn000.rightBlock = OrBlock();
         jj_consume_token(RPAREN);
-      } else if (jj_2_137(2147483647)) {
+      } else if (jj_2_136(2147483647)) {
         jjtn000.right = Expression();
       } else {
         jj_consume_token(-1);
@@ -10769,11 +10763,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.left = Expression();
       jj_consume_token(CONTAINSANY);
-      if (jj_2_138(3)) {
+      if (jj_2_137(3)) {
         jj_consume_token(LPAREN);
         jjtn000.rightBlock = OrBlock();
         jj_consume_token(RPAREN);
-      } else if (jj_2_139(2147483647)) {
+      } else if (jj_2_138(2147483647)) {
         jjtn000.right = Expression();
       } else {
         jj_consume_token(-1);
@@ -10881,7 +10875,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     try {
       jjtn000.expression = Expression();
       jj_consume_token(MATCHES);
-      if (jj_2_140(2147483647)) {
+      if (jj_2_139(2147483647)) {
         jjtn000.rightExpression = Expression();
       } else {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -13050,7 +13044,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     jjtn000.jjtSetFirstToken(getToken(1));
     try {
       jjtn000.base = BaseIdentifier();
-      if (jj_2_141(2147483647)) {
+      if (jj_2_140(2147483647)) {
         jjtn000.modifier = Modifier();
       } else {
       }
@@ -13563,13 +13557,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_la1[256] = jj_gen;
             break label_40;
         }
-        if (jj_2_142(3)) {
+        if (jj_2_141(3)) {
           nextItem = MatchPathItem();
-        } else if (jj_2_143(3)) {
+        } else if (jj_2_142(3)) {
           nextItem = MultiMatchPathItemArrows();
-        } else if (jj_2_144(3)) {
+        } else if (jj_2_143(3)) {
           nextItem = MultiMatchPathItem();
-        } else if (jj_2_145(2147483647)) {
+        } else if (jj_2_144(2147483647)) {
           nextItem = OutPathItem();
         } else {
           switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -13578,7 +13572,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               break;
             default:
               jj_la1[257] = jj_gen;
-              if (jj_2_146(2147483647)) {
+              if (jj_2_145(2147483647)) {
                 nextItem = BothPathItem();
               } else {
                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -13819,7 +13813,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jjtn000.addItem(nextItem);
       label_41:
       while (true) {
-        if (jj_2_147(2147483647)) {
+        if (jj_2_146(2147483647)) {
         } else {
           break;
         }
@@ -13889,13 +13883,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_consume_token(LPAREN);
       label_42:
       while (true) {
-        if (jj_2_148(2147483647)) {
+        if (jj_2_147(2147483647)) {
           nextItem = OutPathItemOpt();
           jjtn000.addItem(nextItem);
-        } else if (jj_2_149(2147483647)) {
+        } else if (jj_2_148(2147483647)) {
           nextItem = InPathItemOpt();
           jjtn000.addItem(nextItem);
-        } else if (jj_2_150(2147483647)) {
+        } else if (jj_2_149(2147483647)) {
           nextItem = BothPathItemOpt();
           jjtn000.addItem(nextItem);
         } else {
@@ -17329,7 +17323,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jjtn000.className = Identifier();
       jj_consume_token(DOT);
       jjtn000.propertyName = Identifier();
-      if (jj_2_151(3)) {
+      if (jj_2_150(3)) {
         IfNotExists();
         jjtn000.ifNotExists = true;
       } else {
@@ -17583,7 +17577,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jjtn000.className = Identifier();
       jj_consume_token(DOT);
       jjtn000.propertyName = Identifier();
-      if (jj_2_152(3)) {
+      if (jj_2_151(3)) {
         jj_consume_token(CUSTOM);
         jjtn000.customPropertyName = Identifier();
         jj_consume_token(EQ);
@@ -17822,7 +17816,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_consume_token(CREATE);
       jj_consume_token(INDEX);
       jjtn000.name = IndexName();
-      if (jj_2_154(4)) {
+      if (jj_2_153(4)) {
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
           case IF:
             jj_consume_token(IF);
@@ -18264,7 +18258,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           case KEY:
           case IDENTIFIER:
           case QUOTED_IDENTIFIER:
-            if (jj_2_153(3)) {
+            if (jj_2_152(3)) {
               jj_consume_token(IF);
               jj_consume_token(NOT);
               jj_consume_token(EXISTS);
@@ -18394,7 +18388,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             throw new ParseException();
         }
       }
-      if (jj_2_157(2)) {
+      if (jj_2_156(2)) {
         jj_consume_token(ENGINE);
         jjtn000.engine = Identifier();
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -18505,7 +18499,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           case KEY:
           case IDENTIFIER:
           case QUOTED_IDENTIFIER:
-            if (jj_2_155(2)) {
+            if (jj_2_154(2)) {
               jj_consume_token(METADATA);
               jjtn000.metadata = Json();
             } else {
@@ -18760,7 +18754,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           case KEY:
           case IDENTIFIER:
           case QUOTED_IDENTIFIER:
-            if (jj_2_156(2)) {
+            if (jj_2_155(2)) {
               jj_consume_token(METADATA);
               jjtn000.metadata = Json();
             } else {
@@ -21772,9 +21766,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_consume_token(LET);
       jjtn000.name = Identifier();
       jj_consume_token(EQ);
-      if (jj_2_158(2147483647)) {
+      if (jj_2_157(2147483647)) {
         jjtn000.statement = StatementInternal();
-      } else if (jj_2_159(2147483647)) {
+      } else if (jj_2_158(2147483647)) {
         jjtn000.expression = Expression();
       } else {
         jj_consume_token(-1);
@@ -22360,7 +22354,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_la1[391] = jj_gen;
             break label_59;
         }
-        if (jj_2_160(2147483647)) {
+        if (jj_2_159(2147483647)) {
           last = StatementSemicolon();
           jjtn000.addStatement(last);
         } else {
@@ -23341,7 +23335,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_la1[407] = jj_gen;
             break label_64;
         }
-        if (jj_2_161(2147483647)) {
+        if (jj_2_160(2147483647)) {
           lastStatement = StatementSemicolon();
           jjtn000.addStatement(lastStatement);
         } else {
@@ -23571,7 +23565,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_la1[409] = jj_gen;
             break label_65;
         }
-        if (jj_2_162(2147483647)) {
+        if (jj_2_161(2147483647)) {
           lastStatement = StatementSemicolon();
           jjtn000.addStatement(lastStatement);
         } else {
@@ -27000,46 +26994,38 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_save(160, xla); }
   }
 
-  private boolean jj_2_162(int xla) {
-    jj_la = xla;
-    jj_lastpos = jj_scanpos = token;
-    try {
-      return !jj_3_162();
-    } catch (LookaheadSuccess ls) {
-      return true;
-    } finally {
-      jj_save(161, xla);
-    }
+  private boolean jj_3_128() {
+    return jj_3R_155();
   }
 
   private boolean jj_3R_205() {
     if (jj_3R_155()) {
       return true;
     }
-    if (jj_3R_417()) {
+    if (jj_3R_416()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_131()) {
+    if (jj_3_130()) {
       jj_scanpos = xsp;
-      if (jj_3_132()) {
+      if (jj_3_131()) {
         jj_scanpos = xsp;
-        return jj_3R_418();
+        return jj_3R_417();
       }
     }
     return false;
   }
 
-  private boolean jj_3R_417() {
+  private boolean jj_3R_416() {
     return jj_scan_token(IN);
   }
 
-  private boolean jj_3R_421() {
+  private boolean jj_3R_420() {
     return jj_3R_155();
   }
 
-  private boolean jj_3_128() {
+  private boolean jj_3_127() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -27058,9 +27044,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_128()) {
+    if (jj_3_127()) {
       jj_scanpos = xsp;
-      return jj_3R_421();
+      return jj_3R_420();
     }
     return false;
   }
@@ -27111,15 +27097,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(NULL);
   }
 
-  private boolean jj_3R_432() {
+  private boolean jj_3R_431() {
     return jj_scan_token(CHARACTER_LITERAL);
   }
 
-  private boolean jj_3R_431() {
-    return jj_3R_568();
+  private boolean jj_3R_430() {
+    return jj_3R_567();
   }
 
-  private boolean jj_3R_430() {
+  private boolean jj_3R_429() {
     return jj_3R_165();
   }
 
@@ -27139,7 +27125,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3_127() {
+  private boolean jj_3_126() {
     return jj_3R_155();
   }
 
@@ -27152,21 +27138,21 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_430()) {
+    if (jj_3R_429()) {
       jj_scanpos = xsp;
-      if (jj_3R_431()) {
+      if (jj_3R_430()) {
         jj_scanpos = xsp;
-        return jj_3R_432();
+        return jj_3R_431();
     }
     }
     return false;
   }
 
-  private boolean jj_3R_423() {
+  private boolean jj_3R_422() {
     return jj_3R_155();
   }
 
-  private boolean jj_3_126() {
+  private boolean jj_3_125() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -27180,14 +27166,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_155()) {
       return true;
     }
-    if (jj_3R_422()) {
+    if (jj_3R_421()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_126()) {
+    if (jj_3_125()) {
       jj_scanpos = xsp;
-      return jj_3R_423();
+      return jj_3R_422();
     }
     return false;
   }
@@ -27196,30 +27182,30 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_155()) {
       return true;
     }
-    if (jj_3R_420()) {
+    if (jj_3R_419()) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_526() {
+  private boolean jj_3R_525() {
     return jj_scan_token(NOT);
   }
 
-  private boolean jj_3R_372() {
+  private boolean jj_3R_371() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_526()) {
+    if (jj_3R_525()) {
       jj_scanpos = xsp;
     }
-    if (jj_3R_417()) {
+    if (jj_3R_416()) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_371() {
-    if (jj_3R_420()) {
+  private boolean jj_3R_370() {
+    if (jj_3R_419()) {
       return true;
     }
     return jj_3R_155();
@@ -27228,85 +27214,81 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   private boolean jj_3R_175() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_371()) {
+    if (jj_3R_370()) {
       jj_scanpos = xsp;
-      return jj_3R_372();
+      return jj_3R_371();
     }
     return false;
-  }
-
-  private boolean jj_3R_795() {
-    return jj_scan_token(EQEQ);
   }
 
   private boolean jj_3R_794() {
+    return jj_scan_token(EQEQ);
+  }
+
+  private boolean jj_3R_793() {
     return jj_scan_token(EQ);
   }
 
-  private boolean jj_3R_649() {
+  private boolean jj_3R_648() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_794()) {
+    if (jj_3R_793()) {
       jj_scanpos = xsp;
-      return jj_3R_795();
+      return jj_3R_794();
     }
     return false;
   }
 
-  private boolean jj_3R_422() {
+  private boolean jj_3R_421() {
     return jj_scan_token(CONTAINSVALUE);
   }
 
-  private boolean jj_3R_657() {
+  private boolean jj_3R_656() {
     return jj_scan_token(CONTAINSKEY);
   }
 
-  private boolean jj_3R_661() {
+  private boolean jj_3R_660() {
     return jj_scan_token(SC_AND);
   }
 
-  private boolean jj_3R_660() {
+  private boolean jj_3R_659() {
     return jj_scan_token(WITHIN);
   }
 
-  private boolean jj_3R_659() {
+  private boolean jj_3R_658() {
     return jj_scan_token(NEAR);
   }
 
-  private boolean jj_3R_658() {
+  private boolean jj_3R_657() {
     return jj_scan_token(LUCENE);
   }
 
-  private boolean jj_3R_656() {
+  private boolean jj_3R_655() {
     return jj_scan_token(LIKE);
   }
 
-  private boolean jj_3R_655() {
+  private boolean jj_3R_654() {
     return jj_scan_token(LE);
   }
 
-  private boolean jj_3R_654() {
+  private boolean jj_3R_653() {
     return jj_scan_token(GE);
   }
 
-  private boolean jj_3R_653() {
+  private boolean jj_3R_652() {
     return jj_scan_token(NEQ);
   }
 
-  private boolean jj_3R_652() {
+  private boolean jj_3R_651() {
     return jj_scan_token(NE);
   }
 
-  private boolean jj_3R_651() {
+  private boolean jj_3R_650() {
     return jj_scan_token(GT);
   }
 
-  private boolean jj_3R_650() {
+  private boolean jj_3R_649() {
     return jj_scan_token(LT);
-  }
-
-  private boolean jj_3R_567() {
-    return jj_3R_661();
   }
 
   private boolean jj_3R_566() {
@@ -27321,12 +27303,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_658();
   }
 
-  private boolean jj_3R_555() {
-    return jj_3R_649();
-  }
-
   private boolean jj_3R_563() {
     return jj_3R_657();
+  }
+
+  private boolean jj_3R_554() {
+    return jj_3R_648();
   }
 
   private boolean jj_3R_562() {
@@ -27357,17 +27339,23 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_650();
   }
 
-  private boolean jj_3_125() {
-    return jj_3R_215();
+  private boolean jj_3R_555() {
+    return jj_3R_649();
   }
 
   private boolean jj_3_124() {
+    return jj_3R_215();
+  }
+
+  private boolean jj_3_123() {
     return jj_3R_214();
   }
 
-  private boolean jj_3R_420() {
+  private boolean jj_3R_419() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_554()) {
+      jj_scanpos = xsp;
     if (jj_3R_555()) {
       jj_scanpos = xsp;
       if (jj_3R_556()) {
@@ -27390,10 +27378,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                         jj_scanpos = xsp;
                         if (jj_3R_565()) {
                           jj_scanpos = xsp;
-                          if (jj_3R_566()) {
-                            jj_scanpos = xsp;
-                            return jj_3R_567();
-                          }
+                          return jj_3R_566();
                         }
                       }
                     }
@@ -27402,139 +27387,142 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               }
             }
           }
+        }
     }
     }
     }
     return false;
   }
 
-  private boolean jj_3_123() {
+  private boolean jj_3_122() {
     return jj_3R_213();
-  }
-
-  private boolean jj_3R_416() {
-    return jj_scan_token(FALSE);
-  }
-
-  private boolean jj_3R_414() {
-    return jj_3R_215();
-  }
-
-  private boolean jj_3_121() {
-    return jj_3R_211();
   }
 
   private boolean jj_3R_415() {
-    return jj_scan_token(TRUE);
-  }
-
-  private boolean jj_3_122() {
-    return jj_3R_212();
+    return jj_scan_token(FALSE);
   }
 
   private boolean jj_3R_413() {
-    return jj_3R_214();
+    return jj_3R_215();
   }
 
   private boolean jj_3_120() {
-    return jj_3R_210();
-  }
-
-  private boolean jj_3_119() {
-    return jj_3R_209();
-  }
-
-  private boolean jj_3_118() {
-    return jj_3R_208();
-  }
-
-  private boolean jj_3R_412() {
-    return jj_3R_213();
-  }
-
-  private boolean jj_3R_410() {
     return jj_3R_211();
   }
 
-  private boolean jj_3_117() {
-    return jj_3R_207();
+  private boolean jj_3R_414() {
+    return jj_scan_token(TRUE);
   }
 
-  private boolean jj_3R_411() {
+  private boolean jj_3_121() {
     return jj_3R_212();
   }
 
-  private boolean jj_3R_409() {
+  private boolean jj_3R_412() {
+    return jj_3R_214();
+  }
+
+  private boolean jj_3_119() {
     return jj_3R_210();
   }
 
-  private boolean jj_3R_408() {
+  private boolean jj_3_118() {
     return jj_3R_209();
   }
 
-  private boolean jj_3_115() {
-    return jj_3R_205();
-  }
-
-  private boolean jj_3_116() {
-    return jj_3R_206();
-  }
-
-  private boolean jj_3R_407() {
+  private boolean jj_3_117() {
     return jj_3R_208();
   }
 
-  private boolean jj_3_114() {
-    return jj_3R_204();
+  private boolean jj_3R_411() {
+    return jj_3R_213();
   }
 
-  private boolean jj_3R_406() {
+  private boolean jj_3R_409() {
+    return jj_3R_211();
+  }
+
+  private boolean jj_3_116() {
     return jj_3R_207();
   }
 
-  private boolean jj_3_113() {
-    return jj_3R_203();
+  private boolean jj_3R_410() {
+    return jj_3R_212();
   }
 
-  private boolean jj_3_112() {
-    return jj_3R_202();
+  private boolean jj_3R_408() {
+    return jj_3R_210();
   }
 
-  private boolean jj_3R_404() {
+  private boolean jj_3R_407() {
+    return jj_3R_209();
+  }
+
+  private boolean jj_3_114() {
     return jj_3R_205();
   }
 
-  private boolean jj_3_111() {
-    return jj_3R_201();
-  }
-
-  private boolean jj_3R_405() {
+  private boolean jj_3_115() {
     return jj_3R_206();
   }
 
-  private boolean jj_3R_403() {
+  private boolean jj_3R_406() {
+    return jj_3R_208();
+  }
+
+  private boolean jj_3_113() {
     return jj_3R_204();
   }
 
-  private boolean jj_3R_402() {
+  private boolean jj_3R_405() {
+    return jj_3R_207();
+  }
+
+  private boolean jj_3_112() {
     return jj_3R_203();
   }
 
-  private boolean jj_3R_401() {
+  private boolean jj_3_111() {
     return jj_3R_202();
   }
 
-  private boolean jj_3R_400() {
-    return jj_3R_201();
+  private boolean jj_3R_403() {
+    return jj_3R_205();
   }
 
   private boolean jj_3_110() {
+    return jj_3R_201();
+  }
+
+  private boolean jj_3R_404() {
+    return jj_3R_206();
+  }
+
+  private boolean jj_3R_402() {
+    return jj_3R_204();
+  }
+
+  private boolean jj_3R_401() {
+    return jj_3R_203();
+  }
+
+  private boolean jj_3R_400() {
+    return jj_3R_202();
+  }
+
+  private boolean jj_3R_399() {
+    return jj_3R_201();
+  }
+
+  private boolean jj_3_109() {
     return jj_3R_200();
   }
 
   private boolean jj_3R_199() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_399()) {
+      jj_scanpos = xsp;
     if (jj_3R_400()) {
       jj_scanpos = xsp;
       if (jj_3R_401()) {
@@ -27565,10 +27553,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_scanpos = xsp;
             if (jj_3R_414()) {
               jj_scanpos = xsp;
-              if (jj_3R_415()) {
-                jj_scanpos = xsp;
-                return jj_3R_416();
-              }
+              return jj_3R_415();
             }
           }
         }
@@ -27582,16 +27567,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
           }
         }
+      }
     }
     }
     return false;
   }
 
-  private boolean jj_3_109() {
+  private boolean jj_3_108() {
     return jj_3R_199();
   }
 
-  private boolean jj_3_108() {
+  private boolean jj_3_107() {
     return jj_3R_200();
   }
 
@@ -27605,81 +27591,81 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3_107() {
+  private boolean jj_3_106() {
     return jj_3R_199();
-  }
-
-  private boolean jj_3R_783() {
-    return jj_3R_200();
   }
 
   private boolean jj_3R_782() {
-    return jj_3R_199();
-  }
-
-  private boolean jj_3R_781() {
     return jj_3R_200();
   }
 
-  private boolean jj_3R_636() {
+  private boolean jj_3R_781() {
+    return jj_3R_199();
+  }
+
+  private boolean jj_3R_780() {
+    return jj_3R_200();
+  }
+
+  private boolean jj_3R_635() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_782()) {
+    if (jj_3R_781()) {
       jj_scanpos = xsp;
-      return jj_3R_783();
+      return jj_3R_782();
     }
     return false;
   }
 
-  private boolean jj_3R_780() {
+  private boolean jj_3R_779() {
     return jj_3R_199();
   }
 
-  private boolean jj_3R_635() {
+  private boolean jj_3R_634() {
     if (jj_scan_token(NOT)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_780()) {
+    if (jj_3R_779()) {
       jj_scanpos = xsp;
-      return jj_3R_781();
+      return jj_3R_780();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_529() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_634()) {
+      jj_scanpos = xsp;
+      return jj_3R_635();
     }
     return false;
   }
 
   private boolean jj_3R_530() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_635()) {
-      jj_scanpos = xsp;
-      return jj_3R_636();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_531() {
     if (jj_scan_token(AND)) {
       return true;
     }
-    return jj_3R_530();
-  }
-
-  private boolean jj_3R_377() {
-    if (jj_scan_token(OR)) {
-      return true;
-    }
-    return jj_3R_376();
+    return jj_3R_529();
   }
 
   private boolean jj_3R_376() {
-    if (jj_3R_530()) {
+    if (jj_scan_token(OR)) {
+      return true;
+    }
+    return jj_3R_375();
+  }
+
+  private boolean jj_3R_375() {
+    if (jj_3R_529()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_531()) {
+      if (jj_3R_530()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -27687,93 +27673,93 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_177() {
-    if (jj_3R_376()) {
+    if (jj_3R_375()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_377()) {
+      if (jj_3R_376()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_457() {
+  private boolean jj_3R_456() {
     return jj_3R_177();
   }
 
-  private boolean jj_3R_513() {
+  private boolean jj_3R_512() {
     return jj_scan_token(INDEXVALUESDESC_IDENTIFIER);
   }
 
-  private boolean jj_3R_512() {
+  private boolean jj_3R_511() {
     return jj_scan_token(INDEXVALUESASC_IDENTIFIER);
   }
 
-  private boolean jj_3R_511() {
+  private boolean jj_3R_510() {
     return jj_scan_token(INDEXVALUES_IDENTIFIER);
   }
 
-  private boolean jj_3R_352() {
+  private boolean jj_3R_351() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_511()) {
+    if (jj_3R_510()) {
       jj_scanpos = xsp;
-      if (jj_3R_512()) {
+      if (jj_3R_511()) {
         jj_scanpos = xsp;
-        return jj_3R_513();
+        return jj_3R_512();
     }
     }
     return false;
   }
 
-  private boolean jj_3R_351() {
+  private boolean jj_3R_350() {
     if (jj_scan_token(INDEX_COLON)) {
       return true;
     }
-    return jj_3R_510();
+    return jj_3R_509();
   }
 
   private boolean jj_3R_161() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_351()) {
+    if (jj_3R_350()) {
       jj_scanpos = xsp;
-      return jj_3R_352();
+      return jj_3R_351();
     }
     return false;
   }
 
-  private boolean jj_3R_775() {
+  private boolean jj_3R_774() {
     return jj_scan_token(MINUS);
   }
 
-  private boolean jj_3R_774() {
+  private boolean jj_3R_773() {
     return jj_scan_token(DOT);
   }
 
-  private boolean jj_3R_623() {
+  private boolean jj_3R_622() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_774()) {
+    if (jj_3R_773()) {
       jj_scanpos = xsp;
-      if (jj_3R_775()) {
+      if (jj_3R_774()) {
         return true;
       }
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_622() {
+  private boolean jj_3R_621() {
     return jj_scan_token(266);
   }
 
-  private boolean jj_3R_510() {
+  private boolean jj_3R_509() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_622()) {
+    if (jj_3R_621()) {
       jj_scanpos = xsp;
     }
     if (jj_3R_165()) {
@@ -27781,39 +27767,39 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_623()) {
+      if (jj_3R_622()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_973() {
+  private boolean jj_3R_972() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_874() {
+  private boolean jj_3R_873() {
     if (jj_3R_165()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_973()) {
+      if (jj_3R_972()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_724() {
+  private boolean jj_3R_723() {
     return jj_scan_token(METADATA_IDENTIFIER);
   }
 
-  private boolean jj_3R_723() {
+  private boolean jj_3R_722() {
     if (jj_scan_token(CLUSTER)) {
       return true;
     }
@@ -27825,68 +27811,52 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_874()) {
+    if (jj_3R_873()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RBRACKET);
-  }
-
-  private boolean jj_3_103() {
-    return jj_3R_180();
-  }
-
-  private boolean jj_3R_768() {
-    return jj_scan_token(CLUSTER_NUMBER_IDENTIFIER);
-  }
-
-  private boolean jj_3R_767() {
-    return jj_scan_token(CLUSTER_IDENTIFIER);
   }
 
   private boolean jj_3_102() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_617() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_767()) {
-      jj_scanpos = xsp;
-      return jj_3R_768();
-    }
-    return false;
+  private boolean jj_3R_767() {
+    return jj_scan_token(CLUSTER_NUMBER_IDENTIFIER);
   }
 
-  private boolean jj_3R_727() {
-    return jj_3R_180();
+  private boolean jj_3R_766() {
+    return jj_scan_token(CLUSTER_IDENTIFIER);
   }
 
   private boolean jj_3_101() {
     return jj_3R_180();
   }
 
+  private boolean jj_3R_616() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_766()) {
+      jj_scanpos = xsp;
+      return jj_3R_767();
+    }
+    return false;
+  }
+
   private boolean jj_3R_726() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_592() {
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_727()) {
-      jj_scanpos = xsp;
-    }
-    return false;
+  private boolean jj_3_100() {
+    return jj_3R_180();
   }
 
   private boolean jj_3R_725() {
     return jj_3R_180();
   }
 
-  private boolean jj_3_106() {
-    if (jj_3R_170()) {
+  private boolean jj_3R_591() {
+    if (jj_3R_165()) {
       return true;
     }
     Token xsp;
@@ -27897,15 +27867,31 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_591() {
-    return jj_3R_169();
+  private boolean jj_3R_724() {
+    return jj_3R_180();
   }
 
   private boolean jj_3_105() {
-    return jj_3R_161();
+    if (jj_3R_170()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_725()) {
+      jj_scanpos = xsp;
+    }
+    return false;
   }
 
   private boolean jj_3R_590() {
+    return jj_3R_169();
+  }
+
+  private boolean jj_3_104() {
+    return jj_3R_161();
+  }
+
+  private boolean jj_3R_589() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -27917,58 +27903,54 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_725()) {
+    if (jj_3R_724()) {
       jj_scanpos = xsp;
     }
     return false;
-  }
-
-  private boolean jj_3R_589() {
-    return jj_3R_724();
   }
 
   private boolean jj_3R_588() {
-    return jj_3R_161();
-  }
-
-  private boolean jj_3R_873() {
-    return jj_3R_523();
-  }
-
-  private boolean jj_3R_587() {
     return jj_3R_723();
   }
 
-  private boolean jj_3R_722() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_872()) {
-      jj_scanpos = xsp;
-      return jj_3R_873();
-    }
-    return false;
+  private boolean jj_3R_587() {
+    return jj_3R_161();
   }
 
   private boolean jj_3R_872() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
     return jj_3R_522();
   }
 
   private boolean jj_3R_586() {
-    return jj_3R_617();
-  }
-
-  private boolean jj_3R_606() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_605();
+    return jj_3R_722();
   }
 
   private boolean jj_3R_721() {
-    return jj_3R_523();
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_871()) {
+      jj_scanpos = xsp;
+      return jj_3R_872();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_871() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_521();
+  }
+
+  private boolean jj_3R_585() {
+    return jj_3R_616();
+  }
+
+  private boolean jj_3R_605() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_604();
   }
 
   private boolean jj_3R_720() {
@@ -27976,34 +27958,38 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_719() {
+    return jj_3R_521();
+  }
+
+  private boolean jj_3R_718() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_168();
   }
 
-  private boolean jj_3R_585() {
+  private boolean jj_3R_584() {
     if (jj_scan_token(LBRACKET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_720()) {
+    if (jj_3R_719()) {
       jj_scanpos = xsp;
-      if (jj_3R_721()) {
+      if (jj_3R_720()) {
         return true;
       }
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_722()) {
+      if (jj_3R_721()) {
         jj_scanpos = xsp;
         break; }
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3_104() {
+  private boolean jj_3_103() {
     if (jj_scan_token(LBRACKET)) {
       return true;
     }
@@ -28013,59 +27999,59 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_719()) {
+      if (jj_3R_718()) {
         jj_scanpos = xsp;
         break; }
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_584() {
+  private boolean jj_3R_583() {
     return jj_3R_168();
   }
 
-  private boolean jj_3R_452() {
+  private boolean jj_3R_451() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_583()) {
+      jj_scanpos = xsp;
+      if (jj_3_103()) {
+        jj_scanpos = xsp;
     if (jj_3R_584()) {
       jj_scanpos = xsp;
-      if (jj_3_104()) {
+      if (jj_3R_585()) {
         jj_scanpos = xsp;
-        if (jj_3R_585()) {
+        if (jj_3R_586()) {
           jj_scanpos = xsp;
-          if (jj_3R_586()) {
+          if (jj_3R_587()) {
             jj_scanpos = xsp;
-            if (jj_3R_587()) {
+            if (jj_3R_588()) {
               jj_scanpos = xsp;
-              if (jj_3R_588()) {
+              if (jj_3R_589()) {
                 jj_scanpos = xsp;
-                if (jj_3R_589()) {
+                if (jj_3R_590()) {
                   jj_scanpos = xsp;
-                  if (jj_3R_590()) {
+                  if (jj_3_105()) {
                     jj_scanpos = xsp;
-                    if (jj_3R_591()) {
-                      jj_scanpos = xsp;
-                      if (jj_3_106()) {
-                        jj_scanpos = xsp;
-                        return jj_3R_592();
-                      }
-                    }
+                    return jj_3R_591();
                   }
                 }
               }
             }
           }
+        }
+      }
     }
     }
     }
     return false;
   }
 
-  private boolean jj_3_100() {
+  private boolean jj_3_99() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_750() {
+  private boolean jj_3R_749() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -28075,11 +28061,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_749() {
+  private boolean jj_3R_748() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_605() {
+  private boolean jj_3R_604() {
     if (jj_3R_165()) {
       return true;
     }
@@ -28088,76 +28074,56 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_749()) {
+    if (jj_3R_748()) {
       jj_scanpos = xsp;
-      return jj_3R_750();
+      return jj_3R_749();
     }
     return false;
-  }
-
-  private boolean jj_3_99() {
-    return jj_3R_180();
-  }
-
-  private boolean jj_3R_499() {
-    if (jj_scan_token(LET)) {
-      return true;
-    }
-    if (jj_3R_605()) {
-      return true;
-    }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_606()) {
-        jj_scanpos = xsp;
-        break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_256() {
-    return jj_3R_452();
-  }
-
-  private boolean jj_3R_552() {
-    return jj_3R_180();
   }
 
   private boolean jj_3_98() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_551() {
-    return jj_scan_token(CHARACTER_LITERAL);
+  private boolean jj_3R_498() {
+    if (jj_scan_token(LET)) {
+      return true;
+    }
+    if (jj_3R_604()) {
+      return true;
+    }
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_605()) {
+        jj_scanpos = xsp;
+        break; }
+    }
+    return false;
   }
 
-  private boolean jj_3R_550() {
-    return jj_3R_568();
+  private boolean jj_3R_255() {
+    return jj_3R_451();
+  }
+
+  private boolean jj_3R_551() {
+    return jj_3R_180();
   }
 
   private boolean jj_3_97() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_549() {
-    return jj_3R_180();
+  private boolean jj_3R_550() {
+    return jj_scan_token(CHARACTER_LITERAL);
   }
 
-  private boolean jj_3R_394() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_550()) {
-      jj_scanpos = xsp;
-      if (jj_3R_551()) {
-        return true;
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_552()) {
-      jj_scanpos = xsp;
-    }
-    return false;
+  private boolean jj_3R_549() {
+    return jj_3R_567();
+  }
+
+  private boolean jj_3_96() {
+    return jj_3R_180();
   }
 
   private boolean jj_3R_548() {
@@ -28165,19 +28131,26 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_393() {
-    if (jj_3R_169()) {
-      return true;
-    }
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_549()) {
+      jj_scanpos = xsp;
+      if (jj_3R_550())
+        return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_551()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
+  private boolean jj_3R_547() {
+    return jj_3R_180();
+  }
+
   private boolean jj_3R_392() {
-    if (jj_3R_547()) {
+    if (jj_3R_169()) {
       return true;
     }
     Token xsp;
@@ -28189,42 +28162,54 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_391() {
-    return jj_3R_546();
+    if (jj_3R_546()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_547()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_390() {
+    return jj_3R_545();
   }
 
   private boolean jj_3R_197() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_390()) {
+      jj_scanpos = xsp;
     if (jj_3R_391()) {
       jj_scanpos = xsp;
       if (jj_3R_392()) {
         jj_scanpos = xsp;
-        if (jj_3R_393()) {
-          jj_scanpos = xsp;
-          return jj_3R_394();
-        }
+        return jj_3R_393();
+      }
     }
     }
     return false;
   }
 
-  private boolean jj_3R_389() {
+  private boolean jj_3R_388() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_390() {
-    return jj_3R_299();
-  }
-
-  private boolean jj_3_96() {
-    return jj_3R_198();
+  private boolean jj_3R_389() {
+    return jj_3R_298();
   }
 
   private boolean jj_3_95() {
-    return jj_3R_197();
+    return jj_3R_198();
   }
 
   private boolean jj_3_94() {
+    return jj_3R_197();
+  }
+
+  private boolean jj_3_93() {
     return jj_3R_196();
   }
 
@@ -28234,11 +28219,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_96()) {
+    if (jj_3_95()) {
       jj_scanpos = xsp;
-      if (jj_3R_389()) {
+      if (jj_3R_388()) {
         jj_scanpos = xsp;
-        if (jj_3R_390()) {
+        if (jj_3R_389()) {
           return true;
         }
       }
@@ -28246,11 +28231,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_388() {
+  private boolean jj_3R_387() {
     return jj_3R_197();
   }
 
-  private boolean jj_3R_387() {
+  private boolean jj_3R_386() {
     return jj_3R_196();
   }
 
@@ -28265,9 +28250,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   private boolean jj_3R_195() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_387()) {
+    if (jj_3R_386()) {
       jj_scanpos = xsp;
-      return jj_3R_388();
+      return jj_3R_387();
     }
     return false;
   }
@@ -28312,7 +28297,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3_93() {
+  private boolean jj_3_92() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_183()) {
@@ -28337,9 +28322,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                   jj_scanpos = xsp;
                   if (jj_3R_193()) {
                     jj_scanpos = xsp;
-                    if (jj_3R_194()) {
+                    if (jj_3R_194())
                       return true;
-                    }
                   }
                 }
               }
@@ -28354,7 +28338,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_195();
   }
 
-  private boolean jj_3_92() {
+  private boolean jj_3_91() {
     return jj_3R_182();
   }
 
@@ -28365,44 +28349,46 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3_93()) {
+      if (jj_3_92()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3_91() {
+  private boolean jj_3_90() {
     return jj_3R_168();
-  }
-
-  private boolean jj_3R_545() {
-    return jj_3R_232();
   }
 
   private boolean jj_3R_544() {
-    return jj_3R_182();
+    return jj_3R_232();
   }
 
   private boolean jj_3R_543() {
-    return jj_3R_168();
+    return jj_3R_182();
   }
 
   private boolean jj_3R_542() {
-    return jj_scan_token(FALSE);
+    return jj_3R_168();
   }
 
   private boolean jj_3R_541() {
-    return jj_scan_token(TRUE);
+    return jj_scan_token(FALSE);
   }
 
   private boolean jj_3R_540() {
+    return jj_scan_token(TRUE);
+  }
+
+  private boolean jj_3R_539() {
     return jj_scan_token(NULL);
   }
 
-  private boolean jj_3R_385() {
+  private boolean jj_3R_384() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_539()) {
+      jj_scanpos = xsp;
     if (jj_3R_540()) {
       jj_scanpos = xsp;
       if (jj_3R_541()) {
@@ -28411,100 +28397,100 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_543()) {
             jj_scanpos = xsp;
-            if (jj_3R_544()) {
-              jj_scanpos = xsp;
-              return jj_3R_545();
-            }
+            return jj_3R_544();
           }
-    }
+        }
+      }
     }
     }
     return false;
   }
 
-  private boolean jj_3R_386() {
+  private boolean jj_3R_385() {
     if (jj_scan_token(SC_OR)) {
       return true;
     }
-    return jj_3R_385();
+    return jj_3R_384();
   }
 
-  private boolean jj_3_90() {
+  private boolean jj_3_89() {
     return jj_3R_182();
   }
 
   private boolean jj_3R_181() {
-    if (jj_3R_385()) {
+    if (jj_3R_384()) {
       return true;
     }
     Token xsp;
-    if (jj_3R_386()) {
+    if (jj_3R_385()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_386()) {
+      if (jj_3R_385()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3_89() {
+  private boolean jj_3_88() {
     return jj_3R_168();
-  }
-
-  private boolean jj_3R_332() {
-    return jj_3R_232();
   }
 
   private boolean jj_3R_331() {
-    return jj_3R_182();
-  }
-
-  private boolean jj_3_88() {
-    return jj_3R_181();
+    return jj_3R_232();
   }
 
   private boolean jj_3R_330() {
-    return jj_3R_168();
-  }
-
-  private boolean jj_3R_329() {
-    return jj_scan_token(FALSE);
-  }
-
-  private boolean jj_3R_328() {
-    return jj_scan_token(TRUE);
-  }
-
-  private boolean jj_3R_327() {
-    return jj_scan_token(NULL);
+    return jj_3R_182();
   }
 
   private boolean jj_3_87() {
-    return jj_3R_180();
-  }
-
-  private boolean jj_3R_326() {
     return jj_3R_181();
   }
 
-  private boolean jj_3_85() {
-    return jj_3R_178();
+  private boolean jj_3R_329() {
+    return jj_3R_168();
+  }
+
+  private boolean jj_3R_328() {
+    return jj_scan_token(FALSE);
+  }
+
+  private boolean jj_3R_327() {
+    return jj_scan_token(TRUE);
+  }
+
+  private boolean jj_3R_326() {
+    return jj_scan_token(NULL);
   }
 
   private boolean jj_3_86() {
-    return jj_3R_179();
+    return jj_3R_180();
+  }
+
+  private boolean jj_3R_325() {
+    return jj_3R_181();
   }
 
   private boolean jj_3_84() {
+    return jj_3R_178();
+  }
+
+  private boolean jj_3_85() {
+    return jj_3R_179();
+  }
+
+  private boolean jj_3_83() {
     return jj_3R_177();
   }
 
   private boolean jj_3R_155() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_325()) {
+      jj_scanpos = xsp;
     if (jj_3R_326()) {
       jj_scanpos = xsp;
       if (jj_3R_327()) {
@@ -28515,54 +28501,52 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_scanpos = xsp;
       if (jj_3R_330()) {
         jj_scanpos = xsp;
-        if (jj_3R_331()) {
-          jj_scanpos = xsp;
-          return jj_3R_332();
-        }
+        return jj_3R_331();
       }
     }
     }
       }
+    }
     }
     return false;
   }
 
-  private boolean jj_3_83() {
+  private boolean jj_3_82() {
     return jj_3R_176();
   }
 
-  private boolean jj_3R_384() {
+  private boolean jj_3R_383() {
     return jj_3R_180();
   }
 
-  private boolean jj_3_82() {
+  private boolean jj_3_81() {
     return jj_3R_175();
   }
 
-  private boolean jj_3R_383() {
+  private boolean jj_3R_382() {
     if (jj_scan_token(DOT)) {
       return true;
     }
     return jj_3R_174();
   }
 
-  private boolean jj_3R_539() {
+  private boolean jj_3R_538() {
     return jj_3R_178();
   }
 
-  private boolean jj_3R_382() {
+  private boolean jj_3R_381() {
     return jj_3R_179();
   }
 
-  private boolean jj_3R_538() {
+  private boolean jj_3R_537() {
     return jj_3R_177();
   }
 
-  private boolean jj_3R_537() {
+  private boolean jj_3R_536() {
     return jj_3R_176();
   }
 
-  private boolean jj_3R_536() {
+  private boolean jj_3R_535() {
     return jj_3R_175();
   }
 
@@ -28573,163 +28557,162 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(DATABASE);
   }
 
-  private boolean jj_3R_381() {
+  private boolean jj_3R_380() {
     if (jj_scan_token(LBRACKET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_535()) {
+      jj_scanpos = xsp;
     if (jj_3R_536()) {
       jj_scanpos = xsp;
       if (jj_3R_537()) {
         jj_scanpos = xsp;
-        if (jj_3R_538()) {
-          jj_scanpos = xsp;
-          if (jj_3R_539()) {
-            return true;
-          }
-        }
+        if (jj_3R_538())
+          return true;
       }
+    }
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_524() {
+  private boolean jj_3R_523() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3_81() {
+  private boolean jj_3_80() {
     return jj_3R_174();
   }
 
-  private boolean jj_3_80() {
+  private boolean jj_3_79() {
     return jj_3R_173();
   }
 
   private boolean jj_3R_180() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_381()) {
+    if (jj_3R_380()) {
       jj_scanpos = xsp;
-      if (jj_3R_382()) {
+      if (jj_3R_381()) {
         jj_scanpos = xsp;
-        if (jj_3R_383()) {
+        if (jj_3R_382()) {
           return true;
         }
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_384()) {
+    if (jj_3R_383()) {
       jj_scanpos = xsp;
     }
     return false;
-  }
-
-  private boolean jj_3R_646() {
-    return jj_3R_174();
   }
 
   private boolean jj_3R_645() {
+    return jj_3R_174();
+  }
+
+  private boolean jj_3R_644() {
     return jj_3R_173();
   }
 
-  private boolean jj_3_79() {
-    return jj_3R_172();
-  }
-
   private boolean jj_3_78() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_547() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_645()) {
-      jj_scanpos = xsp;
-      return jj_3R_646();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_370() {
-    return jj_scan_token(STAR);
-  }
-
-  private boolean jj_3R_369() {
     return jj_3R_172();
   }
 
   private boolean jj_3_77() {
-    return jj_3R_171();
-  }
-
-  private boolean jj_3R_368() {
     return jj_3R_165();
   }
 
+  private boolean jj_3R_546() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_644()) {
+      jj_scanpos = xsp;
+      return jj_3R_645();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_369() {
+    return jj_scan_token(STAR);
+  }
+
+  private boolean jj_3R_368() {
+    return jj_3R_172();
+  }
+
   private boolean jj_3_76() {
+    return jj_3R_171();
+  }
+
+  private boolean jj_3R_367() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3_75() {
     return jj_3R_170();
   }
 
   private boolean jj_3R_174() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_367()) {
+      jj_scanpos = xsp;
     if (jj_3R_368()) {
       jj_scanpos = xsp;
-      if (jj_3R_369()) {
-        jj_scanpos = xsp;
-        return jj_3R_370();
+      return jj_3R_369();
     }
     }
     return false;
   }
 
-  private boolean jj_3R_1013() {
+  private boolean jj_3R_1012() {
     return jj_scan_token(EXECUTE);
   }
 
-  private boolean jj_3R_367() {
+  private boolean jj_3R_366() {
     return jj_3R_171();
   }
 
-  private boolean jj_3R_1012() {
+  private boolean jj_3R_1011() {
     return jj_scan_token(DELETE);
   }
 
-  private boolean jj_3R_366() {
+  private boolean jj_3R_365() {
     return jj_scan_token(THIS);
   }
 
-  private boolean jj_3R_1011() {
+  private boolean jj_3R_1010() {
     if (jj_scan_token(AFTER)) {
       return true;
     }
     return jj_scan_token(UPDATE);
   }
 
-  private boolean jj_3R_1010() {
+  private boolean jj_3R_1009() {
     if (jj_scan_token(BEFORE)) {
       return true;
     }
     return jj_scan_token(UPDATE);
   }
 
-  private boolean jj_3R_365() {
+  private boolean jj_3R_364() {
     return jj_3R_170();
   }
 
-  private boolean jj_3R_1009() {
+  private boolean jj_3R_1008() {
     return jj_scan_token(READ);
   }
 
-  private boolean jj_3R_1008() {
+  private boolean jj_3R_1007() {
     return jj_scan_token(CREATE);
   }
 
-  private boolean jj_3R_535() {
+  private boolean jj_3R_534() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -28739,36 +28722,38 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   private boolean jj_3R_173() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_364()) {
+      jj_scanpos = xsp;
     if (jj_3R_365()) {
       jj_scanpos = xsp;
-      if (jj_3R_366()) {
-        jj_scanpos = xsp;
-        return jj_3R_367();
+      return jj_3R_366();
     }
     }
     return false;
   }
 
-  private boolean jj_3R_380() {
+  private boolean jj_3R_379() {
     if (jj_3R_155()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_535()) {
+      if (jj_3R_534()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_964() {
+  private boolean jj_3R_963() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_1007()) {
+      jj_scanpos = xsp;
     if (jj_3R_1008()) {
       jj_scanpos = xsp;
       if (jj_3R_1009()) {
@@ -28777,26 +28762,24 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_1011()) {
             jj_scanpos = xsp;
-            if (jj_3R_1012()) {
-              jj_scanpos = xsp;
-              return jj_3R_1013();
-            }
+            return jj_3R_1012();
           }
         }
       }
     }
+    }
     return false;
   }
 
-  private boolean jj_3R_963() {
+  private boolean jj_3R_962() {
     return jj_scan_token(EXECUTE);
   }
 
-  private boolean jj_3R_962() {
+  private boolean jj_3R_961() {
     return jj_scan_token(DELETE);
   }
 
-  private boolean jj_3R_961() {
+  private boolean jj_3R_960() {
     if (jj_scan_token(AFTER)) {
       return true;
     }
@@ -28815,42 +28798,42 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_380()) {
+    if (jj_3R_379()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_960() {
+  private boolean jj_3R_959() {
     if (jj_scan_token(BEFORE)) {
       return true;
     }
     return jj_scan_token(UPDATE);
   }
 
-  private boolean jj_3R_959() {
+  private boolean jj_3R_958() {
     return jj_scan_token(READ);
   }
 
-  private boolean jj_3R_363() {
+  private boolean jj_3R_362() {
     if (jj_3R_155()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_524()) {
+      if (jj_3R_523()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_958() {
+  private boolean jj_3R_957() {
     return jj_scan_token(CREATE);
   }
 
-  private boolean jj_3R_1007() {
+  private boolean jj_3R_1006() {
     if (jj_scan_token(EXECUTE)) {
       return true;
     }
@@ -28866,7 +28849,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_1006() {
+  private boolean jj_3R_1005() {
     if (jj_scan_token(DELETE)) {
       return true;
     }
@@ -28882,11 +28865,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_362() {
+  private boolean jj_3R_361() {
     return jj_scan_token(DISTINCT);
   }
 
-  private boolean jj_3R_1005() {
+  private boolean jj_3R_1004() {
     if (jj_scan_token(AFTER)) {
       return true;
     }
@@ -28905,11 +28888,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_361() {
+  private boolean jj_3R_360() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_1004() {
+  private boolean jj_3R_1003() {
     if (jj_scan_token(BEFORE)) {
       return true;
     }
@@ -28928,12 +28911,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_833() {
+  private boolean jj_3R_832() {
     if (jj_scan_token(REMOVE)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_957()) {
+      jj_scanpos = xsp;
     if (jj_3R_958()) {
       jj_scanpos = xsp;
       if (jj_3R_959()) {
@@ -28942,27 +28927,23 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_961()) {
             jj_scanpos = xsp;
-            if (jj_3R_962()) {
-              jj_scanpos = xsp;
-              if (jj_3R_963()) {
-                return true;
-              }
-            }
+            if (jj_3R_962())
+              return true;
+          }
     }
     }
     }
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_964()) {
+      if (jj_3R_963()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return false;
   }
 
-  private boolean jj_3R_1003() {
+  private boolean jj_3R_1002() {
     if (jj_scan_token(READ)) {
       return true;
     }
@@ -28978,7 +28959,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_1002() {
+  private boolean jj_3R_1001() {
     if (jj_scan_token(CREATE)) {
       return true;
     }
@@ -28997,9 +28978,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   private boolean jj_3R_170() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_361()) {
+    if (jj_3R_360()) {
       jj_scanpos = xsp;
-      if (jj_3R_362()) {
+      if (jj_3R_361()) {
         return true;
       }
     }
@@ -29007,18 +28988,20 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_363()) {
+    if (jj_3R_362()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_957() {
+  private boolean jj_3R_956() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_1001()) {
+      jj_scanpos = xsp;
     if (jj_3R_1002()) {
       jj_scanpos = xsp;
       if (jj_3R_1003()) {
@@ -29027,18 +29010,16 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_1005()) {
             jj_scanpos = xsp;
-            if (jj_3R_1006()) {
-              jj_scanpos = xsp;
-              return jj_3R_1007();
-    }
+            return jj_3R_1006();
     }
         }
       }
     }
+    }
     return false;
   }
 
-  private boolean jj_3R_956() {
+  private boolean jj_3R_955() {
     if (jj_scan_token(EXECUTE)) {
       return true;
     }
@@ -29054,7 +29035,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_955() {
+  private boolean jj_3R_954() {
     if (jj_scan_token(DELETE)) {
       return true;
     }
@@ -29070,7 +29051,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_954() {
+  private boolean jj_3R_953() {
     if (jj_scan_token(AFTER)) {
       return true;
     }
@@ -29089,7 +29070,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_953() {
+  private boolean jj_3R_952() {
     if (jj_scan_token(BEFORE)) {
       return true;
     }
@@ -29112,7 +29093,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RECORD_ATTRIBUTE);
   }
 
-  private boolean jj_3R_952() {
+  private boolean jj_3R_951() {
     if (jj_scan_token(READ)) {
       return true;
     }
@@ -29128,7 +29109,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_951() {
+  private boolean jj_3R_520() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_950() {
     if (jj_scan_token(CREATE)) {
       return true;
     }
@@ -29144,34 +29129,32 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_521() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_529() {
+  private boolean jj_3R_528() {
     return jj_scan_token(ELLIPSIS);
   }
 
-  private boolean jj_3R_528() {
+  private boolean jj_3R_527() {
     return jj_scan_token(RANGE);
   }
 
-  private boolean jj_3R_699() {
+  private boolean jj_3R_698() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_832()) {
+    if (jj_3R_831()) {
       jj_scanpos = xsp;
-      return jj_3R_833();
+      return jj_3R_832();
     }
     return false;
   }
 
-  private boolean jj_3R_832() {
+  private boolean jj_3R_831() {
     if (jj_scan_token(SET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_950()) {
+      jj_scanpos = xsp;
     if (jj_3R_951()) {
       jj_scanpos = xsp;
       if (jj_3R_952()) {
@@ -29180,39 +29163,35 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_954()) {
             jj_scanpos = xsp;
-            if (jj_3R_955()) {
-              jj_scanpos = xsp;
-              if (jj_3R_956()) {
-                return true;
-              }
-            }
+            if (jj_3R_955())
+              return true;
           }
         }
       }
     }
+    }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_957()) {
+      if (jj_3R_956()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return false;
   }
 
-  private boolean jj_3R_375() {
-    if (jj_3R_527()) {
+  private boolean jj_3R_374() {
+    if (jj_3R_526()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_528()) {
+    if (jj_3R_527()) {
       jj_scanpos = xsp;
-      if (jj_3R_529()) {
+      if (jj_3R_528()) {
         return true;
       }
     }
-    return jj_3R_527();
+    return jj_3R_526();
   }
 
   private boolean jj_3R_93() {
@@ -29229,19 +29208,19 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     Token xsp;
-    if (jj_3R_699()) {
+    if (jj_3R_698()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_699()) {
+      if (jj_3R_698()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_950() {
+  private boolean jj_3R_949() {
     if (jj_scan_token(EXECUTE)) {
       return true;
     }
@@ -29257,7 +29236,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_949() {
+  private boolean jj_3R_948() {
     if (jj_scan_token(DELETE)) {
       return true;
     }
@@ -29273,27 +29252,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_948() {
-    if (jj_scan_token(AFTER)) {
-      return true;
-    }
-    if (jj_scan_token(UPDATE)) {
-      return true;
-    }
-    if (jj_scan_token(EQ)) {
-      return true;
-    }
-    if (jj_scan_token(LPAREN)) {
-      return true;
-    }
-    if (jj_3R_177()) {
-      return true;
-    }
-    return jj_scan_token(RPAREN);
-  }
-
   private boolean jj_3R_947() {
-    if (jj_scan_token(BEFORE)) {
+    if (jj_scan_token(AFTER)) {
       return true;
     }
     if (jj_scan_token(UPDATE)) {
@@ -29312,6 +29272,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_946() {
+    if (jj_scan_token(BEFORE)) {
+      return true;
+    }
+    if (jj_scan_token(UPDATE)) {
+      return true;
+    }
+    if (jj_scan_token(EQ)) {
+      return true;
+    }
+    if (jj_scan_token(LPAREN)) {
+      return true;
+    }
+    if (jj_3R_177()) {
+      return true;
+    }
+    return jj_scan_token(RPAREN);
+  }
+
+  private boolean jj_3R_945() {
     if (jj_scan_token(READ)) {
       return true;
     }
@@ -29327,11 +29306,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_374() {
+  private boolean jj_3R_373() {
     return jj_scan_token(ELLIPSIS_INTEGER_RANGE);
   }
 
-  private boolean jj_3R_945() {
+  private boolean jj_3R_944() {
     if (jj_scan_token(CREATE)) {
       return true;
     }
@@ -29347,7 +29326,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_830() {
+  private boolean jj_3R_829() {
     if (jj_scan_token(EXECUTE)) {
       return true;
     }
@@ -29363,12 +29342,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_831() {
+  private boolean jj_3R_830() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_944()) {
+      jj_scanpos = xsp;
     if (jj_3R_945()) {
       jj_scanpos = xsp;
       if (jj_3R_946()) {
@@ -29377,9 +29358,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_948()) {
             jj_scanpos = xsp;
-            if (jj_3R_949()) {
-              jj_scanpos = xsp;
-              return jj_3R_950();
+            return jj_3R_949();
     }
     }
     }
@@ -29388,11 +29367,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_373() {
+  private boolean jj_3R_372() {
     return jj_scan_token(INTEGER_RANGE);
   }
 
-  private boolean jj_3R_829() {
+  private boolean jj_3R_828() {
     if (jj_scan_token(DELETE)) {
       return true;
     }
@@ -29408,7 +29387,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_828() {
+  private boolean jj_3R_827() {
     if (jj_scan_token(AFTER)) {
       return true;
     }
@@ -29427,7 +29406,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_827() {
+  private boolean jj_3R_826() {
     if (jj_scan_token(BEFORE)) {
       return true;
     }
@@ -29449,17 +29428,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   private boolean jj_3R_176() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_372()) {
+      jj_scanpos = xsp;
     if (jj_3R_373()) {
       jj_scanpos = xsp;
-      if (jj_3R_374()) {
-        jj_scanpos = xsp;
-        return jj_3R_375();
-      }
+      return jj_3R_374();
+    }
     }
     return false;
   }
 
-  private boolean jj_3R_826() {
+  private boolean jj_3R_825() {
     if (jj_scan_token(READ)) {
       return true;
     }
@@ -29475,14 +29454,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_379() {
+  private boolean jj_3R_378() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
-    return jj_3R_378();
+    return jj_3R_377();
   }
 
-  private boolean jj_3R_825() {
+  private boolean jj_3R_824() {
     if (jj_scan_token(CREATE)) {
       return true;
     }
@@ -29498,12 +29477,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_698() {
+  private boolean jj_3R_697() {
     if (jj_scan_token(SET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_824()) {
+      jj_scanpos = xsp;
     if (jj_3R_825()) {
       jj_scanpos = xsp;
       if (jj_3R_826()) {
@@ -29512,37 +29493,16 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
           jj_scanpos = xsp;
           if (jj_3R_828()) {
             jj_scanpos = xsp;
-            if (jj_3R_829()) {
-              jj_scanpos = xsp;
-              if (jj_3R_830()) {
-                return true;
-              }
-            }
+            if (jj_3R_829())
+              return true;
           }
+        }
     }
     }
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_831()) {
-        jj_scanpos = xsp;
-        break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3_75() {
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_178() {
-    if (jj_3R_378()) {
-      return true;
-    }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_379()) {
+      if (jj_3R_830()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -29550,6 +29510,24 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3_74() {
+    return jj_3R_72();
+  }
+
+  private boolean jj_3R_178() {
+    if (jj_3R_377()) {
+      return true;
+    }
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_378()) {
+        jj_scanpos = xsp;
+        break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3_73() {
     return jj_3R_169();
   }
 
@@ -29568,160 +29546,162 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_698()) {
+    if (jj_3R_697()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_866() {
+  private boolean jj_3R_865() {
     if (jj_scan_token(DOT)) {
       return true;
     }
-    return jj_3R_715();
-  }
-
-  private boolean jj_3R_865() {
-    return jj_scan_token(FROM);
+    return jj_3R_714();
   }
 
   private boolean jj_3R_864() {
-    return jj_scan_token(CONTAINSVALUE);
-  }
-
-  private boolean jj_3R_634() {
-    return jj_scan_token(INTEGER_LITERAL);
+    return jj_scan_token(FROM);
   }
 
   private boolean jj_3R_863() {
-    return jj_scan_token(CONTAINSKEY);
-  }
-
-  private boolean jj_3_73() {
-    return jj_3R_155();
+    return jj_scan_token(CONTAINSVALUE);
   }
 
   private boolean jj_3R_633() {
-    return jj_3R_169();
+    return jj_scan_token(INTEGER_LITERAL);
   }
 
   private boolean jj_3R_862() {
-    return jj_scan_token(CONTAINSANY);
+    return jj_scan_token(CONTAINSKEY);
   }
 
   private boolean jj_3_72() {
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_632() {
     return jj_3R_169();
   }
 
   private boolean jj_3R_861() {
-    return jj_scan_token(CONTAINSALL);
-  }
-
-  private boolean jj_3R_860() {
-    return jj_scan_token(CONTAINS);
+    return jj_scan_token(CONTAINSANY);
   }
 
   private boolean jj_3_71() {
-    return jj_3R_168();
-  }
-
-  private boolean jj_3R_527() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_633()) {
-      jj_scanpos = xsp;
-      return jj_3R_634();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_859() {
-    return jj_scan_token(EDGE);
-  }
-
-  private boolean jj_3R_858() {
-    return jj_scan_token(VERTEX);
-  }
-
-  private boolean jj_3R_534() {
-    return jj_3R_155();
-  }
-
-  private boolean jj_3R_857() {
-    return jj_scan_token(LIKE);
-  }
-
-  private boolean jj_3R_856() {
-    return jj_scan_token(SELECT);
-  }
-
-  private boolean jj_3R_533() {
     return jj_3R_169();
   }
 
-  private boolean jj_3R_855() {
-    return jj_scan_token(INSERT);
+  private boolean jj_3R_860() {
+    return jj_scan_token(CONTAINSALL);
   }
 
-  private boolean jj_3R_532() {
+  private boolean jj_3R_859() {
+    return jj_scan_token(CONTAINS);
+  }
+
+  private boolean jj_3_70() {
     return jj_3R_168();
   }
 
-  private boolean jj_3R_854() {
-    return jj_scan_token(DELETE);
-  }
-
-  private boolean jj_3R_853() {
-    return jj_scan_token(CREATE);
-  }
-
-  private boolean jj_3R_852() {
-    return jj_scan_token(CLUSTER);
-  }
-
-  private boolean jj_3R_378() {
+  private boolean jj_3R_526() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_532()) {
+    if (jj_3R_632()) {
       jj_scanpos = xsp;
-      if (jj_3R_533()) {
-        jj_scanpos = xsp;
-        return jj_3R_534();
-      }
+      return jj_3R_633();
     }
     return false;
   }
 
+  private boolean jj_3R_858() {
+    return jj_scan_token(EDGE);
+  }
+
+  private boolean jj_3R_857() {
+    return jj_scan_token(VERTEX);
+  }
+
+  private boolean jj_3R_533() {
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_856() {
+    return jj_scan_token(LIKE);
+  }
+
+  private boolean jj_3R_855() {
+    return jj_scan_token(SELECT);
+  }
+
+  private boolean jj_3R_532() {
+    return jj_3R_169();
+  }
+
+  private boolean jj_3R_854() {
+    return jj_scan_token(INSERT);
+  }
+
+  private boolean jj_3R_531() {
+    return jj_3R_168();
+  }
+
+  private boolean jj_3R_853() {
+    return jj_scan_token(DELETE);
+  }
+
+  private boolean jj_3R_852() {
+    return jj_scan_token(CREATE);
+  }
+
   private boolean jj_3R_851() {
-    return jj_3R_165();
+    return jj_scan_token(CLUSTER);
+  }
+
+  private boolean jj_3R_377() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_531()) {
+      jj_scanpos = xsp;
+    if (jj_3R_532()) {
+      jj_scanpos = xsp;
+      return jj_3R_533();
+    }
+    }
+    return false;
   }
 
   private boolean jj_3R_850() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_849() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_779() {
+  private boolean jj_3R_778() {
     if (jj_scan_token(AS)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_911() {
+  private boolean jj_3R_910() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_778() {
-    return jj_3R_520();
+  private boolean jj_3R_777() {
+    return jj_3R_519();
   }
 
-  private boolean jj_3R_910() {
+  private boolean jj_3R_909() {
     return jj_scan_token(BANG);
   }
 
-  private boolean jj_3R_715() {
+  private boolean jj_3R_714() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_849()) {
+      jj_scanpos = xsp;
     if (jj_3R_850()) {
       jj_scanpos = xsp;
       if (jj_3R_851()) {
@@ -29750,12 +29730,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_scanpos = xsp;
             if (jj_3R_863()) {
               jj_scanpos = xsp;
-              if (jj_3R_864()) {
-                jj_scanpos = xsp;
-                if (jj_3R_865()) {
-                  return true;
-                }
-              }
+              if (jj_3R_864())
+                return true;
             }
           }
         }
@@ -29767,77 +29743,31 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               }
             }
           }
+        }
     }
     }
     }
     xsp = jj_scanpos;
-    if (jj_3R_866()) {
+    if (jj_3R_865()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_777() {
+  private boolean jj_3R_776() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_910()) {
+    if (jj_3R_909()) {
       jj_scanpos = xsp;
     }
     if (jj_3R_155()) {
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_911()) {
+    if (jj_3R_910()) {
       jj_scanpos = xsp;
     }
     return false;
-  }
-
-  private boolean jj_3R_718() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_167();
-  }
-
-  private boolean jj_3R_776() {
-    return jj_scan_token(STAR);
-  }
-
-  private boolean jj_3_162() {
-    return jj_3R_73();
-  }
-
-  private boolean jj_3R_1030() {
-    return jj_3R_971();
-  }
-
-  private boolean jj_3R_1029() {
-    return jj_3R_972();
-  }
-
-  private boolean jj_3R_627() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_776()) {
-      jj_scanpos = xsp;
-      if (jj_3R_777()) {
-        return true;
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_778()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_779()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_1028() {
-    return jj_3R_311();
   }
 
   private boolean jj_3R_717() {
@@ -29847,30 +29777,77 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_167();
   }
 
-  private boolean jj_3R_1027() {
+  private boolean jj_3R_775() {
+    return jj_scan_token(STAR);
+  }
+
+  private boolean jj_3_161() {
     return jj_3R_73();
   }
 
-  private boolean jj_3R_1018() {
+  private boolean jj_3R_1029() {
+    return jj_3R_970();
+  }
+
+  private boolean jj_3R_1028() {
+    return jj_3R_971();
+  }
+
+  private boolean jj_3R_626() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_775()) {
+      jj_scanpos = xsp;
+      if (jj_3R_776()) {
+        return true;
+      }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_777()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_778()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_1027() {
+    return jj_3R_310();
+  }
+
+  private boolean jj_3R_716() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_167();
+  }
+
+  private boolean jj_3R_1026() {
+    return jj_3R_73();
+  }
+
+  private boolean jj_3R_1017() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_1026()) {
+      jj_scanpos = xsp;
     if (jj_3R_1027()) {
       jj_scanpos = xsp;
       if (jj_3R_1028()) {
         jj_scanpos = xsp;
         if (jj_3R_1029()) {
           jj_scanpos = xsp;
-          if (jj_3R_1030()) {
-            jj_scanpos = xsp;
-            return jj_scan_token(192);
-          }
+          return jj_scan_token(192);
         }
       }
+    }
     }
     return false;
   }
 
-  private boolean jj_3R_971() {
+  private boolean jj_3R_970() {
     if (jj_scan_token(WHILE)) {
       return true;
     }
@@ -29889,91 +29866,92 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_1018()) {
+      if (jj_3R_1017()) {
         jj_scanpos = xsp;
         break; }
     }
     return jj_scan_token(RBRACE);
   }
 
-  private boolean jj_3R_628() {
+  private boolean jj_3R_627() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
-    return jj_3R_627();
+    return jj_3R_626();
   }
 
-  private boolean jj_3_161() {
+  private boolean jj_3_160() {
     return jj_3R_73();
-  }
-
-  private boolean jj_3R_1034() {
-    return jj_3R_971();
   }
 
   private boolean jj_3R_1033() {
-    return jj_3R_972();
+    return jj_3R_970();
   }
 
   private boolean jj_3R_1032() {
-    return jj_3R_311();
+    return jj_3R_971();
   }
 
   private boolean jj_3R_1031() {
+    return jj_3R_310();
+  }
+
+  private boolean jj_3R_1030() {
     return jj_3R_73();
   }
 
-  private boolean jj_3R_1019() {
+  private boolean jj_3R_1018() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_1030()) {
+      jj_scanpos = xsp;
     if (jj_3R_1031()) {
       jj_scanpos = xsp;
       if (jj_3R_1032()) {
         jj_scanpos = xsp;
         if (jj_3R_1033()) {
           jj_scanpos = xsp;
-          if (jj_3R_1034()) {
-            jj_scanpos = xsp;
-            return jj_scan_token(192);
-          }
+          return jj_scan_token(192);
+        }
     }
     }
     }
     return false;
   }
 
-  private boolean jj_3R_520() {
+  private boolean jj_3R_519() {
     if (jj_scan_token(COLON)) {
       return true;
     }
     if (jj_scan_token(LBRACE)) {
       return true;
     }
-    if (jj_3R_627()) {
+    if (jj_3R_626()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_628()) {
+      if (jj_3R_627()) {
         jj_scanpos = xsp;
-        break; }
+        break;
+      }
     }
     return jj_scan_token(RBRACE);
   }
 
-  private boolean jj_3R_357() {
+  private boolean jj_3R_356() {
     if (jj_scan_token(AS)) {
       return true;
     }
-    return jj_3R_521();
-  }
-
-  private boolean jj_3R_356() {
     return jj_3R_520();
   }
 
-  private boolean jj_3R_972() {
+  private boolean jj_3R_355() {
+    return jj_3R_519();
+  }
+
+  private boolean jj_3R_971() {
     if (jj_scan_token(FOREACH)) {
       return true;
     }
@@ -29998,42 +29976,42 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_1019()) {
+      if (jj_3R_1018()) {
         jj_scanpos = xsp;
         break; }
     }
     return jj_scan_token(RBRACE);
   }
 
-  private boolean jj_3R_355() {
+  private boolean jj_3R_354() {
     return jj_scan_token(BANG);
   }
 
   private boolean jj_3R_167() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_355()) {
+    if (jj_3R_354()) {
       jj_scanpos = xsp;
     }
     if (jj_3R_155()) {
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_356()) {
+    if (jj_3R_355()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_357()) {
+    if (jj_3R_356()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3_70() {
+  private boolean jj_3_69() {
     return jj_3R_167();
   }
 
-  private boolean jj_3R_581() {
+  private boolean jj_3R_580() {
     if (jj_scan_token(DISTINCT)) {
       return true;
     }
@@ -30043,7 +30021,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_718()) {
+      if (jj_3R_717()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -30069,61 +30047,61 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_580() {
+  private boolean jj_3R_579() {
     if (jj_3R_167()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_717()) {
+      if (jj_3R_716()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_492() {
+  private boolean jj_3R_491() {
     return jj_scan_token(278);
   }
 
-  private boolean jj_3R_448() {
+  private boolean jj_3R_447() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_580()) {
+    if (jj_3R_579()) {
       jj_scanpos = xsp;
-      return jj_3R_581();
+      return jj_3R_580();
     }
     return false;
   }
 
-  private boolean jj_3R_298() {
+  private boolean jj_3R_297() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_491()) {
+    if (jj_3R_490()) {
       jj_scanpos = xsp;
-      return jj_3R_492();
+      return jj_3R_491();
     }
     return false;
   }
 
-  private boolean jj_3R_491() {
+  private boolean jj_3R_490() {
     return jj_scan_token(277);
   }
 
-  private boolean jj_3R_630() {
+  private boolean jj_3R_629() {
     return jj_scan_token(SKIP2);
   }
 
-  private boolean jj_3R_632() {
+  private boolean jj_3R_631() {
     return jj_scan_token(FROM);
   }
 
-  private boolean jj_3R_629() {
+  private boolean jj_3R_628() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_631() {
+  private boolean jj_3R_630() {
     return jj_scan_token(LIMIT);
   }
 
@@ -30142,45 +30120,45 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_298()) {
+    if (jj_3R_297()) {
       jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_490() {
-    return jj_scan_token(276);
-  }
-
-  private boolean jj_3R_297() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_489()) {
-      jj_scanpos = xsp;
-      return jj_3R_490();
     }
     return false;
   }
 
   private boolean jj_3R_489() {
+    return jj_scan_token(276);
+  }
+
+  private boolean jj_3R_296() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_488()) {
+      jj_scanpos = xsp;
+      return jj_3R_489();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_488() {
     return jj_scan_token(275);
   }
 
-  private boolean jj_3R_523() {
+  private boolean jj_3R_522() {
     if (jj_scan_token(COLON)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_628()) {
+      jj_scanpos = xsp;
     if (jj_3R_629()) {
       jj_scanpos = xsp;
       if (jj_3R_630()) {
         jj_scanpos = xsp;
-        if (jj_3R_631()) {
-          jj_scanpos = xsp;
-          return jj_3R_632();
-        }
+        return jj_3R_631();
       }
+    }
     }
     return false;
   }
@@ -30198,14 +30176,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_297()) {
+      if (jj_3R_296()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_522() {
+  private boolean jj_3R_521() {
     return jj_scan_token(HOOK);
   }
 
@@ -30222,51 +30200,53 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_488() {
+  private boolean jj_3R_487() {
     return jj_scan_token(274);
-  }
-
-  private boolean jj_3R_360() {
-    return jj_3R_523();
   }
 
   private boolean jj_3R_359() {
     return jj_3R_522();
   }
 
-  private boolean jj_3R_487() {
-    return jj_scan_token(273);
+  private boolean jj_3R_358() {
+    return jj_3R_521();
   }
 
   private boolean jj_3R_486() {
-    return jj_scan_token(272);
+    return jj_scan_token(273);
   }
 
   private boolean jj_3R_485() {
+    return jj_scan_token(272);
+  }
+
+  private boolean jj_3R_484() {
     return jj_scan_token(271);
   }
 
   private boolean jj_3R_169() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_359()) {
+    if (jj_3R_358()) {
       jj_scanpos = xsp;
-      return jj_3R_360();
+      return jj_3R_359();
     }
     return false;
   }
 
-  private boolean jj_3R_484() {
+  private boolean jj_3R_483() {
     return jj_scan_token(270);
   }
 
-  private boolean jj_3R_483() {
+  private boolean jj_3R_482() {
     return jj_scan_token(269);
   }
 
-  private boolean jj_3R_296() {
+  private boolean jj_3R_295() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_481()) {
+      jj_scanpos = xsp;
     if (jj_3R_482()) {
       jj_scanpos = xsp;
       if (jj_3R_483()) {
@@ -30277,24 +30257,18 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_scanpos = xsp;
             if (jj_3R_486()) {
               jj_scanpos = xsp;
-              if (jj_3R_487()) {
-                jj_scanpos = xsp;
-                return jj_3R_488();
-              }
+              return jj_3R_487();
             }
           }
         }
       }
     }
+    }
     return false;
   }
 
-  private boolean jj_3R_482() {
+  private boolean jj_3R_481() {
     return jj_scan_token(268);
-  }
-
-  private boolean jj_3R_255() {
-    return jj_3R_451();
   }
 
   private boolean jj_3R_254() {
@@ -30306,14 +30280,18 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_252() {
-    return jj_3R_162();
+    return jj_3R_448();
   }
 
   private boolean jj_3R_251() {
-    return jj_scan_token(UPSERT);
+    return jj_3R_162();
   }
 
   private boolean jj_3R_250() {
+    return jj_scan_token(UPSERT);
+  }
+
+  private boolean jj_3R_249() {
     return jj_3R_165();
   }
 
@@ -30327,14 +30305,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_296()) {
+      if (jj_3R_295()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_705() {
+  private boolean jj_3R_704() {
     if (jj_scan_token(IF)) {
       return true;
     }
@@ -30350,11 +30328,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_250()) {
+    if (jj_3R_249()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_251()) {
+    if (jj_3R_250()) {
       jj_scanpos = xsp;
     }
     if (jj_scan_token(FROM)) {
@@ -30370,6 +30348,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     xsp = jj_scanpos;
+    if (jj_3R_251()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
     if (jj_3R_252()) {
       jj_scanpos = xsp;
     }
@@ -30379,10 +30361,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     xsp = jj_scanpos;
     if (jj_3R_254()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_255()) {
       jj_scanpos = xsp;
     }
     return false;
@@ -30400,55 +30378,55 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_705()) {
+    if (jj_3R_704()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_703() {
-    return jj_3R_451();
-  }
-
   private boolean jj_3R_702() {
-    return jj_3R_453();
+    return jj_3R_450();
   }
 
-  private boolean jj_3R_848() {
-    return jj_scan_token(NOLIMIT);
+  private boolean jj_3R_701() {
+    return jj_3R_452();
   }
 
   private boolean jj_3R_847() {
-    return jj_scan_token(DESC);
-  }
-
-  private boolean jj_3R_968() {
-    return jj_scan_token(FALSE);
+    return jj_scan_token(NOLIMIT);
   }
 
   private boolean jj_3R_846() {
-    return jj_scan_token(ASC);
+    return jj_scan_token(DESC);
+  }
+
+  private boolean jj_3R_967() {
+    return jj_scan_token(FALSE);
   }
 
   private boolean jj_3R_845() {
+    return jj_scan_token(ASC);
+  }
+
+  private boolean jj_3R_844() {
     if (jj_scan_token(CACHE)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_967() {
+  private boolean jj_3R_966() {
     return jj_scan_token(TRUE);
   }
 
-  private boolean jj_3R_300() {
+  private boolean jj_3R_299() {
     if (jj_scan_token(MOVE)) {
       return true;
     }
     if (jj_scan_token(VERTEX)) {
       return true;
     }
-    if (jj_3R_452()) {
+    if (jj_3R_451()) {
       return true;
     }
     if (jj_scan_token(TO)) {
@@ -30465,56 +30443,52 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_702()) {
+    if (jj_3R_701()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_703()) {
+    if (jj_3R_702()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3_69() {
+  private boolean jj_3_68() {
     return jj_3R_162();
   }
 
-  private boolean jj_3R_247() {
-    return false;
-  }
-
-  private boolean jj_3R_844() {
+  private boolean jj_3R_843() {
     if (jj_scan_token(CYCLE)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_967()) {
+    if (jj_3R_966()) {
       jj_scanpos = xsp;
-      return jj_3R_968();
+      return jj_3R_967();
     }
     return false;
   }
 
-  private boolean jj_3R_843() {
+  private boolean jj_3R_842() {
     if (jj_scan_token(LIMIT)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_249() {
+  private boolean jj_3R_248() {
     return jj_3R_162();
   }
 
-  private boolean jj_3R_248() {
+  private boolean jj_3R_247() {
     if (jj_scan_token(RETURN)) {
       return true;
     }
-    return jj_3R_448();
+    return jj_3R_447();
   }
 
-  private boolean jj_3R_842() {
+  private boolean jj_3R_841() {
     if (jj_scan_token(INCREMENT)) {
       return true;
     }
@@ -30531,9 +30505,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_162();
   }
 
-  private boolean jj_3R_704() {
+  private boolean jj_3R_703() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_840()) {
+      jj_scanpos = xsp;
     if (jj_3R_841()) {
       jj_scanpos = xsp;
       if (jj_3R_842()) {
@@ -30546,12 +30522,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               jj_scanpos = xsp;
               if (jj_3R_846()) {
                 jj_scanpos = xsp;
-                if (jj_3R_847()) {
-                  jj_scanpos = xsp;
-                  return jj_3R_848();
-                }
+                return jj_3R_847();
               }
             }
+          }
     }
     }
     }
@@ -30559,15 +30533,61 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_841() {
+  private boolean jj_3R_840() {
     if (jj_scan_token(START)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_625() {
+  private boolean jj_3R_96() {
+    if (jj_scan_token(CREATE)) {
+      return true;
+    }
+    if (jj_scan_token(VERTEX)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_247()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_248()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_624() {
     return jj_3R_232();
+  }
+
+  private boolean jj_3R_625() {
+    return jj_3R_169();
+  }
+
+  private boolean jj_3R_97() {
+    if (jj_scan_token(CREATE)) {
+      return true;
+    }
+    return jj_scan_token(VERTEX);
+  }
+
+  private boolean jj_3R_518() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_624()) {
+      jj_scanpos = xsp;
+      return jj_3R_625();
+    }
+    return false;
   }
 
   private boolean jj_3R_104() {
@@ -30583,143 +30603,66 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_704()) {
+      if (jj_3R_703()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_626() {
-    return jj_3R_169();
-  }
-
-  private boolean jj_3R_840() {
+  private boolean jj_3R_839() {
     return jj_scan_token(DESC);
   }
 
-  private boolean jj_3R_966() {
+  private boolean jj_3R_965() {
     return jj_scan_token(FALSE);
   }
 
-  private boolean jj_3R_96() {
-    if (jj_scan_token(CREATE)) {
-      return true;
-    }
-    if (jj_scan_token(VERTEX)) {
-      return true;
-    }
-    if (jj_3R_247()) {
-      return true;
-    }
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_248()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_249()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_97() {
-    if (jj_scan_token(CREATE)) {
-      return true;
-    }
-    return jj_scan_token(VERTEX);
-  }
-
-  private boolean jj_3R_519() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_625()) {
-      jj_scanpos = xsp;
-      return jj_3R_626();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_839() {
+  private boolean jj_3R_838() {
     return jj_scan_token(ASC);
   }
 
-  private boolean jj_3R_838() {
+  private boolean jj_3R_517() {
+    return jj_3R_169();
+  }
+
+  private boolean jj_3R_837() {
     if (jj_scan_token(CACHE)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_965() {
-    return jj_scan_token(TRUE);
-  }
-
-  private boolean jj_3R_518() {
-    return jj_3R_169();
-  }
-
-  private boolean jj_3R_517() {
+  private boolean jj_3R_516() {
     return jj_3R_232();
   }
 
-  private boolean jj_3R_837() {
-    if (jj_scan_token(CYCLE)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_965()) {
-      jj_scanpos = xsp;
-      return jj_3R_966();
-    }
-    return false;
+  private boolean jj_3R_964() {
+    return jj_scan_token(TRUE);
   }
 
-  private boolean jj_3R_836() {
-    if (jj_scan_token(LIMIT)) {
-      return true;
-    }
-    return jj_3R_155();
-  }
-
-  private boolean jj_3R_353() {
+  private boolean jj_3R_352() {
     if (jj_scan_token(CONTENT)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_517()) {
+    if (jj_3R_516()) {
       jj_scanpos = xsp;
-      if (jj_3R_518()) {
+      if (jj_3R_517()) {
         return true;
       }
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_519()) {
+      if (jj_3R_518()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return false;
   }
 
-  private boolean jj_3R_835() {
-    if (jj_scan_token(INCREMENT)) {
-      return true;
-    }
-    return jj_3R_155();
-  }
-
-  private boolean jj_3R_516() {
+  private boolean jj_3R_515() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -30732,9 +30675,38 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_701() {
+  private boolean jj_3R_836() {
+    if (jj_scan_token(CYCLE)) {
+      return true;
+    }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_964()) {
+      jj_scanpos = xsp;
+      return jj_3R_965();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_835() {
+    if (jj_scan_token(LIMIT)) {
+      return true;
+    }
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_834() {
+    if (jj_scan_token(INCREMENT)) {
+      return true;
+    }
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_700() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_833()) {
+      jj_scanpos = xsp;
     if (jj_3R_834()) {
       jj_scanpos = xsp;
       if (jj_3R_835()) {
@@ -30745,40 +30717,28 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_scanpos = xsp;
             if (jj_3R_838()) {
               jj_scanpos = xsp;
-              if (jj_3R_839()) {
-                jj_scanpos = xsp;
-                return jj_3R_840();
-              }
+              return jj_3R_839();
             }
           }
         }
       }
     }
+    }
     return false;
   }
 
-  private boolean jj_3R_834() {
+  private boolean jj_3R_833() {
     if (jj_scan_token(START)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_624() {
+  private boolean jj_3R_623() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_155();
-  }
-
-  private boolean jj_3R_700() {
-    if (jj_scan_token(IF)) {
-      return true;
-    }
-    if (jj_scan_token(NOT)) {
-      return true;
-    }
-    return jj_scan_token(EXISTS);
   }
 
   private boolean jj_3_67() {
@@ -30797,14 +30757,24 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_516()) {
+      if (jj_3R_515()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_515() {
+  private boolean jj_3R_699() {
+    if (jj_scan_token(IF)) {
+      return true;
+    }
+    if (jj_scan_token(NOT)) {
+      return true;
+    }
+    return jj_scan_token(EXISTS);
+  }
+
+  private boolean jj_3R_514() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -30817,11 +30787,18 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_624()) {
+      if (jj_3R_623()) {
         jj_scanpos = xsp;
         break; }
     }
     return jj_scan_token(RPAREN);
+  }
+
+  private boolean jj_3R_513() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_155();
   }
 
   private boolean jj_3R_94() {
@@ -30836,7 +30813,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_700()) {
+    if (jj_3R_699()) {
       jj_scanpos = xsp;
     }
     if (jj_scan_token(TYPE)) {
@@ -30847,26 +30824,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_701()) {
+      if (jj_3R_700()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return false;
   }
 
-  private boolean jj_3R_514() {
+  private boolean jj_3R_166() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
-    return jj_3R_155();
+    return jj_3R_165();
   }
 
-  private boolean jj_3R_1026() {
+  private boolean jj_3R_1025() {
     return jj_scan_token(FAIL);
   }
 
-  private boolean jj_3R_310() {
+  private boolean jj_3R_309() {
     if (jj_scan_token(CONSOLE)) {
       return true;
     }
@@ -30879,38 +30855,19 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_166() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_1017() {
+  private boolean jj_3R_1016() {
     return jj_scan_token(FAIL);
   }
 
-  private boolean jj_3R_309() {
+  private boolean jj_3R_308() {
     if (jj_scan_token(SLEEP)) {
       return true;
     }
     return jj_3R_72();
   }
 
-  private boolean jj_3_160() {
+  private boolean jj_3_159() {
     return jj_3R_73();
-  }
-
-  private boolean jj_3R_871() {
-    return jj_3R_972();
-  }
-
-  private boolean jj_3R_870() {
-    return jj_3R_971();
-  }
-
-  private boolean jj_3R_869() {
-    return jj_3R_311();
   }
 
   private boolean jj_3_66() {
@@ -30941,7 +30898,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_514()) {
+      if (jj_3R_513()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -30950,38 +30907,51 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_515()) {
+      if (jj_3R_514()) {
         jj_scanpos = xsp;
-        break; }
+        break;
+      }
     }
     return false;
   }
 
-  private boolean jj_3R_716() {
+  private boolean jj_3R_870() {
+    return jj_3R_971();
+  }
+
+  private boolean jj_3R_869() {
+    return jj_3R_970();
+  }
+
+  private boolean jj_3R_868() {
+    return jj_3R_310();
+  }
+
+  private boolean jj_3_64() {
+    return jj_3R_153();
+  }
+
+  private boolean jj_3R_715() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_867()) {
+      jj_scanpos = xsp;
     if (jj_3R_868()) {
       jj_scanpos = xsp;
       if (jj_3R_869()) {
         jj_scanpos = xsp;
         if (jj_3R_870()) {
           jj_scanpos = xsp;
-          if (jj_3R_871()) {
-            jj_scanpos = xsp;
-            return jj_scan_token(192);
-          }
+          return jj_scan_token(192);
         }
       }
+    }
     }
     return false;
   }
 
-  private boolean jj_3R_868() {
+  private boolean jj_3R_867() {
     return jj_3R_73();
-  }
-
-  private boolean jj_3_64() {
-    return jj_3R_153();
   }
 
   private boolean jj_3R_162() {
@@ -30991,13 +30961,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_scanpos = xsp;
     if (jj_3_67()) {
       jj_scanpos = xsp;
-      return jj_3R_353();
+      return jj_3R_352();
     }
     }
     return false;
   }
 
-  private boolean jj_3R_311() {
+  private boolean jj_3R_164() {
+    return jj_3R_353();
+  }
+
+  private boolean jj_3R_163() {
+    return jj_3R_153();
+  }
+
+  private boolean jj_3_63() {
+    return jj_3R_153();
+  }
+
+  private boolean jj_3R_310() {
     if (jj_scan_token(IF)) {
       return true;
     }
@@ -31016,7 +30998,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_716()) {
+      if (jj_3R_715()) {
         jj_scanpos = xsp;
         break;
       }
@@ -31024,44 +31006,16 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RBRACE);
   }
 
-  private boolean jj_3R_164() {
-    return jj_3R_354();
-  }
-
-  private boolean jj_3R_498() {
+  private boolean jj_3R_497() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_163() {
-    return jj_3R_153();
-  }
-
-  private boolean jj_3_63() {
-    return jj_3R_153();
-  }
-
-  private boolean jj_3R_642() {
+  private boolean jj_3R_641() {
     return jj_scan_token(UNSAFE);
   }
 
-  private boolean jj_3R_1025() {
-    return jj_scan_token(CONTINUE);
-  }
-
-  private boolean jj_3R_308() {
-    if (jj_scan_token(RETURN)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_498()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_926() {
-    return jj_3R_354();
+  private boolean jj_3R_925() {
+    return jj_3R_353();
   }
 
   private boolean jj_3_65() {
@@ -31078,47 +31032,32 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_925() {
+  private boolean jj_3R_924() {
     return jj_3R_153();
   }
 
-  private boolean jj_3R_1016() {
+  private boolean jj_3R_1024() {
     return jj_scan_token(CONTINUE);
   }
 
-  private boolean jj_3R_1015() {
-    if (jj_scan_token(AND)) {
+  private boolean jj_3R_307() {
+    if (jj_scan_token(RETURN)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_1025()) {
+    if (jj_3R_497()) {
       jj_scanpos = xsp;
-      return jj_3R_1026();
     }
     return false;
   }
 
-  private boolean jj_3R_970() {
+  private boolean jj_3R_784() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_1016()) {
+    if (jj_3R_924()) {
       jj_scanpos = xsp;
-      return jj_3R_1017();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_307() {
-    return jj_scan_token(ROLLBACK);
-  }
-
-  private boolean jj_3R_785() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_925()) {
-      jj_scanpos = xsp;
-      return jj_3R_926();
+      return jj_3R_925();
     }
     return false;
   }
@@ -31127,11 +31066,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_161();
   }
 
+  private boolean jj_3R_1015() {
+    return jj_scan_token(CONTINUE);
+  }
+
   private boolean jj_3_62() {
     return jj_3R_162();
   }
 
-  private boolean jj_3R_882() {
+  private boolean jj_3R_881() {
     if (jj_scan_token(EQ)) {
       return true;
     }
@@ -31139,88 +31082,114 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_1014() {
-    if (jj_3R_79()) {
+    if (jj_scan_token(AND)) {
       return true;
     }
-    return jj_scan_token(SEMICOLON);
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_1024()) {
+      jj_scanpos = xsp;
+      return jj_3R_1025();
+    }
+    return false;
   }
 
-  private boolean jj_3R_784() {
+  private boolean jj_3R_969() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_1015()) {
+      jj_scanpos = xsp;
+      return jj_3R_1016();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_783() {
     return jj_scan_token(FROM);
   }
 
-  private boolean jj_3R_641() {
+  private boolean jj_3R_306() {
+    return jj_scan_token(ROLLBACK);
+  }
+
+  private boolean jj_3R_640() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_784()) {
+    if (jj_3R_783()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_785()) {
+    if (jj_3R_784()) {
       jj_scanpos = xsp;
       return jj_3_65();
     }
     return false;
   }
 
-  private boolean jj_3R_638() {
+  private boolean jj_3R_637() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_969() {
+  private boolean jj_3R_1013() {
+    if (jj_3R_79()) {
+      return true;
+    }
+    return jj_scan_token(SEMICOLON);
+  }
+
+  private boolean jj_3R_636() {
+    return jj_3R_161();
+  }
+
+  private boolean jj_3R_639() {
+    if (jj_scan_token(RETURN)) {
+      return true;
+    }
+    return jj_3R_447();
+  }
+
+  private boolean jj_3R_638() {
+    return jj_3R_162();
+  }
+
+  private boolean jj_3R_968() {
     if (jj_scan_token(LBRACE)) {
       return true;
     }
     Token xsp;
-    if (jj_3R_1014()) {
+    if (jj_3R_1013()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_1014()) {
+      if (jj_3R_1013()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     if (jj_scan_token(RBRACE)) {
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_1015()) {
+    if (jj_3R_1014()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_637() {
-    return jj_3R_161();
-  }
-
-  private boolean jj_3R_640() {
-    if (jj_scan_token(RETURN)) {
-      return true;
-    }
-    return jj_3R_448();
-  }
-
-  private boolean jj_3R_639() {
-    return jj_3R_162();
-  }
-
-  private boolean jj_3R_867() {
+  private boolean jj_3R_866() {
     if (jj_scan_token(ELSE)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_969()) {
+    if (jj_3R_968()) {
       jj_scanpos = xsp;
-      return jj_3R_970();
+      return jj_3R_969();
     }
     return false;
   }
 
-  private boolean jj_3R_497() {
+  private boolean jj_3R_496() {
     if (jj_scan_token(RETRY)) {
       return true;
     }
@@ -31229,13 +31198,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_867()) {
+    if (jj_3R_866()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_299() {
+  private boolean jj_3R_298() {
     if (jj_scan_token(INSERT)) {
       return true;
     }
@@ -31244,11 +31213,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_637()) {
+    if (jj_3R_636()) {
       jj_scanpos = xsp;
-      if (jj_3R_638()) {
+      if (jj_3R_637()) {
         return true;
       }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_638()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_639()) {
@@ -31262,26 +31235,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_641()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_642()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_306() {
-    if (jj_scan_token(COMMIT)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_497()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_730() {
+  private boolean jj_3R_729() {
     if (jj_3R_165()) {
       return true;
     }
@@ -31297,53 +31254,65 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3_159() {
-    return jj_3R_155();
-  }
-
-  private boolean jj_3_158() {
-    return jj_3R_233();
-  }
-
   private boolean jj_3R_305() {
-    return jj_scan_token(BEGIN);
-  }
-
-  private boolean jj_3R_738() {
-    if (jj_3R_155()) {
+    if (jj_scan_token(COMMIT)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_882()) {
+    if (jj_3R_496()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_881() {
-    return jj_3R_180();
-  }
-
-  private boolean jj_3R_579() {
+  private boolean jj_3_158() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_578() {
-    return jj_3R_79();
-  }
-
-  private boolean jj_3R_462() {
-    return jj_scan_token(COUNT);
-  }
-
-  private boolean jj_3R_736() {
-    if (jj_3R_165()) {
+  private boolean jj_3R_737() {
+    if (jj_3R_155()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_881()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_880() {
+    return jj_3R_180();
+  }
+
+  private boolean jj_3_157() {
+    return jj_3R_233();
+  }
+
+  private boolean jj_3R_304() {
+    return jj_scan_token(BEGIN);
+  }
+
+  private boolean jj_3R_578() {
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_577() {
+    return jj_3R_79();
+  }
+
+  private boolean jj_3R_461() {
+    return jj_scan_token(COUNT);
+  }
+
+  private boolean jj_3R_735() {
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_880()) {
       jj_scanpos = xsp;
     }
     if (jj_scan_token(EQ)) {
@@ -31352,11 +31321,27 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_880() {
+  private boolean jj_3R_879() {
     return jj_scan_token(SLASHASSIGN);
   }
 
-  private boolean jj_3R_447() {
+  private boolean jj_3R_876() {
+    return jj_scan_token(PLUSASSIGN);
+  }
+
+  private boolean jj_3R_878() {
+    return jj_scan_token(STARASSIGN);
+  }
+
+  private boolean jj_3R_875() {
+    return jj_scan_token(EQ);
+  }
+
+  private boolean jj_3R_877() {
+    return jj_scan_token(MINUSASSIGN);
+  }
+
+  private boolean jj_3R_446() {
     if (jj_scan_token(LET)) {
       return true;
     }
@@ -31368,94 +31353,81 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_578()) {
+    if (jj_3R_577()) {
       jj_scanpos = xsp;
-      return jj_3R_579();
+      return jj_3R_578();
     }
     return false;
   }
 
-  private boolean jj_3R_877() {
-    return jj_scan_token(PLUSASSIGN);
-  }
-
-  private boolean jj_3R_879() {
-    return jj_scan_token(STARASSIGN);
-  }
-
-  private boolean jj_3R_876() {
-    return jj_scan_token(EQ);
-  }
-
-  private boolean jj_3R_878() {
-    return jj_scan_token(MINUSASSIGN);
-  }
-
-  private boolean jj_3R_875() {
+  private boolean jj_3R_874() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_739() {
+  private boolean jj_3R_738() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
-    return jj_3R_738();
+    return jj_3R_737();
   }
 
-  private boolean jj_3R_728() {
+  private boolean jj_3R_727() {
     if (jj_3R_165()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_875()) {
+    if (jj_3R_874()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
+    if (jj_3R_875()) {
+      jj_scanpos = xsp;
     if (jj_3R_876()) {
       jj_scanpos = xsp;
       if (jj_3R_877()) {
         jj_scanpos = xsp;
         if (jj_3R_878()) {
           jj_scanpos = xsp;
-          if (jj_3R_879()) {
-            jj_scanpos = xsp;
-            if (jj_3R_880()) {
-              return true;
-            }
-          }
+          if (jj_3R_879())
+            return true;
+        }
     }
     }
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_737() {
+  private boolean jj_3R_736() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
-    return jj_3R_736();
+    return jj_3R_735();
   }
 
-  private boolean jj_3R_597() {
+  private boolean jj_3R_596() {
     if (jj_scan_token(REMOVE)) {
       return true;
     }
-    if (jj_3R_738()) {
+    if (jj_3R_737()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_739()) {
+      if (jj_3R_738()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_735() {
+  private boolean jj_3R_734() {
     return jj_scan_token(ADD);
+  }
+
+  private boolean jj_3R_733() {
+    return jj_scan_token(INCREMENT);
   }
 
   private boolean jj_3R_77() {
@@ -31468,37 +31440,33 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(ROLE);
   }
 
-  private boolean jj_3R_734() {
-    return jj_scan_token(INCREMENT);
-  }
-
-  private boolean jj_3R_461() {
+  private boolean jj_3R_460() {
     return jj_scan_token(AFTER);
   }
 
-  private boolean jj_3R_733() {
+  private boolean jj_3R_732() {
     return jj_scan_token(CONTENT);
   }
 
-  private boolean jj_3R_732() {
+  private boolean jj_3R_731() {
     return jj_scan_token(MERGE);
   }
 
-  private boolean jj_3R_596() {
+  private boolean jj_3R_595() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_734()) {
+    if (jj_3R_733()) {
       jj_scanpos = xsp;
-      if (jj_3R_735()) {
+      if (jj_3R_734()) {
         return true;
       }
     }
-    if (jj_3R_736()) {
+    if (jj_3R_735()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_737()) {
+      if (jj_3R_736()) {
         jj_scanpos = xsp;
         break;
       }
@@ -31506,7 +31474,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_824() {
+  private boolean jj_3R_730() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_729();
+  }
+
+  private boolean jj_3R_823() {
     if (jj_scan_token(REMOVE)) {
       return true;
     }
@@ -31516,39 +31491,43 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(ON)) {
       return true;
     }
-    return jj_3R_715();
+    return jj_3R_714();
   }
 
-  private boolean jj_3R_731() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_730();
-  }
-
-  private boolean jj_3R_595() {
+  private boolean jj_3R_594() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_732()) {
+    if (jj_3R_731()) {
       jj_scanpos = xsp;
-      if (jj_3R_733()) {
+      if (jj_3R_732()) {
         return true;
       }
     }
     return jj_3R_232();
   }
 
-  private boolean jj_3R_697() {
+  private boolean jj_3R_728() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_727();
+  }
+
+  private boolean jj_3R_454() {
+    return jj_scan_token(AFTER);
+  }
+
+  private boolean jj_3R_696() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_823()) {
+    if (jj_3R_822()) {
       jj_scanpos = xsp;
-      return jj_3R_824();
+      return jj_3R_823();
     }
     return false;
   }
 
-  private boolean jj_3R_823() {
+  private boolean jj_3R_822() {
     if (jj_scan_token(SET)) {
       return true;
     }
@@ -31561,31 +31540,20 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(ON)) {
       return true;
     }
-    return jj_3R_715();
+    return jj_3R_714();
   }
 
-  private boolean jj_3R_729() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_728();
-  }
-
-  private boolean jj_3R_455() {
-    return jj_scan_token(AFTER);
-  }
-
-  private boolean jj_3R_594() {
+  private boolean jj_3R_593() {
     if (jj_scan_token(PUT)) {
       return true;
     }
-    if (jj_3R_730()) {
+    if (jj_3R_729()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_731()) {
+      if (jj_3R_730()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -31603,36 +31571,55 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     Token xsp;
-    if (jj_3R_697()) {
+    if (jj_3R_696()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_697()) {
+      if (jj_3R_696()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_593() {
+  private boolean jj_3R_592() {
     if (jj_scan_token(SET)) {
       return true;
     }
-    if (jj_3R_728()) {
+    if (jj_3R_727()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_729()) {
+      if (jj_3R_728()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_1001() {
+  private boolean jj_3R_452() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_592()) {
+      jj_scanpos = xsp;
+    if (jj_3R_593()) {
+      jj_scanpos = xsp;
+      if (jj_3R_594()) {
+        jj_scanpos = xsp;
+        if (jj_3R_595()) {
+          jj_scanpos = xsp;
+          return jj_3R_596();
+        }
+      }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_1000() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -31649,46 +31636,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_453() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_593()) {
-      jj_scanpos = xsp;
-      if (jj_3R_594()) {
-        jj_scanpos = xsp;
-        if (jj_3R_595()) {
-          jj_scanpos = xsp;
-          if (jj_3R_596()) {
-            jj_scanpos = xsp;
-            return jj_3R_597();
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_944() {
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_1001()) {
-        jj_scanpos = xsp;
-        break;
-      }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_463() {
-    return jj_3R_448();
-  }
-
-  private boolean jj_3R_268() {
-    return jj_3R_459();
+  private boolean jj_3R_462() {
+    return jj_3R_447();
   }
 
   private boolean jj_3R_267() {
@@ -31696,103 +31645,103 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_266() {
-    if (jj_scan_token(WHERE)) {
-      return true;
-    }
     return jj_3R_457();
   }
 
-  private boolean jj_3R_460() {
+  private boolean jj_3R_265() {
+    if (jj_scan_token(WHERE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_459() {
     return jj_scan_token(BEFORE);
   }
 
-  private boolean jj_3R_822() {
-    if (jj_scan_token(LBRACKET)) {
+  private boolean jj_3R_943() {
+    if (jj_3R_165()) {
       return true;
     }
     Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_944()) {
-      jj_scanpos = xsp;
-    }
-    return jj_scan_token(RBRACKET);
-  }
-
-  private boolean jj_3R_265() {
-    if (jj_scan_token(RETURN)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_460()) {
-      jj_scanpos = xsp;
-      if (jj_3R_461()) {
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_1000()) {
         jj_scanpos = xsp;
-        if (jj_3R_462()) {
-          return true;
-        }
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_463()) {
-      jj_scanpos = xsp;
+        break; }
     }
     return false;
   }
 
   private boolean jj_3R_264() {
-    return jj_scan_token(UPSERT);
-  }
-
-  private boolean jj_3R_263() {
-    return jj_3R_453();
-  }
-
-  private boolean jj_3R_821() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_456() {
-    return jj_3R_448();
-  }
-
-  private boolean jj_3R_696() {
-    if (jj_scan_token(ROLE)) {
+    if (jj_scan_token(RETURN)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_821()) {
+    if (jj_3R_459()) {
       jj_scanpos = xsp;
-      return jj_3R_822();
+    if (jj_3R_460()) {
+      jj_scanpos = xsp;
+      if (jj_3R_461())
+        return true;
+    }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_462()) {
+      jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_695() {
-    return jj_3R_169();
+  private boolean jj_3R_263() {
+    return jj_scan_token(UPSERT);
   }
 
-  private boolean jj_3R_694() {
-    return jj_3R_568();
+  private boolean jj_3R_262() {
+    return jj_3R_452();
+  }
+
+  private boolean jj_3R_821() {
+    if (jj_scan_token(LBRACKET)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_943()) {
+      jj_scanpos = xsp;
+    }
+    return jj_scan_token(RBRACKET);
+  }
+
+  private boolean jj_3R_455() {
+    return jj_3R_447();
+  }
+
+  private boolean jj_3R_820() {
+    return jj_3R_165();
   }
 
   private boolean jj_3R_100() {
     if (jj_scan_token(UPDATE)) {
       return true;
     }
-    if (jj_3R_256()) {
+    if (jj_3R_255()) {
       return true;
     }
     Token xsp;
-    if (jj_3R_263()) {
+    if (jj_3R_262()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_263()) {
+      if (jj_3R_262()) {
         jj_scanpos = xsp;
         break; }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_263()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_264()) {
@@ -31810,61 +31759,78 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_267()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_268()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_693() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_454() {
+  private boolean jj_3R_453() {
     return jj_scan_token(BEFORE);
   }
 
-  private boolean jj_3R_262() {
-    return jj_3R_459();
+  private boolean jj_3R_695() {
+    if (jj_scan_token(ROLE)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_820()) {
+      jj_scanpos = xsp;
+      return jj_3R_821();
+    }
+    return false;
   }
 
   private boolean jj_3R_261() {
     return jj_3R_458();
   }
 
+  private boolean jj_3R_694() {
+    return jj_3R_169();
+  }
+
   private boolean jj_3R_260() {
-    if (jj_scan_token(WHERE)) {
-      return true;
-    }
     return jj_3R_457();
   }
 
   private boolean jj_3R_259() {
+    if (jj_scan_token(WHERE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_258() {
     if (jj_scan_token(RETURN)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_454()) {
+    if (jj_3R_453()) {
       jj_scanpos = xsp;
-      if (jj_3R_455()) {
+      if (jj_3R_454()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_456()) {
+    if (jj_3R_455()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_258() {
-    return jj_scan_token(UPSERT);
+  private boolean jj_3R_693() {
+    return jj_3R_567();
+  }
+
+  private boolean jj_3R_692() {
+    return jj_3R_165();
   }
 
   private boolean jj_3R_257() {
-    return jj_3R_453();
+    return jj_scan_token(UPSERT);
+  }
+
+  private boolean jj_3R_256() {
+    return jj_3R_452();
   }
 
   private boolean jj_3R_89() {
@@ -31885,17 +31851,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_693()) {
+    if (jj_3R_692()) {
       jj_scanpos = xsp;
-      if (jj_3R_694()) {
+      if (jj_3R_693()) {
         jj_scanpos = xsp;
-        if (jj_3R_695()) {
+        if (jj_3R_694()) {
           return true;
         }
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_696()) {
+    if (jj_3R_695()) {
       jj_scanpos = xsp;
     }
     return false;
@@ -31908,18 +31874,22 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(EDGE)) {
       return true;
     }
-    if (jj_3R_256()) {
+    if (jj_3R_255()) {
       return true;
     }
     Token xsp;
-    if (jj_3R_257()) {
+    if (jj_3R_256()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_257()) {
+      if (jj_3R_256()) {
         jj_scanpos = xsp;
         break; }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_257()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_258()) {
@@ -31937,29 +31907,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_261()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_262()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_350() {
-    return jj_3R_451();
-  }
-
   private boolean jj_3R_349() {
-    return jj_3R_458();
+    return jj_3R_450();
   }
 
   private boolean jj_3R_348() {
-    if (jj_scan_token(WHERE)) {
-      return true;
-    }
     return jj_3R_457();
   }
 
   private boolean jj_3R_347() {
+    if (jj_scan_token(WHERE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_346() {
     return jj_3R_165();
   }
 
@@ -31982,6 +31948,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_346()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
     if (jj_3R_347()) {
       jj_scanpos = xsp;
     }
@@ -31993,26 +31963,22 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_349()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_350()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_343() {
-    return jj_3R_451();
-  }
-
   private boolean jj_3R_342() {
-    return jj_3R_458();
+    return jj_3R_450();
   }
 
   private boolean jj_3R_341() {
+    return jj_3R_457();
+  }
+
+  private boolean jj_3R_340() {
     if (jj_scan_token(WHERE)) {
       return true;
     }
-    return jj_3R_457();
+    return jj_3R_456();
   }
 
   private boolean jj_3R_158() {
@@ -32030,6 +31996,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_340()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
     if (jj_3R_341()) {
       jj_scanpos = xsp;
     }
@@ -32037,26 +32007,22 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_342()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_343()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_346() {
-    return jj_3R_451();
-  }
-
   private boolean jj_3R_345() {
-    return jj_3R_458();
+    return jj_3R_450();
   }
 
   private boolean jj_3R_344() {
+    return jj_3R_457();
+  }
+
+  private boolean jj_3R_343() {
     if (jj_scan_token(WHERE)) {
       return true;
     }
-    return jj_3R_457();
+    return jj_3R_456();
   }
 
   private boolean jj_3R_76() {
@@ -32069,19 +32035,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(USER);
   }
 
-  private boolean jj_3R_692() {
+  private boolean jj_3R_691() {
     if (jj_scan_token(LANGUAGE)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_820() {
-    return jj_scan_token(FALSE);
-  }
-
   private boolean jj_3R_819() {
-    return jj_scan_token(TRUE);
+    return jj_scan_token(FALSE);
   }
 
   private boolean jj_3R_159() {
@@ -32102,6 +32064,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_343()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
     if (jj_3R_344()) {
       jj_scanpos = xsp;
     }
@@ -32109,56 +32075,60 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_345()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_346()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_691() {
+  private boolean jj_3R_818() {
+    return jj_scan_token(TRUE);
+  }
+
+  private boolean jj_3R_690() {
     if (jj_scan_token(IDEMPOTENT)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_819()) {
+    if (jj_3R_818()) {
       jj_scanpos = xsp;
-      return jj_3R_820();
+      return jj_3R_819();
     }
     return false;
   }
 
-  private boolean jj_3R_818() {
+  private boolean jj_3R_339() {
+    return jj_3R_450();
+  }
+
+  private boolean jj_3R_817() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_340() {
-    return jj_3R_451();
-  }
-
-  private boolean jj_3R_339() {
-    return jj_3R_458();
-  }
-
   private boolean jj_3R_338() {
-    if (jj_scan_token(WHERE)) {
-      return true;
-    }
     return jj_3R_457();
   }
 
   private boolean jj_3R_337() {
+    if (jj_scan_token(WHERE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_336() {
     if (jj_scan_token(TO)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_690() {
+  private boolean jj_3R_335() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_689() {
     if (jj_scan_token(PARAMETERS)) {
       return true;
     }
@@ -32171,48 +32141,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_818()) {
+      if (jj_3R_817()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_336() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_88() {
-    if (jj_scan_token(CREATE)) {
-      return true;
-    }
-    if (jj_scan_token(FUNCTION)) {
-      return true;
-    }
-    if (jj_3R_165()) {
-      return true;
-    }
-    if (jj_3R_568()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_690()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_691()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_692()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_621() {
+  private boolean jj_3R_620() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -32228,7 +32164,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_336()) {
+    if (jj_3R_335()) {
       jj_scanpos = xsp;
     }
     if (jj_scan_token(FROM)) {
@@ -32236,6 +32172,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     if (jj_3R_155()) {
       return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_336()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_337()) {
@@ -32249,71 +32189,96 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_339()) {
       jj_scanpos = xsp;
     }
+    return false;
+  }
+
+  private boolean jj_3R_334() {
+    return jj_3R_450();
+  }
+
+  private boolean jj_3R_88() {
+    if (jj_scan_token(CREATE)) {
+      return true;
+    }
+    if (jj_scan_token(FUNCTION)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    if (jj_3R_567()) {
+      return true;
+    }
+    Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_340()) {
+    if (jj_3R_689()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_690()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_691()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_335() {
-    return jj_3R_451();
-  }
-
-  private boolean jj_3R_496() {
-    return jj_3R_604();
-  }
-
-  private boolean jj_3R_495() {
-    return jj_scan_token(POLICY);
-  }
-
-  private boolean jj_3R_509() {
+  private boolean jj_3R_508() {
     if (jj_3R_168()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_621()) {
+      if (jj_3R_620()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_334() {
+  private boolean jj_3R_495() {
+    return jj_3R_603();
+  }
+
+  private boolean jj_3R_494() {
+    return jj_scan_token(POLICY);
+  }
+
+  private boolean jj_3R_333() {
     if (jj_scan_token(LBRACKET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_509()) {
+    if (jj_3R_508()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_333() {
+  private boolean jj_3R_332() {
     return jj_3R_168();
   }
 
-  private boolean jj_3R_304() {
+  private boolean jj_3R_303() {
     if (jj_scan_token(REVOKE)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_495()) {
+    if (jj_3R_494()) {
       jj_scanpos = xsp;
-      if (jj_3R_496()) {
+      if (jj_3R_495()) {
         return true;
       }
     }
     if (jj_scan_token(ON)) {
       return true;
     }
-    if (jj_3R_715()) {
+    if (jj_3R_714()) {
       return true;
     }
     if (jj_scan_token(FROM)) {
@@ -32322,19 +32287,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_494() {
-    return jj_3R_604();
-  }
-
   private boolean jj_3_60() {
     return jj_3R_160();
   }
 
   private boolean jj_3R_493() {
-    if (jj_scan_token(POLICY)) {
-      return true;
-    }
-    return jj_3R_165();
+    return jj_3R_603();
   }
 
   private boolean jj_3_59() {
@@ -32354,17 +32312,24 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_333()) {
+    if (jj_3R_332()) {
       jj_scanpos = xsp;
-      if (jj_3R_334()) {
+      if (jj_3R_333()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_335()) {
+    if (jj_3R_334()) {
       jj_scanpos = xsp;
     }
     return false;
+  }
+
+  private boolean jj_3R_492() {
+    if (jj_scan_token(POLICY)) {
+      return true;
+    }
+    return jj_3R_165();
   }
 
   private boolean jj_3_57() {
@@ -32373,30 +32338,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   private boolean jj_3R_245() {
     return jj_3R_160();
-  }
-
-  private boolean jj_3R_303() {
-    if (jj_scan_token(GRANT)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_493()) {
-      jj_scanpos = xsp;
-      if (jj_3R_494()) {
-        return true;
-      }
-    }
-    if (jj_scan_token(ON)) {
-      return true;
-    }
-    if (jj_3R_715()) {
-      return true;
-    }
-    if (jj_scan_token(TO)) {
-      return true;
-    }
-    return jj_3R_165();
   }
 
   private boolean jj_3_56() {
@@ -32411,36 +32352,48 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_158();
   }
 
-  private boolean jj_3R_748() {
-    return jj_scan_token(NONE);
-  }
-
-  private boolean jj_3R_747() {
-    return jj_scan_token(ALL);
+  private boolean jj_3R_302() {
+    if (jj_scan_token(GRANT)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_492()) {
+      jj_scanpos = xsp;
+      if (jj_3R_493()) {
+        return true;
+      }
+    }
+    if (jj_scan_token(ON)) {
+      return true;
+    }
+    if (jj_3R_714()) {
+      return true;
+    }
+    if (jj_scan_token(TO)) {
+      return true;
+    }
+    return jj_3R_165();
   }
 
   private boolean jj_3R_242() {
     return jj_3R_157();
   }
 
-  private boolean jj_3R_746() {
-    return jj_scan_token(EXECUTE);
-  }
-
   private boolean jj_3R_241() {
     return jj_3R_156();
   }
 
+  private boolean jj_3R_747() {
+    return jj_scan_token(NONE);
+  }
+
+  private boolean jj_3R_746() {
+    return jj_scan_token(ALL);
+  }
+
   private boolean jj_3R_745() {
-    return jj_scan_token(DELETE);
-  }
-
-  private boolean jj_3R_744() {
-    return jj_scan_token(UPDATE);
-  }
-
-  private boolean jj_3R_743() {
-    return jj_scan_token(READ);
+    return jj_scan_token(EXECUTE);
   }
 
   private boolean jj_3R_82() {
@@ -32462,39 +32415,53 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_742() {
-    return jj_scan_token(CREATE);
-  }
-
-  private boolean jj_3R_670() {
-    if (jj_scan_token(WHERE)) {
-      return true;
-    }
-    return jj_3R_457();
+  private boolean jj_3R_744() {
+    return jj_scan_token(DELETE);
   }
 
   private boolean jj_3R_669() {
+    if (jj_scan_token(WHERE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_743() {
+    return jj_scan_token(UPDATE);
+  }
+
+  private boolean jj_3R_668() {
     if (jj_scan_token(RETURN)) {
       return true;
     }
     return jj_scan_token(BEFORE);
   }
 
-  private boolean jj_3R_672() {
-    return jj_3R_451();
+  private boolean jj_3R_671() {
+    return jj_3R_450();
   }
 
-  private boolean jj_3R_668() {
+  private boolean jj_3R_742() {
+    return jj_scan_token(READ);
+  }
+
+  private boolean jj_3R_667() {
     return jj_scan_token(FROM);
   }
 
-  private boolean jj_3R_671() {
-    return jj_3R_458();
+  private boolean jj_3R_670() {
+    return jj_3R_457();
   }
 
-  private boolean jj_3R_604() {
+  private boolean jj_3R_741() {
+    return jj_scan_token(CREATE);
+  }
+
+  private boolean jj_3R_603() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_741()) {
+      jj_scanpos = xsp;
     if (jj_3R_742()) {
       jj_scanpos = xsp;
       if (jj_3R_743()) {
@@ -32505,38 +32472,29 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_scanpos = xsp;
             if (jj_3R_746()) {
               jj_scanpos = xsp;
-              if (jj_3R_747()) {
-                jj_scanpos = xsp;
-                return jj_3R_748();
-              }
+              return jj_3R_747();
             }
           }
         }
       }
     }
+    }
     return false;
   }
 
-  private boolean jj_3R_667() {
+  private boolean jj_3R_666() {
     return jj_scan_token(UNSAFE);
   }
 
-  private boolean jj_3R_152() {
-    if (jj_scan_token(PROFILE)) {
-      return true;
-    }
-    return jj_3R_79();
-  }
-
-  private boolean jj_3R_666() {
-    return jj_3R_458();
-  }
-
   private boolean jj_3R_665() {
+    return jj_3R_457();
+  }
+
+  private boolean jj_3R_664() {
     if (jj_scan_token(WHERE)) {
       return true;
     }
-    return jj_3R_457();
+    return jj_3R_456();
   }
 
   private boolean jj_3R_81() {
@@ -32548,11 +32506,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_668()) {
+    if (jj_3R_667()) {
       jj_scanpos = xsp;
     }
-    if (jj_3R_256()) {
+    if (jj_3R_255()) {
       return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_668()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_669()) {
@@ -32566,49 +32528,40 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_671()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_672()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_664() {
+  private boolean jj_3R_663() {
     if (jj_scan_token(RETURN)) {
       return true;
     }
     return jj_scan_token(BEFORE);
   }
 
-  private boolean jj_3R_446() {
-    if (jj_scan_token(EXPLAIN)) {
+  private boolean jj_3R_152() {
+    if (jj_scan_token(PROFILE)) {
       return true;
     }
     return jj_3R_79();
   }
 
-  private boolean jj_3R_688() {
-    return jj_3R_172();
-  }
-
-  private boolean jj_3R_689() {
-    return jj_scan_token(INVERSE);
-  }
-
-  private boolean jj_3R_924() {
-    return jj_3R_458();
-  }
-
-  private boolean jj_3R_687() {
-    return jj_3R_165();
-  }
-
   private boolean jj_3R_923() {
-    return jj_3R_612();
+    return jj_3R_457();
   }
 
   private boolean jj_3R_922() {
-    return jj_3R_502();
+    return jj_3R_611();
+  }
+
+  private boolean jj_3R_921() {
+    return jj_3R_501();
+  }
+
+  private boolean jj_3R_445() {
+    if (jj_scan_token(EXPLAIN)) {
+      return true;
+    }
+    return jj_3R_79();
   }
 
   private boolean jj_3R_80() {
@@ -32618,10 +32571,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(FROM)) {
       return true;
     }
-    if (jj_3R_256()) {
+    if (jj_3R_255()) {
       return true;
     }
     Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_663()) {
+      jj_scanpos = xsp;
+    }
     xsp = jj_scanpos;
     if (jj_3R_664()) {
       jj_scanpos = xsp;
@@ -32634,41 +32591,45 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_666()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_667()) {
-      jj_scanpos = xsp;
-    }
     return false;
-  }
-
-  private boolean jj_3R_921() {
-    return jj_3R_501();
   }
 
   private boolean jj_3R_920() {
     return jj_3R_500();
   }
 
-  private boolean jj_3R_686() {
+  private boolean jj_3R_919() {
+    return jj_3R_499();
+  }
+
+  private boolean jj_3R_687() {
     return jj_3R_172();
   }
 
-  private boolean jj_3R_992() {
+  private boolean jj_3R_688() {
+    return jj_scan_token(INVERSE);
+  }
+
+  private boolean jj_3R_686() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_991() {
     if (jj_scan_token(AS)) {
       return true;
     }
     return jj_3R_165();
   }
 
+  private boolean jj_3R_990() {
+    return jj_3R_519();
+  }
+
   private boolean jj_3R_685() {
-    return jj_3R_165();
+    return jj_3R_172();
   }
 
-  private boolean jj_3R_991() {
-    return jj_3R_520();
-  }
-
-  private boolean jj_3R_919() {
+  private boolean jj_3R_918() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -32677,29 +32638,49 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_991()) {
+    if (jj_3R_990()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_992()) {
+    if (jj_3R_991()) {
       jj_scanpos = xsp;
     }
     return false;
+  }
+
+  private boolean jj_3R_684() {
+    return jj_3R_165();
   }
 
   private boolean jj_3_55() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_990() {
-    return jj_3R_520();
+  private boolean jj_3R_989() {
+    return jj_3R_519();
   }
 
-  private boolean jj_3R_918() {
+  private boolean jj_3R_917() {
     if (jj_scan_token(AS)) {
       return true;
     }
     return jj_3R_165();
+  }
+
+  private boolean jj_3R_988() {
+    return jj_3R_519();
+  }
+
+  private boolean jj_3R_916() {
+    if (jj_3R_155()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_989()) {
+      jj_scanpos = xsp;
+    }
+    return false;
   }
 
   private boolean jj_3R_87() {
@@ -32729,9 +32710,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_685()) {
+    if (jj_3R_684()) {
       jj_scanpos = xsp;
-      if (jj_3R_686()) {
+      if (jj_3R_685()) {
         return true;
       }
     }
@@ -32745,37 +32726,21 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_687()) {
+    if (jj_3R_686()) {
       jj_scanpos = xsp;
-      if (jj_3R_688()) {
+      if (jj_3R_687()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_689()) {
+    if (jj_3R_688()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_989() {
-    return jj_3R_520();
-  }
-
-  private boolean jj_3R_714() {
-    return jj_3R_849();
-  }
-
-  private boolean jj_3R_917() {
-    if (jj_3R_155()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_990()) {
-      jj_scanpos = xsp;
-    }
-    return false;
+  private boolean jj_3R_713() {
+    return jj_3R_848();
   }
 
   private boolean jj_3_54() {
@@ -32787,13 +32752,24 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_989()) {
+    if (jj_3R_988()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_302() {
+  private boolean jj_3R_987() {
+    if (jj_scan_token(NOT)) {
+      return true;
+    }
+    return jj_3R_647();
+  }
+
+  private boolean jj_3R_986() {
+    return jj_3R_647();
+  }
+
+  private boolean jj_3R_301() {
     if (jj_scan_token(OPTIMIZE)) {
       return true;
     }
@@ -32803,72 +32779,44 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_714()) {
+      if (jj_3R_713()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_988() {
-    if (jj_scan_token(NOT)) {
-      return true;
-    }
-    return jj_3R_648();
-  }
-
-  private boolean jj_3R_987() {
-    return jj_3R_648();
-  }
-
-  private boolean jj_3R_916() {
+  private boolean jj_3R_915() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_987()) {
+    if (jj_3R_986()) {
       jj_scanpos = xsp;
-      return jj_3R_988();
+      return jj_3R_987();
     }
     return false;
   }
 
-  private boolean jj_3R_849() {
+  private boolean jj_3R_848() {
     if (jj_scan_token(MINUS)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_113() {
-    if (jj_scan_token(ALTER)) {
-      return true;
-    }
-    if (jj_scan_token(DATABASE)) {
-      return true;
-    }
-    if (jj_3R_165()) {
-      return true;
-    }
-    return jj_3R_155();
-  }
-
-  private boolean jj_3R_712() {
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_554() {
+  private boolean jj_3R_553() {
     if (jj_scan_token(MATCH)) {
       return true;
     }
-    if (jj_3R_648()) {
+    if (jj_3R_647()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_916()) {
+      if (jj_3R_915()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -32878,18 +32826,22 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     xsp = jj_scanpos;
     if (jj_3_54()) {
       jj_scanpos = xsp;
-      if (jj_3R_917())
+      if (jj_3R_916())
         return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_918()) {
+    if (jj_3R_917()) {
       jj_scanpos = xsp;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_919()) {
+      if (jj_3R_918()) {
         jj_scanpos = xsp;
         break; }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_919()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_920()) {
@@ -32907,34 +32859,89 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_923()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_924()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_711() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_985() {
+  private boolean jj_3R_984() {
     return jj_scan_token(BREADTH_FIRST);
   }
 
-  private boolean jj_3R_713() {
+  private boolean jj_3R_113() {
+    if (jj_scan_token(ALTER)) {
+      return true;
+    }
+    if (jj_scan_token(DATABASE)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_983() {
+    return jj_scan_token(DEPTH_FIRST);
+  }
+
+  private boolean jj_3R_711() {
+    return jj_3R_72();
+  }
+
+  private boolean jj_3R_710() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_613() {
+    return jj_3R_611();
+  }
+
+  private boolean jj_3R_712() {
     if (jj_scan_token(IF)) {
       return true;
     }
     return jj_scan_token(EXISTS);
   }
 
-  private boolean jj_3R_984() {
-    return jj_scan_token(DEPTH_FIRST);
+  private boolean jj_3R_612() {
+    return jj_3R_457();
   }
 
-  private boolean jj_3R_614() {
-    return jj_3R_612();
+  private boolean jj_3R_914() {
+    if (jj_scan_token(STRATEGY)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_983()) {
+      jj_scanpos = xsp;
+      return jj_3R_984();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_913() {
+    return jj_3R_457();
+  }
+
+  private boolean jj_3R_912() {
+    if (jj_scan_token(WHILE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_982() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_785();
+  }
+
+  private boolean jj_3R_911() {
+    if (jj_scan_token(MAXDEPTH)) {
+      return true;
+    }
+    return jj_3R_72();
   }
 
   private boolean jj_3R_112() {
@@ -32946,82 +32953,77 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_711()) {
+    if (jj_3R_710()) {
       jj_scanpos = xsp;
-      if (jj_3R_712()) {
+      if (jj_3R_711()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_713()) {
+    if (jj_3R_712()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_613() {
-    return jj_3R_458();
-  }
-
-  private boolean jj_3R_915() {
-    if (jj_scan_token(STRATEGY)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_984()) {
-      jj_scanpos = xsp;
-      return jj_3R_985();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_914() {
-    return jj_3R_458();
-  }
-
-  private boolean jj_3R_913() {
-    if (jj_scan_token(WHILE)) {
-      return true;
-    }
-    return jj_3R_457();
-  }
-
-  private boolean jj_3R_983() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_786();
-  }
-
-  private boolean jj_3R_912() {
-    if (jj_scan_token(MAXDEPTH)) {
-      return true;
-    }
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_295() {
-    return jj_scan_token(STAR);
-  }
-
-  private boolean jj_3R_647() {
-    if (jj_3R_786()) {
+  private boolean jj_3R_646() {
+    if (jj_3R_785()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_983()) {
+      if (jj_3R_982()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return false;
   }
 
-  private boolean jj_3R_994() {
-    return jj_3R_612();
+  private boolean jj_3R_993() {
+    return jj_3R_611();
+  }
+
+  private boolean jj_3R_294() {
+    return jj_scan_token(STAR);
+  }
+
+  private boolean jj_3R_992() {
+    return jj_3R_457();
+  }
+
+  private boolean jj_3R_552() {
+    if (jj_scan_token(TRAVERSE)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_646()) {
+      jj_scanpos = xsp;
+    }
+    if (jj_scan_token(FROM)) {
+      return true;
+    }
+    if (jj_3R_255()) {
+      return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_911()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_912()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_913()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_914()) {
+      jj_scanpos = xsp;
+    }
+    return false;
   }
 
   private boolean jj_3R_111() {
@@ -33036,7 +33038,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_295()) {
+    if (jj_3R_294()) {
       jj_scanpos = xsp;
     }
     if (jj_3R_165()) {
@@ -33045,104 +33047,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_993() {
-    return jj_3R_458();
-  }
-
-  private boolean jj_3R_553() {
-    if (jj_scan_token(TRAVERSE)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_647()) {
-      jj_scanpos = xsp;
-    }
-    if (jj_scan_token(FROM)) {
-      return true;
-    }
-    if (jj_3R_256()) {
-      return true;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_912()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_913()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_914()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_915()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_684() {
-    if (jj_scan_token(ID)) {
-      return true;
-    }
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_683() {
-    if (jj_scan_token(IF)) {
-      return true;
-    }
-    if (jj_scan_token(NOT)) {
-      return true;
-    }
-    return jj_scan_token(EXISTS);
-  }
-
-  private boolean jj_3R_246() {
-    if (jj_scan_token(BLOB)) {
-      return true;
-    }
-    return jj_scan_token(CLUSTER);
-  }
-
-  private boolean jj_3R_322() {
+  private boolean jj_3R_321() {
     return jj_scan_token(NOCACHE);
   }
 
-  private boolean jj_3R_504() {
-    if (jj_3R_458()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_614()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_321() {
-    return jj_scan_token(PARALLEL);
-  }
-
-  private boolean jj_3R_320() {
-    return jj_3R_459();
-  }
-
-  private boolean jj_3R_318() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_503()) {
-      jj_scanpos = xsp;
-      return jj_3R_504();
-    }
-    return false;
-  }
-
   private boolean jj_3R_503() {
-    if (jj_3R_612()) {
+    if (jj_3R_457()) {
       return true;
     }
     Token xsp;
@@ -33153,8 +33063,97 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
+  private boolean jj_3R_320() {
+    return jj_scan_token(PARALLEL);
+  }
+
+  private boolean jj_3R_683() {
+    if (jj_scan_token(ID)) {
+      return true;
+    }
+    return jj_3R_72();
+  }
+
   private boolean jj_3R_319() {
-    return jj_3R_505();
+    return jj_3R_458();
+  }
+
+  private boolean jj_3R_317() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_502()) {
+      jj_scanpos = xsp;
+      return jj_3R_503();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_502() {
+    if (jj_3R_611()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_612()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_682() {
+    if (jj_scan_token(IF)) {
+      return true;
+    }
+    if (jj_scan_token(NOT)) {
+      return true;
+    }
+    return jj_scan_token(EXISTS);
+  }
+
+  private boolean jj_3R_318() {
+    return jj_3R_504();
+  }
+
+  private boolean jj_3R_246() {
+    if (jj_scan_token(BLOB)) {
+      return true;
+    }
+    return jj_scan_token(CLUSTER);
+  }
+
+  private boolean jj_3R_316() {
+    return jj_3R_501();
+  }
+
+  private boolean jj_3R_315() {
+    return jj_3R_500();
+  }
+
+  private boolean jj_3R_314() {
+    return jj_3R_499();
+  }
+
+  private boolean jj_3R_313() {
+    if (jj_scan_token(WHERE)) {
+      return true;
+    }
+    return jj_3R_456();
+  }
+
+  private boolean jj_3R_312() {
+    return jj_3R_498();
+  }
+
+  private boolean jj_3R_927() {
+    if (jj_3R_457()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_993()) {
+      jj_scanpos = xsp;
+    }
+    return false;
   }
 
   private boolean jj_3R_86() {
@@ -33173,90 +33172,55 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_683()) {
+    if (jj_3R_682()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_684()) {
+    if (jj_3R_683()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_317() {
-    return jj_3R_502();
+  private boolean jj_3R_788() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_926()) {
+      jj_scanpos = xsp;
+      return jj_3R_927();
+    }
+    return false;
   }
 
-  private boolean jj_3R_316() {
-    return jj_3R_501();
+  private boolean jj_3R_926() {
+    if (jj_3R_611()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_992()) {
+      jj_scanpos = xsp;
+    }
+    return false;
   }
 
-  private boolean jj_3R_315() {
-    return jj_3R_500();
+  private boolean jj_3R_311() {
+    return jj_3R_447();
   }
 
-  private boolean jj_3R_709() {
+  private boolean jj_3R_708() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_710() {
+  private boolean jj_3R_709() {
     if (jj_scan_token(IF)) {
       return true;
     }
     return jj_scan_token(EXISTS);
   }
 
-  private boolean jj_3R_314() {
-    if (jj_scan_token(WHERE)) {
-      return true;
-    }
-    return jj_3R_457();
-  }
-
-  private boolean jj_3R_313() {
-    return jj_3R_499();
-  }
-
-  private boolean jj_3R_928() {
-    if (jj_3R_458()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_994()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_708() {
-    return jj_3R_510();
-  }
-
-  private boolean jj_3R_789() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_927()) {
-      jj_scanpos = xsp;
-      return jj_3R_928();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_927() {
-    if (jj_3R_612()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_993()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_312() {
-    return jj_3R_448();
+  private boolean jj_3R_707() {
+    return jj_3R_509();
   }
 
   private boolean jj_3R_153() {
@@ -33265,14 +33229,18 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_312()) {
+    if (jj_3R_311()) {
       jj_scanpos = xsp;
     }
     if (jj_scan_token(FROM)) {
       return true;
     }
-    if (jj_3R_256()) {
+    if (jj_3R_255()) {
       return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_312()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_313()) {
@@ -33310,11 +33278,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_321()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_322()) {
-      jj_scanpos = xsp;
-    }
     return false;
+  }
+
+  private boolean jj_3R_792() {
+    return jj_scan_token(NOCACHE);
+  }
+
+  private boolean jj_3R_791() {
+    return jj_scan_token(PARALLEL);
   }
 
   private boolean jj_3R_110() {
@@ -33326,58 +33298,62 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_708()) {
+    if (jj_3R_707()) {
       jj_scanpos = xsp;
-      if (jj_3R_709()) {
+      if (jj_3R_708()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_710()) {
+    if (jj_3R_709()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_707() {
-    return jj_scan_token(STAR);
+  private boolean jj_3R_790() {
+    return jj_3R_458();
   }
 
   private boolean jj_3R_706() {
-    return jj_3R_510();
+    return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_793() {
-    return jj_scan_token(NOCACHE);
+  private boolean jj_3R_789() {
+    return jj_3R_504();
   }
 
-  private boolean jj_3R_792() {
-    return jj_scan_token(PARALLEL);
+  private boolean jj_3R_705() {
+    return jj_3R_509();
   }
 
-  private boolean jj_3R_791() {
-    return jj_3R_459();
-  }
-
-  private boolean jj_3R_1000() {
+  private boolean jj_3R_999() {
     if (jj_scan_token(METADATA)) {
       return true;
     }
     return jj_3R_232();
   }
 
-  private boolean jj_3R_999() {
+  private boolean jj_3R_998() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_790() {
-    return jj_3R_505();
+  private boolean jj_3R_787() {
+    return jj_3R_501();
   }
 
-  private boolean jj_3R_301() {
+  private boolean jj_3R_786() {
+    return jj_3R_498();
+  }
+
+  private boolean jj_3_53() {
+    return jj_3R_154();
+  }
+
+  private boolean jj_3R_300() {
     if (jj_scan_token(REBUILD)) {
       return true;
     }
@@ -33386,82 +33362,43 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_706()) {
+    if (jj_3R_705()) {
       jj_scanpos = xsp;
-      return jj_3R_707();
+      return jj_3R_706();
     }
     return false;
   }
 
-  private boolean jj_3R_788() {
-    return jj_3R_502();
-  }
-
-  private boolean jj_3R_787() {
-    return jj_3R_499();
-  }
-
-  private boolean jj_3_53() {
-    return jj_3R_154();
-  }
-
-  private boolean jj_3R_943() {
+  private boolean jj_3R_942() {
     if (jj_3R_165()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_999()) {
+      if (jj_3R_998()) {
         jj_scanpos = xsp;
         break; }
     }
     xsp = jj_scanpos;
-    if (jj_3R_1000()) {
+    if (jj_3R_999()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3_156() {
-    if (jj_scan_token(METADATA)) {
-      return true;
-    }
-    return jj_3R_232();
-  }
-
-  private boolean jj_3R_817() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_156()) {
-      jj_scanpos = xsp;
-      return jj_3R_943();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_998() {
-    if (jj_scan_token(METADATA)) {
-      return true;
-    }
-    return jj_3R_232();
-  }
-
-  private boolean jj_3R_997() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_354() {
+  private boolean jj_3R_353() {
     if (jj_scan_token(SELECT)) {
       return true;
     }
-    if (jj_3R_448()) {
+    if (jj_3R_447()) {
       return true;
     }
     Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_786()) {
+      jj_scanpos = xsp;
+    }
     xsp = jj_scanpos;
     if (jj_3R_787()) {
       jj_scanpos = xsp;
@@ -33486,10 +33423,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_792()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_793()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
@@ -33497,52 +33430,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_153();
   }
 
-  private boolean jj_3R_399() {
-    return jj_3R_154();
-  }
-
   private boolean jj_3R_398() {
-    return jj_3R_554();
-  }
-
-  private boolean jj_3R_397() {
-    return jj_3R_553();
-  }
-
-  private boolean jj_3R_682() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_817()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_396() {
-    return jj_3R_354();
-  }
-
-  private boolean jj_3R_942() {
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_997()) {
-        jj_scanpos = xsp;
-        break;
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_998()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_395() {
-    return jj_3R_153();
+    return jj_3R_154();
   }
 
   private boolean jj_3_155() {
@@ -33562,36 +33451,95 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
+  private boolean jj_3R_997() {
+    if (jj_scan_token(METADATA)) {
+      return true;
+    }
+    return jj_3R_232();
+  }
+
+  private boolean jj_3R_996() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_397() {
+    return jj_3R_553();
+  }
+
+  private boolean jj_3R_396() {
+    return jj_3R_552();
+  }
+
+  private boolean jj_3R_395() {
+    return jj_3R_353();
+  }
+
+  private boolean jj_3R_394() {
+    return jj_3R_153();
+  }
+
+  private boolean jj_3R_681() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_816()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_941() {
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_996()) {
+        jj_scanpos = xsp;
+        break; }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_997()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
   private boolean jj_3R_198() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_394()) {
+      jj_scanpos = xsp;
     if (jj_3R_395()) {
       jj_scanpos = xsp;
       if (jj_3R_396()) {
         jj_scanpos = xsp;
         if (jj_3R_397()) {
           jj_scanpos = xsp;
-          if (jj_3R_398()) {
-            jj_scanpos = xsp;
-            return jj_3R_399();
-          }
+          return jj_3R_398();
         }
       }
+    }
     }
     return false;
   }
 
-  private boolean jj_3_157() {
-    if (jj_scan_token(ENGINE)) {
+  private boolean jj_3_154() {
+    if (jj_scan_token(METADATA)) {
       return true;
     }
-    if (jj_3R_165()) {
-      return true;
-    }
+    return jj_3R_232();
+  }
+
+  private boolean jj_3R_815() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_816()) {
+    if (jj_3_154()) {
       jj_scanpos = xsp;
+      return jj_3R_941();
     }
     return false;
   }
@@ -33604,19 +33552,50 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_152();
   }
 
-  private boolean jj_3R_445() {
+  private boolean jj_3R_444() {
     return jj_3R_155();
-  }
-
-  private boolean jj_3R_815() {
-    return jj_3R_165();
   }
 
   private boolean jj_3_48() {
     return jj_3R_117();
   }
 
-  private boolean jj_3_153() {
+  private boolean jj_3_156() {
+    if (jj_scan_token(ENGINE)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_815()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3_47() {
+    return jj_3R_116();
+  }
+
+  private boolean jj_3R_814() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_240() {
+    return jj_3R_446();
+  }
+
+  private boolean jj_3_46() {
+    return jj_3R_115();
+  }
+
+  private boolean jj_3R_151() {
+    return jj_3R_118();
+  }
+
+  private boolean jj_3_152() {
     if (jj_scan_token(IF)) {
       return true;
     }
@@ -33629,72 +33608,43 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_996() {
-    return jj_scan_token(VALUE);
-  }
-
-  private boolean jj_3_47() {
-    return jj_3R_116();
-  }
-
-  private boolean jj_3R_941() {
-    if (jj_scan_token(COLLATE)) {
-      return true;
-    }
-    return jj_3R_165();
+  private boolean jj_3R_239() {
+    return jj_3R_152();
   }
 
   private boolean jj_3R_995() {
-    return jj_scan_token(KEY);
-  }
-
-  private boolean jj_3R_240() {
-    return jj_3R_447();
-  }
-
-  private boolean jj_3R_681() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_153()) {
-      jj_scanpos = xsp;
-      return jj_3R_815();
-    }
-    return false;
-  }
-
-  private boolean jj_3_46() {
-    return jj_3R_115();
-  }
-
-  private boolean jj_3R_151() {
-    return jj_3R_118();
-  }
-
-  private boolean jj_3R_239() {
-    return jj_3R_152();
+    return jj_scan_token(VALUE);
   }
 
   private boolean jj_3_45() {
     return jj_3R_114();
   }
 
+  private boolean jj_3R_940() {
+    if (jj_scan_token(COLLATE)) {
+      return true;
+    }
+    return jj_3R_165();
+  }
+
   private boolean jj_3R_238() {
-    return jj_3R_446();
+    return jj_3R_445();
   }
 
   private boolean jj_3R_150() {
     return jj_3R_117();
   }
 
-  private boolean jj_3R_940() {
-    if (jj_scan_token(BY)) {
-      return true;
-    }
+  private boolean jj_3R_994() {
+    return jj_scan_token(KEY);
+  }
+
+  private boolean jj_3R_680() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_995()) {
+    if (jj_3_152()) {
       jj_scanpos = xsp;
-      return jj_3R_996();
+      return jj_3R_814();
     }
     return false;
   }
@@ -33708,7 +33658,16 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_939() {
-    return jj_3R_172();
+    if (jj_scan_token(BY)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_994()) {
+      jj_scanpos = xsp;
+      return jj_3R_995();
+    }
+    return false;
   }
 
   private boolean jj_3R_147() {
@@ -33716,81 +33675,70 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_146() {
-    return jj_3R_311();
-  }
-
-  private boolean jj_3R_145() {
     return jj_3R_310();
   }
 
-  private boolean jj_3R_938() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_144() {
+  private boolean jj_3R_145() {
     return jj_3R_309();
   }
 
-  private boolean jj_3R_143() {
+  private boolean jj_3R_938() {
+    return jj_3R_172();
+  }
+
+  private boolean jj_3R_144() {
     return jj_3R_308();
   }
 
-  private boolean jj_3R_142() {
+  private boolean jj_3R_143() {
     return jj_3R_307();
   }
 
-  private boolean jj_3R_814() {
+  private boolean jj_3R_142() {
+    return jj_3R_306();
+  }
+
+  private boolean jj_3R_937() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_141() {
+    return jj_3R_305();
+  }
+
+  private boolean jj_3R_140() {
+    return jj_3R_304();
+  }
+
+  private boolean jj_3R_139() {
+    return jj_3R_303();
+  }
+
+  private boolean jj_3R_813() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_938()) {
+    if (jj_3R_937()) {
       jj_scanpos = xsp;
-      if (jj_3R_939()) {
+      if (jj_3R_938()) {
         return true;
       }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_939()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_940()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_941()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_141() {
-    return jj_3R_306();
-  }
-
-  private boolean jj_3R_140() {
-    return jj_3R_305();
-  }
-
-  private boolean jj_3R_813() {
-    if (jj_scan_token(COLLATE)) {
-      return true;
-    }
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_937() {
-    return jj_scan_token(VALUE);
-  }
-
-  private boolean jj_3R_139() {
-    return jj_3R_304();
-  }
-
-  private boolean jj_3R_936() {
-    return jj_scan_token(KEY);
-  }
-
   private boolean jj_3R_138() {
-    return jj_3R_303();
+    return jj_3R_302();
   }
 
   private boolean jj_3_42() {
@@ -33798,24 +33746,26 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_137() {
-    return jj_3R_302();
+    return jj_3R_301();
+  }
+
+  private boolean jj_3R_812() {
+    if (jj_scan_token(COLLATE)) {
+      return true;
+    }
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_936() {
+    return jj_scan_token(VALUE);
   }
 
   private boolean jj_3_44() {
     return jj_3R_113();
   }
 
-  private boolean jj_3R_812() {
-    if (jj_scan_token(BY)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_936()) {
-      jj_scanpos = xsp;
-      return jj_3R_937();
-    }
-    return false;
+  private boolean jj_3R_935() {
+    return jj_scan_token(KEY);
   }
 
   private boolean jj_3_43() {
@@ -33830,12 +33780,21 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_111();
   }
 
-  private boolean jj_3_39() {
-    return jj_3R_108();
+  private boolean jj_3R_811() {
+    if (jj_scan_token(BY)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_935()) {
+      jj_scanpos = xsp;
+      return jj_3R_936();
+    }
+    return false;
   }
 
-  private boolean jj_3R_231() {
-    return jj_3R_172();
+  private boolean jj_3_39() {
+    return jj_3R_108();
   }
 
   private boolean jj_3_41() {
@@ -33847,11 +33806,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_135() {
-    return jj_3R_301();
+    return jj_3R_300();
   }
 
-  private boolean jj_3R_230() {
-    return jj_3R_165();
+  private boolean jj_3R_231() {
+    return jj_3R_172();
   }
 
   private boolean jj_3R_134() {
@@ -33866,18 +33825,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_108();
   }
 
-  private boolean jj_3R_132() {
-    return jj_3R_107();
+  private boolean jj_3R_230() {
+    return jj_3R_165();
   }
 
-  private boolean jj_3R_229() {
-    if (jj_scan_token(IF)) {
-      return true;
-    }
-    if (jj_scan_token(NOT)) {
-      return true;
-    }
-    return jj_scan_token(EXISTS);
+  private boolean jj_3R_132() {
+    return jj_3R_107();
   }
 
   private boolean jj_3_34() {
@@ -33896,11 +33849,33 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_105();
   }
 
+  private boolean jj_3R_229() {
+    if (jj_scan_token(IF)) {
+      return true;
+    }
+    if (jj_scan_token(NOT)) {
+      return true;
+    }
+    return jj_scan_token(EXISTS);
+  }
+
   private boolean jj_3_32() {
     return jj_3R_101();
   }
 
-  private boolean jj_3_154() {
+  private boolean jj_3_35() {
+    return jj_3R_104();
+  }
+
+  private boolean jj_3R_130() {
+    return jj_3R_103();
+  }
+
+  private boolean jj_3_31() {
+    return jj_3R_100();
+  }
+
+  private boolean jj_3_153() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_229()) {
@@ -33918,67 +33893,27 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     xsp = jj_scanpos;
     if (jj_3R_230()) {
       jj_scanpos = xsp;
-      if (jj_3R_231()) {
+      if (jj_3R_231())
         return true;
-      }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_811()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_812()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_813()) {
-      jj_scanpos = xsp;
-    }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_814()) {
+      if (jj_3R_813()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     if (jj_scan_token(RPAREN)) {
       return true;
     }
     return jj_3R_165();
-  }
-
-  private boolean jj_3_35() {
-    return jj_3R_104();
-  }
-
-  private boolean jj_3R_130() {
-    return jj_3R_103();
-  }
-
-  private boolean jj_3_31() {
-    return jj_3R_100();
-  }
-
-  private boolean jj_3R_85() {
-    if (jj_scan_token(CREATE)) {
-      return true;
-    }
-    if (jj_scan_token(INDEX)) {
-      return true;
-    }
-    if (jj_3R_510()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_154()) {
-      jj_scanpos = xsp;
-      if (jj_3R_681()) {
-        return true;
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3_157()) {
-      jj_scanpos = xsp;
-      return jj_3R_682();
-    }
-    return false;
   }
 
   private boolean jj_3R_129() {
@@ -33997,27 +33932,42 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_98();
   }
 
+  private boolean jj_3R_85() {
+    if (jj_scan_token(CREATE)) {
+      return true;
+    }
+    if (jj_scan_token(INDEX)) {
+      return true;
+    }
+    if (jj_3R_509()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_153()) {
+      jj_scanpos = xsp;
+      if (jj_3R_680()) {
+        return true;
+      }
+    }
+    xsp = jj_scanpos;
+    if (jj_3_156()) {
+      jj_scanpos = xsp;
+      return jj_3R_681();
+    }
+    return false;
+  }
+
   private boolean jj_3R_127() {
-    return jj_3R_300();
+    return jj_3R_299();
   }
 
   private boolean jj_3_28() {
     return jj_3R_97();
   }
 
-  private boolean jj_3R_294() {
-    return jj_scan_token(FORCE);
-  }
-
   private boolean jj_3R_126() {
     return jj_3R_100();
-  }
-
-  private boolean jj_3R_293() {
-    if (jj_scan_token(IF)) {
-      return true;
-    }
-    return jj_scan_token(EXISTS);
   }
 
   private boolean jj_3_27() {
@@ -34032,11 +33982,30 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_95();
   }
 
+  private boolean jj_3R_293() {
+    return jj_scan_token(FORCE);
+  }
+
   private boolean jj_3R_124() {
     return jj_3R_98();
   }
 
   private boolean jj_3R_292() {
+    if (jj_scan_token(IF)) {
+      return true;
+    }
+    return jj_scan_token(EXISTS);
+  }
+
+  private boolean jj_3R_123() {
+    return jj_3R_97();
+  }
+
+  private boolean jj_3R_122() {
+    return jj_3R_96();
+  }
+
+  private boolean jj_3R_291() {
     if (jj_3R_165()) {
       return true;
     }
@@ -34061,25 +34030,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_293()) {
+    if (jj_3R_292()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_294()) {
+    if (jj_3R_293()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_123() {
-    return jj_3R_97();
+  private boolean jj_3R_121() {
+    return jj_3R_95();
   }
 
-  private boolean jj_3R_122() {
-    return jj_3R_96();
+  private boolean jj_3_25() {
+    return jj_3R_94();
   }
 
-  private boolean jj_3_152() {
+  private boolean jj_3_151() {
     if (jj_scan_token(CUSTOM)) {
       return true;
     }
@@ -34090,14 +34059,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     return jj_3R_155();
-  }
-
-  private boolean jj_3R_121() {
-    return jj_3R_95();
-  }
-
-  private boolean jj_3_25() {
-    return jj_3R_94();
   }
 
   private boolean jj_3_24() {
@@ -34114,6 +34075,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   private boolean jj_3_21() {
     return jj_3R_90();
+  }
+
+  private boolean jj_3_20() {
+    return jj_3R_89();
+  }
+
+  private boolean jj_3_19() {
+    return jj_3R_88();
   }
 
   private boolean jj_3R_108() {
@@ -34134,27 +34103,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_152()) {
+    if (jj_3_151()) {
       jj_scanpos = xsp;
-      return jj_3R_292();
+      return jj_3R_291();
     }
     return false;
   }
 
-  private boolean jj_3_20() {
-    return jj_3R_89();
-  }
-
-  private boolean jj_3_19() {
-    return jj_3R_88();
-  }
-
   private boolean jj_3_18() {
     return jj_3R_87();
-  }
-
-  private boolean jj_3R_935() {
-    return jj_3R_155();
   }
 
   private boolean jj_3_17() {
@@ -34165,73 +34122,76 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_85();
   }
 
-  private boolean jj_3R_680() {
-    return jj_scan_token(UNSAFE);
-  }
-
-  private boolean jj_3R_811() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_810();
+  private boolean jj_3R_934() {
+    return jj_3R_155();
   }
 
   private boolean jj_3_15() {
     return jj_3R_84();
   }
 
-  private boolean jj_3R_678() {
-    return jj_3R_165();
+  private boolean jj_3_14() {
+    return jj_3R_83();
   }
 
   private boolean jj_3R_679() {
+    return jj_scan_token(UNSAFE);
+  }
+
+  private boolean jj_3R_810() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_809();
+  }
+
+  private boolean jj_3R_120() {
+    return jj_3R_298();
+  }
+
+  private boolean jj_3R_677() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_678() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
-    if (jj_3R_810()) {
+    if (jj_3R_809()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_811()) {
+      if (jj_3R_810()) {
         jj_scanpos = xsp;
-        break;
-      }
+        break; }
     }
     return jj_scan_token(RPAREN);
-  }
-
-  private boolean jj_3_14() {
-    return jj_3R_83();
-  }
-
-  private boolean jj_3R_810() {
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_935()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_120() {
-    return jj_3R_299();
-  }
-
-  private boolean jj_3_151() {
-    return jj_3R_228();
   }
 
   private boolean jj_3_13() {
     return jj_3R_82();
   }
 
+  private boolean jj_3R_809() {
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_934()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
   private boolean jj_3_12() {
     return jj_3R_81();
+  }
+
+  private boolean jj_3_150() {
+    return jj_3R_228();
   }
 
   private boolean jj_3_11() {
@@ -34240,45 +34200,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   private boolean jj_3R_119() {
     return jj_3R_198();
-  }
-
-  private boolean jj_3R_84() {
-    if (jj_scan_token(CREATE)) {
-      return true;
-    }
-    if (jj_scan_token(PROPERTY)) {
-      return true;
-    }
-    if (jj_3R_165()) {
-      return true;
-    }
-    if (jj_scan_token(DOT)) {
-      return true;
-    }
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_151()) {
-      jj_scanpos = xsp;
-    }
-    if (jj_3R_165()) {
-      return true;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_678()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_679()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_680()) {
-      jj_scanpos = xsp;
-    }
-    return false;
   }
 
   private boolean jj_3_50() {
@@ -34464,15 +34385,62 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_481() {
+  private boolean jj_3R_84() {
+    if (jj_scan_token(CREATE)) {
+      return true;
+    }
+    if (jj_scan_token(PROPERTY)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    if (jj_scan_token(DOT)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_150()) {
+      jj_scanpos = xsp;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_677()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_678()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_679()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_236() {
+    return jj_3R_444();
+  }
+
+  private boolean jj_3R_480() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_291() {
-    return jj_scan_token(UNSAFE);
+  private boolean jj_3R_235() {
+    return jj_3R_79();
   }
 
   private boolean jj_3R_290() {
+    return jj_scan_token(UNSAFE);
+  }
+
+  private boolean jj_3R_289() {
     if (jj_scan_token(IF)) {
       return true;
     }
@@ -34489,27 +34457,30 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(EXISTS);
   }
 
-  private boolean jj_3R_236() {
-    return jj_3R_445();
-  }
-
-  private boolean jj_3R_289() {
+  private boolean jj_3R_288() {
     return jj_3R_169();
   }
 
-  private boolean jj_3R_288() {
+  private boolean jj_3R_73() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_235()) {
+      jj_scanpos = xsp;
+      if (jj_3R_236())
+        return true;
+    }
+    return jj_scan_token(SEMICOLON);
+  }
+
+  private boolean jj_3R_287() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_235() {
-    return jj_3R_79();
-  }
-
-  private boolean jj_3R_480() {
-    return jj_3R_568();
-  }
-
   private boolean jj_3R_479() {
+    return jj_3R_567();
+  }
+
+  private boolean jj_3R_478() {
     return jj_scan_token(267);
   }
 
@@ -34522,54 +34493,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_288()) {
+    if (jj_3R_287()) {
       jj_scanpos = xsp;
-      if (jj_3R_289()) {
+      if (jj_3R_288()) {
         return true;
       }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_289()) {
+      jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
     if (jj_3R_290()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_291()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_478() {
+  private boolean jj_3R_477() {
     return jj_3R_165();
-  }
-
-  private boolean jj_3R_73() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_235()) {
-      jj_scanpos = xsp;
-      if (jj_3R_236()) {
-        return true;
-      }
-    }
-    return jj_scan_token(SEMICOLON);
-  }
-
-  private boolean jj_3R_287() {
-    return jj_scan_token(UNSAFE);
-  }
-
-  private boolean jj_3R_286() {
-    if (jj_scan_token(DESCRIPTION)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_481()) {
-      jj_scanpos = xsp;
-      return jj_scan_token(37);
-    }
-    return false;
   }
 
   private boolean jj_3R_233() {
@@ -34584,32 +34526,33 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_477() {
-    return jj_scan_token(FALSE);
+  private boolean jj_3R_286() {
+    return jj_scan_token(UNSAFE);
+  }
+
+  private boolean jj_3R_285() {
+    if (jj_scan_token(DESCRIPTION)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_480()) {
+      jj_scanpos = xsp;
+      return jj_scan_token(37);
+    }
+    return false;
   }
 
   private boolean jj_3R_476() {
-    return jj_scan_token(TRUE);
+    return jj_scan_token(FALSE);
   }
 
   private boolean jj_3_9() {
     return jj_3R_78();
   }
 
-  private boolean jj_3R_285() {
-    if (jj_scan_token(CLUSTER_SELECTION)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_478()) {
-      jj_scanpos = xsp;
-      if (jj_3R_479()) {
-        jj_scanpos = xsp;
-        return jj_3R_480();
-      }
-    }
-    return false;
+  private boolean jj_3R_475() {
+    return jj_scan_token(TRUE);
   }
 
   private boolean jj_3_8() {
@@ -34620,8 +34563,20 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_76();
   }
 
-  private boolean jj_3R_475() {
-    return jj_3R_72();
+  private boolean jj_3R_284() {
+    if (jj_scan_token(CLUSTER_SELECTION)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_477()) {
+      jj_scanpos = xsp;
+      if (jj_3R_478()) {
+        jj_scanpos = xsp;
+        return jj_3R_479();
+      }
+    }
+    return false;
   }
 
   private boolean jj_3_6() {
@@ -34632,36 +34587,48 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_74();
   }
 
-  private boolean jj_3R_474() {
-    return jj_3R_165();
-  }
-
   private boolean jj_3_4() {
     return jj_3R_72();
   }
 
-  private boolean jj_3R_284() {
+  private boolean jj_3R_474() {
+    return jj_3R_72();
+  }
+
+  private boolean jj_3R_473() {
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_283() {
     if (jj_scan_token(ABSTRACT)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_476()) {
+    if (jj_3R_475()) {
       jj_scanpos = xsp;
-      return jj_3R_477();
+      return jj_3R_476();
     }
     return false;
   }
 
-  private boolean jj_3R_473() {
-    return jj_3R_72();
+  private boolean jj_3R_643() {
+    return jj_3R_74();
   }
 
   private boolean jj_3R_472() {
+    return jj_3R_72();
+  }
+
+  private boolean jj_3R_642() {
+    return jj_3R_72();
+  }
+
+  private boolean jj_3R_471() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_283() {
+  private boolean jj_3R_282() {
     if (jj_scan_token(CUSTOM)) {
       return true;
     }
@@ -34674,44 +34641,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_644() {
-    return jj_3R_74();
-  }
-
-  private boolean jj_3R_643() {
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_471() {
-    return jj_scan_token(FALSE);
-  }
-
-  private boolean jj_3R_603() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_546() {
+  private boolean jj_3R_545() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_643()) {
+    if (jj_3R_642()) {
       jj_scanpos = xsp;
-      return jj_3R_644();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_282() {
-    if (jj_scan_token(REMOVE_CLUSTER)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_474()) {
-      jj_scanpos = xsp;
-      return jj_3R_475();
+      return jj_3R_643();
     }
     return false;
   }
@@ -34721,7 +34656,27 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_470() {
-    return jj_scan_token(TRUE);
+    return jj_scan_token(FALSE);
+  }
+
+  private boolean jj_3R_602() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    return jj_3R_165();
+  }
+
+  private boolean jj_3R_281() {
+    if (jj_scan_token(REMOVE_CLUSTER)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_473()) {
+      jj_scanpos = xsp;
+      return jj_3R_474();
+    }
+    return false;
   }
 
   private boolean jj_3R_74() {
@@ -34733,50 +34688,41 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(FLOATING_POINT_LITERAL);
   }
 
-  private boolean jj_3R_281() {
+  private boolean jj_3R_469() {
+    return jj_scan_token(TRUE);
+  }
+
+  private boolean jj_3R_280() {
     if (jj_scan_token(ADD_CLUSTER)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_472()) {
+    if (jj_3R_471()) {
       jj_scanpos = xsp;
-      return jj_3R_473();
+      return jj_3R_472();
     }
     return false;
-  }
-
-  private boolean jj_3R_469() {
-    return jj_scan_token(NULL);
   }
 
   private boolean jj_3R_468() {
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_603()) {
-        jj_scanpos = xsp;
-        break; }
-    }
-    return false;
+    return jj_scan_token(NULL);
   }
 
   private boolean jj_3R_234() {
     return jj_scan_token(MINUS);
   }
 
-  private boolean jj_3R_280() {
-    if (jj_scan_token(STRICT_MODE)) {
+  private boolean jj_3R_467() {
+    if (jj_3R_165()) {
       return true;
     }
     Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_470()) {
-      jj_scanpos = xsp;
-      return jj_3R_471();
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_602()) {
+        jj_scanpos = xsp;
+        break; }
     }
     return false;
   }
@@ -34790,87 +34736,100 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(INTEGER_LITERAL);
   }
 
-  private boolean jj_3R_467() {
-    return jj_scan_token(NULL);
-  }
-
-  private boolean jj_3R_466() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_602() {
-    return jj_scan_token(MINUS);
-  }
-
-  private boolean jj_3R_465() {
+  private boolean jj_3R_279() {
+    if (jj_scan_token(STRICT_MODE)) {
+      return true;
+    }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_601()) {
+    if (jj_3R_469()) {
       jj_scanpos = xsp;
-      return jj_3R_602();
+      return jj_3R_470();
     }
     return false;
   }
 
+  private boolean jj_3R_466() {
+    return jj_scan_token(NULL);
+  }
+
+  private boolean jj_3R_465() {
+    return jj_3R_165();
+  }
+
   private boolean jj_3R_601() {
+    return jj_scan_token(MINUS);
+  }
+
+  private boolean jj_3R_464() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_600()) {
+      jj_scanpos = xsp;
+      return jj_3R_601();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_600() {
     return jj_scan_token(PLUS);
   }
 
-  private boolean jj_3R_279() {
+  private boolean jj_3R_278() {
     if (jj_scan_token(SUPERCLASSES)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_468()) {
+    if (jj_3R_467()) {
       jj_scanpos = xsp;
-      return jj_3R_469();
+      return jj_3R_468();
     }
     return false;
   }
 
-  private boolean jj_3R_464() {
+  private boolean jj_3R_463() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_278() {
-    if (jj_scan_token(SUPERCLASS)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_465()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_466()) {
-      jj_scanpos = xsp;
-      return jj_3R_467();
-    }
-    return false;
-  }
-
   private boolean jj_3R_277() {
-    if (jj_scan_token(SHORTNAME)) {
+    if (jj_scan_token(SUPERCLASS)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_464()) {
       jj_scanpos = xsp;
-      return jj_scan_token(37);
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_465()) {
+      jj_scanpos = xsp;
+      return jj_3R_466();
     }
     return false;
   }
 
   private boolean jj_3R_276() {
+    if (jj_scan_token(SHORTNAME)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_463()) {
+      jj_scanpos = xsp;
+      return jj_scan_token(37);
+    }
+    return false;
+  }
+
+  private boolean jj_3R_275() {
     if (jj_scan_token(NAME)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_809() {
+  private boolean jj_3R_808() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
@@ -34889,6 +34848,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_275()) {
+      jj_scanpos = xsp;
     if (jj_3R_276()) {
       jj_scanpos = xsp;
       if (jj_3R_277()) {
@@ -34907,12 +34868,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
             jj_scanpos = xsp;
             if (jj_3R_284()) {
               jj_scanpos = xsp;
-              if (jj_3R_285()) {
-                jj_scanpos = xsp;
-                if (jj_3R_286()) {
-                  return true;
-                }
-              }
+              if (jj_3R_285())
+                return true;
             }
           }
         }
@@ -34922,53 +34879,30 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     }
     }
+    }
     xsp = jj_scanpos;
-    if (jj_3R_287()) {
+    if (jj_3R_286()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_808() {
+  private boolean jj_3R_807() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_677() {
+  private boolean jj_3R_676() {
     return jj_scan_token(ABSTRACT);
   }
 
-  private boolean jj_3R_675() {
+  private boolean jj_3R_674() {
     if (jj_scan_token(CLUSTER)) {
       return true;
     }
     if (jj_3R_72()) {
-      return true;
-    }
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_809()) {
-        jj_scanpos = xsp;
-        break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_676() {
-    if (jj_scan_token(CLUSTERS)) {
-      return true;
-    }
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_674() {
-    if (jj_scan_token(EXTENDS)) {
-      return true;
-    }
-    if (jj_3R_165()) {
       return true;
     }
     Token xsp;
@@ -34981,7 +34915,31 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
+  private boolean jj_3R_675() {
+    if (jj_scan_token(CLUSTERS)) {
+      return true;
+    }
+    return jj_3R_72();
+  }
+
   private boolean jj_3R_673() {
+    if (jj_scan_token(EXTENDS)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_807()) {
+        jj_scanpos = xsp;
+        break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_672() {
     if (jj_scan_token(IF)) {
       return true;
     }
@@ -34991,11 +34949,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(EXISTS);
   }
 
-  private boolean jj_3R_619() {
-    return jj_3R_617();
+  private boolean jj_3R_618() {
+    return jj_3R_616();
   }
 
-  private boolean jj_3R_618() {
+  private boolean jj_3R_617() {
     return jj_3R_165();
   }
 
@@ -35010,6 +34968,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_672()) {
+      jj_scanpos = xsp;
+    }
     xsp = jj_scanpos;
     if (jj_3R_673()) {
       jj_scanpos = xsp;
@@ -35026,56 +34988,53 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_3R_676()) {
       jj_scanpos = xsp;
     }
-    xsp = jj_scanpos;
-    if (jj_3R_677()) {
-      jj_scanpos = xsp;
-    }
     return false;
   }
 
-  private boolean jj_3R_508() {
+  private boolean jj_3R_507() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_618()) {
+    if (jj_3R_617()) {
       jj_scanpos = xsp;
-      return jj_3R_619();
+      return jj_3R_618();
     }
     return false;
   }
 
-  private boolean jj_3R_507() {
-    return jj_3R_617();
+  private boolean jj_3R_506() {
+    return jj_3R_616();
   }
 
-  private boolean jj_3R_506() {
+  private boolean jj_3R_505() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_325() {
+  private boolean jj_3R_324() {
     if (jj_scan_token(LBRACKET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_506()) {
+    if (jj_3R_505()) {
       jj_scanpos = xsp;
-      if (jj_3R_507()) {
+      if (jj_3R_506()) {
         return true;
       }
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_508()) {
+      if (jj_3R_507()) {
         jj_scanpos = xsp;
-        break; }
+        break;
+      }
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_324() {
+  private boolean jj_3R_323() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -35085,15 +35044,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_323() {
+  private boolean jj_3R_322() {
     return jj_3R_168();
   }
 
-  private boolean jj_3R_274() {
+  private boolean jj_3R_273() {
     return jj_3R_72();
   }
 
-  private boolean jj_3R_273() {
+  private boolean jj_3R_272() {
     return jj_3R_165();
   }
 
@@ -35106,20 +35065,20 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_323()) {
+    if (jj_3R_322()) {
       jj_scanpos = xsp;
-      if (jj_3R_324()) {
+      if (jj_3R_323()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_325()) {
+    if (jj_3R_324()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_275() {
+  private boolean jj_3R_274() {
     return jj_scan_token(UNSAFE);
   }
 
@@ -35132,28 +35091,28 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_273()) {
+    if (jj_3R_272()) {
       jj_scanpos = xsp;
-      if (jj_3R_274()) {
+      if (jj_3R_273()) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_275()) {
+    if (jj_3R_274()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_272() {
+  private boolean jj_3R_271() {
     return jj_scan_token(UNSAFE);
   }
 
-  private boolean jj_3R_271() {
+  private boolean jj_3R_270() {
     return jj_scan_token(POLYMORPHIC);
   }
 
-  private boolean jj_3R_270() {
+  private boolean jj_3R_269() {
     return jj_scan_token(OFF);
   }
 
@@ -35169,17 +35128,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_271()) {
+    if (jj_3R_270()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_272()) {
+    if (jj_3R_271()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_269() {
+  private boolean jj_3R_268() {
     return jj_scan_token(ON);
   }
 
@@ -35192,45 +35151,9 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_269()) {
+    if (jj_3R_268()) {
       jj_scanpos = xsp;
-      return jj_3R_270();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_577() {
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_444() {
-    return jj_3R_436();
-  }
-
-  private boolean jj_3R_443() {
-    if (jj_scan_token(MINUS)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_577()) {
-      jj_scanpos = xsp;
-    }
-    return jj_scan_token(MINUS);
-  }
-
-  private boolean jj_3R_227() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_443()) {
-      jj_scanpos = xsp;
-      if (jj_scan_token(213)) {
-        return true;
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_444()) {
-      jj_scanpos = xsp;
+      return jj_3R_269();
     }
     return false;
   }
@@ -35239,11 +35162,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_442() {
-    return jj_3R_436();
+  private boolean jj_3R_443() {
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_441() {
+  private boolean jj_3R_442() {
     if (jj_scan_token(MINUS)) {
       return true;
     }
@@ -35255,20 +35178,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(MINUS);
   }
 
-  private boolean jj_3R_226() {
-    if (jj_scan_token(LT)) {
-      return true;
-    }
+  private boolean jj_3R_227() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_441()) {
+    if (jj_3R_442()) {
       jj_scanpos = xsp;
       if (jj_scan_token(213)) {
         return true;
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_442()) {
+    if (jj_3R_443()) {
       jj_scanpos = xsp;
     }
     return false;
@@ -35278,11 +35198,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_440() {
-    return jj_3R_436();
+  private boolean jj_3R_441() {
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_439() {
+  private boolean jj_3R_440() {
     if (jj_scan_token(MINUS)) {
       return true;
     }
@@ -35294,20 +35214,20 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(MINUS);
   }
 
-  private boolean jj_3R_225() {
+  private boolean jj_3R_226() {
+    if (jj_scan_token(LT)) {
+      return true;
+    }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_439()) {
+    if (jj_3R_440()) {
       jj_scanpos = xsp;
       if (jj_scan_token(213)) {
         return true;
       }
     }
-    if (jj_scan_token(GT)) {
-      return true;
-    }
     xsp = jj_scanpos;
-    if (jj_3R_440()) {
+    if (jj_3R_441()) {
       jj_scanpos = xsp;
     }
     return false;
@@ -35317,7 +35237,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_437() {
+  private boolean jj_3R_439() {
+    return jj_3R_435();
+  }
+
+  private boolean jj_3R_438() {
     if (jj_scan_token(MINUS)) {
       return true;
     }
@@ -35327,6 +35251,29 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_scanpos = xsp;
     }
     return jj_scan_token(MINUS);
+  }
+
+  private boolean jj_3R_225() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_438()) {
+      jj_scanpos = xsp;
+      if (jj_scan_token(213)) {
+        return true;
+      }
+    }
+    if (jj_scan_token(GT)) {
+      return true;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_439()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_573() {
+    return jj_3R_165();
   }
 
   private boolean jj_3R_165() {
@@ -35724,19 +35671,31 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
+  private boolean jj_3R_436() {
+    if (jj_scan_token(MINUS)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_573()) {
+      jj_scanpos = xsp;
+    }
+    return jj_scan_token(MINUS);
+  }
+
   private boolean jj_3R_224() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_437()) {
+    if (jj_3R_436()) {
       jj_scanpos = xsp;
       if (jj_scan_token(213)) {
         return true;
       }
     }
-    return jj_3R_436();
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_568() {
+  private boolean jj_3R_567() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(181)) {
@@ -35746,52 +35705,52 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_1043() {
+  private boolean jj_3R_1042() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_1040() {
+  private boolean jj_3R_1039() {
     if (jj_scan_token(MINUS)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_1043()) {
+    if (jj_3R_1042()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(MINUS);
-  }
-
-  private boolean jj_3R_1035() {
-    if (jj_scan_token(LT)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_1040()) {
-      jj_scanpos = xsp;
-      if (jj_scan_token(213)) {
-        return true;
-      }
-    }
-    return jj_3R_436();
   }
 
   private boolean jj_3_3() {
     return jj_3R_73();
   }
 
-  private boolean jj_3R_572() {
+  private boolean jj_3R_1034() {
+    if (jj_scan_token(LT)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_1039()) {
+      jj_scanpos = xsp;
+      if (jj_scan_token(213)) {
+        return true;
+      }
+    }
+    return jj_3R_435();
+  }
+
+  private boolean jj_3R_571() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_435() {
+  private boolean jj_3R_434() {
     if (jj_scan_token(MINUS)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_572()) {
+    if (jj_3R_571()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(MINUS);
@@ -35800,7 +35759,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   private boolean jj_3R_223() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_435()) {
+    if (jj_3R_434()) {
       jj_scanpos = xsp;
       if (jj_scan_token(213)) {
         return true;
@@ -35809,10 +35768,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(GT)) {
       return true;
     }
-    return jj_3R_436();
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_807() {
+  private boolean jj_3R_806() {
     if (jj_scan_token(PATH_ALIAS)) {
       return true;
     }
@@ -35822,25 +35781,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_934() {
+  private boolean jj_3R_933() {
     return jj_scan_token(FALSE);
   }
 
-  private boolean jj_3R_933() {
+  private boolean jj_3R_932() {
     return jj_scan_token(TRUE);
   }
 
-  private boolean jj_3R_806() {
-    if (jj_scan_token(DEPTH_ALIAS)) {
-      return true;
-    }
-    if (jj_scan_token(COLON)) {
-      return true;
-    }
-    return jj_3R_165();
-  }
-
-  private boolean jj_3R_358() {
+  private boolean jj_3R_357() {
     if (jj_scan_token(LBRACE)) {
       return true;
     }
@@ -35848,9 +35797,8 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     xsp = jj_scanpos;
     if (jj_scan_token(161)) {
       jj_scanpos = xsp;
-      if (jj_scan_token(162)) {
+      if (jj_scan_token(162))
         return true;
-      }
     }
     if (jj_scan_token(COLON)) {
       return true;
@@ -35862,33 +35810,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
   }
 
   private boolean jj_3R_805() {
-    if (jj_scan_token(OPTIONAL)) {
+    if (jj_scan_token(DEPTH_ALIAS)) {
       return true;
     }
     if (jj_scan_token(COLON)) {
       return true;
     }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_933()) {
-      jj_scanpos = xsp;
-      return jj_3R_934();
-    }
-    return false;
+    return jj_3R_165();
   }
 
   private boolean jj_3_2() {
     if (jj_3R_72()) {
-      return true;
-    }
-    if (jj_scan_token(COLON)) {
-      return true;
-    }
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_804() {
-    if (jj_scan_token(MAXDEPTH)) {
       return true;
     }
     if (jj_scan_token(COLON)) {
@@ -35910,20 +35842,30 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_72();
   }
 
-  private boolean jj_3R_803() {
-    if (jj_scan_token(WHILE)) {
+  private boolean jj_3R_804() {
+    if (jj_scan_token(OPTIONAL)) {
       return true;
     }
     if (jj_scan_token(COLON)) {
       return true;
     }
-    if (jj_scan_token(LPAREN)) {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_932()) {
+      jj_scanpos = xsp;
+      return jj_3R_933();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_803() {
+    if (jj_scan_token(MAXDEPTH)) {
       return true;
     }
-    if (jj_3R_457()) {
+    if (jj_scan_token(COLON)) {
       return true;
     }
-    return jj_scan_token(RPAREN);
+    return jj_3R_72();
   }
 
   private boolean jj_3R_168() {
@@ -35933,13 +35875,29 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       jj_scanpos = xsp;
       if (jj_3_2()) {
         jj_scanpos = xsp;
-        return jj_3R_358();
+        return jj_3R_357();
       }
     }
     return false;
   }
 
   private boolean jj_3R_802() {
+    if (jj_scan_token(WHILE)) {
+      return true;
+    }
+    if (jj_scan_token(COLON)) {
+      return true;
+    }
+    if (jj_scan_token(LPAREN)) {
+      return true;
+    }
+    if (jj_3R_456()) {
+      return true;
+    }
+    return jj_scan_token(RPAREN);
+  }
+
+  private boolean jj_3R_801() {
     if (jj_scan_token(WHERE)) {
       return true;
     }
@@ -35949,13 +35907,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(LPAREN)) {
       return true;
     }
-    if (jj_3R_457()) {
+    if (jj_3R_456()) {
       return true;
     }
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_801() {
+  private boolean jj_3R_800() {
     if (jj_scan_token(AS)) {
       return true;
     }
@@ -35965,15 +35923,15 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_165();
   }
 
-  private boolean jj_3R_932() {
+  private boolean jj_3R_931() {
     return jj_scan_token(CLUSTER_NUMBER_IDENTIFIER);
   }
 
-  private boolean jj_3R_931() {
+  private boolean jj_3R_930() {
     return jj_scan_token(CLUSTER_IDENTIFIER);
   }
 
-  private boolean jj_3R_800() {
+  private boolean jj_3R_799() {
     if (jj_scan_token(RID)) {
       return true;
     }
@@ -35983,25 +35941,25 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_168();
   }
 
-  private boolean jj_3R_930() {
+  private boolean jj_3R_929() {
     return jj_3R_72();
   }
 
-  private boolean jj_3R_929() {
+  private boolean jj_3R_928() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_799() {
+  private boolean jj_3R_798() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_931()) {
+    if (jj_3R_930()) {
       jj_scanpos = xsp;
-      return jj_3R_932();
+      return jj_3R_931();
     }
     return false;
   }
 
-  private boolean jj_3R_798() {
+  private boolean jj_3R_797() {
     if (jj_scan_token(CLUSTER)) {
       return true;
     }
@@ -36010,14 +35968,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_929()) {
+    if (jj_3R_928()) {
       jj_scanpos = xsp;
-      return jj_3R_930();
+      return jj_3R_929();
     }
     return false;
   }
 
-  private boolean jj_3R_797() {
+  private boolean jj_3R_796() {
     if (jj_scan_token(CLASSES)) {
       return true;
     }
@@ -36027,14 +35985,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_663() {
+  private boolean jj_3R_662() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
-    return jj_3R_662();
+    return jj_3R_661();
   }
 
-  private boolean jj_3R_796() {
+  private boolean jj_3R_795() {
     if (jj_scan_token(CLASS)) {
       return true;
     }
@@ -36044,9 +36002,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_662() {
+  private boolean jj_3R_661() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_795()) {
+      jj_scanpos = xsp;
     if (jj_3R_796()) {
       jj_scanpos = xsp;
       if (jj_3R_797()) {
@@ -36067,10 +36027,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                       jj_scanpos = xsp;
                       if (jj_3R_805()) {
                         jj_scanpos = xsp;
-                        if (jj_3R_806()) {
-                          jj_scanpos = xsp;
-                          return jj_3R_807();
-                        }
+                        return jj_3R_806();
                       }
                     }
                   }
@@ -36078,80 +36035,81 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
               }
             }
           }
+        }
     }
     }
     }
     return false;
   }
 
-  private boolean jj_3R_573() {
-    if (jj_3R_662()) {
+  private boolean jj_3R_572() {
+    if (jj_3R_661()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_663()) {
+      if (jj_3R_662()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3_150() {
+  private boolean jj_3_149() {
     return jj_3R_227();
   }
 
-  private boolean jj_3_149() {
+  private boolean jj_3_148() {
     return jj_3R_226();
   }
 
-  private boolean jj_3_148() {
+  private boolean jj_3_147() {
     return jj_3R_225();
   }
 
-  private boolean jj_3R_436() {
+  private boolean jj_3R_435() {
     if (jj_scan_token(LBRACE)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_573()) {
+    if (jj_3R_572()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RBRACE);
   }
 
-  private boolean jj_3R_1037() {
-    return jj_3R_436();
-  }
-
-  private boolean jj_3R_571() {
-    return jj_3R_227();
+  private boolean jj_3R_1036() {
+    return jj_3R_435();
   }
 
   private boolean jj_3R_570() {
-    return jj_3R_226();
+    return jj_3R_227();
   }
 
   private boolean jj_3R_569() {
+    return jj_3R_226();
+  }
+
+  private boolean jj_3R_568() {
     return jj_3R_225();
   }
 
-  private boolean jj_3R_433() {
+  private boolean jj_3R_432() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_568()) {
+      jj_scanpos = xsp;
     if (jj_3R_569()) {
       jj_scanpos = xsp;
-      if (jj_3R_570()) {
-        jj_scanpos = xsp;
-        return jj_3R_571();
+      return jj_3R_570();
     }
     }
     return false;
   }
 
-  private boolean jj_3_147() {
+  private boolean jj_3_146() {
     return jj_3R_220();
   }
 
@@ -36163,12 +36121,12 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     Token xsp;
-    if (jj_3R_433()) {
+    if (jj_3R_432()) {
       return true;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_433()) {
+      if (jj_3R_432()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -36176,17 +36134,17 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_1037()) {
+    if (jj_3R_1036()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_1039() {
-    return jj_3R_436();
+  private boolean jj_3R_1038() {
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_1038() {
+  private boolean jj_3R_1037() {
     return jj_3R_220();
   }
 
@@ -36197,13 +36155,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(LPAREN)) {
       return true;
     }
-    if (jj_3R_434()) {
+    if (jj_3R_433()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_1038()) {
+      if (jj_3R_1037()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -36211,37 +36169,18 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_1039()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_1042() {
-    return jj_3R_436();
-  }
-
-  private boolean jj_3R_434() {
-    if (jj_3R_170()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_1042()) {
+    if (jj_3R_1038()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
   private boolean jj_3R_1041() {
-    return jj_3R_436();
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_1036() {
-    if (jj_scan_token(DOT)) {
-      return true;
-    }
-    if (jj_3R_165()) {
+  private boolean jj_3R_433() {
+    if (jj_3R_170()) {
       return true;
     }
     Token xsp;
@@ -36252,20 +36191,39 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3_146() {
-    return jj_3R_224();
+  private boolean jj_3R_1040() {
+    return jj_3R_435();
   }
 
-  private boolean jj_3R_438() {
-    return jj_3R_436();
+  private boolean jj_3R_1035() {
+    if (jj_scan_token(DOT)) {
+      return true;
+    }
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_1040()) {
+      jj_scanpos = xsp;
+    }
+    return false;
   }
 
   private boolean jj_3_145() {
+    return jj_3R_224();
+  }
+
+  private boolean jj_3R_437() {
+    return jj_3R_435();
+  }
+
+  private boolean jj_3_144() {
     return jj_3R_223();
   }
 
-  private boolean jj_3R_1024() {
-    return jj_3R_1036();
+  private boolean jj_3R_1023() {
+    return jj_3R_1035();
   }
 
   private boolean jj_3R_220() {
@@ -36274,52 +36232,52 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_438()) {
+    if (jj_3R_437()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_1023() {
+  private boolean jj_3R_1022() {
     return jj_3R_224();
   }
 
-  private boolean jj_3R_1022() {
-    return jj_3R_1035();
+  private boolean jj_3R_1021() {
+    return jj_3R_1034();
   }
 
-  private boolean jj_3R_1021() {
+  private boolean jj_3R_1020() {
     return jj_3R_223();
   }
 
-  private boolean jj_3_144() {
+  private boolean jj_3_143() {
     return jj_3R_222();
   }
 
-  private boolean jj_3_143() {
+  private boolean jj_3_142() {
     return jj_3R_221();
   }
 
-  private boolean jj_3_142() {
+  private boolean jj_3_141() {
     return jj_3R_220();
   }
 
-  private boolean jj_3R_986() {
+  private boolean jj_3R_985() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3_141()) {
+      jj_scanpos = xsp;
     if (jj_3_142()) {
       jj_scanpos = xsp;
     if (jj_3_143()) {
       jj_scanpos = xsp;
-    if (jj_3_144()) {
-      jj_scanpos = xsp;
-      if (jj_3R_1021()) {
+      if (jj_3R_1020()) {
         jj_scanpos = xsp;
-        if (jj_3R_1022()) {
+        if (jj_3R_1021()) {
           jj_scanpos = xsp;
-          if (jj_3R_1023()) {
+          if (jj_3R_1022()) {
             jj_scanpos = xsp;
-            return jj_3R_1024();
+            return jj_3R_1023();
           }
         }
       }
@@ -36329,55 +36287,54 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return false;
   }
 
-  private boolean jj_3R_982() {
+  private boolean jj_3R_981() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_648() {
-    if (jj_3R_436()) {
+  private boolean jj_3R_647() {
+    if (jj_3R_435()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_986()) {
+      if (jj_3R_985()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_909() {
+  private boolean jj_3R_908() {
     return jj_scan_token(CHARACTER_LITERAL);
   }
 
-  private boolean jj_3R_908() {
-    return jj_3R_568();
-  }
-
   private boolean jj_3R_907() {
-    return jj_scan_token(RECORD_ATTRIBUTE);
+    return jj_3R_567();
   }
 
   private boolean jj_3R_906() {
+    return jj_scan_token(RECORD_ATTRIBUTE);
+  }
+
+  private boolean jj_3R_905() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_773() {
+  private boolean jj_3R_772() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_905()) {
+      jj_scanpos = xsp;
     if (jj_3R_906()) {
       jj_scanpos = xsp;
       if (jj_3R_907()) {
         jj_scanpos = xsp;
-        if (jj_3R_908()) {
-          jj_scanpos = xsp;
-          if (jj_3R_909()) {
-            return true;
-          }
+        if (jj_3R_908())
+          return true;
     }
     }
     }
@@ -36387,38 +36344,37 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3R_772() {
+  private boolean jj_3R_771() {
     return jj_scan_token(CHARACTER_LITERAL);
   }
 
-  private boolean jj_3R_904() {
+  private boolean jj_3R_903() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_771() {
-    return jj_3R_568();
-  }
-
   private boolean jj_3R_770() {
-    return jj_scan_token(RECORD_ATTRIBUTE);
+    return jj_3R_567();
   }
 
   private boolean jj_3R_769() {
+    return jj_scan_token(RECORD_ATTRIBUTE);
+  }
+
+  private boolean jj_3R_768() {
     return jj_3R_165();
   }
 
-  private boolean jj_3R_620() {
+  private boolean jj_3R_619() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_768()) {
+      jj_scanpos = xsp;
     if (jj_3R_769()) {
       jj_scanpos = xsp;
       if (jj_3R_770()) {
         jj_scanpos = xsp;
-        if (jj_3R_771()) {
-          jj_scanpos = xsp;
-          if (jj_3R_772()) {
-            return true;
-          }
+        if (jj_3R_771())
+          return true;
     }
     }
     }
@@ -36430,14 +36386,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_773()) {
+      if (jj_3R_772()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3_141() {
+  private boolean jj_3_140() {
     return jj_3R_180();
   }
 
@@ -36447,29 +36403,29 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_620()) {
+    if (jj_3R_619()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RBRACE);
   }
 
-  private boolean jj_3R_1020() {
+  private boolean jj_3R_1019() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_786() {
-    if (jj_3R_547()) {
+  private boolean jj_3R_785() {
+    if (jj_3R_546()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_1020()) {
+    if (jj_3R_1019()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_905() {
+  private boolean jj_3R_904() {
     if (jj_scan_token(DOT)) {
       return true;
     }
@@ -36478,67 +36434,67 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_982()) {
+    if (jj_3R_981()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_981() {
+  private boolean jj_3R_980() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_980() {
+  private boolean jj_3R_979() {
     return jj_3R_72();
   }
 
-  private boolean jj_3R_903() {
+  private boolean jj_3R_902() {
     if (jj_scan_token(LBRACKET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_980()) {
+    if (jj_3R_979()) {
       jj_scanpos = xsp;
-      if (jj_3R_981()) {
+      if (jj_3R_980()) {
         return true;
       }
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_766() {
+  private boolean jj_3R_765() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_903()) {
+    if (jj_3R_902()) {
       jj_scanpos = xsp;
     }
     if (jj_3R_165()) {
       return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_904()) {
+    if (jj_3R_903()) {
       jj_scanpos = xsp;
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_905()) {
+      if (jj_3R_904()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_765() {
+  private boolean jj_3R_764() {
     return jj_scan_token(STAR);
   }
 
-  private boolean jj_3R_615() {
+  private boolean jj_3R_614() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_765()) {
+    if (jj_3R_764()) {
       jj_scanpos = xsp;
-      if (jj_3R_766()) {
+      if (jj_3R_765()) {
         return true;
       }
     }
@@ -36548,42 +36504,42 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_72();
   }
 
-  private boolean jj_3R_616() {
-    return jj_3R_615();
+  private boolean jj_3R_615() {
+    return jj_3R_614();
   }
 
-  private boolean jj_3R_505() {
+  private boolean jj_3R_504() {
     if (jj_scan_token(FETCHPLAN)) {
       return true;
     }
-    if (jj_3R_615()) {
+    if (jj_3R_614()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_616()) {
+      if (jj_3R_615()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_525() {
+  private boolean jj_3R_524() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_364() {
+  private boolean jj_3R_363() {
     if (jj_3R_155()) {
       return true;
     }
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_525()) {
+      if (jj_3R_524()) {
         jj_scanpos = xsp;
         break; }
     }
@@ -36596,45 +36552,45 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_364()) {
+    if (jj_3R_363()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RBRACKET);
   }
 
-  private boolean jj_3R_449() {
+  private boolean jj_3R_448() {
     if (jj_scan_token(RETRY)) {
       return true;
     }
     return jj_3R_72();
   }
 
-  private boolean jj_3R_741() {
+  private boolean jj_3R_740() {
     return jj_scan_token(EXCEPTION);
   }
 
-  private boolean jj_3R_450() {
+  private boolean jj_3R_449() {
     if (jj_scan_token(WAIT)) {
       return true;
     }
     return jj_3R_72();
   }
 
-  private boolean jj_3R_600() {
+  private boolean jj_3R_599() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_740()) {
+    if (jj_3R_739()) {
       jj_scanpos = xsp;
-      return jj_3R_741();
+      return jj_3R_740();
     }
     return false;
   }
 
-  private boolean jj_3R_740() {
+  private boolean jj_3R_739() {
     return jj_scan_token(RETURN);
   }
 
-  private boolean jj_3R_459() {
+  private boolean jj_3R_458() {
     if (jj_scan_token(TIMEOUT)) {
       return true;
     }
@@ -36643,129 +36599,129 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_600()) {
+    if (jj_3R_599()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_583() {
-    return jj_3R_169();
-  }
-
   private boolean jj_3R_582() {
-    return jj_3R_72();
+    return jj_3R_169();
   }
 
-  private boolean jj_3R_902() {
-    return jj_3R_169();
+  private boolean jj_3R_581() {
+    return jj_3R_72();
   }
 
   private boolean jj_3R_901() {
+    return jj_3R_169();
+  }
+
+  private boolean jj_3R_900() {
     return jj_3R_72();
   }
 
-  private boolean jj_3R_451() {
+  private boolean jj_3R_450() {
     if (jj_scan_token(BATCH)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_582()) {
+    if (jj_3R_581()) {
       jj_scanpos = xsp;
-      return jj_3R_583();
+      return jj_3R_582();
     }
     return false;
   }
 
-  private boolean jj_3R_900() {
+  private boolean jj_3R_899() {
     return jj_3R_169();
   }
 
-  private boolean jj_3R_899() {
+  private boolean jj_3R_898() {
     return jj_3R_72();
   }
 
-  private boolean jj_3R_764() {
+  private boolean jj_3R_763() {
     if (jj_scan_token(OFFSET)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_901()) {
+    if (jj_3R_900()) {
       jj_scanpos = xsp;
-      return jj_3R_902();
+      return jj_3R_901();
     }
     return false;
   }
 
-  private boolean jj_3R_979() {
+  private boolean jj_3R_978() {
     return jj_scan_token(ASC);
   }
 
-  private boolean jj_3R_763() {
+  private boolean jj_3R_762() {
     if (jj_scan_token(SKIP2)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_899()) {
+    if (jj_3R_898()) {
       jj_scanpos = xsp;
-      return jj_3R_900();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_612() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_763()) {
-      jj_scanpos = xsp;
-      return jj_3R_764();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_599() {
-    return jj_3R_169();
-  }
-
-  private boolean jj_3R_598() {
-    return jj_3R_72();
-  }
-
-  private boolean jj_3R_976() {
-    return jj_scan_token(ASC);
-  }
-
-  private boolean jj_3R_458() {
-    if (jj_scan_token(LIMIT)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_598()) {
-      jj_scanpos = xsp;
-      return jj_3R_599();
+      return jj_3R_899();
     }
     return false;
   }
 
   private boolean jj_3R_611() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_762()) {
+      jj_scanpos = xsp;
+      return jj_3R_763();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_598() {
+    return jj_3R_169();
+  }
+
+  private boolean jj_3R_597() {
+    return jj_3R_72();
+  }
+
+  private boolean jj_3R_975() {
+    return jj_scan_token(ASC);
+  }
+
+  private boolean jj_3R_457() {
+    if (jj_scan_token(LIMIT)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_597()) {
+      jj_scanpos = xsp;
+      return jj_3R_598();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_610() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_165();
   }
 
-  private boolean jj_3R_607() {
+  private boolean jj_3R_606() {
     if (jj_scan_token(COMMA)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_502() {
+  private boolean jj_3R_501() {
     if (jj_scan_token(UNWIND)) {
       return true;
     }
@@ -36775,63 +36731,63 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_611()) {
+      if (jj_3R_610()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_977() {
+  private boolean jj_3R_976() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_896() {
+  private boolean jj_3R_895() {
     return jj_scan_token(RECORD_ATTRIBUTE);
   }
 
-  private boolean jj_3R_895() {
+  private boolean jj_3R_894() {
     return jj_3R_168();
   }
 
-  private boolean jj_3R_898() {
+  private boolean jj_3R_897() {
     if (jj_scan_token(COLLATE)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_978() {
+  private boolean jj_3R_977() {
     return jj_scan_token(DESC);
   }
 
-  private boolean jj_3R_897() {
+  private boolean jj_3R_896() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_978()) {
+    if (jj_3R_977()) {
       jj_scanpos = xsp;
-      return jj_3R_979();
+      return jj_3R_978();
     }
     return false;
   }
 
-  private boolean jj_3R_888() {
+  private boolean jj_3R_887() {
     return jj_scan_token(ASC);
   }
 
-  private boolean jj_3R_894() {
+  private boolean jj_3R_893() {
     if (jj_3R_165()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_977()) {
+    if (jj_3R_976()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_500() {
+  private boolean jj_3R_499() {
     if (jj_scan_token(GROUP)) {
       return true;
     }
@@ -36844,264 +36800,262 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_607()) {
+      if (jj_3R_606()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3R_974() {
+  private boolean jj_3R_973() {
     return jj_3R_180();
   }
 
-  private boolean jj_3R_891() {
+  private boolean jj_3R_890() {
     return jj_scan_token(RECORD_ATTRIBUTE);
   }
 
-  private boolean jj_3R_890() {
+  private boolean jj_3R_889() {
     return jj_3R_168();
   }
 
-  private boolean jj_3R_893() {
+  private boolean jj_3R_892() {
     if (jj_scan_token(COLLATE)) {
       return true;
     }
     return jj_3R_155();
   }
 
-  private boolean jj_3R_975() {
+  private boolean jj_3R_974() {
     return jj_scan_token(DESC);
   }
 
-  private boolean jj_3R_892() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_975()) {
-      jj_scanpos = xsp;
-      return jj_3R_976();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_762() {
-    if (jj_scan_token(LPAREN)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_894()) {
-      jj_scanpos = xsp;
-      if (jj_3R_895()) {
-        jj_scanpos = xsp;
-        if (jj_3R_896()) {
-          return true;
-        }
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_897()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_898()) {
-      jj_scanpos = xsp;
-    }
-    return jj_scan_token(RPAREN);
-  }
-
-  private boolean jj_3R_885() {
-    return jj_scan_token(ASC);
-  }
-
-  private boolean jj_3R_889() {
-    if (jj_3R_165()) {
-      return true;
-    }
+  private boolean jj_3R_891() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_974()) {
       jj_scanpos = xsp;
+      return jj_3R_975();
     }
     return false;
   }
 
   private boolean jj_3R_761() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_889()) {
-      jj_scanpos = xsp;
-      if (jj_3R_890()) {
-        jj_scanpos = xsp;
-        if (jj_3R_891()) {
-          return true;
-        }
-      }
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_892()) {
-      jj_scanpos = xsp;
-    }
-    xsp = jj_scanpos;
-    if (jj_3R_893()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_610() {
-    if (jj_scan_token(COMMA)) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_761()) {
-      jj_scanpos = xsp;
-      return jj_3R_762();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_886() {
-    return jj_3R_180();
-  }
-
-  private boolean jj_3R_758() {
-    return jj_scan_token(RECORD_ATTRIBUTE);
-  }
-
-  private boolean jj_3R_757() {
-    return jj_3R_168();
-  }
-
-  private boolean jj_3R_760() {
-    if (jj_scan_token(COLLATE)) {
-      return true;
-    }
-    return jj_3R_155();
-  }
-
-  private boolean jj_3R_759() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_887()) {
-      jj_scanpos = xsp;
-      return jj_3R_888();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_887() {
-    return jj_scan_token(DESC);
-  }
-
-  private boolean jj_3R_756() {
-    if (jj_3R_165()) {
-      return true;
-    }
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_886()) {
-      jj_scanpos = xsp;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_883() {
-    return jj_3R_180();
-  }
-
-  private boolean jj_3R_753() {
-    return jj_scan_token(RECORD_ATTRIBUTE);
-  }
-
-  private boolean jj_3R_752() {
-    return jj_3R_168();
-  }
-
-  private boolean jj_3R_755() {
-    if (jj_scan_token(COLLATE)) {
-      return true;
-    }
-    return jj_3R_155();
-  }
-
-  private boolean jj_3R_754() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_884()) {
-      jj_scanpos = xsp;
-      return jj_3R_885();
-    }
-    return false;
-  }
-
-  private boolean jj_3R_884() {
-    return jj_scan_token(DESC);
-  }
-
-  private boolean jj_3R_609() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_756()) {
+    if (jj_3R_893()) {
       jj_scanpos = xsp;
-      if (jj_3R_757()) {
-        jj_scanpos = xsp;
-        if (jj_3R_758()) {
-          return true;
-        }
-      }
+    if (jj_3R_894()) {
+      jj_scanpos = xsp;
+      if (jj_3R_895())
+        return true;
+    }
     }
     xsp = jj_scanpos;
-    if (jj_3R_759()) {
+    if (jj_3R_896()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_760()) {
+    if (jj_3R_897()) {
       jj_scanpos = xsp;
     }
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_751() {
+  private boolean jj_3R_884() {
+    return jj_scan_token(ASC);
+  }
+
+  private boolean jj_3R_888() {
     if (jj_3R_165()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_883()) {
+    if (jj_3R_973()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_608() {
+  private boolean jj_3R_760() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_751()) {
+    if (jj_3R_888()) {
       jj_scanpos = xsp;
-      if (jj_3R_752()) {
+      if (jj_3R_889()) {
         jj_scanpos = xsp;
-        if (jj_3R_753()) {
+        if (jj_3R_890()) {
           return true;
         }
       }
     }
     xsp = jj_scanpos;
-    if (jj_3R_754()) {
+    if (jj_3R_891()) {
       jj_scanpos = xsp;
     }
     xsp = jj_scanpos;
-    if (jj_3R_755()) {
+    if (jj_3R_892()) {
       jj_scanpos = xsp;
     }
     return false;
   }
 
-  private boolean jj_3R_501() {
+  private boolean jj_3R_609() {
+    if (jj_scan_token(COMMA)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_760()) {
+      jj_scanpos = xsp;
+      return jj_3R_761();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_885() {
+    return jj_3R_180();
+  }
+
+  private boolean jj_3R_757() {
+    return jj_scan_token(RECORD_ATTRIBUTE);
+  }
+
+  private boolean jj_3R_756() {
+    return jj_3R_168();
+  }
+
+  private boolean jj_3R_759() {
+    if (jj_scan_token(COLLATE)) {
+      return true;
+    }
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_758() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_886()) {
+      jj_scanpos = xsp;
+      return jj_3R_887();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_886() {
+    return jj_scan_token(DESC);
+  }
+
+  private boolean jj_3R_755() {
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_885()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_882() {
+    return jj_3R_180();
+  }
+
+  private boolean jj_3R_752() {
+    return jj_scan_token(RECORD_ATTRIBUTE);
+  }
+
+  private boolean jj_3R_751() {
+    return jj_3R_168();
+  }
+
+  private boolean jj_3R_754() {
+    if (jj_scan_token(COLLATE)) {
+      return true;
+    }
+    return jj_3R_155();
+  }
+
+  private boolean jj_3R_753() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_883()) {
+      jj_scanpos = xsp;
+      return jj_3R_884();
+    }
+    return false;
+  }
+
+  private boolean jj_3R_883() {
+    return jj_scan_token(DESC);
+  }
+
+  private boolean jj_3R_608() {
+    if (jj_scan_token(LPAREN)) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_755()) {
+      jj_scanpos = xsp;
+      if (jj_3R_756()) {
+        jj_scanpos = xsp;
+        if (jj_3R_757()) {
+          return true;
+        }
+      }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_758()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_759()) {
+      jj_scanpos = xsp;
+    }
+    return jj_scan_token(RPAREN);
+  }
+
+  private boolean jj_3R_750() {
+    if (jj_3R_165()) {
+      return true;
+    }
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_882()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_607() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_750()) {
+      jj_scanpos = xsp;
+    if (jj_3R_751()) {
+      jj_scanpos = xsp;
+      if (jj_3R_752())
+        return true;
+    }
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_753()) {
+      jj_scanpos = xsp;
+    }
+    xsp = jj_scanpos;
+    if (jj_3R_754()) {
+      jj_scanpos = xsp;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_500() {
     if (jj_scan_token(ORDER)) {
       return true;
     }
@@ -37110,42 +37064,42 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_608()) {
+    if (jj_3R_607()) {
       jj_scanpos = xsp;
-      if (jj_3R_609()) {
+      if (jj_3R_608()) {
         return true;
       }
     }
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_610()) {
+      if (jj_3R_609()) {
         jj_scanpos = xsp;
         break; }
     }
     return false;
   }
 
-  private boolean jj_3_140() {
+  private boolean jj_3_139() {
     return jj_3R_155();
-  }
-
-  private boolean jj_3R_429() {
-    return jj_3R_169();
   }
 
   private boolean jj_3R_428() {
-    return jj_scan_token(CHARACTER_LITERAL);
+    return jj_3R_169();
   }
 
   private boolean jj_3R_427() {
-    return jj_3R_568();
+    return jj_scan_token(CHARACTER_LITERAL);
   }
 
   private boolean jj_3R_426() {
+    return jj_3R_567();
+  }
+
+  private boolean jj_3R_425() {
     return jj_3R_155();
   }
 
-  private boolean jj_3_139() {
+  private boolean jj_3_138() {
     return jj_3R_155();
   }
 
@@ -37158,20 +37112,20 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_425()) {
+      jj_scanpos = xsp;
     if (jj_3R_426()) {
       jj_scanpos = xsp;
       if (jj_3R_427()) {
         jj_scanpos = xsp;
-        if (jj_3R_428()) {
-          jj_scanpos = xsp;
-          return jj_3R_429();
+        return jj_3R_428();
     }
     }
     }
     return false;
   }
 
-  private boolean jj_3R_425() {
+  private boolean jj_3R_424() {
     return jj_3R_155();
   }
 
@@ -37185,7 +37139,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_155();
   }
 
-  private boolean jj_3_138() {
+  private boolean jj_3_137() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -37195,11 +37149,11 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3_137() {
+  private boolean jj_3_136() {
     return jj_3R_155();
   }
 
-  private boolean jj_3R_424() {
+  private boolean jj_3R_423() {
     return jj_3R_155();
   }
 
@@ -37212,14 +37166,14 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_138()) {
+    if (jj_3_137()) {
       jj_scanpos = xsp;
-      return jj_3R_425();
+      return jj_3R_424();
     }
     return false;
   }
 
-  private boolean jj_3_136() {
+  private boolean jj_3_135() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -37229,7 +37183,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3_133() {
+  private boolean jj_3_132() {
     return jj_3R_153();
   }
 
@@ -37242,22 +37196,22 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_136()) {
+    if (jj_3_135()) {
       jj_scanpos = xsp;
-      return jj_3R_424();
+      return jj_3R_423();
     }
     return false;
   }
 
-  private boolean jj_3R_419() {
+  private boolean jj_3R_418() {
     return jj_3R_182();
   }
 
   private boolean jj_3R_219() {
-    return jj_3R_354();
+    return jj_3R_353();
   }
 
-  private boolean jj_3_135() {
+  private boolean jj_3_134() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -37271,7 +37225,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_153();
   }
 
-  private boolean jj_3_134() {
+  private boolean jj_3_133() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -37279,14 +37233,13 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     xsp = jj_scanpos;
     if (jj_3R_218()) {
       jj_scanpos = xsp;
-      if (jj_3R_219()) {
+      if (jj_3R_219())
         return true;
-      }
     }
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3_130() {
+  private boolean jj_3_129() {
     return jj_3R_153();
   }
 
@@ -37297,26 +37250,26 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     if (jj_scan_token(NOT)) {
       return true;
     }
-    if (jj_3R_417()) {
+    if (jj_3R_416()) {
       return true;
     }
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3_134()) {
+    if (jj_3_133()) {
       jj_scanpos = xsp;
-      if (jj_3_135()) {
+      if (jj_3_134()) {
         jj_scanpos = xsp;
-        return jj_3R_419();
+        return jj_3R_418();
     }
     }
     return false;
   }
 
   private boolean jj_3R_217() {
-    return jj_3R_354();
+    return jj_3R_353();
   }
 
-  private boolean jj_3_132() {
+  private boolean jj_3_131() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -37326,7 +37279,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_scan_token(RPAREN);
   }
 
-  private boolean jj_3R_418() {
+  private boolean jj_3R_417() {
     return jj_3R_182();
   }
 
@@ -37334,7 +37287,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     return jj_3R_153();
   }
 
-  private boolean jj_3_131() {
+  private boolean jj_3_130() {
     if (jj_scan_token(LPAREN)) {
       return true;
     }
@@ -37342,19 +37295,10 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
     xsp = jj_scanpos;
     if (jj_3R_216()) {
       jj_scanpos = xsp;
-      if (jj_3R_217()) {
+      if (jj_3R_217())
         return true;
-      }
     }
     return jj_scan_token(RPAREN);
-  }
-
-  private boolean jj_3_129() {
-    return jj_3R_155();
-  }
-
-  private boolean jj_3_68() {
-    return jj_scan_token(0);
   }
 
   /** Generated Token Manager. */
@@ -37707,7 +37651,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
         0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,};
   }
 
-  final private JJCalls[] jj_2_rtns = new JJCalls[162];
+  final private JJCalls[] jj_2_rtns = new JJCalls[161];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
@@ -37966,7 +37910,7 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
 
   private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 162; i++) {
+    for (int i = 0; i < 161; i++) {
       try {
         JJCalls p = jj_2_rtns[i];
         do {
@@ -38456,9 +38400,6 @@ public class YouTrackDBSql/*@bgen(jjtree)*/ implements YouTrackDBSqlTreeConstant
                 break;
               case 160:
                 jj_3_161();
-                break;
-              case 161:
-                jj_3_162();
                 break;
             }
           }

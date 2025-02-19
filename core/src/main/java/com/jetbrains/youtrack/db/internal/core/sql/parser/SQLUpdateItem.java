@@ -13,6 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -138,9 +139,9 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public void applyUpdate(ResultInternal entity, CommandContext ctx) {
-    var db = ctx.getDatabaseSession();
+    var session = ctx.getDatabaseSession();
     var rightValue = right.execute(entity, ctx);
-    var linkedType = calculateLinkedTypeForThisItem(entity, ctx);
+    var linkedType = calculateLinkedTypeForThisItem(entity, session);
     if (leftModifier == null) {
       applyOperation(entity, left, rightValue, ctx);
     } else {
@@ -148,7 +149,7 @@ public class SQLUpdateItem extends SimpleNode {
       rightValue = convertToType(rightValue, null, linkedType, ctx);
       var val = entity.getProperty(propertyName);
       if (val == null) {
-        val = initSchemafullCollections(db, entity, propertyName);
+        val = initSchemafullCollections(session, entity, propertyName);
       }
       leftModifier.setValue(entity, val, rightValue, ctx);
     }
@@ -159,7 +160,7 @@ public class SQLUpdateItem extends SimpleNode {
     if (!entity.isEntity()) {
       return null;
     }
-    var oClass = entity.castToEntity().getSchemaClass();
+    var oClass = ((EntityInternal) entity.castToEntity()).getImmutableSchemaClass(session);
     if (oClass == null) {
       return null;
     }
@@ -189,14 +190,12 @@ public class SQLUpdateItem extends SimpleNode {
     return result;
   }
 
-  private SchemaClass calculateLinkedTypeForThisItem(ResultInternal entity, CommandContext ctx) {
-    if (entity.isEntity()) {
-      var elem = entity.asEntity();
+  private static SchemaClass calculateLinkedTypeForThisItem(ResultInternal result,
+      DatabaseSessionInternal session) {
+    if (result.isEntity()) {
+      var entity = (EntityInternal) result.asEntity();
 
-      var clazz = elem.getSchemaClass();
-      if (clazz == null) {
-        return null;
-      }
+      return entity.getImmutableSchemaClass(session);
     }
 
     return null;
@@ -250,8 +249,8 @@ public class SQLUpdateItem extends SimpleNode {
       ResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
 
     var session = ctx.getDatabaseSession();
-    var entity = res.asEntity();
-    var optSchema = entity.getSchemaClass();
+    var entity = (EntityInternal) res.asEntity();
+    var optSchema = entity.getImmutableSchemaClass(session);
     if (optSchema == null) {
       return newValue;
     }
@@ -323,13 +322,13 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   private static Object convertToType(Object item, SchemaClass linkedClass, CommandContext ctx) {
-    var db = ctx.getDatabaseSession();
-    if (item instanceof Entity) {
-      var currentType = ((Entity) item).getSchemaClass();
-      if (currentType == null || !currentType.isSubClassOf(db, linkedClass)) {
-        var result = db.newEmbededEntity(linkedClass);
+    var session = ctx.getDatabaseSession();
+    if (item instanceof EntityInternal entity) {
+      var currentType = entity.getImmutableSchemaClass(session);
+      if (currentType == null || !currentType.isSubClassOf(session, linkedClass)) {
+        var result = session.newEmbededEntity(linkedClass);
 
-        for (var prop : ((Entity) item).getPropertyNames()) {
+        for (var prop : entity.getPropertyNames()) {
           result.setProperty(prop, ((Entity) item).getProperty(prop));
         }
 
@@ -338,7 +337,7 @@ public class SQLUpdateItem extends SimpleNode {
         return item;
       }
     } else if (item instanceof Map) {
-      var result = db.newEmbededEntity(linkedClass.getName(db));
+      var result = session.newEmbededEntity(linkedClass.getName(session));
 
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));

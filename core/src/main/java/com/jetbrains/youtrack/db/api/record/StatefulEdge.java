@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface StatefulEdge extends Edge, Entity {
-
   /**
    * Returns the names of defined properties except of properties used to manage edges.
    *
@@ -39,7 +38,7 @@ public interface StatefulEdge extends Edge, Entity {
    * @see com.jetbrains.youtrack.db.api.query.Result#getProperty(String)
    */
   @Nullable
-  Identifiable getLinkProperty(@Nonnull String name);
+  RID getLink(@Nonnull String name);
 
   /**
    * Check if a property exists in the Element. if the property name equals to {@link #DIRECTION_IN}

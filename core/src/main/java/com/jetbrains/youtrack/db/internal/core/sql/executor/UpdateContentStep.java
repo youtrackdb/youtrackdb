@@ -6,7 +6,6 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
@@ -58,8 +57,8 @@ public class UpdateContentStep extends AbstractExecutionStep {
     EntityImpl fieldsToPreserve = null;
 
     var session = ctx.getDatabaseSession();
-    var clazz = record.getSchemaClass();
-    if (clazz != null && ((SchemaImmutableClass) clazz).isRestricted()) {
+    var clazz = record.getImmutableSchemaClass(session);
+    if (clazz != null && clazz.isRestricted()) {
       fieldsToPreserve = new EntityImpl(session);
 
       final var restricted =

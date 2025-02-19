@@ -29,6 +29,7 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
@@ -109,8 +110,9 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
 
   public Object getValue(
       final Identifiable iRecord, final Object iCurrentResult, final CommandContext iContext) {
+    var session = iContext.getDatabaseSession();
     if (iRecord == null) {
-      throw new CommandExecutionException(iContext.getDatabaseSession(),
+      throw new CommandExecutionException(session,
           "expression item '" + name + "' cannot be resolved because current record is NULL");
     }
 
@@ -120,7 +122,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       }
     }
 
-    final EntityImpl entity = iRecord.getRecord(iContext.getDatabaseSession());
+    final EntityImpl entity = iRecord.getRecord(session);
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
@@ -140,9 +142,11 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     final var v = stringValue == null ? entity.rawField(name) : stringValue;
 
     if (!collatePreset) {
-      SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(entity);
+      SchemaImmutableClass result = null;
+      result = entity.getImmutableSchemaClass(session);
+      SchemaClass schemaClass = result;
       if (schemaClass != null) {
-        collate = getCollateForField(iContext.getDatabaseSession(), schemaClass, name);
+        collate = getCollateForField(session, schemaClass, name);
       }
     }
 
@@ -168,9 +172,13 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     var serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
+    SchemaImmutableClass result = null;
+    if (rec != null) {
+      result = rec.getImmutableSchemaClass(session);
+    }
     return serializer.deserializeField(session,
         serialized,
-        EntityInternalUtils.getImmutableSchemaClass(rec),
+        result,
         name,
         rec.isEmbedded(),
         session.getMetadata().getImmutableSchemaSnapshot(), encryption);
@@ -265,7 +273,11 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
         }
         lastDoc = ((Identifiable) nextDoc).getRecord(session);
       }
-      SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(lastDoc);
+      SchemaImmutableClass result = null;
+      if (lastDoc != null) {
+        result = lastDoc.getImmutableSchemaClass(session);
+      }
+      SchemaClass schemaClass = result;
       if (schemaClass == null) {
         return null;
       }

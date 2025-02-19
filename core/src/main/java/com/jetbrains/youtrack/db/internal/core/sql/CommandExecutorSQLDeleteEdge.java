@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * SQL DELETE EDGE command.
@@ -354,26 +355,26 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   /**
    * Delete the current edge.
    */
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     final var id = (Identifiable) iRecord;
 
     if (compiledFilter != null) {
       // ADDITIONAL FILTERING
-      if (!(Boolean) compiledFilter.evaluate(id.getRecord(db), null, context)) {
+      if (!(Boolean) compiledFilter.evaluate(id.getRecord(session), null, context)) {
         return true;
       }
     }
 
     if (((RecordId) id.getIdentity()).isValid()) {
 
-      final var e = toEdge(db, id);
+      final var e = toEdge(session, id);
 
       if (e != null) {
         e.delete();
 
         if (!txAlreadyBegun && batch > 0 && (removed + 1) % batch == 0) {
-          db.commit();
-          db.begin();
+          session.commit();
+          session.begin();
         }
 
         removed++;
@@ -424,7 +425,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override

@@ -1,11 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,22 +24,22 @@ public class TestLinkedDocumentInMap extends DbTestBase {
     jaimeDoc = session.bindToSession(jaimeDoc);
     var tyrionDoc = (EntityImpl) session.newEntity("PersonTest");
     tyrionDoc.updateFromJSON(
-        "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
+        "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"@embedded\":true,\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}]}");
     tyrionDoc.save();
     session.commit();
 
     tyrionDoc = session.bindToSession(tyrionDoc);
-    List<Map<String, Identifiable>> res = tyrionDoc.field("emergency_contact");
-    var doc = res.get(0);
-    Assert.assertTrue(((RecordId) doc.get("contact").getIdentity()).isValid());
+    List<Entity> res = tyrionDoc.field("emergency_contact");
+    var doc = res.getFirst();
+    Assert.assertTrue(doc.getLink("contact").isPersistent());
 
     reOpen("admin", "adminpwd");
     try (var result = session.query("select from " + tyrionDoc.getIdentity())) {
-      res = result.next().getProperty("emergency_contact");
-      doc = res.get(0);
-      Assert.assertTrue(((RecordId) doc.get("contact").getIdentity()).isValid());
+      res = result.next().getEmbeddedList("emergency_contact");
+      doc = res.getFirst();
+      Assert.assertTrue(doc.getLink("contact").isPersistent());
     }
   }
 }

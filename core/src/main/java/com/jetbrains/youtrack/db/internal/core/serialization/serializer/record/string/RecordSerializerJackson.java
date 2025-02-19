@@ -44,12 +44,12 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -63,8 +63,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class RecordSerializerJackson {
-
-  public static final char[] PARAMETER_SEPARATOR = new char[]{':', ','};
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
   public static final String NAME = "jackson";
   public static final RecordSerializerJackson INSTANCE = new RecordSerializerJackson();
@@ -118,11 +116,11 @@ public class RecordSerializerJackson {
     }
 
     var recordMetaData = parseRecordMetadata(session, jsonParser, defaultClassName,
-        defaultRecordType);
+        defaultRecordType, false);
     if (recordMetaData == null) {
       recordMetaData = new RecordMetadata(defaultRecordType,
           record != null ? record.getIdentity() : null,
-          defaultClassName, Collections.emptyMap(), null);
+          defaultClassName, Collections.emptyMap(), false, null);
     }
 
     var result = createRecordFromJsonAfterMetadata(session, record, recordMetaData, jsonParser);
@@ -137,6 +135,11 @@ public class RecordSerializerJackson {
       RecordAbstract record,
       RecordMetadata recordMetaData, JsonParser jsonParser) throws IOException {
     //initialize record first and then validate the rest of the found metadata
+    if (recordMetaData.isEmbedded) {
+      throw new SerializationException(
+          "Embedded records should be parsed as part of the parent record");
+    }
+
     if (record == null) {
       if (recordMetaData.recordId != null) {
         record = session.load(recordMetaData.recordId);
@@ -205,7 +208,8 @@ public class RecordSerializerJackson {
   @Nullable
   private static RecordMetadata parseRecordMetadata(@Nonnull DatabaseSessionInternal session,
       @Nullable JsonParser jsonParser,
-      @Nullable String defaultClassName, byte defaultRecordType) throws IOException {
+      @Nullable String defaultClassName, byte defaultRecordType, boolean asValue)
+      throws IOException {
 
     var token = jsonParser.nextToken();
     RecordId recordId = null;
@@ -213,6 +217,7 @@ public class RecordSerializerJackson {
     var className = defaultClassName;
     Map<String, String> fieldTypes = new HashMap<>();
     InternalRecordType internalRecordType = null;
+    Boolean embeddedFlag = null;
 
     var fieldsCount = 0;
     while (token != JsonToken.END_OBJECT) {
@@ -298,6 +303,15 @@ public class RecordSerializerJackson {
             }
             token = jsonParser.nextToken();
           }
+          case EntityHelper.ATTRIBUTE_EMBEDDED -> {
+            token = jsonParser.nextToken();
+            if (token != JsonToken.VALUE_TRUE && token != JsonToken.VALUE_FALSE) {
+              throw new SerializationException(session,
+                  "Expected field value as boolean");
+            }
+            embeddedFlag = jsonParser.getBooleanValue();
+            token = jsonParser.nextToken();
+          }
         }
       } else {
         throw new SerializationException(session, "Expected field name");
@@ -317,7 +331,15 @@ public class RecordSerializerJackson {
       }
     }
 
-    return new RecordMetadata(recordType, recordId, className, fieldTypes, internalRecordType);
+    boolean embeddedValue;
+    if (embeddedFlag == null) {
+      embeddedValue = asValue && recordId == null && className == null;
+    } else {
+      embeddedValue = embeddedFlag;
+    }
+
+    return new RecordMetadata(recordType, recordId, className, fieldTypes, embeddedValue,
+        internalRecordType);
   }
 
   private static Map<String, String> parseFieldTypes(JsonParser jsonParser) throws IOException {
@@ -452,7 +474,8 @@ public class RecordSerializerJackson {
     jsonGenerator.writeString(rid.toString());
   }
 
-  private static void writeMetadata(DatabaseSessionInternal db, JsonGenerator jsonGenerator,
+  private static void writeMetadata(@Nonnull DatabaseSessionInternal session,
+      JsonGenerator jsonGenerator,
       RecordAbstract record, FormatSettings formatSettings)
       throws IOException {
     if (record instanceof EntityImpl entity) {
@@ -461,6 +484,9 @@ public class RecordSerializerJackson {
           jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_RID);
           serializeLink(jsonGenerator, entity.getIdentity());
         }
+      } else if (formatSettings.markEmbeddedDocs) {
+        jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_EMBEDDED);
+        jsonGenerator.writeBoolean(true);
       }
 
       if (formatSettings.includeType) {
@@ -468,14 +494,13 @@ public class RecordSerializerJackson {
         jsonGenerator.writeString(Character.toString(record.getRecordType()));
       }
 
-      var schemaClass = entity.getSchemaClass();
+      var schemaClass = entity.getImmutableSchemaClass(session);
       if (schemaClass != null) {
         if (formatSettings.includeClazz) {
           jsonGenerator.writeFieldName(EntityHelper.ATTRIBUTE_CLASS);
-          jsonGenerator.writeString(schemaClass.getName(db));
+          jsonGenerator.writeString(schemaClass.getName(session));
         }
       } else if (formatSettings.internalRecords && !entity.isEmbedded()) {
-        var session = record.getSession();
         var clusterName = session.getClusterName(record);
 
         if (clusterName.equals(MetadataDefault.CLUSTER_INTERNAL_NAME)) {
@@ -496,7 +521,7 @@ public class RecordSerializerJackson {
       if (formatSettings.keepTypes) {
         var fieldTypes = new HashMap<String, String>();
         for (var propertyName : entity.getPropertyNames()) {
-          var type = fetchPropertyType(db, entity,
+          var type = fetchPropertyType(session, entity,
               propertyName, schemaClass);
 
           if (type != null) {
@@ -585,7 +610,11 @@ public class RecordSerializerJackson {
       String charType) {
     PropertyType type = null;
 
-    final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    final SchemaClass cls = result;
     if (cls != null) {
       final var prop = cls.getProperty(session, fieldName);
       if (prop != null) {
@@ -795,13 +824,11 @@ public class RecordSerializerJackson {
 
         case null -> {
           var recordMetaData = parseRecordMetadata(session, jsonParser, null,
-              EntityImpl.RECORD_TYPE);
+              EntityImpl.RECORD_TYPE, true);
 
           if (recordMetaData != null) {
-            if (recordMetaData.recordId == null) {
-              if (recordMetaData.className == null) {
-                yield parseEmbeddedEntity(session, jsonParser, recordMetaData);
-              }
+            if (recordMetaData.isEmbedded) {
+              yield parseEmbeddedEntity(session, jsonParser, recordMetaData);
             }
 
             yield createRecordFromJsonAfterMetadata(session, null, recordMetaData, jsonParser);
@@ -845,12 +872,16 @@ public class RecordSerializerJackson {
       @Nonnull JsonParser jsonParser, @Nullable RecordMetadata metadata) throws IOException {
     var embedded = (EmbeddedEntityImpl) db.newEmbededEntity();
     if (metadata == null) {
-      metadata = parseRecordMetadata(db, jsonParser, null, EntityImpl.RECORD_TYPE);
+      metadata = parseRecordMetadata(db, jsonParser, null, EntityImpl.RECORD_TYPE, true);
 
       if (metadata == null) {
         metadata = new RecordMetadata(EntityImpl.RECORD_TYPE, null,
-            null, Collections.emptyMap(), null);
+            null, Collections.emptyMap(), true, null);
       }
+    }
+
+    if (!metadata.isEmbedded) {
+      throw new SerializationException(db, "Expected embedded record");
     }
 
     parseProperties(db, embedded, metadata, jsonParser);
@@ -935,7 +966,7 @@ public class RecordSerializerJackson {
   }
 
   public record RecordMetadata(byte recordType, RecordId recordId, String className,
-                               Map<String, String> fieldTypes,
+                               Map<String, String> fieldTypes, boolean isEmbedded,
                                @Nullable InternalRecordType internalRecordType) {
 
   }
@@ -951,6 +982,7 @@ public class RecordSerializerJackson {
     public boolean includeId;
     public boolean includeClazz;
     public boolean keepTypes = true;
+    public boolean markEmbeddedDocs = true;
 
     public FormatSettings(final String stringFormat) {
       if (stringFormat == null) {
@@ -963,6 +995,7 @@ public class RecordSerializerJackson {
         includeId = false;
         includeClazz = false;
         keepTypes = false;
+        markEmbeddedDocs = false;
 
         if (!stringFormat.isEmpty()) {
           final var format = stringFormat.split(",");
@@ -973,6 +1006,7 @@ public class RecordSerializerJackson {
               case "class" -> includeClazz = true;
               case "keepTypes" -> keepTypes = true;
               case "internal" -> internalRecords = true;
+              case "markEmbeddedDocs" -> markEmbeddedDocs = true;
               default -> LogManager.instance().warn(this, "Unknown format option: %s. "
                   + "Expected: type, rid, class, keepTypes, internal", null, f);
             }

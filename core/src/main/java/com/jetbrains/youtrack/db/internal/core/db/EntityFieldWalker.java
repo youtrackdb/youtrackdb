@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.IdentifiableMultiValue;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -86,7 +86,11 @@ public class EntityFieldWalker {
 
     final var updateMode = fieldWalker.updateMode();
 
-    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    final SchemaClass clazz = result;
     for (var fieldName : entity.fieldNames()) {
 
       final var concreteType = entity.getPropertyType(fieldName);

@@ -68,13 +68,6 @@ public class EntityInternalUtils {
     return entity.getImmutableSchemaClass(database);
   }
 
-  public static SchemaImmutableClass getImmutableSchemaClass(final EntityImpl entity) {
-    if (entity == null) {
-      return null;
-    }
-    return entity.getImmutableSchemaClass();
-  }
-
   public static ImmutableSchema getImmutableSchema(final EntityImpl entity) {
     if (entity == null) {
       return null;

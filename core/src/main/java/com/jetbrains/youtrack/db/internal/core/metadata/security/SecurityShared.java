@@ -42,11 +42,11 @@ import com.jetbrains.youtrack.db.internal.core.index.NullOutputListener;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
@@ -432,13 +432,15 @@ public class SecurityShared implements SecurityInternal {
     return removed != null && removed.intValue() > 0;
   }
 
-  public Role getRole(final DatabaseSession db, final Identifiable iRole) {
+  public Role getRole(final DatabaseSession session, final Identifiable iRole) {
     try {
-      final EntityImpl entity = iRole.getRecord(db);
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+      var sessionInternal = (DatabaseSessionInternal) session;
+      final EntityImpl entity = iRole.getRecord(sessionInternal);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(sessionInternal);
 
       if (clazz != null && clazz.isRole()) {
-        return new Role((DatabaseSessionInternal) db, entity);
+        return new Role(sessionInternal, entity);
       }
     } catch (RecordNotFoundException rnf) {
       return null;
@@ -1405,7 +1407,10 @@ public class SecurityShared implements SecurityInternal {
     if (session.geCurrentUser() == null) {
       return Collections.emptySet();
     }
-    var clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass clazz = null;
+    if (entity != null) {
+      clazz = entity.getImmutableSchemaClass(session);
+    }
     if (clazz == null) {
       return Collections.emptySet();
     }
@@ -1453,13 +1458,9 @@ public class SecurityShared implements SecurityInternal {
     }
 
     String className;
-    SchemaClass clazz = null;
-    if (entity instanceof EntityImpl) {
-      className = entity.getSchemaClassName();
-    } else {
-      clazz = entity.getSchemaClass();
-      className = clazz == null ? null : clazz.getName(session);
-    }
+    SchemaClass clazz;
+    className = entity.getSchemaClassName();
+
     if (className == null) {
       return true;
     }
@@ -1576,7 +1577,10 @@ public class SecurityShared implements SecurityInternal {
 
     var sessionInternal = session;
     if (record instanceof Entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass((EntityImpl) record);
+      SchemaImmutableClass clazz = null;
+      if (record != null) {
+        clazz = ((EntityImpl) record).getImmutableSchemaClass(session);
+      }
       if (clazz == null) {
         return true;
       }

@@ -45,6 +45,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
@@ -385,7 +386,11 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       final Map<String, SchemaProperty> props,
       ImmutableSchema schema,
       PropertyEncryption encryption) {
-    SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    SchemaClass oClass = result;
     for (var field : fields) {
       var docEntry = field.getValue();
       if (!field.getValue().exists()) {
@@ -487,7 +492,11 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
   public void serializeWithClassName(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
     var schema = EntityInternalUtils.getImmutableSchema(entity);
-    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    final SchemaClass clazz = result;
     if (clazz != null && entity.isEmbedded()) {
       writeString(bytes, clazz.getName(session));
     } else {
@@ -501,7 +510,11 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       final BytesContainer bytes) {
     var schema = EntityInternalUtils.getImmutableSchema(entity);
     var encryption = EntityInternalUtils.getPropertyEncryption(entity);
-    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    final SchemaClass clazz = result;
     serializeDocument(session, entity, bytes, clazz, schema, encryption);
   }
 

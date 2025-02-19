@@ -56,6 +56,16 @@ public interface Entity extends DBRecord, Result {
    */
   void setProperty(@Nonnull String name, @Nullable Object value);
 
+  /**
+   * Sets a property value
+   *
+   * @param name         the property name
+   * @param value        the property value
+   * @param propertyType Forced type (not auto-determined)
+   */
+  void setProperty(@Nonnull String name, @Nullable Object value,
+      @Nonnull PropertyType propertyType);
+
   @Nonnull
   <T> List<T> newEmbeddedList(@Nonnull String name);
 
@@ -91,16 +101,6 @@ public interface Entity extends DBRecord, Result {
 
   @Nonnull
   Map<String, Identifiable> getOrCreateLinkMap(@Nonnull String name);
-
-  /**
-   * Sets a property value
-   *
-   * @param name         the property name
-   * @param value        the property value
-   * @param propertyType Forced type (not auto-determined)
-   */
-  void setProperty(@Nonnull String name, @Nullable Object value,
-      @Nonnull PropertyType propertyType);
 
   /**
    * Remove a property

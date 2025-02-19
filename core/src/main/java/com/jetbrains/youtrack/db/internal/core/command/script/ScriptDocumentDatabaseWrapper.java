@@ -256,10 +256,6 @@ public class ScriptDocumentDatabaseWrapper {
     return database.setProperty(iName, iValue);
   }
 
-  public EntityImpl save(DBRecord iRecord, String iClusterName) {
-    return database.save(iRecord, iClusterName);
-  }
-
   public Object getProperty(String iName) {
     return database.getProperty(iName);
   }

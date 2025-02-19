@@ -43,6 +43,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
@@ -201,12 +202,16 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
     return result.toArray(new String[result.size()]);
   }
 
-  protected void serializeClass(DatabaseSessionInternal db, final EntityImpl entity,
+  protected void serializeClass(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    final SchemaClass clazz = result;
     String name = null;
     if (clazz != null) {
-      name = clazz.getName(db);
+      name = clazz.getName(session);
     }
     if (name == null) {
       name = entity.getSchemaClassName();
@@ -556,7 +561,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
         && type != PropertyType.EMBEDDEDMAP) {
       return null;
     }
-    SchemaClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass(session);
+    }
+    SchemaClass immutableClass = result;
     if (immutableClass != null) {
       var prop = immutableClass.getProperty(session, key);
       if (prop != null) {

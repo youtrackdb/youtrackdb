@@ -58,7 +58,7 @@ public interface Edge {
    *
    * @return the vertex that this edge originates from
    */
-  @Nonnull
+  @Nullable
   Vertex getFrom();
 
   /**
@@ -66,7 +66,7 @@ public interface Edge {
    *
    * @return the identifiable object from where this edge originates
    */
-  @Nonnull
+  @Nullable
   Identifiable getFromLink();
 
   /**
@@ -74,7 +74,7 @@ public interface Edge {
    *
    * @return the vertex that this edge connects to
    */
-  @Nonnull
+  @Nullable
   Vertex getTo();
 
   /**
@@ -82,7 +82,7 @@ public interface Edge {
    *
    * @return the identifiable object from where the edge connects to
    */
-  @Nonnull
+  @Nullable
   Identifiable getToLink();
 
   /**

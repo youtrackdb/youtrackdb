@@ -24,7 +24,8 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.traverse.TraverseRecordProcess;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionConfigurableAbstract;
 import java.util.ArrayList;
@@ -94,17 +95,19 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
 
     final List<Identifiable> result = items > 1 ? new ArrayList<Identifiable>(items) : null;
 
-    var db = iContext.getDatabaseSession();
+    var session = iContext.getDatabaseSession();
     if (beginIndex < 0) {
       var i = -1;
-      for (var it = stack.iterator(); it.hasNext(); ) {
-        final var o = it.next();
+      for (final var o : stack) {
         if (o instanceof TraverseRecordProcess) {
           final var record = ((TraverseRecordProcess) o).getTarget();
 
+          SchemaImmutableClass result1 = null;
+          final EntityImpl entity = record.getRecord(session);
+          result1 = entity.getImmutableSchemaClass(session);
           if (iClassName == null
-              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(db, iClassName)) {
+              || result1
+              .isSubClassOf(session, iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
                 return record;
@@ -119,9 +122,14 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
           }
         } else if (o instanceof Identifiable record) {
 
+          SchemaImmutableClass result1 = null;
+          final EntityImpl entity = record.getRecord(session);
+          if (entity != null) {
+            result1 = entity.getImmutableSchemaClass(session);
+          }
           if (iClassName == null
-              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(db, iClassName)) {
+              || result1
+              .isSubClassOf(session, iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
                 return record;
@@ -144,9 +152,14 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
         if (o instanceof TraverseRecordProcess) {
           final var record = ((TraverseRecordProcess) o).getTarget();
 
+          SchemaImmutableClass result1 = null;
+          final EntityImpl entity = record.getRecord(session);
+          if (entity != null) {
+            result1 = entity.getImmutableSchemaClass(session);
+          }
           if (iClassName == null
-              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(db, iClassName)) {
+              || result1
+              .isSubClassOf(session, iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
                 return record;
@@ -161,9 +174,14 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
           }
         } else if (o instanceof Identifiable record) {
 
+          SchemaImmutableClass result1 = null;
+          final EntityImpl entity = record.getRecord(session);
+          if (entity != null) {
+            result1 = entity.getImmutableSchemaClass(session);
+          }
           if (iClassName == null
-              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord(db))
-              .isSubClassOf(db, iClassName)) {
+              || result1
+              .isSubClassOf(session, iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
                 return record;

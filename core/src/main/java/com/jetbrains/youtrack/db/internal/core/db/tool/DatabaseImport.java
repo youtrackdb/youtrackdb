@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -60,7 +59,6 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONReader;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -1127,8 +1125,8 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                         + " .");
               }
 
-              RecordInternal.setVersion(record, systemRecord.getVersion());
-              RecordInternal.setIdentity(record, (RecordId) systemRecord.getIdentity());
+              systemRecord.fromStream(record.toStream());
+              record.delete();
               recordsBeforeImport.remove(systemRecord.getIdentity());
             }
           }
@@ -1174,9 +1172,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     }
   }
 
-  private Entity findRelatedSystemRecord(Schema beforeImportSchemaSnapshot, int clusterId,
+  private EntityImpl findRelatedSystemRecord(Schema beforeImportSchemaSnapshot, int clusterId,
       RecordAbstract record) {
-    Entity systemRecord = null;
+    EntityImpl systemRecord = null;
     var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
     if (cls != null) {
       assert record instanceof EntityImpl;
@@ -1187,7 +1185,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 "select from " + SecurityUserImpl.CLASS_NAME + " where name = ?",
                 ((EntityImpl) record).<String>getProperty("name"))) {
           if (resultSet.hasNext()) {
-            systemRecord = resultSet.next().asEntity();
+            systemRecord = (EntityImpl) resultSet.next().castToEntity();
           }
         }
       } else if (cls.getName(session).equals(Role.CLASS_NAME)) {
@@ -1196,7 +1194,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 "select from " + Role.CLASS_NAME + " where name = ?",
                 ((EntityImpl) record).<String>getProperty("name"))) {
           if (resultSet.hasNext()) {
-            systemRecord = resultSet.next().asEntity();
+            systemRecord = (EntityImpl) resultSet.next().castToEntity();
           }
         }
       } else if (cls.getName(session).equals(SecurityPolicy.class.getSimpleName())) {
@@ -1205,7 +1203,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                 "select from " + SecurityPolicy.class.getSimpleName() + " where name = ?",
                 ((EntityImpl) record).<String>getProperty("name"))) {
           if (resultSet.hasNext()) {
-            systemRecord = resultSet.next().asEntity();
+            systemRecord = (EntityImpl) resultSet.next().castToEntity();
           }
         }
       } else //noinspection StatementWithEmptyBody

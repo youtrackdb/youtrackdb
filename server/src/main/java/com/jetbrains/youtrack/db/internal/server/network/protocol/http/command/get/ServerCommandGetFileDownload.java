@@ -20,9 +20,9 @@ import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
@@ -73,8 +73,12 @@ public class ServerCommandGetFileDownload extends ServerCommandAuthenticatedDbAb
               (Blob) response,
               fileName);
         } else if (response instanceof EntityImpl) {
+          SchemaImmutableClass result = null;
+          if (response != null) {
+            result = ((EntityImpl) response).getImmutableSchemaClass(session);
+          }
           for (var prop :
-              EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) response))
+              result
                   .properties(session)) {
             if (prop.getType(session).equals(PropertyType.BINARY)) {
               sendBinaryFieldFileContent(

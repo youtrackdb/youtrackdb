@@ -428,7 +428,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
 
     if (iRecord instanceof EntityImpl entity) {
       var session = entity.getSession();
-      var cls = entity.getSchemaClass();
+      SchemaClass cls = entity.getImmutableSchemaClass(session);
       if (cls != null) {
 
         if (cls.getName(session).equals(DefaultAuditing.AUDITING_LOG_CLASSNAME))

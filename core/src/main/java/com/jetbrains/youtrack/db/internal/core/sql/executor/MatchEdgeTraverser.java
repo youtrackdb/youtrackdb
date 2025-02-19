@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
@@ -257,28 +257,29 @@ public class MatchEdgeTraverser {
     return item.getFilter().getRid(iCommandContext);
   }
 
-  private boolean matchesClass(
+  private static boolean matchesClass(
       CommandContext context, String className, Identifiable origin) {
     if (className == null) {
       return true;
     }
 
-    var db = context.getDatabaseSession();
-    Entity element = null;
-    if (origin instanceof Entity) {
-      element = (Entity) origin;
+    var session = context.getDatabaseSession();
+    EntityInternal entity = null;
+    if (origin instanceof EntityInternal entityImpl) {
+      entity = entityImpl;
     } else if (origin != null) {
-      Object record = origin.getRecord(db);
-      if (record instanceof Entity) {
-        element = (Entity) record;
+      var record = origin.getRecord(session);
+      if (record instanceof EntityInternal entityImpl) {
+        entity = entityImpl;
       }
     }
-    if (element != null) {
-      var clazz = element.getSchemaClass();
+
+    if (entity != null) {
+      var clazz = entity.getImmutableSchemaClass(session);
       if (clazz == null) {
         return false;
       }
-      return clazz.isSubClassOf(db, className);
+      return clazz.isSubClassOf(session, className);
     }
     return false;
   }

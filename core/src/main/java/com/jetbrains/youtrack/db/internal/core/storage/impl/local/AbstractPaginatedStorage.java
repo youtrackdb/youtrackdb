@@ -93,6 +93,7 @@ import com.jetbrains.youtrack.db.internal.core.index.engine.V1IndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeMultiValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.index.engine.v1.CellBTreeSingleValueIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
@@ -2119,11 +2120,11 @@ public abstract class AbstractPaginatedStorage
     try {
       txBegun.increment();
 
-      final var database = transaction.getDatabaseSession();
+      final var session = transaction.getDatabaseSession();
       final var indexOperations =
           getSortedIndexOperations(transaction);
 
-      database.getMetadata().makeThreadLocalSchemaSnapshot();
+      session.getMetadata().makeThreadLocalSchemaSnapshot();
 
       final var recordOperations = transaction.getRecordOperations();
       final var clustersToLock = new TreeMap<Integer, StorageCluster>();
@@ -2132,14 +2133,14 @@ public abstract class AbstractPaginatedStorage
       final Set<RecordOperation> newRecords = new TreeSet<>(COMMIT_RECORD_OPERATION_COMPARATOR);
       for (final var recordOperation : recordOperations) {
         var record = recordOperation.record;
-
-        if (record.isUnloaded()) {
-          throw new IllegalStateException(
-              "Unloaded record " + record.getIdentity() + " cannot be committed");
-        }
-
         if (recordOperation.type == RecordOperation.CREATED
             || recordOperation.type == RecordOperation.UPDATED) {
+
+          if (record.isUnloaded()) {
+            throw new IllegalStateException(
+                "Unloaded record " + record.getIdentity() + " cannot be committed");
+          }
+
           if (record instanceof EntityImpl) {
             ((EntityImpl) record).validate();
           }
@@ -2161,10 +2162,12 @@ public abstract class AbstractPaginatedStorage
               && record instanceof EntityImpl) {
             // TRY TO FIX CLUSTER ID TO THE DEFAULT CLUSTER ID DEFINED IN SCHEMA CLASS
 
-            final var class_ =
-                EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
+            SchemaImmutableClass class_ = null;
+            if (record != null) {
+              class_ = ((EntityImpl) record).getImmutableSchemaClass(session);
+            }
             if (class_ != null) {
-              clusterId = class_.getClusterForNewInstance(database, (EntityImpl) record);
+              clusterId = class_.getClusterForNewInstance(session, (EntityImpl) record);
               clusterOverrides.put(recordOperation, clusterId);
             }
           }
@@ -2247,7 +2250,7 @@ public abstract class AbstractPaginatedStorage
                   atomicOperation,
                   recordOperation,
                   positions.get(recordOperation),
-                  database.getSerializer());
+                  session.getSerializer());
               result.add(recordOperation);
             }
             lockIndexes(indexOperations);
@@ -2271,7 +2274,7 @@ public abstract class AbstractPaginatedStorage
           }
         } finally {
           atomicOperationsManager.ensureThatComponentsUnlocked();
-          database.getMetadata().clearThreadLocalSchemaSnapshot();
+          session.getMetadata().clearThreadLocalSchemaSnapshot();
         }
       } finally {
         stateLock.readLock().unlock();
@@ -2284,7 +2287,7 @@ public abstract class AbstractPaginatedStorage
                 "%d Committed transaction %d on database '%s' (result=%s)",
                 Thread.currentThread().getId(),
                 transaction.getId(),
-                database.getDatabaseName(),
+                session.getDatabaseName(),
                 result);
       }
       return result;

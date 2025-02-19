@@ -26,13 +26,13 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 public abstract class TraverseAbstractProcess<T>
     extends CommandProcess<Traverse, T, Identifiable> {
 
-  protected final DatabaseSessionInternal db;
+  protected final DatabaseSessionInternal session;
 
 
   public TraverseAbstractProcess(final Traverse iCommand, final T iTarget,
-      DatabaseSessionInternal db) {
+      DatabaseSessionInternal session) {
     super(iCommand, iTarget);
-    this.db = db;
+    this.session = session;
   }
 
   public Identifiable pop() {

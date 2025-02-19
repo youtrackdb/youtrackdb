@@ -12,8 +12,8 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.StorageRecoverEventListener;
 import java.util.Collection;
@@ -519,8 +519,10 @@ public class GraphRepair {
       {
         broken = true;
       } else {
-        final var immutableClass = EntityInternalUtils.getImmutableSchemaClass(
-            record);
+        SchemaImmutableClass immutableClass = null;
+        if (record != null) {
+          immutableClass = record.getImmutableSchemaClass(session);
+        }
         if (immutableClass == null
             || (!immutableClass.isVertexType(session) && !immutableClass.isEdgeType(session)))
         // INVALID RECORD TYPE: NULL OR NOT GRAPH TYPE

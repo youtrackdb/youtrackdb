@@ -79,12 +79,12 @@ public class SqlScriptExecutorTest extends DbTestBase {
 
   @Test
   public void testMultipleCreateEdgeOnTheSameLet() {
-    var script = "begin;";
-    script += "let $v1 = create vertex v set name = 'Foo';";
-    script += "let $v2 = create vertex v set name = 'Bar';";
-    script += "create edge from $v1 to $v2;";
-    script += "let $v3 = create vertex v set name = 'Baz';";
-    script += "create edge from $v1 to $v3;";
+    var script = "begin;\n";
+    script += "let $v1 = create vertex v set name = 'Foo';\n";
+    script += "let $v2 = create vertex v set name = 'Bar';\n";
+    script += "create edge from $v1 to $v2;\n";
+    script += "let $v3 = create vertex v set name = 'Baz';\n";
+    script += "create edge from $v1 to $v3;\n";
     script += "commit;";
 
     var result = session.execute("sql", script);

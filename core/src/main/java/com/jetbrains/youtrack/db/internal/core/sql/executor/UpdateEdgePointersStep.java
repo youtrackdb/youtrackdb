@@ -8,8 +8,8 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Collection;
@@ -98,10 +98,11 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
   /**
    * checks if an object is a vertex
    *
-   * @param db
+   * @param session
    * @param iRecord The record object
    */
-  private static boolean recordIsNotInstanceOfVertex(DatabaseSessionInternal db, Object iRecord) {
+  private static boolean recordIsNotInstanceOfVertex(DatabaseSessionInternal session,
+      Object iRecord) {
     if (iRecord == null) {
       return true;
     }
@@ -109,9 +110,11 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
       return true;
     }
     try {
-      EntityImpl record = ((Identifiable) iRecord).getRecord(db);
-      return (!EntityInternalUtils.getImmutableSchemaClass(record)
-          .isSubClassOf(db, SchemaClass.VERTEX_CLASS_NAME));
+      EntityImpl record = ((Identifiable) iRecord).getRecord(session);
+      SchemaImmutableClass result;
+      result = record.getImmutableSchemaClass(session);
+      return (!result
+          .isSubClassOf(session, SchemaClass.VERTEX_CLASS_NAME));
     } catch (RecordNotFoundException rnf) {
       return true;
     }

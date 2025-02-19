@@ -59,7 +59,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
     checkForSystemClusters(iDatabase, new int[]{iClusterId});
 
     current.setClusterId(iClusterId);
-    final var range = database.getClusterDataRange(current.getClusterId());
+    final var range = session.getClusterDataRange(current.getClusterId());
 
     if (firstClusterEntry == RID.CLUSTER_POS_INVALID) {
       this.firstClusterEntry = range[0];
@@ -73,7 +73,7 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
       this.lastClusterEntry = Math.min(lastClusterEntry, range[1]);
     }
 
-    totalAvailableRecords = database.countClusterElements(current.getClusterId());
+    totalAvailableRecords = session.countClusterElements(current.getClusterId());
 
     txEntries = iDatabase.getTransaction().getNewRecordEntriesByClusterIds(new int[]{iClusterId});
 
@@ -309,19 +309,19 @@ public class RecordIteratorCluster<REC extends DBRecord> extends IdentifiableIte
       firstClusterEntry = 0L;
       lastClusterEntry = Long.MAX_VALUE;
     } else {
-      final var range = database.getClusterDataRange(current.getClusterId());
+      final var range = session.getClusterDataRange(current.getClusterId());
       firstClusterEntry = range[0];
       lastClusterEntry = range[1];
     }
 
-    totalAvailableRecords = database.countClusterElements(current.getClusterId());
+    totalAvailableRecords = session.countClusterElements(current.getClusterId());
 
     return this;
   }
 
   private void updateRangesOnLiveUpdate() {
     if (liveUpdated) {
-      final var range = database.getClusterDataRange(current.getClusterId());
+      final var range = session.getClusterDataRange(current.getClusterId());
 
       firstClusterEntry = range[0];
       lastClusterEntry = range[1];

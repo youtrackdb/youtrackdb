@@ -31,6 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -154,8 +155,16 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           var setFieldType = false;
 
           // SEARCH FOR A CONFIGURED PROPERTY
-          if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-            prop = EntityInternalUtils.getImmutableSchemaClass(record)
+          SchemaImmutableClass result1 = null;
+          if (record != null) {
+            result1 = record.getImmutableSchemaClass(session);
+          }
+          if (result1 != null) {
+            SchemaImmutableClass result = null;
+            if (record != null) {
+              result = record.getImmutableSchemaClass(session);
+            }
+            prop = result
                 .getProperty(session, fieldName);
           } else {
             prop = null;
@@ -324,9 +333,17 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           "Cannot marshall a record of type " + iRecord.getClass().getSimpleName());
     }
 
-    if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+    SchemaImmutableClass result2 = null;
+    if (record != null) {
+      result2 = record.getImmutableSchemaClass(session);
+    }
+    if (result2 != null) {
+      SchemaImmutableClass result = null;
+      if (record != null) {
+        result = record.getImmutableSchemaClass(session);
+      }
       iOutput.append(
-          EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName(session));
+          result.getStreamableName(session));
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
     }
 
@@ -347,8 +364,16 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       }
 
       // SEARCH FOR A CONFIGURED PROPERTY
-      if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
-        prop = EntityInternalUtils.getImmutableSchemaClass(record).getProperty(session, fieldName);
+      SchemaImmutableClass result1 = null;
+      if (record != null) {
+        result1 = record.getImmutableSchemaClass(session);
+      }
+      if (result1 != null) {
+        SchemaImmutableClass result = null;
+        if (record != null) {
+          result = record.getImmutableSchemaClass(session);
+        }
+        prop = result.getProperty(session, fieldName);
       } else {
         prop = null;
       }

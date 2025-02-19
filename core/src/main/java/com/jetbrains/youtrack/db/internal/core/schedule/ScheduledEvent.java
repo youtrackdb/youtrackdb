@@ -73,7 +73,7 @@ public class ScheduledEvent extends IdentityWrapper {
   public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal session) {
     super(entity);
 
-    var functionEntity = entity.getEntityProperty(PROP_FUNC);
+    var functionEntity = entity.getEntity(PROP_FUNC);
     function = session.getMetadata().getFunctionLibrary().getFunction(session,
         functionEntity.getProperty(Function.NAME_PROPERTY));
     rule = entity.getProperty(PROP_RULE);

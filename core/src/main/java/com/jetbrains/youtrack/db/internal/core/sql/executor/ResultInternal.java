@@ -268,7 +268,7 @@ public class ResultInternal implements Result {
   }
 
   @Override
-  public Entity getEntityProperty(@Nonnull String name) {
+  public Entity getEntity(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
 
@@ -294,7 +294,7 @@ public class ResultInternal implements Result {
   }
 
   @Override
-  public Vertex getVertexProperty(@Nonnull String name) {
+  public Vertex getVertex(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
 
     loadIdentifiable();
@@ -324,7 +324,7 @@ public class ResultInternal implements Result {
   }
 
   @Override
-  public Edge getEdgeProperty(@Nonnull String name) {
+  public Edge getEdge(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
 
     loadIdentifiable();
@@ -354,7 +354,7 @@ public class ResultInternal implements Result {
   }
 
   @Override
-  public Blob getBlobProperty(String name) {
+  public Blob getBlob(String name) {
     assert session == null || session.assertIfNotActive();
     loadIdentifiable();
     Object result = null;
@@ -380,7 +380,7 @@ public class ResultInternal implements Result {
 
   @Nullable
   @Override
-  public Identifiable getLinkProperty(@Nonnull String name) {
+  public RID getLink(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
 
     Object result = null;
@@ -392,19 +392,20 @@ public class ResultInternal implements Result {
       }
     }
 
-    if (result instanceof Result) {
-      result = ((Result) result).castToRecord();
+    if (result == null) {
+      return null;
+    }
+
+    if (result instanceof Result res && res.isRecord()) {
+      result = res.castToRecord().getIdentity();
     }
 
     if (result instanceof RID rid) {
       return rid;
     }
 
-    if (result == null) {
-      return null;
-    }
-    if (result instanceof Identifiable) {
-      return (Identifiable) result;
+    if (result instanceof Identifiable id) {
+      return id.getIdentity();
     }
 
     throw new IllegalStateException("Property " + name + " is not a link");
@@ -418,9 +419,9 @@ public class ResultInternal implements Result {
         result.setProperty(prop, elem.getPropertyInternal(prop));
       }
 
-      var schemaClass = elem.getSchemaClass();
+      var schemaClass = elem.getSchemaClassName();
       if (schemaClass != null) {
-        result.setProperty("@class", schemaClass.getName(session));
+        result.setProperty("@class", schemaClass);
       }
 
       return result;

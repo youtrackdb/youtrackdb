@@ -34,11 +34,11 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClusters;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
@@ -435,15 +435,17 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       // CHECK THE TARGET CLASS
       var targetClasses = parsedTarget.getTargetClasses();
       // check only classes that specified in query will go to result set
-      var db = iContext.getDatabaseSession();
+      var session = iContext.getDatabaseSession();
       if ((targetClasses != null) && (!targetClasses.isEmpty())) {
         for (var targetClass : targetClasses.keySet()) {
-          if (!db
+          SchemaImmutableClass result = null;
+          result = recordSchemaAware.getImmutableSchemaClass(session);
+          if (!session
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(targetClass)
-              .isSuperClassOf(db,
-                  EntityInternalUtils.getImmutableSchemaClass(recordSchemaAware))) {
+              .isSuperClassOf(session,
+                  result)) {
             return false;
           }
         }

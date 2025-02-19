@@ -5,8 +5,8 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -34,15 +34,21 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
 
   private static Result mapResult(Result result, CommandContext ctx) {
     if (result.isEntity()) {
+      var session = ctx.getDatabaseSession();
       var elem = result.asEntity();
-      SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass((EntityImpl) elem);
-      var db = ctx.getDatabaseSession();
+
+      SchemaImmutableClass res = null;
+      if (elem != null) {
+        res = ((EntityImpl) elem).getImmutableSchemaClass(session);
+      }
+      SchemaClass clazz = res;
+
       if (clazz != null) {
-        if (clazz.getName(db).equalsIgnoreCase("V") || clazz.isSubClassOf(db, "V")) {
+        if (clazz.getName(session).equalsIgnoreCase("V") || clazz.isSubClassOf(session, "V")) {
           throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Cannot safely delete a vertex, please use DELETE VERTEX or UNSAFE");
         }
-        if (clazz.getName(db).equalsIgnoreCase("E") || clazz.isSubClassOf(db, "E")) {
+        if (clazz.getName(session).equalsIgnoreCase("E") || clazz.isSubClassOf(session, "E")) {
           throw new CommandExecutionException(ctx.getDatabaseSession(),
               "Cannot safely delete an edge, please use DELETE EDGE or UNSAFE");
         }

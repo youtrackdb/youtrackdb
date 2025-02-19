@@ -28,6 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchListener;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchContext;
+import javax.annotation.Nonnull;
 
 /**
  * Abstract class to manage command results.
@@ -46,9 +47,9 @@ public abstract class AbstractCommandResultListener
   public abstract boolean isEmpty();
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
     if (wrappedResultListener != null) {
-      wrappedResultListener.end(db);
+      wrappedResultListener.end(session);
     }
   }
 

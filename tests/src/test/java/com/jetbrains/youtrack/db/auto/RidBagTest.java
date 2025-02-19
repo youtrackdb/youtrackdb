@@ -9,7 +9,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -1716,7 +1715,7 @@ public abstract class RidBagTest extends BaseDBTest {
     session.begin();
 
     testDocument = session.bindToSession(testDocument);
-    final var json = testDocument.toJSON(RecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
+    final var json = testDocument.toJSON();
 
     final var doc = ((EntityImpl) session.newEntity());
     doc.updateFromJSON(json);

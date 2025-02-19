@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -18,11 +19,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, StatefulEdge {
+
   public EdgeEntityImpl(DatabaseSessionInternal database, RecordId rid) {
     super(database, rid);
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Vertex getFrom() {
     var result = getPropertyInternal(DIRECTION_OUT);
@@ -48,7 +50,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
     }
     Set<String> types = new HashSet<>();
 
-    var typeClass = getSchemaClass();
+    var typeClass = getImmutableSchemaClass(session);
     var session = getSession();
 
     types.add(typeClass.getName(session));
@@ -67,7 +69,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
   }
 
 
-  @Nonnull
+  @Nullable
   @Override
   public Identifiable getFromLink() {
     var db = getSession();
@@ -86,7 +88,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
     return null;
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Vertex getTo() {
     var result = getPropertyInternal(DIRECTION_IN);
@@ -101,7 +103,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
     return v.castToVertex();
   }
 
-  @Nonnull
+  @Nullable
   @Override
   public Identifiable getToLink() {
     var db = getSession();
@@ -145,12 +147,12 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
 
   @Nullable
   @Override
-  public Identifiable getLinkProperty(@Nonnull String fieldName) {
+  public RID getLink(@Nonnull String fieldName) {
     checkForBinding();
 
     EdgeInternal.checkPropertyName(fieldName);
 
-    return super.getLinkProperty(fieldName);
+    return super.getLink(fieldName);
   }
 
   @Override
@@ -162,11 +164,11 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
   }
 
   @Override
-  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType types) {
+  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType type) {
     checkForBinding();
     EdgeInternal.checkPropertyName(name);
 
-    super.setProperty(name, propertyValue, types);
+    super.setProperty(name, propertyValue, type);
   }
 
   @Override
@@ -241,8 +243,13 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
 
   public static void deleteLinks(DatabaseSessionInternal db, Edge delegate) {
     var from = delegate.getFrom();
-    VertexInternal.removeOutgoingEdge(db, from, delegate);
+    if (from != null) {
+      VertexInternal.removeOutgoingEdge(db, from, delegate);
+    }
+
     var to = delegate.getTo();
-    VertexInternal.removeIncomingEdge(db, to, delegate);
+    if (to != null) {
+      VertexInternal.removeIncomingEdge(db, to, delegate);
+    }
   }
 }

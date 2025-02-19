@@ -438,7 +438,7 @@ public class RecordIteratorClusters<REC extends DBRecord> extends IdentifiableIt
     }
 
     current.setClusterId(clusterIds[currentClusterIdx]);
-    final var range = database.getClusterDataRange(current.getClusterId());
+    final var range = session.getClusterDataRange(current.getClusterId());
 
     if (beginRange != null
         && beginRange.getClusterId() == current.getClusterId()
@@ -468,9 +468,9 @@ public class RecordIteratorClusters<REC extends DBRecord> extends IdentifiableIt
 
     updateClusterRange();
 
-    totalAvailableRecords = database.countClusterElements(clusterIds);
+    totalAvailableRecords = session.countClusterElements(clusterIds);
 
-    txEntries = database.getTransaction().getNewRecordEntriesByClusterIds(clusterIds);
+    txEntries = session.getTransaction().getNewRecordEntriesByClusterIds(clusterIds);
 
     if (txEntries != null)
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES

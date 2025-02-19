@@ -52,7 +52,7 @@ public class HookSaveTest extends DbTestBase {
     var entity = session.newEntity("test");
     session.commit();
 
-    var newRef = session.bindToSession(entity).getEntityProperty("testNewLinkedRecord");
+    var newRef = session.bindToSession(entity).getEntity("testNewLinkedRecord");
     assertNotNull(newRef);
     assertTrue(newRef.getIdentity().isPersistent());
   }

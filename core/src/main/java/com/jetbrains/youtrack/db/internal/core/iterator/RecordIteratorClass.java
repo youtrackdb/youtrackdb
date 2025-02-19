@@ -25,8 +25,8 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Arrays;
 
 /**
@@ -59,7 +59,7 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
       final boolean iPolymorphic) {
     super(iDatabase);
 
-    targetClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+    targetClass = session.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
     if (targetClass == null) {
       throw new IllegalArgumentException(
           "Class '" + iClassName + "' was not found in database schema");
@@ -83,7 +83,7 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
     if (rec == null) {
       return null;
     }
-    return rec.getRecord(database);
+    return rec.getRecord(session);
   }
 
   @Override
@@ -93,7 +93,7 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
       return null;
     }
 
-    return rec.getRecord(database);
+    return rec.getRecord(session);
   }
 
   public boolean isPolymorphic() {
@@ -108,9 +108,13 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
 
   @Override
   protected boolean include(final DBRecord record) {
-    return record instanceof EntityImpl
-        && targetClass.isSuperClassOf(database,
-        EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record)));
+    if (!(record instanceof EntityImpl entity)) {
+      return false;
+    }
+    SchemaImmutableClass result;
+    result = entity.getImmutableSchemaClass(session);
+    return targetClass.isSuperClassOf(session,
+        result);
   }
 
   public SchemaClass getTargetClass() {
@@ -123,9 +127,9 @@ public class RecordIteratorClass<REC extends DBRecord> extends RecordIteratorClu
 
     updateClusterRange();
 
-    totalAvailableRecords = database.countClusterElements(clusterIds);
+    totalAvailableRecords = session.countClusterElements(clusterIds);
 
-    txEntries = database.getTransaction().getNewRecordEntriesByClass(targetClass, polymorphic);
+    txEntries = session.getTransaction().getNewRecordEntriesByClass(targetClass, polymorphic);
 
     if (txEntries != null)
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES

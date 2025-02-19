@@ -108,8 +108,8 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(session, DateHelper.getDateTimeFormatInstance(session).format(new Date()));
 
     session.begin();
-    var doc = (EntityImpl) session.newEntity();
-    doc.updateFromJSON("{'@class':'ClassA','other':'other'}");
+    var doc = (EntityImpl) session.newEntity("ClassA");
+    doc.updateFromJSON("{\"@class\":\"ClassA\",\"other\":\"other\"}");
     EntityImpl saved = session.save(doc);
     session.commit();
 
@@ -129,8 +129,8 @@ public class DefaultValueTest extends DbTestBase {
 
     var value1 = DateHelper.getDateTimeFormatInstance(session).format(new Date());
     session.begin();
-    var doc = (EntityImpl) session.newEntity();
-    doc.updateFromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
+    var doc = (EntityImpl) session.newEntity("ClassA");
+    doc.updateFromJSON("{\"@class\":\"ClassA\",\"date\":\"" + value1 + "\",\"other\":\"other\"}");
     EntityImpl saved = session.save(doc);
     session.commit();
 
@@ -151,8 +151,8 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(session, DateHelper.getDateTimeFormatInstance(session).format(new Date()));
 
     session.begin();
-    var doc = (EntityImpl) session.newEntity();
-    doc.updateFromJSON("{'@class':'ClassA','other':'other'}");
+    var doc = (EntityImpl) session.newEntity("ClassA");
+    doc.updateFromJSON("{\"@class\":\"ClassA\",\"other\":\"other\"}");
     EntityImpl saved = session.save(doc);
     session.commit();
 
@@ -173,15 +173,18 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(session, DateHelper.getDateTimeFormatInstance(session).format(new Date()));
 
     var value1 = DateHelper.getDateTimeFormatInstance(session).format(new Date());
-    var doc = (EntityImpl) session.newEntity();
-    doc.updateFromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     session.begin();
+    var doc = (EntityImpl) session.newEntity("ClassA");
+    doc.updateFromJSON("{\"@class\":\"ClassA\",\"date\":\"" + value1 + "\",\"other\":\"other\"}");
     EntityImpl saved = session.save(doc);
     session.commit();
+
+    session.begin();
     saved = session.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertEquals(DateHelper.getDateTimeFormatInstance(session).format(saved.field("date")), value1);
     assertNotNull(saved.field("other"));
+    session.commit();
   }
 
   @Test
@@ -195,8 +198,8 @@ public class DefaultValueTest extends DbTestBase {
     prop.setDefaultValue(session, DateHelper.getDateTimeFormatInstance(session).format(new Date()));
 
     session.begin();
-    var doc = (EntityImpl) session.newEntity();
-    doc.updateFromJSON("{'@class':'ClassA','other':'other'}");
+    var doc = (EntityImpl) session.newEntity("ClassA");
+    doc.updateFromJSON("{\"@class\":\"ClassA\",\"other\":\"other\"}");
     EntityImpl saved = session.save(doc);
     session.commit();
 
@@ -208,8 +211,8 @@ public class DefaultValueTest extends DbTestBase {
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
     var val = DateHelper.getDateTimeFormatInstance(session).format(doc.field("date"));
-    var doc1 = (EntityImpl) session.newEntity();
-    doc1.updateFromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
+    var doc1 = (EntityImpl) session.newEntity("ClassA");
+    doc1.updateFromJSON("{\"@class\":\"ClassA\",\"date\":\"" + val + "\",\"other\":\"other1\"}");
     saved.merge(doc1, true, true);
 
     saved = session.save(saved);

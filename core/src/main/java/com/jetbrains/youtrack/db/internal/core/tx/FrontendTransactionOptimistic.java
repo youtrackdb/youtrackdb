@@ -41,6 +41,7 @@ import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -194,8 +195,12 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           if (entry.record != null) {
             if (entry.record instanceof EntityImpl) {
               if (iPolymorphic) {
+                SchemaImmutableClass result1 = null;
+                if (entry.record != null) {
+                  result1 = ((EntityImpl) entry.record).getImmutableSchemaClass(session);
+                }
                 if (iClass.isSuperClassOf(session,
-                    EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) entry.record)))) {
+                    result1)) {
                   result.add(entry);
                 }
               } else {

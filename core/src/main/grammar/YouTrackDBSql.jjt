@@ -1866,18 +1866,12 @@ SQLCreateVertexStatementEmptyNoTarget CreateVertexStatementEmptyNoTarget():
 SQLCreateVertexStatement CreateVertexStatement():
 {}
 {
-(
 	<CREATE>
 	<VERTEX>
-	(
-	    LOOKAHEAD( Identifier() )
-	    (
-	        jjtThis.targetClass = Identifier()
-	    )
-	)
+	jjtThis.targetClass = Identifier()
 	[ <RETURN> jjtThis.returnStatement = Projection() ]
 	[ LOOKAHEAD(InsertBody()) jjtThis.insertBody = InsertBody() ]
-) {return jjtThis;}
+  {return jjtThis;}
 }
 
 

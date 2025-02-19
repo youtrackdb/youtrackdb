@@ -41,6 +41,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -830,7 +831,11 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
               || session.isRemote()
               : "Impossible to serialize invalid link " + id.getIdentity();
 
-          linkedClass = EntityInternalUtils.getImmutableSchemaClass(entity);
+          SchemaImmutableClass result = null;
+          if (entity != null) {
+            result = entity.getImmutableSchemaClass(session);
+          }
+          linkedClass = result;
         } else {
           linkedClass = null;
         }

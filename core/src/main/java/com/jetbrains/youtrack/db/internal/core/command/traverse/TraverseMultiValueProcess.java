@@ -45,10 +45,10 @@ public class TraverseMultiValueProcess extends TraverseAbstractProcess<Iterator<
       if (value instanceof Identifiable) {
 
         if (value instanceof RID) {
-          value = ((Identifiable) value).getRecord(db);
+          value = ((Identifiable) value).getRecord(session);
         }
         final TraverseAbstractProcess<Identifiable> subProcess =
-            new TraverseRecordProcess(command, (Identifiable) value, getPath(), db);
+            new TraverseRecordProcess(command, (Identifiable) value, getPath(), session);
         command.getContext().push(subProcess);
 
         return null;

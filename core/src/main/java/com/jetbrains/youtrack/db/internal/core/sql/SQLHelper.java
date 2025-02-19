@@ -32,6 +32,7 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
@@ -424,7 +425,10 @@ public class SQLHelper {
               .execute(iContext.getDatabaseSession());
 
           // CHECK FOR CONVERSIONS
-          var immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
+          SchemaImmutableClass immutableClass = null;
+          if (e != null) {
+            immutableClass = e.getImmutableSchemaClass(session);
+          }
           if (immutableClass != null) {
             final var prop = immutableClass.getProperty(session, fieldName);
             if (prop != null) {

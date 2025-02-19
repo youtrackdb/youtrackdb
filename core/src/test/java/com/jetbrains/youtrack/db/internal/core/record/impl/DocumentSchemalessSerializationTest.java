@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
@@ -15,7 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.s
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -255,21 +255,20 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testMapOfEmbeddedDocument() {
     session.begin();
-    var document = (EntityImpl) session.newEntity();
+    var entity = (EntityImpl) session.newEntity();
 
-    var embeddedInMap = (EntityImpl) session.newEntity();
+    var embeddedInMap = (EntityImpl) session.newEmbededEntity();
     embeddedInMap.field("name", "test");
     embeddedInMap.field("surname", "something");
-    Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
+    Map<String, EntityImpl> map = entity.newEmbeddedMap("map");
     map.put("embedded", embeddedInMap);
-    document.field("map", map, PropertyType.EMBEDDEDMAP);
 
-    var res = serializer.toStream(session, document);
+    var res = serializer.toStream(session, entity);
     var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
-    Map<String, Identifiable> mapS = extr.field("map");
+    Map<String, Entity> mapS = extr.getEmbeddedMap("map");
     assertEquals(1, mapS.size());
-    var emb = mapS.get("embedded").getEntity(session);
+    var emb = mapS.get("embedded");
     assertNotNull(emb);
     assertEquals(emb.<String>getProperty("name"), embeddedInMap.field("name"));
     assertEquals(emb.<String>getProperty("surname"), embeddedInMap.field("surname"));
@@ -279,25 +278,23 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testCollectionOfEmbeddedDocument() {
     session.begin();
-    var document = (EntityImpl) session.newEntity();
+    var entity = (EntityImpl) session.newEntity();
 
-    var embeddedInList = (EntityImpl) session.newEntity();
+    var embeddedInList = (EntityImpl) session.newEmbededEntity();
     embeddedInList.field("name", "test");
     embeddedInList.field("surname", "something");
 
-    List<EntityImpl> embeddedList = new ArrayList<EntityImpl>();
+    List<EntityImpl> embeddedList = entity.newEmbeddedList("embeddedList");
     embeddedList.add(embeddedInList);
-    document.field("embeddedList", embeddedList, PropertyType.EMBEDDEDLIST);
 
-    var embeddedInSet = (EntityImpl) session.newEntity();
+    var embeddedInSet = (EntityImpl) session.newEmbededEntity();
     embeddedInSet.field("name", "test1");
     embeddedInSet.field("surname", "something2");
 
-    Set<EntityImpl> embeddedSet = new HashSet<EntityImpl>();
+    Set<EntityImpl> embeddedSet = entity.newEmbeddedSet("embeddedSet");
     embeddedSet.add(embeddedInSet);
-    document.field("embeddedSet", embeddedSet, PropertyType.EMBEDDEDSET);
 
-    var res = serializer.toStream(session, document);
+    var res = serializer.toStream(session, entity);
     var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 

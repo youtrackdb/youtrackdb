@@ -1,7 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.record.Direction;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
@@ -23,7 +22,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
 
   public VertexEntityImpl(DatabaseSessionInternal session, String klass) {
     super(session, klass);
-    if (!getImmutableSchemaClass().isVertexType(session)) {
+    if (!getImmutableSchemaClass(session).isVertexType(session)) {
       throw new IllegalArgumentException(getSchemaClassName() + " is not a vertex class");
     }
   }
@@ -46,12 +45,12 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
 
   @Nullable
   @Override
-  public Identifiable getLinkProperty(@Nonnull String fieldName) {
+  public RID getLink(@Nonnull String fieldName) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(fieldName);
 
-    return super.getLinkProperty(fieldName);
+    return super.getLink(fieldName);
   }
 
   @Override
@@ -63,11 +62,11 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   }
 
   @Override
-  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType types) {
+  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType type) {
     checkForBinding();
 
     VertexInternal.checkPropertyName(name);
-    super.setProperty(name, propertyValue, types);
+    super.setProperty(name, propertyValue, type);
   }
 
   @Override

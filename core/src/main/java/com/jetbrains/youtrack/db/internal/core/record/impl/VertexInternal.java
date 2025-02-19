@@ -21,6 +21,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -169,20 +170,20 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nullable
   @Override
-  default Entity getEntityProperty(@Nonnull String name) {
+  default Entity getEntity(@Nonnull String name) {
     checkPropertyName(name);
 
     var baseEntity = getBaseEntity();
-    return baseEntity.getEntityProperty(name);
+    return baseEntity.getEntity(name);
   }
 
   @Nullable
   @Override
-  default Blob getBlobProperty(String propertyName) {
+  default Blob getBlob(String propertyName) {
     checkPropertyName(propertyName);
 
     var baseEntity = getBaseEntity();
-    return baseEntity.getBlobProperty(propertyName);
+    return baseEntity.getBlob(propertyName);
   }
 
   @Override
@@ -202,16 +203,16 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nullable
   @Override
-  default Identifiable getLinkPropertyInternal(String name) {
+  default RID getLinkPropertyInternal(String name) {
     return getBaseEntity().getLinkPropertyInternal(name);
   }
 
   @Nullable
   @Override
-  default Identifiable getLinkProperty(@Nonnull String name) {
+  default RID getLink(@Nonnull String name) {
     checkPropertyName(name);
 
-    return getBaseEntity().getLinkProperty(name);
+    return getBaseEntity().getLink(name);
   }
 
   static void checkPropertyName(String name) {
@@ -935,7 +936,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
     var outType = fromVertex.getPropertyType(fieldName);
     var found = fromVertex.getPropertyInternal(fieldName);
 
-    final SchemaClass linkClass = EntityInternalUtils.getImmutableSchemaClass(fromVertex);
+    SchemaImmutableClass result = null;
+    if (fromVertex != null) {
+      result = fromVertex.getImmutableSchemaClass(session);
+    }
+    final SchemaClass linkClass = result;
     if (linkClass == null) {
       throw new IllegalArgumentException("Class not found in source vertex: " + fromVertex);
     }

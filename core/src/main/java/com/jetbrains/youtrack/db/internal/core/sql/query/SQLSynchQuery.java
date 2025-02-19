@@ -29,6 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.b
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * SQL synchronous query. When executed the caller wait for the result.
@@ -63,7 +64,7 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
     result.clear();
   }
 
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     if (iRecord != null) {
       result.add((T) iRecord);
     }
@@ -71,7 +72,7 @@ public class SQLSynchQuery<T extends Object> extends SQLAsynchQuery<T>
   }
 
   @Override
-  public void end(DatabaseSessionInternal db) {
+  public void end(@Nonnull DatabaseSessionInternal session) {
     result.setCompleted();
   }
 

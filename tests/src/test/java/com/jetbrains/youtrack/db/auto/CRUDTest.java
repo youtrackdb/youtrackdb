@@ -585,15 +585,15 @@ public class CRUDTest extends BaseDBTest {
           a.<List<Identifiable>>getProperty("addresses")
               .getFirst()
               .<Entity>getRecord(session)
-              .getEntityProperty("city")
+              .getEntity("city")
               .getProperty("name"),
           rome.<String>getProperty("name"));
       Assert.assertEquals(
           a.<List<Identifiable>>getProperty("addresses")
               .getFirst()
               .<Entity>getRecord(session)
-              .getEntityProperty("city")
-              .getEntityProperty("country")
+              .getEntity("city")
+              .getEntity("country")
               .getProperty("name"),
           rome.<Entity>getRecord(session)
               .<Identifiable>getProperty("country")
@@ -2148,10 +2148,10 @@ public class CRUDTest extends BaseDBTest {
     session.begin();
     Entity loaded = session.load(rid);
 
-    Assert.assertNotNull(loaded.getBlobProperty("byteArray"));
+    Assert.assertNotNull(loaded.getBlob("byteArray"));
     try {
       try (var out = new ByteArrayOutputStream()) {
-        loaded.getBlobProperty("byteArray").toOutputStream(out);
+        loaded.getBlob("byteArray").toOutputStream(out);
         Assert.assertEquals(
             "this is a bytearray test. if you read this Object database has stored it correctly"
                 .getBytes(),
@@ -2164,17 +2164,17 @@ public class CRUDTest extends BaseDBTest {
       Assert.fail();
       LogManager.instance().error(this, "Error reading byte[]", ioe);
     }
-    Assert.assertTrue(loaded.getEntityProperty("document") instanceof EntityImpl);
+    Assert.assertTrue(loaded.getEntity("document") instanceof EntityImpl);
     Assert.assertEquals(
-        loaded.getEntityProperty("document").getProperty("testField"), "testValue");
-    Assert.assertTrue(loaded.getEntityProperty("document").getIdentity().isPersistent());
+        loaded.getEntity("document").getProperty("testField"), "testValue");
+    Assert.assertTrue(loaded.getEntity("document").getIdentity().isPersistent());
 
-    Assert.assertTrue(loaded.getEntityProperty("embeddedDocument") instanceof EntityImpl);
+    Assert.assertTrue(loaded.getEntity("embeddedDocument") instanceof EntityImpl);
     Assert.assertEquals(
-        loaded.getEntityProperty("embeddedDocument").getProperty("testEmbeddedField"),
+        loaded.getEntity("embeddedDocument").getProperty("testEmbeddedField"),
         "testEmbeddedValue");
     Assert.assertFalse(
-        ((RecordId) loaded.getEntityProperty("embeddedDocument").getIdentity()).isValid());
+        ((RecordId) loaded.getEntity("embeddedDocument").getIdentity()).isValid());
 
     session.commit();
     session.close();
@@ -2195,10 +2195,10 @@ public class CRUDTest extends BaseDBTest {
 
     session.begin();
     p = session.bindToSession(p);
-    Assert.assertNotNull(p.getBlobProperty("byteArray"));
+    Assert.assertNotNull(p.getBlob("byteArray"));
     try {
       try (var out = new ByteArrayOutputStream()) {
-        p.getBlobProperty("byteArray").toOutputStream(out);
+        p.getBlob("byteArray").toOutputStream(out);
         Assert.assertEquals(
             "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
                 .getBytes(),
@@ -2221,10 +2221,10 @@ public class CRUDTest extends BaseDBTest {
     session.begin();
     loaded = session.load(rid);
 
-    Assert.assertNotNull(loaded.getBlobProperty("byteArray"));
+    Assert.assertNotNull(loaded.getBlob("byteArray"));
     try {
       try (var out = new ByteArrayOutputStream()) {
-        loaded.getBlobProperty("byteArray").toOutputStream(out);
+        loaded.getBlob("byteArray").toOutputStream(out);
         Assert.assertEquals(
             "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
                 .getBytes(),
@@ -2258,10 +2258,10 @@ public class CRUDTest extends BaseDBTest {
 
     session.begin();
     p = session.bindToSession(p);
-    Assert.assertNotNull(p.getBlobProperty("byteArray"));
+    Assert.assertNotNull(p.getBlob("byteArray"));
     try {
       try (var out = new ByteArrayOutputStream()) {
-        p.getBlobProperty("byteArray").toOutputStream(out);
+        p.getBlob("byteArray").toOutputStream(out);
         Assert.assertEquals(
             "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
                 .getBytes(),
@@ -2283,10 +2283,10 @@ public class CRUDTest extends BaseDBTest {
     session.begin();
     loaded = session.load(rid);
 
-    loaded.getBlobProperty("byteArray");
+    loaded.getBlob("byteArray");
     try {
       try (var out = new ByteArrayOutputStream()) {
-        loaded.getBlobProperty("byteArray").toOutputStream(out);
+        loaded.getBlob("byteArray").toOutputStream(out);
         Assert.assertEquals(
             "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
                 .getBytes(),
@@ -2316,7 +2316,7 @@ public class CRUDTest extends BaseDBTest {
 
     session.begin();
     media = session.bindToSession(media);
-    Assert.assertEquals(new String(media.getBlobProperty("content").toStream()), "This is a test");
+    Assert.assertEquals(new String(media.getBlob("content").toStream()), "This is a test");
 
     // try to delete
     session.delete(session.bindToSession(media));
@@ -2487,7 +2487,7 @@ public class CRUDTest extends BaseDBTest {
       profile = entries.asEntity();
       Assert.assertEquals(
           profile
-              .getEntityProperty("location")
+              .getEntity("location")
               .<Entity>getRecord(session)
               .<Identifiable>getProperty("city")
               .<Entity>getRecord(session)

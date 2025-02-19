@@ -31,6 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Synchronous command result manager.
@@ -46,7 +47,7 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     if (iRecord instanceof DBRecord) {
       alreadySent.add((DBRecord) iRecord);
       fetchedRecordsToSend.remove(iRecord);
@@ -55,10 +56,10 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
     if (wrappedResultListener != null)
     // NOTIFY THE WRAPPED LISTENER
     {
-      wrappedResultListener.result(db, iRecord);
+      wrappedResultListener.result(session, iRecord);
     }
 
-    fetchRecord(db,
+    fetchRecord(session,
         iRecord, new RemoteFetchListener() {
           @Override
           protected void sendRecord(RecordAbstract iLinked) {

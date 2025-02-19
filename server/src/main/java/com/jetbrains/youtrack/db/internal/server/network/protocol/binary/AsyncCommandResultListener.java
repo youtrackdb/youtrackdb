@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nonnull;
 
 /**
  * Asynchronous command result manager. As soon as a record is returned by the command is sent over
@@ -55,11 +56,11 @@ public class AsyncCommandResultListener extends AbstractCommandResultListener {
   }
 
   @Override
-  public boolean result(DatabaseSessionInternal db, final Object iRecord) {
+  public boolean result(@Nonnull DatabaseSessionInternal session, final Object iRecord) {
     empty.compareAndSet(true, false);
 
     try {
-      fetchRecord(db,
+      fetchRecord(session,
           iRecord, new RemoteFetchListener() {
             @Override
             protected void sendRecord(RecordAbstract iLinked) {
@@ -77,13 +78,13 @@ public class AsyncCommandResultListener extends AbstractCommandResultListener {
       alreadySent.add(((Identifiable) iRecord).getIdentity());
       protocol.channel.writeByte((byte) 1); // ONE MORE RECORD
       NetworkProtocolBinary.writeIdentifiable(
-          protocol.channel, connection, ((Identifiable) iRecord).getRecord(db));
+          protocol.channel, connection, ((Identifiable) iRecord).getRecord(session));
       protocol.channel.flush(); // TODO review this flush... it's for non blocking...
 
       if (wrappedResultListener != null)
       // NOTIFY THE WRAPPED LISTENER
       {
-        wrappedResultListener.result(db, iRecord);
+        wrappedResultListener.result(session, iRecord);
       }
 
     } catch (IOException e) {

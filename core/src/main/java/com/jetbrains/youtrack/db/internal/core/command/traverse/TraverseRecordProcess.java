@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemFieldAll;
@@ -41,8 +41,8 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
 
   public TraverseRecordProcess(
       final Traverse iCommand, final Identifiable iTarget, TraversePath parentPath,
-      DatabaseSessionInternal db) {
-    super(iCommand, iTarget, db);
+      DatabaseSessionInternal session) {
+    super(iCommand, iTarget, session);
     this.path = parentPath.append(iTarget);
   }
 
@@ -75,7 +75,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
       // SKIP IT
       pop();
     } else {
-      var targetRec = target.getRecord(db);
+      var targetRec = target.getRecord(session);
       if (!(targetRec instanceof EntityImpl targeEntity))
       // SKIP IT
       {
@@ -119,7 +119,11 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
                   - 1;
           if (pos > -1) {
             // FOUND <CLASS>.<FIELD>
-            final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(targeEntity);
+            SchemaImmutableClass result = null;
+            if (targeEntity != null) {
+              result = targeEntity.getImmutableSchemaClass(session);
+            }
+            final SchemaClass cls = result;
             if (cls == null)
             // JUMP IT BECAUSE NO SCHEMA
             {
@@ -159,7 +163,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
   }
 
   private void processFields(Iterator<Object> target) {
-    EntityImpl entity = this.target.getRecord(db);
+    EntityImpl entity = this.target.getRecord(session);
     var database = command.getContext().getDatabaseSession();
     if (entity.isNotBound(database)) {
       entity = database.bindToSession(entity);
@@ -185,14 +189,14 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
 
           subProcess =
               new TraverseMultiValueProcess(
-                  command, (Iterator<Object>) coll, path.appendField(field.toString()), db);
+                  command, (Iterator<Object>) coll, path.appendField(field.toString()), session);
         } else if (fieldValue instanceof Identifiable
-            && ((Identifiable) fieldValue).getRecord(db) instanceof EntityImpl) {
+            && ((Identifiable) fieldValue).getRecord(session) instanceof EntityImpl) {
           subProcess =
               new TraverseRecordProcess(
                   command,
-                  ((Identifiable) fieldValue).getRecord(db),
-                  path.appendField(field.toString()), db);
+                  ((Identifiable) fieldValue).getRecord(session),
+                  path.appendField(field.toString()), session);
         } else {
           continue;
         }

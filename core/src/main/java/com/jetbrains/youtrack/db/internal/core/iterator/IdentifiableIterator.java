@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -50,7 +49,7 @@ import java.util.Set;
 public abstract class IdentifiableIterator<REC extends Identifiable>
     implements Iterator<REC>, Iterable<REC> {
 
-  protected final DatabaseSessionInternal database;
+  protected final DatabaseSessionInternal session;
   protected final RecordId current = new ChangeableRecordId();
   private final Storage dbStorage;
   protected boolean liveUpdated = false;
@@ -78,9 +77,9 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
    */
   @Deprecated
   public IdentifiableIterator(final DatabaseSessionInternal iDatabase) {
-    database = iDatabase;
+    session = iDatabase;
 
-    dbStorage = database.getStorage();
+    dbStorage = session.getStorage();
     current.setClusterPosition(RID.CLUSTER_POS_INVALID); // DEFAULT = START FROM THE BEGIN
   }
 
@@ -226,11 +225,11 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
 
     DBRecord record;
     try {
-      record = database.load(current);
+      record = session.load(current);
     } catch (RecordNotFoundException rne) {
       record = null;
     } catch (DatabaseException e) {
-      if (Thread.interrupted() || database.isClosed())
+      if (Thread.interrupted() || session.isClosed())
       // THREAD INTERRUPTED: RETURN
       {
         throw e;
@@ -267,7 +266,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
   protected boolean nextPosition() {
     if (positionsToProcess == null) {
       positionsToProcess =
-          dbStorage.ceilingPhysicalPositions(database,
+          dbStorage.ceilingPhysicalPositions(session,
               current.getClusterId(), new PhysicalPosition(firstClusterEntry));
       if (positionsToProcess == null) {
         return false;
@@ -281,7 +280,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
     incrementEntreePosition();
     while (positionsToProcess.length > 0 && currentEntryPosition >= positionsToProcess.length) {
       positionsToProcess =
-          dbStorage.higherPhysicalPositions(database,
+          dbStorage.higherPhysicalPositions(session,
               current.getClusterId(), positionsToProcess[positionsToProcess.length - 1]);
 
       currentEntryPosition = -1;
@@ -316,7 +315,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
   protected boolean prevPosition() {
     if (positionsToProcess == null) {
       positionsToProcess =
-          dbStorage.floorPhysicalPositions(database,
+          dbStorage.floorPhysicalPositions(session,
               current.getClusterId(), new PhysicalPosition(lastClusterEntry));
       if (positionsToProcess == null) {
         return false;
@@ -337,7 +336,7 @@ public abstract class IdentifiableIterator<REC extends Identifiable>
 
     while (positionsToProcess.length > 0 && currentEntryPosition < 0) {
       positionsToProcess =
-          dbStorage.lowerPhysicalPositions(database, current.getClusterId(), positionsToProcess[0]);
+          dbStorage.lowerPhysicalPositions(session, current.getClusterId(), positionsToProcess[0]);
       currentEntryPosition = positionsToProcess.length;
 
       decrementEntreePosition();

@@ -19,12 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.delete;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
@@ -37,7 +36,7 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
   @Override
   public boolean execute(final HttpRequest iRequest, HttpResponse iResponse) throws Exception {
 
-    try (DatabaseSession session = getProfiledDatabaseSessionInstance(iRequest)) {
+    try (var session = getProfiledDatabaseSessionInstance(iRequest)) {
       final var urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>");
 
@@ -73,7 +72,9 @@ public class ServerCommandDeleteDocument extends ServerCommandDocumentAbstract {
               }
             }
 
-            final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
+            SchemaImmutableClass result = null;
+            result = entity.getImmutableSchemaClass(session);
+            final SchemaClass cls = result;
             if (cls != null) {
               if (cls.isSubClassOf(session, "V"))
               // DELETE IT AS VERTEX

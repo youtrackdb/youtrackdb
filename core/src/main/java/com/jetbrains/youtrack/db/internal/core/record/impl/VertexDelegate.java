@@ -31,6 +31,8 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,6 +41,7 @@ import javax.annotation.Nullable;
  *
  */
 public final class VertexDelegate implements VertexInternal {
+
   private final EntityImpl entity;
 
   public VertexDelegate(EntityImpl entry) {
@@ -281,5 +284,11 @@ public final class VertexDelegate implements VertexInternal {
   @Override
   public Result detach() {
     return entity.detach();
+  }
+
+  @Nullable
+  @Override
+  public SchemaImmutableClass getImmutableSchemaClass(@Nonnull DatabaseSessionInternal session) {
+    return entity.getImmutableSchemaClass(session);
   }
 }

@@ -20,9 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-/**
- *
- */
 public class DocumentTest extends DbTestBase {
 
   private static final String dbName = DocumentTest.class.getSimpleName();
@@ -30,6 +27,7 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testClearResetsFieldTypes() throws Exception {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setFieldType("integer", PropertyType.INTEGER);
     doc.setFieldType("string", PropertyType.STRING);
@@ -44,10 +42,12 @@ public class DocumentTest extends DbTestBase {
     assertNull(doc.getPropertyType("integer"));
     assertNull(doc.getPropertyType("string"));
     assertNull(doc.getPropertyType("binary"));
+    session.rollback();
   }
 
   @Test
   public void testResetResetsFieldTypes() throws Exception {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setFieldType("integer", PropertyType.INTEGER);
     doc.setFieldType("string", PropertyType.STRING);
@@ -62,10 +62,12 @@ public class DocumentTest extends DbTestBase {
     assertNull(doc.getPropertyType("integer"));
     assertNull(doc.getPropertyType("string"));
     assertNull(doc.getPropertyType("binary"));
+    session.rollback();
   }
 
   @Test
   public void testKeepFieldType() throws Exception {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("integer", 10, PropertyType.INTEGER);
     doc.field("string", 20, PropertyType.STRING);
@@ -74,10 +76,12 @@ public class DocumentTest extends DbTestBase {
     assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
     assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
     assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
+    session.rollback();
   }
 
   @Test
-  public void testKeepFieldTypeSerialization() throws Exception {
+  public void testKeepFieldTypeSerialization() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("integer", 10, PropertyType.INTEGER);
     doc.field("link", new RecordId(1, 2), PropertyType.LINK);
@@ -96,10 +100,12 @@ public class DocumentTest extends DbTestBase {
     assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
     assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
     assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
+    session.rollback();
   }
 
   @Test
   public void testKeepAutoFieldTypeSerialization() throws Exception {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("integer", 10);
     doc.field("link", new RecordId(1, 2));
@@ -119,54 +125,61 @@ public class DocumentTest extends DbTestBase {
     assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
     assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
     assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
+    session.rollback();
   }
 
   @Test
   public void testKeepSchemafullFieldTypeSerialization() throws Exception {
-    DatabaseSessionInternal db = null;
-    YouTrackDB odb = null;
+    DatabaseSessionInternal session = null;
+    YouTrackDB ytdb = null;
     try {
-      odb = CreateDatabaseUtil.createDatabase(dbName, "memory:", CreateDatabaseUtil.TYPE_MEMORY);
-      db = (DatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+      ytdb = CreateDatabaseUtil.createDatabase(dbName, "memory:", CreateDatabaseUtil.TYPE_MEMORY);
+      session = (DatabaseSessionInternal) ytdb.open(dbName, defaultDbAdminCredentials,
           CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-      var clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty(db, "integer", PropertyType.INTEGER);
-      clazz.createProperty(db, "link", PropertyType.LINK);
-      clazz.createProperty(db, "string", PropertyType.STRING);
-      clazz.createProperty(db, "binary", PropertyType.BINARY);
-      var doc = (EntityImpl) db.newEntity(clazz);
-      doc.field("integer", 10);
-      doc.field("link", new RecordId(1, 2));
-      doc.field("string", "string");
-      doc.field("binary", new byte[]{30});
+      var clazz = session.getMetadata().getSchema().createClass("Test");
+      clazz.createProperty(session, "integer", PropertyType.INTEGER);
+      clazz.createProperty(session, "link", PropertyType.LINK);
+      clazz.createProperty(session, "string", PropertyType.STRING);
+      clazz.createProperty(session, "binary", PropertyType.BINARY);
+
+      session.begin();
+
+      var entity = (EntityImpl) session.newEntity(clazz);
+      entity.field("integer", 10);
+      entity.field("link", new RecordId(1, 2));
+      entity.field("string", "string");
+      entity.field("binary", new byte[]{30});
 
       // the types are from the schema.
-      assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
-      assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
-      assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
-      assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
+      assertEquals(PropertyType.INTEGER, entity.getPropertyType("integer"));
+      assertEquals(PropertyType.LINK, entity.getPropertyType("link"));
+      assertEquals(PropertyType.STRING, entity.getPropertyType("string"));
+      assertEquals(PropertyType.BINARY, entity.getPropertyType("binary"));
       var ser = DatabaseSessionAbstract.getDefaultSerializer();
-      var bytes = ser.toStream(db, doc);
-      doc = (EntityImpl) db.newEntity();
-      ser.fromStream(db, bytes, doc, null);
-      assertEquals(PropertyType.INTEGER, doc.getPropertyType("integer"));
-      assertEquals(PropertyType.STRING, doc.getPropertyType("string"));
-      assertEquals(PropertyType.BINARY, doc.getPropertyType("binary"));
-      assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
+      var bytes = ser.toStream(session, entity);
+      entity = (EntityImpl) session.newEntity();
+      ser.fromStream(session, bytes, entity, null);
+      assertEquals(PropertyType.INTEGER, entity.getPropertyType("integer"));
+      assertEquals(PropertyType.STRING, entity.getPropertyType("string"));
+      assertEquals(PropertyType.BINARY, entity.getPropertyType("binary"));
+      assertEquals(PropertyType.LINK, entity.getPropertyType("link"));
+
+      session.rollback();
     } finally {
-      if (db != null) {
-        db.close();
+      if (session != null) {
+        session.close();
       }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
+      if (ytdb != null) {
+        ytdb.drop(dbName);
+        ytdb.close();
       }
     }
   }
 
   @Test
   public void testChangeTypeOnValueSet() throws Exception {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("link", new RecordId(1, 2));
     var ser = DatabaseSessionAbstract.getDefaultSerializer();
@@ -176,6 +189,7 @@ public class DocumentTest extends DbTestBase {
     assertEquals(PropertyType.LINK, doc.getPropertyType("link"));
     doc.field("link", new RidBag(session));
     assertNotEquals(PropertyType.LINK, doc.getPropertyType("link"));
+    session.rollback();
   }
 
   @Test
@@ -286,6 +300,7 @@ public class DocumentTest extends DbTestBase {
 
   @Test
   public void testMergeNull() {
+    session.begin();
     var dest = (EntityImpl) session.newEntity();
 
     var source = (EntityImpl) session.newEntity();
@@ -297,50 +312,58 @@ public class DocumentTest extends DbTestBase {
     assertEquals("value", dest.field("key"));
 
     assertTrue(dest.containsField("somenull"));
+    session.rollback();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNestedSetNull() {
-    var doc = (EntityImpl) session.newEntity();
-    doc.field("test.nested", "value");
+    session.executeInTx(() -> {
+      var doc = (EntityImpl) session.newEntity();
+      doc.field("test.nested", "value");
+    });
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNullMapKey() {
-    var doc = (EntityImpl) session.newEntity();
-    Map<String, String> map = new HashMap<String, String>();
-    map.put(null, "dd");
-    doc.field("testMap", map);
-    doc.convertAllMultiValuesToTrackedVersions();
+    session.executeInTx(() -> {
+      var doc = (EntityImpl) session.newEntity();
+      Map<String, String> map = new HashMap<String, String>();
+      map.put(null, "dd");
+      doc.field("testMap", map);
+      doc.convertAllMultiValuesToTrackedVersions();
+    });
   }
 
   @Test
   public void testGetSetProperty() {
-    var doc = (EntityImpl) session.newEntity();
-    Map<String, String> map = new HashMap<String, String>();
+    session.begin();
+
+    var entity = (EntityImpl) session.newEntity();
+
+    Map<String, String> map = entity.newEmbeddedMap("map");
     map.put("foo", "valueInTheMap");
-    doc.field("theMap", map);
-    doc.setProperty("theMap.foo", "bar");
 
-    assertEquals(doc.getProperty("theMap"), map);
-    assertEquals("bar", doc.getProperty("theMap.foo"));
-    assertEquals("valueInTheMap", doc.eval("theMap.foo"));
+    entity.setProperty("theMap.foo", "bar");
+    assertEquals(entity.getProperty("map"), map);
 
-    //    doc.setProperty("", "foo");
-    //    assertEquals(doc.getProperty(""), "foo");
+    assertEquals("bar", entity.getProperty("theMap.foo"));
 
-    doc.setProperty(",", "comma");
-    assertEquals("comma", doc.getProperty(","));
+    entity.setProperty(",", "comma");
+    assertEquals("comma", entity.getProperty(","));
 
-    doc.setProperty(",.,/;:'\"", "strange");
-    assertEquals("strange", doc.getProperty(",.,/;:'\""));
+    entity.setProperty(",.,/;:'\"", "strange");
+    assertEquals("strange", entity.getProperty(",.,/;:'\""));
 
-    doc.setProperty("   ", "spaces");
-    assertEquals("spaces", doc.getProperty("   "));
+    entity.setProperty("   ", "spaces");
+    assertEquals("spaces", entity.getProperty("   "));
+
+    session.rollback();
   }
 
   @Test
   public void testNoDirtySameBytes() {
+    session.begin();
+
     var doc = (EntityImpl) session.newEntity();
     var bytes = new byte[]{0, 1, 2, 3, 4, 5};
     doc.field("bytes", bytes);
@@ -351,5 +374,7 @@ public class DocumentTest extends DbTestBase {
     doc.field("bytes", bytes.clone());
     assertFalse(doc.isDirty());
     assertNull(doc.getOriginalValue("bytes"));
+
+    session.rollback();
   }
 }

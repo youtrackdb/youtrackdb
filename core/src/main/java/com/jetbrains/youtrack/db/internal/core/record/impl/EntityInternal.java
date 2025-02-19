@@ -1,9 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import java.util.Collection;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface EntityInternal extends Entity {
@@ -21,5 +24,8 @@ public interface EntityInternal extends Entity {
   <RET> RET getPropertyInternal(String name, boolean lazyLoading);
 
   @Nullable
-  Identifiable getLinkPropertyInternal(String name);
+  RID getLinkPropertyInternal(String name);
+
+  @Nullable
+  SchemaImmutableClass getImmutableSchemaClass(@Nonnull DatabaseSessionInternal session);
 }

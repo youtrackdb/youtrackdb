@@ -9,8 +9,8 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -80,25 +80,24 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   private static boolean hasCluster(DBRecord record) {
     var rid = record.getIdentity();
-    if (rid == null) {
-      return false;
-    }
     return rid.getClusterId() >= 0;
   }
 
-  private static boolean matchesClass(DatabaseSessionInternal db, DBRecord record,
+  private static boolean matchesClass(DatabaseSessionInternal session, DBRecord record,
       String className) {
-    if (!(record.getRecord(db) instanceof EntityImpl entity)) {
+    if (!(record.getRecord(session) instanceof EntityImpl entity)) {
       return false;
     }
 
-    SchemaClass schema = EntityInternalUtils.getImmutableSchemaClass(entity);
+    SchemaImmutableClass result;
+    result = entity.getImmutableSchemaClass(session);
+    SchemaClass schema = result;
     if (schema == null) {
       return className == null;
-    } else if (schema.getName(db).equals(className)) {
+    } else if (schema.getName(session).equals(className)) {
       return true;
     } else {
-      return schema.isSubClassOf(db, className);
+      return schema.isSubClassOf(session, className);
     }
   }
 

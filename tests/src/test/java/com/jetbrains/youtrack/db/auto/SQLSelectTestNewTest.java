@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nonnull;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -1603,13 +1604,13 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
                 sqlOne,
                 new CommandResultListener() {
                   @Override
-                  public boolean result(DatabaseSessionInternal db, Object iRecord) {
+                  public boolean result(@Nonnull DatabaseSessionInternal session, Object iRecord) {
                     asynchResultOne.add((EntityImpl) iRecord);
                     return true;
                   }
 
                   @Override
-                  public void end(DatabaseSessionInternal db) {
+                  public void end(@Nonnull DatabaseSessionInternal db) {
                     endOneCalled.set(true);
 
                     SQLSelectTestNewTest.this.session
@@ -1618,14 +1619,14 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
                                 sqlTwo,
                                 new CommandResultListener() {
                                   @Override
-                                  public boolean result(DatabaseSessionInternal db,
+                                  public boolean result(@Nonnull DatabaseSessionInternal session,
                                       Object iRecord) {
                                     asynchResultTwo.add((EntityImpl) iRecord);
                                     return true;
                                   }
 
                                   @Override
-                                  public void end(DatabaseSessionInternal db) {
+                                  public void end(@Nonnull DatabaseSessionInternal session) {
                                     endTwoCalled.set(true);
                                   }
 
@@ -1683,13 +1684,13 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
                 sqlOne,
                 new CommandResultListener() {
                   @Override
-                  public boolean result(DatabaseSessionInternal db, Object iRecord) {
+                  public boolean result(@Nonnull DatabaseSessionInternal session, Object iRecord) {
                     asynchResultOne.add((EntityImpl) iRecord);
                     return asynchResultOne.size() < synchResultOne.size() / 2;
                   }
 
                   @Override
-                  public void end(DatabaseSessionInternal db) {
+                  public void end(@Nonnull DatabaseSessionInternal db) {
                     endOneCalled.set(true);
 
                     SQLSelectTestNewTest.this.session
@@ -1698,14 +1699,14 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
                                 sqlTwo,
                                 new CommandResultListener() {
                                   @Override
-                                  public boolean result(DatabaseSessionInternal db,
+                                  public boolean result(@Nonnull DatabaseSessionInternal session,
                                       Object iRecord) {
                                     asynchResultTwo.add((EntityImpl) iRecord);
                                     return true;
                                   }
 
                                   @Override
-                                  public void end(DatabaseSessionInternal db) {
+                                  public void end(@Nonnull DatabaseSessionInternal session) {
                                     endTwoCalled.set(true);
                                   }
 

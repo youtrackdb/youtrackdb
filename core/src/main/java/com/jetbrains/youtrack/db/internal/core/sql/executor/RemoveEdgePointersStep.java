@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -21,25 +21,25 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
     assert prev != null;
     var upstream = prev.start(ctx);
 
-    return upstream.map(this::mapResult);
+    return upstream.map(RemoveEdgePointersStep::mapResult);
   }
 
-  private Result mapResult(Result result, CommandContext ctx) {
-    var db = ctx.getDatabaseSession();
+  private static Result mapResult(Result result, CommandContext ctx) {
+    var session = ctx.getDatabaseSession();
     var propNames = result.getPropertyNames();
     for (var propName :
         propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       var val = result.getProperty(propName);
-      if (val instanceof Entity entity) {
-        var schemaClass = entity.getSchemaClass();
-        if (schemaClass != null && schemaClass.isSubClassOf(db, "E")) {
+      if (val instanceof EntityInternal entity) {
+        var schemaClass = entity.getImmutableSchemaClass(session);
+        if (schemaClass != null && schemaClass.isSubClassOf(session, "E")) {
           ((ResultInternal) result).removeProperty(propName);
         }
       } else if (val instanceof Iterable<?> iterable) {
         for (var o : iterable) {
-          if (o instanceof Entity entity) {
-            var schemaClass = entity.getSchemaClass();
-            if (schemaClass != null && schemaClass.isSubClassOf(db, "E")) {
+          if (o instanceof EntityInternal entity) {
+            var schemaClass = entity.getImmutableSchemaClass(session);
+            if (schemaClass != null && schemaClass.isSubClassOf(session, "E")) {
               ((ResultInternal) result).removeProperty(propName);
             }
           }

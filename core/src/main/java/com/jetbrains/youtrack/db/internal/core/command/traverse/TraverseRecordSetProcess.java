@@ -45,7 +45,7 @@ public class TraverseRecordSetProcess extends TraverseAbstractProcess<Iterator<I
       record = target.next();
       index++;
 
-      var rec = record.getRecord(db);
+      var rec = record.getRecord(session);
       if (rec instanceof EntityImpl entity) {
         if (!entity.getIdentity().isPersistent() && entity.fields() == 1) {
           // EXTRACT THE FIELD CONTEXT
@@ -55,13 +55,14 @@ public class TraverseRecordSetProcess extends TraverseAbstractProcess<Iterator<I
                 .getContext()
                 .push(
                     new TraverseRecordSetProcess(
-                        command, ((Collection<Identifiable>) fieldvalue).iterator(), path, db));
+                        command, ((Collection<Identifiable>) fieldvalue).iterator(), path,
+                        session));
 
           } else if (fieldvalue instanceof EntityImpl) {
-            command.getContext().push(new TraverseRecordProcess(command, rec, path, db));
+            command.getContext().push(new TraverseRecordProcess(command, rec, path, session));
           }
         } else {
-          command.getContext().push(new TraverseRecordProcess(command, rec, path, db));
+          command.getContext().push(new TraverseRecordProcess(command, rec, path, session));
         }
 
         return null;

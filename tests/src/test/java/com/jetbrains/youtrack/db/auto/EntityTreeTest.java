@@ -83,8 +83,8 @@ public class EntityTreeTest extends BaseDBTest {
 
     Assert.assertNotSame(p1, p2);
     Assert.assertSame(
-        p1.getEntityProperty("location").getEntityProperty("city"),
-        p2.getEntityProperty("location").getEntityProperty("city"));
+        p1.getEntity("location").getEntity("city"),
+        p2.getEntity("location").getEntity("city"));
     session.commit();
   }
 
@@ -116,7 +116,7 @@ public class EntityTreeTest extends BaseDBTest {
     nicholas.setProperty("name", "Nicholas");
     nicholas.setProperty("surname", "Churcill");
 
-    nicholas.setProperty("location", winston.getEntityProperty("location"));
+    nicholas.setProperty("location", winston.getEntity("location"));
 
     nicholas.setProperty("invitedBy", winston);
     winston.setProperty("invitedBy", nicholas);
@@ -275,7 +275,7 @@ public class EntityTreeTest extends BaseDBTest {
     var rid = p.getIdentity();
     p = session.load(rid);
     sat = p.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(session);
-    near = sat.getEntityProperty("near");
+    near = sat.getEntity("near");
     satNear = near.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(session);
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
 
@@ -288,7 +288,7 @@ public class EntityTreeTest extends BaseDBTest {
     session.begin();
     p = session.load(rid);
     sat = p.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(session);
-    near = sat.getEntityProperty("near");
+    near = sat.getEntity("near");
     satNear = near.<List<Identifiable>>getProperty("satellites").getFirst().getEntity(session);
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 100);
     session.commit();
@@ -369,7 +369,7 @@ public class EntityTreeTest extends BaseDBTest {
             .<Map<String, Identifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
             .getEntity(session);
-    mercury = jupiterMoon.getEntityProperty("near");
+    mercury = jupiterMoon.getEntity("near");
     mercuryMoon =
         mercury
             .<Map<String, Identifiable>>getProperty("satellitesMap")
@@ -397,7 +397,7 @@ public class EntityTreeTest extends BaseDBTest {
             .<Map<String, Identifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
             .getEntity(session);
-    mercury = jupiterMoon.getEntityProperty("near");
+    mercury = jupiterMoon.getEntity("near");
     mercuryMoon =
         mercury
             .<Map<String, Identifiable>>getProperty("satellitesMap")

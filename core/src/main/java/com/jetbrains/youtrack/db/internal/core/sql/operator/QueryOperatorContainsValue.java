@@ -29,8 +29,8 @@ import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import java.util.List;
@@ -162,8 +162,12 @@ public class QueryOperatorContainsValue extends QueryOperatorEqualityNotNulls {
       if (fieldName != null) {
         Object record = iRecord.getRecord(iContext.getDatabaseSession());
         if (record instanceof EntityImpl) {
+          SchemaImmutableClass result = null;
+          if (record != null) {
+            result = ((EntityImpl) record).getImmutableSchemaClass(session);
+          }
           var property =
-              EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
+              result
                   .getProperty(session, fieldName);
           if (property != null && property.getType(session).isMultiValue()) {
             type = property.getLinkedType(session);
