@@ -50,6 +50,7 @@ import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryptionNone;
@@ -848,7 +849,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
                 + ": the resource has restricted access due to security policies");
       }
 
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, clazz.getName(this));
         if (clazz.isScheduler()) {
@@ -888,7 +890,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkSecurity(Role.PERMISSION_UPDATE, id, iClusterName);
 
     if (id instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isScheduler()) {
           getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, entity);
@@ -948,7 +951,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_DELETE, id, iClusterName);
     if (id instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordBeforeDelete(entity, this);
@@ -977,12 +981,10 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (id instanceof EntityImpl entity) {
-      final var clazz =
-          EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz;
+      clazz = entity.getImmutableSchemaClass(this);
+
       if (clazz != null) {
-        if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().createdFunction(this, entity);
-        }
         if (clazz.isUser() || clazz.isRole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
         }
@@ -999,7 +1001,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (id instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isUser() || clazz.isRole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
@@ -1018,13 +1021,15 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     assert assertIfNotActive();
 
     if (id instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterDelete(entity, this);
         }
       }
     }
+
     callbackHooks(RecordHook.TYPE.AFTER_DELETE, id);
   }
 
@@ -1032,7 +1037,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void afterReadOperations(Identifiable identifiable) {
     assert assertIfNotActive();
     if (identifiable instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterRead(entity, this);
@@ -1046,7 +1052,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public boolean beforeReadOperations(Identifiable identifiable) {
     assert assertIfNotActive();
     if (identifiable instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
+      SchemaImmutableClass clazz = null;
+      clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           var val = ClassTrigger.onRecordBeforeRead(entity, this);
@@ -1086,8 +1093,8 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       var record = operation.record;
 
       if (record instanceof EntityImpl entity) {
-        var clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
-
+        SchemaImmutableClass clazz = null;
+        clazz = entity.getImmutableSchemaClass(this);
         if (clazz != null) {
           if (operation.type == RecordOperation.CREATED) {
             if (clazz.isSequence()) {
@@ -1098,6 +1105,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
             if (clazz.isScheduler()) {
               getMetadata().getScheduler().scheduleEvent(this, new ScheduledEvent(entity, this));
             }
+            if (clazz.isFunction()) {
+              this.getSharedContext().getFunctionLibrary().createdFunction(this, entity);
+            }
           } else if (operation.type == RecordOperation.UPDATED) {
             if (clazz.isFunction()) {
               this.getSharedContext().getFunctionLibrary().updatedFunction(this, entity);
@@ -1107,16 +1117,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
             }
           } else if (operation.type == RecordOperation.DELETED) {
             if (clazz.isFunction()) {
-              this.getSharedContext().getFunctionLibrary().droppedFunction(this, entity);
-            }
-            if (clazz.isSequence()) {
+              this.getSharedContext().getFunctionLibrary()
+                  .onFunctionDropped(this, entity.getIdentity());
+            } else if (clazz.isSequence()) {
               ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
                   .getDelegate()
-                  .onSequenceDropped(this, entity);
-            }
-            if (clazz.isScheduler()) {
-              final String eventName = entity.field(ScheduledEvent.PROP_NAME);
-              getSharedContext().getScheduler().removeEventInternal(eventName);
+                  .onSequenceDropped(this, entity.getIdentity());
+            } else if (clazz.isScheduler()) {
+              getSharedContext().getScheduler().onEventDropped(this, entity.getIdentity());
             }
           }
         } else {
@@ -1186,7 +1194,9 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       // COMPUTE THE CLUSTER ID
       SchemaClassInternal schemaClass = null;
       if (record instanceof EntityImpl) {
-        schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, (EntityImpl) record);
+        SchemaImmutableClass result = null;
+        result = ((EntityImpl) record).getImmutableSchemaClass(this);
+        schemaClass = result;
       }
       if (schemaClass != null) {
         // FIND THE RIGHT CLUSTER AS CONFIGURED IN CLASS

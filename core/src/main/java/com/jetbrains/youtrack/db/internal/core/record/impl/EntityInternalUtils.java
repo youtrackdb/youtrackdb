@@ -26,7 +26,6 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import java.util.Iterator;
@@ -58,14 +57,6 @@ public class EntityInternalUtils {
 
   public static boolean rawContainsField(final EntityImpl entity, final String iFiledName) {
     return entity.rawContainsField(iFiledName);
-  }
-
-  public static SchemaImmutableClass getImmutableSchemaClass(
-      final DatabaseSessionInternal database, final EntityImpl entity) {
-    if (entity == null) {
-      return null;
-    }
-    return entity.getImmutableSchemaClass(database);
   }
 
   public static ImmutableSchema getImmutableSchema(final EntityImpl entity) {

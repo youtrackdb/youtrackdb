@@ -29,7 +29,9 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +46,7 @@ public class SchedulerImpl {
 
   private static final String RIDS_OF_EVENTS_TO_RESCHEDULE_KEY =
       SchedulerImpl.class.getName() + ".ridsOfEventsToReschedule";
+  private static final String DROPPED_EVENTS_MAP = "droppedEventsMap";
 
   private final ConcurrentHashMap<String, ScheduledEvent> events =
       new ConcurrentHashMap<>();
@@ -68,6 +71,28 @@ public class SchedulerImpl {
       event.interrupt();
     }
     return event;
+  }
+
+  public static void onAfterEventDropped(FrontendTransactionOptimistic currentTx,
+      EntityImpl eventEntity) {
+    @SuppressWarnings("unchecked")
+    var droppedSequencesMap = (HashMap<RID, String>) currentTx.getCustomData(DROPPED_EVENTS_MAP);
+    if (droppedSequencesMap == null) {
+      droppedSequencesMap = new HashMap<>();
+    }
+
+    currentTx.setCustomData(DROPPED_EVENTS_MAP, droppedSequencesMap);
+    droppedSequencesMap.put(eventEntity.getIdentity(),
+        eventEntity.getProperty(ScheduledEvent.PROP_NAME));
+  }
+
+  public void onEventDropped(DatabaseSessionInternal session, RID rid) {
+    var currentTx = (FrontendTransactionOptimistic) session.getTransaction();
+
+    @SuppressWarnings("unchecked")
+    var droppedSequencesMap = (HashMap<RID, String>) currentTx.getCustomData(DROPPED_EVENTS_MAP);
+    var eventName = droppedSequencesMap.get(rid);
+    removeEventInternal(eventName);
   }
 
   public void removeEvent(DatabaseSessionInternal session, final String eventName) {

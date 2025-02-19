@@ -28,8 +28,8 @@ import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.lang.reflect.Method;
 import javax.script.Invocable;
@@ -169,7 +169,10 @@ public class ClassTrigger {
 
   private static Object checkClzAttribute(
       final EntityImpl entity, String attr, DatabaseSessionInternal session) {
-    final var clz = EntityInternalUtils.getImmutableSchemaClass(session, entity);
+    SchemaImmutableClass clz = null;
+    if (entity != null) {
+      clz = entity.getImmutableSchemaClass(session);
+    }
     if (clz != null && clz.isTriggered()) {
       Function func = null;
       var fieldName = clz.getCustom(session, attr);

@@ -88,7 +88,7 @@ public class Function extends IdentityWrapper {
     name = entity.getProperty(NAME_PROPERTY);
     code = entity.getProperty(CODE_PROPERTY);
     language = entity.getProperty(LANGUAGE_PROPERTY);
-    parameters = entity.getProperty(PARAMETERS_PROPERTY);
+    parameters = entity.getEmbeddedList(PARAMETERS_PROPERTY);
 
     var storedIdempotent = entity.<Boolean>getProperty(IDEMPOTENT_PROPERTY);
     idempotent = storedIdempotent != null ? storedIdempotent : false;
@@ -99,7 +99,12 @@ public class Function extends IdentityWrapper {
     entity.setProperty(NAME_PROPERTY, name);
     entity.setProperty(CODE_PROPERTY, code);
     entity.setProperty(LANGUAGE_PROPERTY, language);
-    entity.setProperty(PARAMETERS_PROPERTY, parameters);
+
+    var params = entity.<String>newEmbeddedList(PARAMETERS_PROPERTY);
+    if (parameters != null) {
+      params.addAll(parameters);
+    }
+
     entity.setProperty(IDEMPOTENT_PROPERTY, idempotent);
   }
 

@@ -72,13 +72,18 @@ public class ScheduledEvent extends IdentityWrapper {
    */
   public ScheduledEvent(final EntityImpl entity, DatabaseSessionInternal session) {
     super(entity);
-
     var functionEntity = entity.getEntity(PROP_FUNC);
+
     function = session.getMetadata().getFunctionLibrary().getFunction(session,
-        functionEntity.getProperty(Function.NAME_PROPERTY));
-    rule = entity.getProperty(PROP_RULE);
-    name = entity.getProperty(PROP_NAME);
-    status = STATUS.valueOf(entity.getProperty(PROP_STATUS));
+        functionEntity.getString(Function.NAME_PROPERTY));
+
+    rule = entity.getString(PROP_RULE);
+    name = entity.getString(PROP_NAME);
+
+    var statusValue = entity.getString(PROP_STATUS);
+    if (statusValue != null) {
+      status = STATUS.valueOf(statusValue);
+    }
 
     Map<String, Object> args = entity.getProperty(PROP_ARGUMENTS);
     this.arguments = Objects.requireNonNullElse(args, Collections.emptyMap());
@@ -99,7 +104,12 @@ public class ScheduledEvent extends IdentityWrapper {
   protected void toEntity(@Nonnull DatabaseSessionInternal db, @Nonnull EntityImpl entity) {
     entity.setProperty(PROP_NAME, name);
     entity.setProperty(PROP_RULE, rule);
-    entity.setProperty(PROP_ARGUMENTS, arguments);
+
+    var args = entity.newEmbeddedMap(PROP_ARGUMENTS);
+    if (arguments != null) {
+      args.putAll(arguments);
+    }
+
     entity.setProperty(PROP_STATUS, status);
     entity.setProperty(PROP_FUNC, function.getIdentity());
     entity.setProperty(PROP_EXEC_ID, nextExecutionId.get());
@@ -255,8 +265,6 @@ public class ScheduledEvent extends IdentityWrapper {
               eventEntity.setProperty(PROP_STATUS, event.status);
               eventEntity.setProperty(PROP_STARTTIME, event.startTime);
               eventEntity.setProperty(PROP_EXEC_ID, event.nextExecutionId.get());
-
-              event.save(db);
 
               return true;
             });

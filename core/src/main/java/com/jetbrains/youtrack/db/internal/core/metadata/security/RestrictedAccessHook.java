@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 
 /**
  * Checks the access against restricted resources. Restricted resources are those documents of
@@ -35,7 +35,10 @@ public class RestrictedAccessHook {
 
   public static boolean onRecordBeforeCreate(
       final EntityImpl entity, DatabaseSessionInternal database) {
-    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+    SchemaImmutableClass cls = null;
+    if (entity != null) {
+      cls = entity.getImmutableSchemaClass(database);
+    }
     if (cls != null && cls.isRestricted()) {
       var fieldNames = cls.getCustom(database, SecurityShared.ONCREATE_FIELD);
       if (fieldNames == null) {
@@ -85,7 +88,10 @@ public class RestrictedAccessHook {
       final EntityImpl ent,
       final RestrictedOperation iAllowOperation,
       final boolean iReadOriginal) {
-    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, ent);
+    SchemaImmutableClass cls = null;
+    if (ent != null) {
+      cls = ent.getImmutableSchemaClass(database);
+    }
     if (cls != null && cls.isRestricted()) {
 
       if (database.geCurrentUser() == null) {

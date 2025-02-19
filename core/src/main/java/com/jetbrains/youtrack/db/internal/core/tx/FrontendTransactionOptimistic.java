@@ -41,13 +41,16 @@ import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageProxy;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
@@ -193,14 +196,10 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
       for (var entry : recordOperations.values()) {
         if (entry.type == RecordOperation.CREATED) {
           if (entry.record != null) {
-            if (entry.record instanceof EntityImpl) {
+            if (entry.record instanceof EntityImpl entity) {
               if (iPolymorphic) {
-                SchemaImmutableClass result1 = null;
-                if (entry.record != null) {
-                  result1 = ((EntityImpl) entry.record).getImmutableSchemaClass(session);
-                }
-                if (iClass.isSuperClassOf(session,
-                    result1)) {
+                var cls = entity.getImmutableSchemaClass(session);
+                if (iClass.isSuperClassOf(session, cls)) {
                   result.add(entry);
                 }
               } else {
@@ -545,8 +544,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
         switch (status) {
           case RecordOperation.CREATED: {
             if (record instanceof EntityImpl entity) {
-              final var clazz =
-                  EntityInternalUtils.getImmutableSchemaClass(session, entity);
+              SchemaImmutableClass clazz = null;
+              clazz = entity.getImmutableSchemaClass(session);
               if (clazz != null) {
                 ClassIndexManager.checkIndexesAfterCreate(entity, session);
                 txEntry.indexTrackingDirtyCounter = record.getDirtyCounter();
@@ -556,8 +555,8 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           break;
           case RecordOperation.UPDATED: {
             if (record instanceof EntityImpl entity) {
-              final var clazz =
-                  EntityInternalUtils.getImmutableSchemaClass(session, entity);
+              SchemaImmutableClass clazz = null;
+              clazz = entity.getImmutableSchemaClass(session);
               if (clazz != null && record.getDirtyCounter() != txEntry.indexTrackingDirtyCounter) {
                 ClassIndexManager.checkIndexesAfterUpdate(entity, session);
                 txEntry.indexTrackingDirtyCounter = record.getDirtyCounter();
@@ -567,10 +566,19 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           break;
           case RecordOperation.DELETED: {
             if (record instanceof EntityImpl entity) {
-              final var clazz =
-                  EntityInternalUtils.getImmutableSchemaClass(session, entity);
+              SchemaImmutableClass clazz = null;
+              clazz = entity.getImmutableSchemaClass(session);
+
               if (clazz != null) {
                 ClassIndexManager.checkIndexesAfterDelete(entity, session);
+
+                if (clazz.isSequence()) {
+                  SequenceLibraryImpl.onAfterSequenceDropped(this, entity);
+                } else if (clazz.isFunction()) {
+                  FunctionLibraryImpl.onAfterFunctionDropped(this, entity);
+                } else if (clazz.isScheduler()) {
+                  SchedulerImpl.onAfterEventDropped(this, entity);
+                }
               }
             }
           }

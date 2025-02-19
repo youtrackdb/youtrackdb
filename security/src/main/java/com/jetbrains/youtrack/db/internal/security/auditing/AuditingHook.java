@@ -24,8 +24,8 @@ import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import java.util.ArrayList;
@@ -299,8 +299,10 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   public void onRecordAfterUpdate(DatabaseSession session, final DBRecord iRecord) {
 
     if (iRecord instanceof EntityImpl entity) {
-      var clazz = EntityInternalUtils.getImmutableSchemaClass(
-          (DatabaseSessionInternal) session, entity);
+      SchemaImmutableClass clazz = null;
+      if (entity != null) {
+        clazz = entity.getImmutableSchemaClass((DatabaseSessionInternal) session);
+      }
 
       if (clazz.isUser() && Arrays.asList(entity.getDirtyProperties()).contains("password")) {
         String name = entity.getProperty("name");

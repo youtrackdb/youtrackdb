@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +55,10 @@ public class ClassIndexManager {
 
   private static void processIndexOnCreate(DatabaseSessionInternal database,
       EntityImpl entity) {
-    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+    SchemaImmutableClass cls = null;
+    if (entity != null) {
+      cls = entity.getImmutableSchemaClass(database);
+    }
     if (cls != null) {
       final Collection<Index> indexes = cls.getRawIndexes();
       addIndexesEntries(database, entity, indexes);
@@ -70,7 +73,10 @@ public class ClassIndexManager {
 
   private static void processIndexOnUpdate(DatabaseSessionInternal database,
       EntityImpl entity) {
-    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+    SchemaImmutableClass cls = null;
+    if (entity != null) {
+      cls = entity.getImmutableSchemaClass(database);
+    }
     if (cls == null) {
       return;
     }
@@ -429,7 +435,10 @@ public class ClassIndexManager {
 
   public static void processIndexOnDelete(DatabaseSessionInternal database,
       EntityImpl entity) {
-    final var cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
+    SchemaImmutableClass cls = null;
+    if (entity != null) {
+      cls = entity.getImmutableSchemaClass(database);
+    }
     if (cls == null) {
       return;
     }

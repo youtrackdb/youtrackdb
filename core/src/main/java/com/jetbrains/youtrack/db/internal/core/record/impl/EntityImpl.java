@@ -1046,7 +1046,8 @@ public class EntityImpl extends RecordAbstract
       } else {
 
         try {
-          if (value.equals(oldValue)) {
+          if (!(value instanceof Collection<?>) && !(value instanceof Map<?, ?>) && value.equals(
+              oldValue)) {
             if (fieldType == oldType) {
               if (!(value instanceof RecordElement))
               // SAME BUT NOT TRACKABLE: SET THE RECORD AS DIRTY TO BE SURE IT'S SAVED

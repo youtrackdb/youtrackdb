@@ -25,8 +25,8 @@ import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.RecordHook;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import javax.annotation.Nonnull;
 
 /**
@@ -269,8 +269,12 @@ public abstract class DocumentHookAbstract implements RecordHook {
       return true;
     }
 
+    SchemaImmutableClass result = null;
+    if (entity != null) {
+      result = entity.getImmutableSchemaClass((DatabaseSessionInternal) session);
+    }
     final SchemaClass clazz =
-        EntityInternalUtils.getImmutableSchemaClass((DatabaseSessionInternal) session, entity);
+        result;
     if (clazz == null) {
       return false;
     }

@@ -265,7 +265,7 @@ public class SchedulerTest {
         });
   }
 
-  private Long getLogCounter(final DatabaseSession db) {
+  private static Long getLogCounter(final DatabaseSession db) {
     var resultSet =
         db.query("select count(*) as count from scheduler_log where note = 'test'");
     var result = resultSet.stream().findFirst().orElseThrow();

@@ -22,6 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.function;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -29,6 +30,7 @@ import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -37,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
 /**
  * Manages stored functions.
@@ -44,6 +47,7 @@ import java.util.regex.Pattern;
 public class FunctionLibraryImpl {
 
   public static final String CLASSNAME = "OFunction";
+  private static final String DROPPED_FUNCTIONS_MAP = "droppedFunctionsMap";
   protected final ConcurrentHashMap<String, Function> functions = new ConcurrentHashMap<>();
   private final AtomicBoolean needReload = new AtomicBoolean(false);
 
@@ -88,8 +92,28 @@ public class FunctionLibraryImpl {
     }
   }
 
-  public void droppedFunction(DatabaseSessionInternal session, EntityImpl function) {
-    functions.remove(function.field("name").toString());
+  public static void onAfterFunctionDropped(FrontendTransactionOptimistic currentTx,
+      EntityImpl functionEntity) {
+    @SuppressWarnings("unchecked")
+    var droppedSequencesMap = (HashMap<RID, String>) currentTx.getCustomData(DROPPED_FUNCTIONS_MAP);
+    if (droppedSequencesMap == null) {
+      droppedSequencesMap = new HashMap<>();
+    }
+
+    currentTx.setCustomData(DROPPED_FUNCTIONS_MAP, droppedSequencesMap);
+    droppedSequencesMap.put(functionEntity.getIdentity(),
+        functionEntity.getProperty("name"));
+  }
+
+
+  public void onFunctionDropped(@Nonnull DatabaseSessionInternal session, @Nonnull RID rid) {
+    var currentTx = (FrontendTransactionOptimistic) session.getTransaction();
+
+    @SuppressWarnings("unchecked")
+    var droppedSequencesMap = (HashMap<RID, String>) currentTx.getCustomData(DROPPED_FUNCTIONS_MAP);
+    var functionName = droppedSequencesMap.get(rid);
+
+    functions.remove(functionName);
     onFunctionsChanged(session);
   }
 

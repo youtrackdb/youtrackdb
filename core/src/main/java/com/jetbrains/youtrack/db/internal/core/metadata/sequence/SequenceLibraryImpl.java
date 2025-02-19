@@ -20,12 +20,15 @@
 
 package com.jetbrains.youtrack.db.internal.core.metadata.sequence;
 
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.DBSequence.SEQUENCE_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionOptimistic;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SequenceLibraryImpl {
 
+  public static final String DROPPED_SEQUENCES_MAP = "droppedSequencesMap";
   private final Map<String, DBSequence> sequences = new ConcurrentHashMap<String, DBSequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 
@@ -145,16 +149,38 @@ public class SequenceLibraryImpl {
     onSequenceLibraryUpdate(session);
   }
 
+  public static void onAfterSequenceDropped(FrontendTransactionOptimistic currentTx,
+      EntityImpl sequenceEntity) {
+
+    @SuppressWarnings("unchecked")
+    var droppedSequencesMap = (HashMap<RID, String>) currentTx.getCustomData(DROPPED_SEQUENCES_MAP);
+    if (droppedSequencesMap == null) {
+      droppedSequencesMap = new HashMap<>();
+    }
+
+    currentTx.setCustomData(DROPPED_SEQUENCES_MAP, droppedSequencesMap);
+    droppedSequencesMap.put(sequenceEntity.getIdentity(),
+        DBSequence.getSequenceName(sequenceEntity));
+  }
+
+
   public void onSequenceDropped(
-      final DatabaseSessionInternal session, final EntityImpl entity) {
-    var name = DBSequence.getSequenceName(entity);
-    if (name == null) {
+      final DatabaseSessionInternal session, final RID rid) {
+    var currentTx = (FrontendTransactionOptimistic) session.getTransaction();
+    @SuppressWarnings("unchecked")
+    var droppedSequencesMap = (HashMap<RID, String>) currentTx.getCustomData(DROPPED_SEQUENCES_MAP);
+    String sequenceName = null;
+
+    if (droppedSequencesMap != null) {
+      sequenceName = droppedSequencesMap.get(rid);
+    }
+
+    if (sequenceName == null) {
       onSequenceLibraryUpdate(session);
       return;
     }
 
-    name = name.toUpperCase(Locale.ENGLISH);
-
+    var name = sequenceName.toUpperCase(Locale.ENGLISH);
     sequences.remove(name);
     onSequenceLibraryUpdate(session);
   }

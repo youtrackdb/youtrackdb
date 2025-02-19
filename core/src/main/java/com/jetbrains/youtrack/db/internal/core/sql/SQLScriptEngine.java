@@ -20,11 +20,12 @@
 
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.ScriptDatabaseWrapper;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
@@ -74,9 +75,9 @@ public class SQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(String script, Bindings n) throws ScriptException {
-    DatabaseSession session = null;
+    ScriptDatabaseWrapper session = null;
     if (n != null) {
-      session = (DatabaseSession) n.get("db");
+      session = (ScriptDatabaseWrapper) n.get("db");
     }
 
     if (session == null) {
@@ -90,8 +91,8 @@ public class SQLScriptEngine implements ScriptEngine {
       queryResult = session.execute("sql", script, (Map) params);
     }
     try (var res = queryResult) {
-      LegacyResultSet finalResult = new BasicLegacyResultSet();
-      res.stream().forEach(x -> finalResult.add(x));
+      LegacyResultSet<Result> finalResult = new BasicLegacyResultSet<>();
+      res.stream().forEach(finalResult::add);
       return finalResult;
     }
   }

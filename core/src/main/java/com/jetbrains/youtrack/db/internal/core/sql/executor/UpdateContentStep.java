@@ -6,10 +6,10 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
@@ -84,8 +84,13 @@ public class UpdateContentStep extends AbstractExecutionStep {
       }
     }
 
+    SchemaImmutableClass result = null;
+    final EntityImpl entity1 = record.getRecord(session);
+    if (entity1 != null) {
+      result = entity1.getImmutableSchemaClass(session);
+    }
     SchemaClass recordClass =
-        EntityInternalUtils.getImmutableSchemaClass(session, record.getRecord(session));
+        result;
     if (recordClass != null && recordClass.isSubClassOf(session, "V")) {
       for (var fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {

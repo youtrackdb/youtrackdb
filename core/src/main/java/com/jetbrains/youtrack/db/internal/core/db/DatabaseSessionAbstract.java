@@ -1053,7 +1053,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     if (rid.getClusterId() <= RID.CLUSTER_ID_INVALID
         && getStorageInfo().isAssigningClusterIds()) {
       if (record instanceof EntityImpl) {
-        schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, ((EntityImpl) record));
+        SchemaImmutableClass result = null;
+        if (record != null) {
+          result = ((EntityImpl) record).getImmutableSchemaClass(this);
+        }
+        schemaClass = result;
         if (schemaClass != null) {
           if (schemaClass.isAbstract(this)) {
             throw new SchemaException(getDatabaseName(),
@@ -1083,7 +1087,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
       }
     } else {
       if (record instanceof EntityImpl) {
-        schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, ((EntityImpl) record));
+        SchemaImmutableClass result = null;
+        if (record != null) {
+          result = ((EntityImpl) record).getImmutableSchemaClass(this);
+        }
+        schemaClass = result;
       }
     }
     // If the cluster id was set check is validity
