@@ -123,6 +123,9 @@ public class EntityImpl extends RecordAbstract
   private String className;
   private SchemaImmutableClass immutableClazz;
 
+  @Nullable
+  private ArrayList<RidBag> ridBagsToDelete;
+
   private int immutableSchemaVersion = 1;
   PropertyAccess propertyAccess;
   PropertyEncryption propertyEncryption;
@@ -1778,19 +1781,14 @@ public class EntityImpl extends RecordAbstract
    */
   @Deprecated
   public void fromString(final String iValue) {
-    incrementLoading();
-    try {
-      dirty = 1;
-      contentChanged = true;
-      source = iValue.getBytes(StandardCharsets.UTF_8);
+    dirty = 1;
+    contentChanged = true;
+    source = iValue.getBytes(StandardCharsets.UTF_8);
 
-      removeAllCollectionChangeListeners();
+    removeAllCollectionChangeListeners();
 
-      fields = null;
-      fieldSize = 0;
-    } finally {
-      decrementLoading();
-    }
+    fields = null;
+    fieldSize = 0;
   }
 
   /**
@@ -2976,9 +2974,33 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   public void delete() {
-    super.delete();
+    checkForBinding();
+    checkForFields();
+
+    ridBagsToDelete = new ArrayList<>();
+
+    for (var entry : fields.entrySet()) {
+      var value = entry.getValue();
+      if (value.original == null && value.value instanceof RidBag) {
+        ridBagsToDelete.add((RidBag) value.value);
+      } else if (value.original instanceof RidBag ridBag) {
+        ridBagsToDelete.add(ridBag);
+      }
+    }
+
+    try {
+      super.delete();
+    } catch (Exception e) {
+      ridBagsToDelete = null;
+      throw e;
+    }
 
     internalReset();
+  }
+
+  @Nullable
+  public ArrayList<RidBag> getRidBagsToDelete() {
+    return ridBagsToDelete;
   }
 
   /**
@@ -4173,6 +4195,7 @@ public class EntityImpl extends RecordAbstract
     if (fields != null) {
       fields.clear();
     }
+
     fieldSize = 0;
   }
 

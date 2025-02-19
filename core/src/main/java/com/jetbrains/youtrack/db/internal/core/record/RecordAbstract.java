@@ -62,7 +62,6 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   protected boolean contentChanged = true;
   protected STATUS status = STATUS.LOADED;
 
-  private long loadingCounter;
   protected DatabaseSessionInternal session;
 
   public RecordAbstract(DatabaseSessionInternal db) {
@@ -474,9 +473,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public abstract byte getRecordType();
 
   public void checkForBinding() {
-    assert loadingCounter >= 0;
-
-    if (loadingCounter > 0 || status == STATUS.UNMARSHALLING) {
+    if (status == STATUS.UNMARSHALLING) {
       return;
     }
 
@@ -503,16 +500,6 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
         + " by calling : "
         + DatabaseSession.class.getSimpleName()
         + ".bindToSession(record) before using it.";
-  }
-
-  public void incrementLoading() {
-    assert loadingCounter >= 0;
-    loadingCounter++;
-  }
-
-  public void decrementLoading() {
-    loadingCounter--;
-    assert loadingCounter >= 0;
   }
 
   protected boolean isContentChanged() {

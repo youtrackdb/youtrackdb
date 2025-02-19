@@ -5169,12 +5169,7 @@ public abstract class AbstractPaginatedStorage
         }
         case RecordOperation.DELETED: {
           if (rec instanceof EntityImpl entity) {
-            entity.incrementLoading();
-            try {
-              RidBagDeleter.deleteAllRidBags(entity);
-            } finally {
-              entity.decrementLoading();
-            }
+            RidBagDeleter.deleteAllRidBags(entity);
           }
           doDeleteRecord(atomicOperation, rid, rec.getVersionNoLoad(), cluster);
           break;

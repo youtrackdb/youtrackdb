@@ -65,16 +65,11 @@ public class FrontendTransactionOptimisticClient extends FrontendTransactionOpti
       }
       if (operation.getType() == RecordOperation.UPDATED
           && operation.getRecordType() == EntityImpl.RECORD_TYPE) {
-        record.incrementLoading();
-        try {
-          // keep rid instance to support links consistency
-          record.fromStream(operation.getOriginal());
-          var deltaSerializer = DocumentSerializerDelta.instance();
-          deltaSerializer.deserializeDelta(db, operation.getRecord(),
-              (EntityImpl) record);
-        } finally {
-          record.decrementLoading();
-        }
+        // keep rid instance to support links consistency
+        record.fromStream(operation.getOriginal());
+        var deltaSerializer = DocumentSerializerDelta.instance();
+        deltaSerializer.deserializeDelta(db, operation.getRecord(),
+            (EntityImpl) record);
       } else {
         record.fromStream(operation.getRecord());
       }

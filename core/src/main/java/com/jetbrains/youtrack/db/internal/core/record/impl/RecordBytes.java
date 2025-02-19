@@ -93,33 +93,28 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   /**
    * Reads the input stream in memory. This is less efficient than
-   * {@link Blob#fromInputStream(InputStream, int)} because allocation is made multiple times. If you
-   * already know the input size use {@link Blob#fromInputStream(InputStream, int)}.
+   * {@link Blob#fromInputStream(InputStream, int)} because allocation is made multiple times. If
+   * you already know the input size use {@link Blob#fromInputStream(InputStream, int)}.
    *
    * @param in Input Stream, use buffered input stream wrapper to speed up reading
    * @return Buffer read from the stream. It's also the internal buffer size in bytes
    */
   public int fromInputStream(final @Nonnull InputStream in) throws IOException {
-    incrementLoading();
-    try {
-      try (var out = new MemoryStream()) {
-        final var buffer = new byte[MemoryStream.DEF_SIZE];
-        int readBytesCount;
-        while (true) {
-          readBytesCount = in.read(buffer, 0, buffer.length);
-          if (readBytesCount == -1) {
-            break;
-          }
-          out.write(buffer, 0, readBytesCount);
+    try (var out = new MemoryStream()) {
+      final var buffer = new byte[MemoryStream.DEF_SIZE];
+      int readBytesCount;
+      while (true) {
+        readBytesCount = in.read(buffer, 0, buffer.length);
+        if (readBytesCount == -1) {
+          break;
         }
-        out.flush();
-        source = out.toByteArray();
+        out.write(buffer, 0, readBytesCount);
       }
-      size = source.length;
-      return size;
-    } finally {
-      decrementLoading();
+      out.flush();
+      source = out.toByteArray();
     }
+    size = source.length;
+    return size;
   }
 
   /**
@@ -133,33 +128,30 @@ public class RecordBytes extends RecordAbstract implements Blob {
    * @throws IOException if an I/O error occurs.
    */
   public int fromInputStream(final @Nonnull InputStream in, final int maxSize) throws IOException {
-    incrementLoading();
-    try {
-      final var buffer = new byte[maxSize];
-      var totalBytesCount = 0;
-      int readBytesCount;
-      while (totalBytesCount < maxSize) {
-        readBytesCount = in.read(buffer, totalBytesCount, buffer.length - totalBytesCount);
-        if (readBytesCount == -1) {
-          break;
-        }
-        totalBytesCount += readBytesCount;
-      }
 
-      if (totalBytesCount == 0) {
-        source = EMPTY_SOURCE;
-        size = 0;
-      } else if (totalBytesCount == maxSize) {
-        source = buffer;
-        size = maxSize;
-      } else {
-        source = Arrays.copyOf(buffer, totalBytesCount);
-        size = totalBytesCount;
+    final var buffer = new byte[maxSize];
+    var totalBytesCount = 0;
+    int readBytesCount;
+    while (totalBytesCount < maxSize) {
+      readBytesCount = in.read(buffer, totalBytesCount, buffer.length - totalBytesCount);
+      if (readBytesCount == -1) {
+        break;
       }
-      return size;
-    } finally {
-      decrementLoading();
+      totalBytesCount += readBytesCount;
     }
+
+    if (totalBytesCount == 0) {
+      source = EMPTY_SOURCE;
+      size = 0;
+    } else if (totalBytesCount == maxSize) {
+      source = buffer;
+      size = maxSize;
+    } else {
+      source = Arrays.copyOf(buffer, totalBytesCount);
+      size = totalBytesCount;
+    }
+
+    return size;
   }
 
   public void toOutputStream(final @Nonnull OutputStream out) throws IOException {

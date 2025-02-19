@@ -362,7 +362,7 @@ public class BTreeBasedRidBag implements RidBagDelegate {
     final RecordSerializationContext context;
 
     var tx = session.getTransaction();
-    if (!(tx instanceof FrontendTransactionOptimistic optimisticTx)) {
+    if (!(tx instanceof FrontendTransactionOptimistic)) {
       throw new DatabaseException(session.getDatabaseName(),
           "Changes are not supported outside of transactions");
     }
