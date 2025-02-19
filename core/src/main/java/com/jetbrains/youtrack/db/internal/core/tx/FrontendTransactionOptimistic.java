@@ -41,16 +41,13 @@ import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
-import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageProxy;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges.OPERATION;
@@ -505,6 +502,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           }
           txEntry = new RecordOperation(record, status);
 
+          if (status == RecordOperation.DELETED) {
+            session.beforeDeleteOperations(record, clusterName);
+          }
           recordOperations.put(rid.copy(), txEntry);
           changed = true;
         } else {
@@ -528,7 +528,6 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
                 throw new IllegalStateException(
                     "Invalid operation, record can not be updated or created as it is already deleted");
               }
-              break;
             case RecordOperation.CREATED:
               if (status == RecordOperation.DELETED) {
                 recordOperations.remove(rid);
@@ -571,16 +570,9 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
 
               if (clazz != null) {
                 ClassIndexManager.checkIndexesAfterDelete(entity, session);
-
-                if (clazz.isSequence()) {
-                  SequenceLibraryImpl.onAfterSequenceDropped(this, entity);
-                } else if (clazz.isFunction()) {
-                  FunctionLibraryImpl.onAfterFunctionDropped(this, entity);
-                } else if (clazz.isScheduler()) {
-                  SchedulerImpl.onAfterEventDropped(this, entity);
-                }
               }
             }
+            session.afterDeleteOperations(record);
           }
           break;
           default:
@@ -592,9 +584,16 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
           EntityInternalUtils.clearTrackData(((EntityImpl) record));
         }
       } catch (final Exception e) {
+        if (status == RecordOperation.DELETED) {
+          session.callbackHooks(TYPE.DELETE_FAILED, record);
+        }
         throw BaseException.wrapException(
             new DatabaseException(session,
                 "Error on execution of operation on record " + record.getIdentity()), e, session);
+      } finally {
+        if (status == RecordOperation.DELETED) {
+          session.callbackHooks(TYPE.FINALIZE_DELETION, record);
+        }
       }
     } catch (Exception e) {
       rollback(true, 0);
@@ -726,33 +725,14 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
               }
             }
           }
-        } else if (recordOperation.type == RecordOperation.DELETED) {
-          if (record.getDirtyCounter() != recordOperation.recordCallBackDirtyCounter) {
-            processRecordDeletion(recordOperation, record);
-          }
+        } else //noinspection StatementWithEmptyBody
+          if (recordOperation.type == RecordOperation.DELETED) {
+            //processed in addRecordOperation as delete can be called only once
         } else {
           throw new IllegalStateException("Invalid record operation type " + recordOperation.type);
         }
       }
     }
-  }
-
-  private void processRecordDeletion(RecordOperation recordOperation, RecordAbstract record) {
-    var clusterName = session.getClusterNameById(record.getIdentity().getClusterId());
-
-    session.beforeDeleteOperations(record, clusterName);
-    try {
-      session.afterDeleteOperations(record);
-      if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-        EntityInternalUtils.clearTrackData(((EntityImpl) record));
-      }
-    } catch (Exception e) {
-      session.callbackHooks(TYPE.DELETE_FAILED, record);
-      throw e;
-    } finally {
-      session.callbackHooks(TYPE.FINALIZE_DELETION, record);
-    }
-    recordOperation.recordCallBackDirtyCounter = record.getDirtyCounter();
   }
 
   private boolean processRecordUpdate(RecordOperation recordOperation, RecordAbstract record) {

@@ -62,6 +62,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
@@ -70,6 +71,7 @@ import com.jetbrains.youtrack.db.internal.core.query.live.YTLiveQueryMonitorEmbe
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
+import com.jetbrains.youtrack.db.internal.core.schedule.SchedulerImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
@@ -950,9 +952,11 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   public void beforeDeleteOperations(Identifiable id, String iClusterName) {
     assert assertIfNotActive();
     checkSecurity(Role.PERMISSION_DELETE, id, iClusterName);
+
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = null;
       clazz = entity.getImmutableSchemaClass(this);
+
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordBeforeDelete(entity, this);
@@ -1019,13 +1023,20 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   public void afterDeleteOperations(final Identifiable id) {
     assert assertIfNotActive();
-
     if (id instanceof EntityImpl entity) {
       SchemaImmutableClass clazz = null;
       clazz = entity.getImmutableSchemaClass(this);
       if (clazz != null) {
         if (clazz.isTriggered()) {
           ClassTrigger.onRecordAfterDelete(entity, this);
+        } else if (clazz.isSequence()) {
+          SequenceLibraryImpl.onAfterSequenceDropped((FrontendTransactionOptimistic) this.currentTx,
+              entity);
+        } else if (clazz.isFunction()) {
+          FunctionLibraryImpl.onAfterFunctionDropped((FrontendTransactionOptimistic) this.currentTx,
+              entity);
+        } else if (clazz.isScheduler()) {
+          SchedulerImpl.onAfterEventDropped((FrontendTransactionOptimistic) this.currentTx, entity);
         }
       }
     }
