@@ -124,7 +124,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
           if (element.isVertex()) {
             vertices.add(element.castToVertex());
           } else if (element.isStatefulEdge()) {
-            var edge = element.castToStateFullEdge();
+            var edge = element.castToStatefulEdge();
             vertices.add(edge.getTo());
             vertices.add(edge.getFrom());
             if (edge.getIdentity() != null) {
@@ -200,7 +200,7 @@ public class HttpGraphResponse extends HttpResponseAbstract {
         for (var edgeRid : edgeRids) {
           try {
             Entity elem = edgeRid.getRecord(session);
-            var edge = elem.asRegularEdge();
+            var edge = elem.asStatefulEdge();
 
             if (edge != null) {
               printEdge(session, json, edge);

@@ -53,7 +53,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
@@ -641,26 +640,6 @@ public class EntityImpl extends RecordAbstract
     return value;
   }
 
-  @Nonnull
-  @Override
-  public StatefulEdge castToStateFullEdge() {
-    if (this instanceof StatefulEdge edge) {
-      return edge;
-    }
-
-    SchemaClass type = this.getImmutableSchemaClass();
-    if (type == null) {
-      throw new DatabaseException("Entity is not an edge");
-    }
-    var session = getSession();
-
-    if (type.isEdgeType(session)) {
-      return new StatefulEdgeImpl(this, session);
-    }
-
-    throw new DatabaseException("Entity is not an edge");
-  }
-
   /**
    * This method similar to {@link Result#getProperty(String)} but unlike before mentioned method it
    * does not load link automatically.
@@ -730,9 +709,9 @@ public class EntityImpl extends RecordAbstract
         || propertyValue != null && propertyValue.getClass()
         .isArray()) {
       throw new DatabaseException(getSession().getDatabaseName(),
-          "Property with name " + iFieldName +
-              " is a multi-value property with class " + propertyValue.getClass().getName()
-              + " and has to be created using appropriate getOrCreateXxx methods.");
+          "Property with name `" + iFieldName +
+              "` is a multi-value property with class " + propertyValue.getClass().getName()
+              + " and has to be created using appropriate getOrCreateXxx or newXxx methods.");
     }
 
     setPropertyInternal(iFieldName, propertyValue);
@@ -1117,7 +1096,6 @@ public class EntityImpl extends RecordAbstract
         ridBag.setRecordAndField(recordId, name);
       }
     }
-
 
     if (oldType != fieldType) {
       // can be made in a better way, but "keeping type" issue should be solved before
@@ -3639,15 +3617,15 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   protected final RecordAbstract fill(
-      final RID iRid, final int iVersion, final byte[] iBuffer, final boolean iDirty) {
+      final @Nonnull RID rid, final int version, final byte[] buffer, final boolean dirty) {
     var session = getSession();
-    if (dirty > 0) {
+    if (this.dirty > 0) {
       throw new DatabaseException(session.getDatabaseName(), "Cannot call fill() on dirty records");
     }
 
     schema = null;
     fetchSchemaIfCan();
-    return super.fill(iRid, iVersion, iBuffer, iDirty);
+    return super.fill(rid, version, buffer, dirty);
   }
 
   @Override
@@ -4418,28 +4396,7 @@ public class EntityImpl extends RecordAbstract
     return identifiable;
   }
 
-  private boolean assertIfAlreadyLoaded(RID rid) {
-    var session = getSession();
 
-    var tx = session.getTransaction();
-    if (tx.isActive()) {
-      var txEntry = tx.getRecordEntry(rid);
-      if (txEntry != null) {
-        if (txEntry.type == RecordOperation.DELETED) {
-          throw new DatabaseException("Record with rid : " + rid + " is already deleted");
-        } else {
-          throw new DatabaseException("Record with rid : " + rid + " is already created");
-        }
-      }
-    }
-
-    var localCache = session.getLocalCache();
-    if (localCache.findRecord(rid) != null) {
-      throw new DatabaseException("Instance of record with rid : " + rid + " is already created");
-    }
-
-    return true;
-  }
 
   private void removeAllCollectionChangeListeners() {
     if (fields == null) {

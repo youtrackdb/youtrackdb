@@ -23,7 +23,6 @@ import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Iterator;
@@ -41,7 +40,6 @@ public interface TrackedMultiValue<K, V> {
   /**
    * Reverts all operations that were performed on collection and return original collection state.
    *
-   * @param session
    * @param changeEvents List of operations that were performed on collection.
    * @return Original collection state.
    */
@@ -82,8 +80,8 @@ public interface TrackedMultiValue<K, V> {
   static <X> void nestedEnabled(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {
       var x = iterator.next();
-      if (x instanceof TrackedMultiValue) {
-        ((TrackedMultiValue) x).enableTracking(parent);
+      if (x instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+        trackedMultiValue.enableTracking(parent);
       }
     }
   }
@@ -91,13 +89,8 @@ public interface TrackedMultiValue<K, V> {
   static <X> void nestedDisable(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {
       var x = iterator.next();
-      if (x instanceof TrackedMultiValue) {
-        ((TrackedMultiValue) x).disableTracking(parent);
-      } else if (x instanceof EntityImpl) {
-        if (((EntityImpl) x).isEmbedded()) {
-          EntityInternalUtils.clearTrackData((EntityImpl) x);
-          RecordInternal.unsetDirty((EntityImpl) x);
-        }
+      if (x instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+        trackedMultiValue.disableTracking(parent);
       }
     }
   }
@@ -105,8 +98,8 @@ public interface TrackedMultiValue<K, V> {
   static <X> void nestedTransactionClear(Iterator<X> iterator) {
     while (iterator.hasNext()) {
       var x = iterator.next();
-      if (x instanceof TrackedMultiValue) {
-        ((TrackedMultiValue) x).transactionClear();
+      if (x instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+        trackedMultiValue.transactionClear();
       } else if (x instanceof EntityImpl) {
         if (((EntityImpl) x).isEmbedded()) {
           EntityInternalUtils.clearTransactionTrackData((EntityImpl) x);

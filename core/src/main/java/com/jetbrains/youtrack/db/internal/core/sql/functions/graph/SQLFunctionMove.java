@@ -122,11 +122,11 @@ public abstract class SQLFunctionMove extends SQLFunctionConfigurableAbstract {
         if (rec.isStatefulEdge()) {
           if (iDirection == Direction.BOTH) {
             List results = new ArrayList();
-            results.add(rec.castToStateFullEdge().getVertex(Direction.OUT));
-            results.add(rec.castToStateFullEdge().getVertex(Direction.IN));
+            results.add(rec.castToStatefulEdge().getVertex(Direction.OUT));
+            results.add(rec.castToStatefulEdge().getVertex(Direction.IN));
             return results;
           }
-          return rec.castToStateFullEdge().getVertex(iDirection);
+          return rec.castToStatefulEdge().getVertex(iDirection);
         } else {
           return null;
         }

@@ -275,12 +275,12 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @Override
   public boolean isModified() {
-    return dirty;
+    return dirty || tracker.isEnabled() && tracker.isChanged();
   }
 
   @Override
   public boolean isTransactionModified() {
-    return transactionDirty;
+    return transactionDirty || tracker.isEnabled() && tracker.isTxChanged();
   }
 
   @Override

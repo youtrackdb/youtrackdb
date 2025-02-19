@@ -70,7 +70,7 @@ public interface Result {
       return null;
     }
 
-    return entity.castToStateFullEdge();
+    return entity.castToEdge();
   }
 
   /**
@@ -113,6 +113,10 @@ public interface Result {
   Entity asEntity();
 
   default boolean isVertex() {
+    if (!isEntity()) {
+      return false;
+    }
+
     var entity = asEntity();
     if (entity == null) {
       return false;
@@ -144,25 +148,31 @@ public interface Result {
   Edge asEdge();
 
   default boolean isStatefulEdge() {
+    if (!isEntity()) {
+      return false;
+    }
+
     var entity = asEntity();
     if (entity == null) {
       return false;
     }
+
     return entity.isStatefulEdge();
   }
 
   @Nonnull
-  default StatefulEdge castToStateFullEdge() {
-    return castToEntity().castToStateFullEdge();
+  default StatefulEdge castToStatefulEdge() {
+    return castToEntity().castToStatefulEdge();
   }
 
   @Nullable
-  default StatefulEdge asRegularEdge() {
+  default StatefulEdge asStatefulEdge() {
     var entity = asEntity();
     if (entity == null) {
       return null;
     }
-    return entity.asRegularEdge();
+
+    return entity.asStatefulEdge();
   }
 
   boolean isBlob();

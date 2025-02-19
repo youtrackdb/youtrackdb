@@ -123,7 +123,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
       if (next.isVertex()) {
         vertexes.add(next.castToVertex());
       } else if (next.isStatefulEdge()) {
-        edges.add(next.castToStateFullEdge());
+        edges.add(next.castToStatefulEdge());
       }
       i++;
     }

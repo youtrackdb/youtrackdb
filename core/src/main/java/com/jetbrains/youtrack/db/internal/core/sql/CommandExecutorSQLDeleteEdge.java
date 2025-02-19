@@ -385,7 +385,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
   private Edge toEdge(DatabaseSessionInternal session, Identifiable item) {
     if (item instanceof Entity) {
-      return ((Entity) item).castToStateFullEdge();
+      return ((Entity) item).castToStatefulEdge();
     } else {
       try {
         item = session.load(item.getIdentity());
@@ -395,7 +395,7 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
 
       if (item instanceof Entity) {
         final var a = item;
-        return ((Entity) item).castToStateFullEdge();
+        return ((Entity) item).castToStatefulEdge();
       }
     }
     return null;

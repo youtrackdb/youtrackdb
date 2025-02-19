@@ -215,7 +215,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
                 while (hasNext()) {
                   var nextElem = next();
                   if (nextElem != null && nextElem.isStatefulEdge()) {
-                    action.accept(nextElem.castToStateFullEdge());
+                    action.accept(nextElem.castToStatefulEdge());
                     return true;
                   }
                 }

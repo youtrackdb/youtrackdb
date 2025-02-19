@@ -347,7 +347,7 @@ public class ResultInternal implements Result {
     }
 
     if (result instanceof Entity entity) {
-      return entity.castToStateFullEdge();
+      return entity.castToStatefulEdge();
     }
 
     throw new IllegalStateException("Result is not an edge");
@@ -753,7 +753,7 @@ public class ResultInternal implements Result {
     loadIdentifiable();
 
     if (isStatefulEdge()) {
-      return castToStateFullEdge();
+      return castToStatefulEdge();
     }
 
     if (lightweightEdge != null) {
@@ -770,7 +770,7 @@ public class ResultInternal implements Result {
     loadIdentifiable();
 
     if (isStatefulEdge()) {
-      return castToStateFullEdge();
+      return castToStatefulEdge();
     }
 
     if (lightweightEdge != null) {

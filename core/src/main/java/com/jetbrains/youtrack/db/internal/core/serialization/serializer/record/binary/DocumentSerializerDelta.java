@@ -31,7 +31,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
@@ -55,7 +54,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -760,15 +758,15 @@ public class DocumentSerializerDelta {
   }
 
   private void serializeDeltaEmbeddedMap(DatabaseSessionInternal db, BytesContainer bytes,
-      TrackedMap value) {
-    MultiValueChangeTimeLine<Object, Object> timeline = value.getTransactionTimeLine();
+      TrackedMap<?> value) {
+    var timeline = value.getTransactionTimeLine();
     if (timeline != null) {
       VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
       for (var event : timeline.getMultiValueChangeEvents()) {
         switch (event.getChangeType()) {
           case ADD: {
             serializeByte(bytes, CREATED);
-            writeString(bytes, event.getKey().toString());
+            writeString(bytes, event.getKey());
             if (event.getValue() != null) {
               var type = PropertyType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
@@ -780,7 +778,7 @@ public class DocumentSerializerDelta {
           }
           case UPDATE: {
             serializeByte(bytes, REPLACED);
-            writeString(bytes, event.getKey().toString());
+            writeString(bytes, event.getKey());
             if (event.getValue() != null) {
               var type = PropertyType.getTypeByValue(event.getValue());
               writeNullableType(bytes, type);
@@ -792,7 +790,7 @@ public class DocumentSerializerDelta {
           }
           case REMOVE:
             serializeByte(bytes, REMOVED);
-            writeString(bytes, event.getKey().toString());
+            writeString(bytes, event.getKey());
             break;
         }
       }
@@ -803,21 +801,20 @@ public class DocumentSerializerDelta {
         value.values().stream()
             .filter(
                 (v) -> {
-                  return v instanceof TrackedMultiValue && ((TrackedMultiValue) v).isModified()
+                  return v instanceof TrackedMultiValue<?, ?> trackedMultiValue &&
+                      trackedMultiValue.isTransactionModified()
                       || v instanceof EntityImpl
                       && ((EntityImpl) v).isEmbedded()
                       && ((EntityImpl) v).isDirty();
                 })
             .count();
     VarIntSerializer.write(bytes, count);
-    Iterator<Map.Entry<Object, Object>> iterator = value.entrySet().iterator();
-    while (iterator.hasNext()) {
-      var singleEntry = iterator.next();
+    for (var singleEntry : value.entrySet()) {
       var singleValue = singleEntry.getValue();
-      if (singleValue instanceof TrackedMultiValue
-          && ((TrackedMultiValue) singleValue).isModified()) {
+      if (singleValue instanceof TrackedMultiValue<?, ?> trackedMultiValue
+          && trackedMultiValue.isTransactionModified()) {
         serializeByte(bytes, CHANGED);
-        writeString(bytes, singleEntry.getKey().toString());
+        writeString(bytes, singleEntry.getKey());
         var type = PropertyType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(db, bytes, singleValue, type, null);
@@ -825,7 +822,7 @@ public class DocumentSerializerDelta {
           && ((EntityImpl) singleValue).isEmbedded()
           && ((EntityImpl) singleValue).isDirty()) {
         serializeByte(bytes, CHANGED);
-        writeString(bytes, singleEntry.getKey().toString());
+        writeString(bytes, singleEntry.getKey());
         var type = PropertyType.getTypeByValue(singleValue);
         writeNullableType(bytes, type);
         serializeDeltaValue(db, bytes, singleValue, type, null);
@@ -834,8 +831,8 @@ public class DocumentSerializerDelta {
   }
 
   private void serializeDeltaEmbeddedList(DatabaseSessionInternal db, BytesContainer bytes,
-      TrackedList value) {
-    MultiValueChangeTimeLine<Integer, Object> timeline = value.getTransactionTimeLine();
+      TrackedList<?> value) {
+    var timeline = value.getTransactionTimeLine();
     if (timeline != null) {
       VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
       for (var event : timeline.getMultiValueChangeEvents()) {
@@ -877,7 +874,8 @@ public class DocumentSerializerDelta {
         value.stream()
             .filter(
                 (v) -> {
-                  return v instanceof TrackedMultiValue && ((TrackedMultiValue) v).isModified()
+                  return v instanceof TrackedMultiValue<?, ?> trackedMultiValue
+                      && trackedMultiValue.isTransactionModified()
                       || v instanceof EntityImpl
                       && ((EntityImpl) v).isEmbedded()
                       && ((EntityImpl) v).isDirty();
@@ -886,8 +884,8 @@ public class DocumentSerializerDelta {
     VarIntSerializer.write(bytes, count);
     for (var i = 0; i < value.size(); i++) {
       var singleValue = value.get(i);
-      if (singleValue instanceof TrackedMultiValue
-          && ((TrackedMultiValue) singleValue).isModified()) {
+      if (singleValue instanceof TrackedMultiValue<?, ?> trackedMultiValue
+          && trackedMultiValue.isTransactionModified()) {
         serializeByte(bytes, CHANGED);
         VarIntSerializer.write(bytes, i);
         var type = PropertyType.getTypeByValue(singleValue);
@@ -906,8 +904,8 @@ public class DocumentSerializerDelta {
   }
 
   private void serializeDeltaEmbeddedSet(DatabaseSessionInternal db, BytesContainer bytes,
-      TrackedSet value) {
-    MultiValueChangeTimeLine<Object, Object> timeline = value.getTransactionTimeLine();
+      TrackedSet<?> value) {
+    var timeline = value.getTransactionTimeLine();
     if (timeline != null) {
       VarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
       for (var event : timeline.getMultiValueChangeEvents()) {
@@ -945,18 +943,17 @@ public class DocumentSerializerDelta {
     var count =
         value.stream()
             .filter(
-                (v) -> {
-                  return v instanceof TrackedMultiValue && ((TrackedMultiValue) v).isModified()
-                      || v instanceof EntityImpl
-                      && ((EntityImpl) v).isEmbedded()
-                      && ((EntityImpl) v).isDirty();
-                })
+                (v) -> v instanceof TrackedMultiValue<?, ?> trackedMultiValue
+                    && trackedMultiValue.isTransactionModified()
+                    || v instanceof EntityImpl
+                    && ((EntityImpl) v).isEmbedded()
+                    && ((EntityImpl) v).isDirty())
             .count();
     VarIntSerializer.write(bytes, count);
     var i = 0;
     for (var singleValue : value) {
-      if (singleValue instanceof TrackedMultiValue
-          && ((TrackedMultiValue) singleValue).isModified()) {
+      if (singleValue instanceof TrackedMultiValue<?, ?> trackedMultiValue
+          && trackedMultiValue.isTransactionModified()) {
         serializeByte(bytes, CHANGED);
         VarIntSerializer.write(bytes, i);
         var type = PropertyType.getTypeByValue(singleValue);

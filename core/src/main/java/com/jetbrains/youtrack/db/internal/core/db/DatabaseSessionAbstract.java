@@ -561,7 +561,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
         VertexInternal.deleteLinks(((Entity) record).castToVertex());
       } else {
         if (((Entity) record).isStatefulEdge()) {
-          EdgeEntityImpl.deleteLinks(this, ((Entity) record).castToStateFullEdge());
+          EdgeEntityImpl.deleteLinks(this, ((Entity) record).castToStatefulEdge());
         }
       }
     }

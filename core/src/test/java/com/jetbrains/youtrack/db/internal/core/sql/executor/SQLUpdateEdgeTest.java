@@ -59,7 +59,7 @@ public class SQLUpdateEdgeTest extends DbTestBase {
     session.begin();
     var edges =
         session.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
-    var edge = edges.next().castToStateFullEdge();
+    var edge = edges.next().castToStatefulEdge();
     assertFalse(edges.hasNext());
     assertEquals("E1", edge.getSchemaClassName());
     session.commit();
@@ -102,7 +102,7 @@ public class SQLUpdateEdgeTest extends DbTestBase {
     session.begin();
     var edges =
         session.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
-    var edge = edges.next().castToStateFullEdge();
+    var edge = edges.next().castToStatefulEdge();
 
     session.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
     session.commit();

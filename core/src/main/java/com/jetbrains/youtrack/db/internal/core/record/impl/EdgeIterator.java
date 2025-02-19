@@ -33,6 +33,7 @@ import com.jetbrains.youtrack.db.internal.core.iterator.LazyWrapperIterator;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import java.util.Iterator;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -43,7 +44,8 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
   private final Vertex targetVertex;
   private final Pair<Direction, String> connection;
   private final String[] labels;
-  private final DatabaseSessionInternal db;
+  @Nonnull
+  private final DatabaseSessionInternal session;
 
   public EdgeIterator(
       final Vertex iSourceVertex,
@@ -51,8 +53,8 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       final Iterator<?> iterator,
       final Pair<Direction, String> connection,
       final String[] iLabels,
-      final int iSize, DatabaseSessionInternal db) {
-    this(iSourceVertex, null, iMultiValue, iterator, connection, iLabels, iSize, db);
+      final int iSize, @Nonnull DatabaseSessionInternal session) {
+    this(iSourceVertex, null, iMultiValue, iterator, connection, iLabels, iSize, session);
   }
 
   public EdgeIterator(
@@ -62,18 +64,18 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
       final Iterator<?> iterator,
       final Pair<Direction, String> connection,
       final String[] iLabels,
-      final int iSize, DatabaseSessionInternal db) {
+      final int iSize, @Nonnull DatabaseSessionInternal session) {
     super(iterator, iSize, iMultiValue);
     this.sourceVertex = iSourceVertex;
     this.targetVertex = iTargetVertex;
     this.connection = connection;
     this.labels = iLabels;
-    this.db = db;
+    this.session = session;
   }
 
   public Edge createGraphElement(final Object iObject) {
     if (iObject instanceof Entity && ((Entity) iObject).isStatefulEdge()) {
-      return ((Entity) iObject).castToStateFullEdge();
+      return ((Entity) iObject).castToStatefulEdge();
     }
 
     final var rec = (Identifiable) iObject;
@@ -85,7 +87,7 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
 
     final DBRecord record;
     try {
-      record = rec.getRecord(db);
+      record = rec.getRecord(session);
     } catch (RecordNotFoundException rnf) {
       // SKIP IT
       LogManager.instance().warn(this, "Record (%s) is null", rec);
@@ -110,23 +112,23 @@ public class EdgeIterator extends LazyWrapperIterator<Edge> {
     if (value.isVertex()) {
       // DIRECT VERTEX, CREATE DUMMY EDGE
       SchemaImmutableClass clazz = null;
-      if (db != null && connection.getValue() != null) {
+      if (connection.getValue() != null) {
         clazz =
             (SchemaImmutableClass)
-                db.getMetadata().getImmutableSchemaSnapshot().getClass(connection.getValue());
+                session.getMetadata().getImmutableSchemaSnapshot().getClass(connection.getValue());
       }
       if (connection.getKey() == Direction.OUT) {
         edge =
-            new EdgeImpl(db,
+            new EdgeImpl(session,
                 this.sourceVertex, value.castToVertex(), clazz);
       } else {
         edge =
-            new EdgeImpl(db,
+            new EdgeImpl(session,
                 value.castToVertex(), this.sourceVertex, clazz);
       }
     } else if (value.isStatefulEdge()) {
       // EDGE
-      edge = value.castToStateFullEdge();
+      edge = value.castToStatefulEdge();
     } else {
       throw new IllegalStateException(
           "Invalid content found while iterating edges, value '" + value + "' is not an edge");

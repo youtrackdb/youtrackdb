@@ -74,7 +74,7 @@ public final class VertexDelegate implements VertexInternal {
 
   @Override
   @Nullable
-  public StatefulEdge asRegularEdge() {
+  public StatefulEdge asStatefulEdge() {
     return null;
   }
 

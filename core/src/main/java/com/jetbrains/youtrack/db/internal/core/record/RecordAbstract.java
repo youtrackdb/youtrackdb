@@ -400,37 +400,66 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
 
 
   protected RecordAbstract fill(
-      final RID iRid, final int iVersion, final byte[] iBuffer, boolean iDirty) {
+      @Nonnull final RID rid, final int version, final byte[] buffer, boolean dirty) {
+    assert assertIfAlreadyLoaded(rid);
     var session = getSession();
 
-    if (dirty > 0) {
+    if (this.dirty > 0) {
       throw new DatabaseException(session.getDatabaseName(), "Cannot call fill() on dirty records");
     }
 
-    recordId.setClusterId(iRid.getClusterId());
-    recordId.setClusterPosition(iRid.getClusterPosition());
+    recordId.setClusterId(rid.getClusterId());
+    recordId.setClusterPosition(rid.getClusterPosition());
 
-    recordVersion = iVersion;
+    recordVersion = version;
     status = STATUS.LOADED;
-    source = iBuffer;
-    size = iBuffer != null ? iBuffer.length : 0;
+    source = buffer;
+    size = buffer != null ? buffer.length : 0;
 
     if (source != null && source.length > 0) {
-      dirty = iDirty ? 1 : 0;
-      contentChanged = iDirty;
+      this.dirty = dirty ? 1 : 0;
+      contentChanged = dirty;
     }
 
     return this;
   }
 
-  public final RecordAbstract setIdentity(final int iClusterId, final long iClusterPosition) {
-    recordId.setClusterId(iClusterId);
-    recordId.setClusterPosition(iClusterPosition);
+  protected boolean assertIfAlreadyLoaded(RID rid) {
+    var session = getSession();
+
+    var tx = session.getTransaction();
+    if (tx.isActive()) {
+      var txEntry = tx.getRecordEntry(rid);
+      if (txEntry != null) {
+        if (txEntry.record != this) {
+          throw new DatabaseException(
+              "Instance of record with rid : " + rid + " is already registered in session.");
+        }
+      }
+    }
+
+    var localCache = session.getLocalCache();
+    var localRecord = localCache.findRecord(rid);
+    if (localRecord != null && localRecord != this) {
+      throw new DatabaseException(
+          "Instance of record with rid : " + rid + " is already registered in session.");
+    }
+
+    return true;
+  }
+
+  public final RecordAbstract setIdentity(final int clusterId, final long clusterPosition) {
+    assert assertIfAlreadyLoaded(new RecordId(clusterId, clusterPosition));
+
+    recordId.setClusterId(clusterId);
+    recordId.setClusterPosition(clusterPosition);
 
     return this;
   }
 
   public final RecordAbstract setIdentity(RID recordId) {
+    assert assertIfAlreadyLoaded(recordId);
+
     this.recordId.setClusterId(recordId.getClusterId());
     this.recordId.setClusterPosition(recordId.getClusterPosition());
 

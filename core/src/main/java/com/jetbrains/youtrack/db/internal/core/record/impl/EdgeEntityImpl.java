@@ -18,11 +18,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, StatefulEdge {
-
-  public EdgeEntityImpl(DatabaseSessionInternal session, String cl) {
-    super(session, cl);
-  }
-
   public EdgeEntityImpl(DatabaseSessionInternal database, RecordId rid) {
     super(database, rid);
   }
@@ -246,12 +241,8 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
 
   public static void deleteLinks(DatabaseSessionInternal db, Edge delegate) {
     var from = delegate.getFrom();
-    if (from != null) {
-      VertexInternal.removeOutgoingEdge(db, from, delegate);
-    }
+    VertexInternal.removeOutgoingEdge(db, from, delegate);
     var to = delegate.getTo();
-    if (to != null) {
-      VertexInternal.removeIncomingEdge(db, to, delegate);
-    }
+    VertexInternal.removeIncomingEdge(db, to, delegate);
   }
 }

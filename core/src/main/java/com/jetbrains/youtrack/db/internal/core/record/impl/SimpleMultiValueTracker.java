@@ -135,6 +135,15 @@ public final class SimpleMultiValueTracker<K, V> {
     return transactionTimeLine;
   }
 
+  public boolean isChanged() {
+    return timeLine != null && !timeLine.getMultiValueChangeEvents().isEmpty();
+  }
+
+  public boolean isTxChanged() {
+    return transactionTimeLine != null && !transactionTimeLine.getMultiValueChangeEvents()
+        .isEmpty();
+  }
+
   public void transactionClear() {
     transactionTimeLine = null;
   }

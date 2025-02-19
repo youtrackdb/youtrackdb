@@ -83,4 +83,12 @@ public interface StatefulEdge extends Edge, Entity {
    * @throws IllegalArgumentException if booked property name is used.
    */
   <RET> RET removeProperty(@Nonnull String name);
+
+  @Nonnull
+  @Override
+  StatefulEdge castToStatefulEdge();
+
+  @Nullable
+  @Override
+  StatefulEdge asStatefulEdge();
 }
