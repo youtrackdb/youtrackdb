@@ -93,7 +93,7 @@ public abstract class AbstractIndexDefinition implements IndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToMap(@Nonnull Map<String, Object> map) {
+  protected void serializeToMap(@Nonnull Map<String, Object> map, DatabaseSessionInternal session) {
   }
 
 

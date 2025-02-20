@@ -116,7 +116,7 @@ public interface IndexDefinition extends IndexCallback {
    * Serializes internal index state to map.
    */
   @Nonnull
-  Map<String, Object> toMap();
+  Map<String, Object> toMap(DatabaseSessionInternal session);
 
   void toJson(@Nonnull JsonGenerator jsonGenerator);
 

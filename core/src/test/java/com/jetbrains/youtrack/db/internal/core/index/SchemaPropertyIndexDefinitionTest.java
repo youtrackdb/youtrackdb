@@ -84,7 +84,7 @@ public class SchemaPropertyIndexDefinitionTest extends DbTestBase {
   public void testEmptyIndexReload() {
     propertyIndex = new PropertyIndexDefinition("tesClass", "fOne", PropertyType.INTEGER);
 
-    final var map = propertyIndex.toMap();
+    final var map = propertyIndex.toMap(session);
     final var result = new PropertyIndexDefinition();
     result.fromMap(map);
 
@@ -93,7 +93,7 @@ public class SchemaPropertyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testIndexReload() {
-    final var map = propertyIndex.toMap();
+    final var map = propertyIndex.toMap(session);
 
     final var result = new PropertyIndexDefinition();
     result.fromMap(map);

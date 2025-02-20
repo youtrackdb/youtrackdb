@@ -138,7 +138,7 @@ public class SimpleKeyIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testReload() {
-    final var map = simpleKeyIndexDefinition.toMap();
+    final var map = simpleKeyIndexDefinition.toMap(session);
     final var loadedKeyIndexDefinition = new SimpleKeyIndexDefinition();
 
     loadedKeyIndexDefinition.fromMap(map);

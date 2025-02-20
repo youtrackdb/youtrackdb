@@ -709,16 +709,16 @@ public abstract class IndexAbstract implements IndexInternal {
     map.put(INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
-      final var indexDefEntity = im.getIndexDefinition().toMap();
+      final var indexDefEntity = im.getIndexDefinition().toMap(session);
       map.put(INDEX_DEFINITION, indexDefEntity);
       map.put(INDEX_DEFINITION_CLASS, im.getIndexDefinition().getClass().getName());
     }
 
-    map.put(CONFIG_CLUSTERS, clustersToIndex);
+    map.put(CONFIG_CLUSTERS, session.newEmbeddedSet(clustersToIndex));
     map.put(ALGORITHM, im.getAlgorithm());
 
     if (im.getMetadata() != null) {
-      map.put(METADATA, im.getMetadata());
+      map.put(METADATA, session.newEmbeddedMap(im.getMetadata()));
     }
 
     return map;

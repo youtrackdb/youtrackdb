@@ -126,8 +126,8 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
   }
 
   @Override
-  protected void serializeToMap(@Nonnull Map<String, Object> map) {
-    super.serializeToMap(map);
+  protected void serializeToMap(@Nonnull Map<String, Object> map, DatabaseSessionInternal session) {
+    super.serializeToMap(map, session);
     map.put("mapIndexBy", indexBy.toString());
   }
 

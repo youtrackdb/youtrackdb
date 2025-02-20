@@ -2425,6 +2425,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
+  public <T> List<T> newEmbeddedList(List<T> list) {
+    var trackedList = new TrackedList<T>(list.size());
+    trackedList.addAll(list);
+    return trackedList;
+  }
+
+  @Override
   public List<Identifiable> newLinkList() {
     return new LinkList();
   }
@@ -2445,6 +2452,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   @Override
+  public <T> Set<T> newEmbeddedSet(Set<T> set) {
+    var trackedSet = new TrackedSet<T>(set.size());
+    trackedSet.addAll(set);
+    return trackedSet;
+  }
+
+  @Override
   public Set<Identifiable> newLinkSet() {
     return new LinkSet();
   }
@@ -2462,6 +2476,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   @Override
   public <V> Map<String, V> newEmbeddedMap(int size) {
     return new TrackedMap<>(size);
+  }
+
+  @Override
+  public <V> Map<String, V> newEmbeddedMap(Map<String, V> map) {
+    var trackedMap = new TrackedMap<V>(map.size());
+    trackedMap.putAll(map);
+    return trackedMap;
   }
 
   @Override

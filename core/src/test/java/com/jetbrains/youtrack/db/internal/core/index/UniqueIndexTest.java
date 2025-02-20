@@ -171,12 +171,9 @@ public class UniqueIndexTest extends DbTestBase {
     reOpen("admin", "adminpwd");
 
     session.begin();
-    EntityImpl joneJane = session.load(rid);
+    var joneJane = session.loadEntity(rid);
 
-    joneJane.field("MailAddress", "john@doe.com");
-    joneJane.field("@version", -1);
-
-    joneJane.save();
+    joneJane.setProperty("MailAddress", "john@doe.com");
     session.commit();
 
     reOpen("admin", "adminpwd");

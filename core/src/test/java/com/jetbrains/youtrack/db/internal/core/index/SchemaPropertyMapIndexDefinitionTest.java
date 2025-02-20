@@ -218,7 +218,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
         new PropertyMapIndexDefinition(
             "tesClass", "fOne", PropertyType.STRING, PropertyMapIndexDefinition.INDEX_BY.KEY);
 
-    final var map = propertyIndexByKey.toMap();
+    final var map = propertyIndexByKey.toMap(session);
     final PropertyIndexDefinition result = new PropertyMapIndexDefinition();
     result.fromMap(map);
     Assert.assertEquals(result, propertyIndexByKey);
@@ -230,7 +230,7 @@ public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
         new PropertyMapIndexDefinition(
             "tesClass", "fOne", PropertyType.INTEGER, PropertyMapIndexDefinition.INDEX_BY.VALUE);
 
-    final var map = propertyIndexByValue.toMap();
+    final var map = propertyIndexByValue.toMap(session);
     final PropertyIndexDefinition result = new PropertyMapIndexDefinition();
     result.fromMap(map);
 

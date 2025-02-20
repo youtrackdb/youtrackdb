@@ -1038,6 +1038,8 @@ public interface DatabaseSession extends AutoCloseable {
 
   <T> List<T> newEmbeddedList(int size);
 
+  <T> List<T> newEmbeddedList(List<T> list);
+
   List<Identifiable> newLinkList();
 
   List<Identifiable> newLinkList(int size);
@@ -1046,6 +1048,8 @@ public interface DatabaseSession extends AutoCloseable {
 
   <T> Set<T> newEmbeddedSet(int size);
 
+  <T> Set<T> newEmbeddedSet(Set<T> set);
+
   Set<Identifiable> newLinkSet();
 
   Set<Identifiable> newLinkSet(int size);
@@ -1053,6 +1057,8 @@ public interface DatabaseSession extends AutoCloseable {
   <V> Map<String, V> newEmbeddedMap();
 
   <V> Map<String, V> newEmbeddedMap(int size);
+
+  <V> Map<String, V> newEmbeddedMap(Map<String, V> map);
 
   Map<String, Identifiable> newLinkMap();
 

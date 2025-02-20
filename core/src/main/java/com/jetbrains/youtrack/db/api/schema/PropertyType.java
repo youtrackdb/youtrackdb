@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -328,14 +329,25 @@ public enum PropertyType {
   }
 
   public static boolean checkLinkCollection(Collection<?> toCheck) {
-    if (toCheck.isEmpty()) {
-      return true;
+    if (toCheck == null) {
+      return false;
     }
 
-    var first = toCheck.stream().findAny();
+    var first = toCheck.stream().filter(Objects::nonNull).findAny();
     return first.map(
         o -> o instanceof Identifiable identifiable && (!(identifiable instanceof Entity entity)
             || !entity.isEmbedded())).orElse(false);
+  }
+
+  public static boolean canBeLinkCollection(Collection<?> toCheck) {
+    if (toCheck == null) {
+      return true;
+    }
+
+    var first = toCheck.stream().filter(Objects::nonNull).findAny();
+    return first.map(
+        o -> o instanceof Identifiable identifiable && (!(identifiable instanceof Entity entity)
+            || !entity.isEmbedded())).orElse(true);
   }
 
   public static boolean isSimpleType(final Object iObject) {

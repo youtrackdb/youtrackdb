@@ -210,6 +210,14 @@ public class ResultInternal implements Result {
     }
 
     switch (value) {
+      case Entity entity -> {
+        if (entity.isEmbedded()) {
+          var map = entity.toMap(false);
+          return checkType(map);
+        }
+
+        return entity.getIdentity();
+      }
       case Identifiable id -> {
         var res = id.getIdentity();
 

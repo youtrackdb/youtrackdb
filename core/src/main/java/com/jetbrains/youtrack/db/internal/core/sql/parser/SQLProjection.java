@@ -120,7 +120,7 @@ public class SQLProjection extends SimpleNode {
     }
   }
 
-  public Result calculateSingle(CommandContext iContext, Result iRecord) {
+  public Result calculateSingle(CommandContext iContext, Result inResult) {
     initExcludes();
     if (isExpand()) {
       throw new IllegalStateException(
@@ -129,7 +129,7 @@ public class SQLProjection extends SimpleNode {
 
     if (items.isEmpty()
         || (items.size() == 1 && items.get(0).isAll()) && items.get(0).nestedProjection == null) {
-      return iRecord;
+      return inResult;
     }
 
     var session = iContext.getDatabaseSession();
@@ -139,21 +139,21 @@ public class SQLProjection extends SimpleNode {
         continue;
       }
       if (item.isAll()) {
-        if (iRecord.isEntity()) {
-          ((EntityImpl) iRecord.castToEntity()).deserializeFields();
+        if (inResult.isEntity()) {
+          ((EntityImpl) inResult.castToEntity()).deserializeFields();
         }
-        for (var alias : iRecord.getPropertyNames()) {
+        for (var alias : inResult.getPropertyNames()) {
           if (this.excludes.contains(alias)) {
             continue;
           }
-          var val = SQLProjectionItem.convert(iRecord.getProperty(alias), iContext);
+          var val = SQLProjectionItem.convert(inResult.getProperty(alias), iContext);
           if (item.nestedProjection != null) {
             val = item.nestedProjection.apply(item.expression, val, iContext);
           }
           result.setProperty(alias, val);
         }
-        if (iRecord.isEntity()) {
-          var x = (EntityInternal) iRecord.castToEntity();
+        if (inResult.isEntity()) {
+          var x = (EntityInternal) inResult.castToEntity();
           if (!this.excludes.contains("@rid")) {
             result.setProperty("@rid", x.getIdentity());
           }
@@ -168,14 +168,15 @@ public class SQLProjection extends SimpleNode {
           }
         }
       } else {
-        result.setProperty(item.getProjectionAliasAsString(), item.execute(iRecord, iContext));
+        result.setProperty(item.getProjectionAliasAsString(), item.execute(inResult, iContext));
       }
     }
 
-    var resultInternal = (ResultInternal) iRecord;
-    for (var key : resultInternal.getMetadataKeys()) {
-      if (!result.getMetadataKeys().contains(key)) {
-        result.setMetadata(key, resultInternal.getMetadata(key));
+    if (inResult instanceof ResultInternal resultInternal) {
+      for (var key : resultInternal.getMetadataKeys()) {
+        if (!result.getMetadataKeys().contains(key)) {
+          result.setMetadata(key, resultInternal.getMetadata(key));
+        }
       }
     }
 

@@ -703,7 +703,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     emptyCompositeIndex.addIndex(
         new PropertyIndexDefinition("testClass", "fTwo", PropertyType.STRING));
 
-    final var map = emptyCompositeIndex.toMap();
+    final var map = emptyCompositeIndex.toMap(session);
     final var result = new CompositeIndexDefinition();
 
     result.fromMap(map);
@@ -713,7 +713,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
   @Test
   public void testIndexReload() {
-    final var map = compositeIndex.toMap();
+    final var map = compositeIndex.toMap(session);
 
     final var result = new CompositeIndexDefinition();
     result.fromMap(map);
@@ -741,7 +741,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
 
     Assert.assertEquals(emptyCompositeIndex, emptyCompositeIndexTwo);
 
-    final var map = emptyCompositeIndex.toMap();
+    final var map = emptyCompositeIndex.toMap(session);
     final var result = new CompositeIndexDefinition();
     result.fromMap(map);
 

@@ -126,9 +126,9 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
 
   @Nonnull
   @Override
-  public Map<String, Object> toMap() {
+  public Map<String, Object> toMap(DatabaseSessionInternal session) {
     var map = new HashMap<String, Object>();
-    serializeToMap(map);
+    serializeToMap(map, session);
     return map;
   }
 
@@ -163,7 +163,7 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
   }
 
   @Override
-  protected void serializeToMap(@Nonnull Map<String, Object> map) {
+  protected void serializeToMap(@Nonnull Map<String, Object> map, DatabaseSessionInternal session) {
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
     for (final var keyType : keyTypes) {

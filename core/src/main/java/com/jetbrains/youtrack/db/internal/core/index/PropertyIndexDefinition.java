@@ -28,7 +28,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -162,9 +161,9 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
 
   @Nonnull
   @Override
-  public Map<String, Object> toMap() {
-    var result = new HashMap<String, Object>();
-    serializeToMap(result);
+  public Map<String, Object> toMap(DatabaseSessionInternal session) {
+    var result = session.newEmbeddedMap();
+    serializeToMap(result, session);
     return result;
   }
 
@@ -191,8 +190,8 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
     }
   }
 
-  protected void serializeToMap(@Nonnull Map<String, Object> map) {
-    super.serializeToMap(map);
+  protected void serializeToMap(@Nonnull Map<String, Object> map, DatabaseSessionInternal session) {
+    super.serializeToMap(map, session);
 
     map.put("className", className);
     map.put("field", field);

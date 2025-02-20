@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -429,9 +428,9 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
   @Nonnull
   @Override
-  public Map<String, Object> toMap() {
-    var result = new HashMap<String, Object>();
-    serializeToMap(result);
+  public Map<String, Object> toMap(DatabaseSessionInternal session) {
+    var result = session.newEmbeddedMap();
+    serializeToMap(result, session);
     return result;
   }
 
@@ -463,15 +462,15 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
 
   @Override
-  protected void serializeToMap(@Nonnull Map<String, Object> map) {
-    super.serializeToMap(map);
+  protected void serializeToMap(@Nonnull Map<String, Object> map, DatabaseSessionInternal session) {
+    super.serializeToMap(map, session);
 
-    final List<Map<String, Object>> inds = new ArrayList<>(indexDefinitions.size());
-    final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
+    final List<Map<String, Object>> inds = session.newEmbeddedList(indexDefinitions.size());
+    final List<String> indClasses = session.newEmbeddedList(indexDefinitions.size());
 
     map.put("className", className);
     for (final var indexDefinition : indexDefinitions) {
-      final var indexEntity = indexDefinition.toMap();
+      final var indexEntity = indexDefinition.toMap(session);
       inds.add(indexEntity);
 
       indClasses.add(indexDefinition.getClass().getName());

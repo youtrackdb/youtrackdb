@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface Result {
+
   /**
    * returns a property from the result
    *
@@ -226,7 +227,7 @@ public interface Result {
       return null;
     }
 
-    if (value instanceof List<?> list && PropertyType.checkLinkCollection(list)) {
+    if (value instanceof List<?> list && PropertyType.canBeLinkCollection(list)) {
       //noinspection unchecked
       return (List<Identifiable>) list;
     }
@@ -266,7 +267,7 @@ public interface Result {
       return null;
     }
 
-    if (value instanceof Set<?> set && PropertyType.checkLinkCollection(set)) {
+    if (value instanceof Set<?> set && PropertyType.canBeLinkCollection(set)) {
       //noinspection unchecked
       return (Set<Identifiable>) set;
     }
@@ -305,7 +306,7 @@ public interface Result {
       return null;
     }
 
-    if (value instanceof Map<?, ?> map && PropertyType.checkLinkCollection(map.values())) {
+    if (value instanceof Map<?, ?> map && PropertyType.canBeLinkCollection(map.values())) {
       //noinspection unchecked
       return (Map<String, Identifiable>) map;
     }

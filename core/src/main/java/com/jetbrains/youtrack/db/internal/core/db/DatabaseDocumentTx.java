@@ -1129,6 +1129,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public <T> List<T> newEmbeddedList(List<T> list) {
+    checkOpenness();
+    return internal.newEmbeddedList(list);
+  }
+
+  @Override
   public List<Identifiable> newLinkList() {
     checkOpenness();
     return internal.newLinkList();
@@ -1153,6 +1159,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public <T> Set<T> newEmbeddedSet(Set<T> set) {
+    checkOpenness();
+    return internal.newEmbeddedSet(set);
+  }
+
+  @Override
   public Set<Identifiable> newLinkSet() {
     checkOpenness();
     return internal.newLinkSet();
@@ -1174,6 +1186,12 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   public <V> Map<String, V> newEmbeddedMap(int size) {
     checkOpenness();
     return internal.newEmbeddedMap(size);
+  }
+
+  @Override
+  public <V> Map<String, V> newEmbeddedMap(Map<String, V> map) {
+    checkOpenness();
+    return internal.newEmbeddedMap(map);
   }
 
   @Override

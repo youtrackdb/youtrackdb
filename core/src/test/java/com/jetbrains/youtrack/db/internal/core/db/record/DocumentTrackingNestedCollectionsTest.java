@@ -8,7 +8,6 @@ import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     var entity = (EntityImpl) session.newEntity();
     var objects = entity.<Set<Object>>newEmbeddedSet("objects");
 
-    Set<Object> subObjects = new HashSet<>();
+    var subObjects = session.newEmbeddedSet();
     objects.add(subObjects);
 
     session.commit();
@@ -122,7 +121,7 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
     var entity = (EntityImpl) session.newEntity();
     var objects = entity.<Map<String, Object>>newEmbeddedMap("objects");
 
-    Map<String, Object> subObjects = new HashMap<>();
+    var subObjects = session.newEmbeddedMap();
     objects.put("first", subObjects);
 
     var nestedDoc = session.newEmbededEntity();

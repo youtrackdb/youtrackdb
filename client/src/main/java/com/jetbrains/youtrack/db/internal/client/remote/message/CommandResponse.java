@@ -351,11 +351,7 @@ public final class CommandResponse implements BinaryResponse {
           }
         }
       }
-      if (!temporaryResults.isEmpty()) {
-        if (result instanceof BasicLegacyResultSet<?>) {
-          ((BasicLegacyResultSet<?>) result).setTemporaryRecordCache(temporaryResults);
-        }
-      }
+
     } finally {
       // TODO: this is here because we allow query in end listener.
       session.commandExecuting = false;
