@@ -11,8 +11,10 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -181,6 +183,11 @@ public class SchemaEmbedded extends SchemaShared {
       SchemaClassImpl cls = createClassInstance(className, clusterIds);
 
       classes.put(key, cls);
+      EntityImpl classEntity = cls.toStream();
+      // do we need to save or to batch
+      EntityImpl savedClassEntity = database.computeInTx(
+          () -> database.save(classEntity, MetadataDefault.CLUSTER_INTERNAL_NAME));
+      classesRefs.put(key, savedClassEntity.getIdentity());
 
       if (superClasses != null && !superClasses.isEmpty()) {
         cls.setSuperClassesInternal(database, superClasses);

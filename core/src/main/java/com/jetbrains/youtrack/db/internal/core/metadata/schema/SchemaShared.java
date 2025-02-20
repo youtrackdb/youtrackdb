@@ -71,6 +71,7 @@ public abstract class SchemaShared implements CloseableInStorage {
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   protected final Map<String, SchemaClassInternal> classes = new HashMap<>();
+  protected final Map<String, RecordId> classesRefs = new HashMap<>();
   protected final Int2ObjectOpenHashMap<SchemaClass> clustersToClasses = new Int2ObjectOpenHashMap<>();
 
   private final ClusterSelectionFactory clusterSelectionFactory = new ClusterSelectionFactory();
@@ -541,6 +542,10 @@ public abstract class SchemaShared implements CloseableInStorage {
       classes.clear();
       classes.putAll(newClasses);
 
+      Map<String, RecordId> storedClassesRefs = entity.field("classesRefs");
+      // todo maybe compare and swap the entire map, but I don't the performance impact would be crucible
+      classesRefs.clear();
+      classesRefs.putAll(storedClassesRefs);
       // REBUILD THE INHERITANCE TREE
       Collection<String> superClassNames;
       String legacySuperClassName;
@@ -621,7 +626,6 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
-
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
@@ -645,7 +649,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       EntityImpl entity = db.load(identity);
       entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
-      // This steps is needed because in classes there are duplicate due to aliases
+      // These steps are needed because in classes there are duplicate due to aliases
       Set<SchemaClassImpl> realClases = new HashSet<SchemaClassImpl>();
       for (SchemaClass c : classes.values()) {
         realClases.add(((SchemaClassImpl) c));
@@ -656,7 +660,7 @@ public abstract class SchemaShared implements CloseableInStorage {
         classesEntities.add(c.toStream());
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
-
+      entity.field("classesRefs", classesRefs, PropertyType.EMBEDDEDMAP);
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {

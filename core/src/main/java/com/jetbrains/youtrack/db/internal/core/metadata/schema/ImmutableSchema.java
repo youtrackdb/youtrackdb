@@ -51,7 +51,7 @@ public class ImmutableSchema implements SchemaInternal {
 
   private final Int2ObjectOpenHashMap<SchemaClass> clustersToClasses;
   private final Map<String, SchemaClassInternal> classes;
-  private final IntSet blogClusters;
+  private final IntSet blobClusters;
 
   public final int version;
   private final RID identity;
@@ -88,7 +88,7 @@ public class ImmutableSchema implements SchemaInternal {
       ((SchemaImmutableClass) cl).init();
     }
 
-    this.blogClusters = schemaShared.getBlobClusters();
+    this.blobClusters = schemaShared.getBlobClusters();
 
     var indexManager = database.getMetadata().getIndexManagerInternal();
     var internalIndexes = indexManager.getIndexes(database);
@@ -305,6 +305,6 @@ public class ImmutableSchema implements SchemaInternal {
 
 
   public IntSet getBlobClusters() {
-    return blogClusters;
+    return blobClusters;
   }
 }

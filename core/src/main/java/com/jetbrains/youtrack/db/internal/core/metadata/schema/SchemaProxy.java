@@ -39,10 +39,9 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 /**
- * Proxy class to use the shared SchemaShared instance. Before to delegate each operations it sets
+ * Proxy class to use the shared SchemaShared instance. Before delegating each operation it sets
  * the current database in the thread local.
  */
-@SuppressWarnings("unchecked")
 public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaInternal {
 
   public SchemaProxy(final SchemaShared iDelegate, final DatabaseSessionInternal iDatabase) {
