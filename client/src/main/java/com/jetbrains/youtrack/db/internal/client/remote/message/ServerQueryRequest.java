@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -46,7 +46,6 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   private String statement;
   private byte operationType;
   private Map<String, Object> params;
-  private byte[] paramsBytes;
   private boolean namedParams;
 
   public ServerQueryRequest(
@@ -62,10 +61,6 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     namedParams = false;
     this.serializer = serializer;
     this.operationType = operationType;
-    var parms = new EntityImpl(null);
-    parms.field("params", this.params);
-
-    paramsBytes = MessageHelper.getRecordBytes(null, parms, serializer);
   }
 
   public ServerQueryRequest(String language,
@@ -76,11 +71,7 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
-    this.params = namedParams;
-    var parms = new EntityImpl(null);
-    parms.field("params", this.params);
-
-    paramsBytes = MessageHelper.getRecordBytes(null, parms, serializer);
+    this.params = namedParams != null ? namedParams : Map.of();
     this.namedParams = true;
     this.serializer = serializer;
     this.recordsPerPage = recordsPerPage;
@@ -104,7 +95,11 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     network.writeString(null);
 
     // params
-    network.writeBytes(paramsBytes);
+    var paramsResult = new ResultInternal(databaseSession);
+    paramsResult.setProperty("params", params);
+
+    MessageHelper.writeResult(databaseSession, paramsResult, network, serializer);
+
     network.writeBoolean(namedParams);
   }
 
@@ -119,7 +114,9 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
     // THIS IS FOR POSSIBLE FUTURE FETCH PLAN
     channel.readString();
 
-    this.paramsBytes = channel.readBytes();
+    var paramsResult = MessageHelper.readResult(databaseSession, channel);
+    this.params = paramsResult.getProperty("params");
+
     this.namedParams = channel.readBoolean();
     this.serializer = serializer;
   }
@@ -149,13 +146,6 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   }
 
   public Map<String, Object> getParams() {
-    if (params == null && this.paramsBytes != null) {
-      // params
-      var paramsEntity = new EntityImpl(null);
-      paramsEntity.setTrackingChanges(false);
-      serializer.fromStream(null, this.paramsBytes, paramsEntity, null);
-      this.params = paramsEntity.field("params");
-    }
     return params;
   }
 
@@ -168,11 +158,11 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   }
 
   public Map<String, Object> getNamedParameters() {
-    return getParams();
+    return params;
   }
 
   public Object[] getPositionalParameters() {
-    var params = getParams();
+    var params = this.params;
     if (params == null) {
       return null;
     }

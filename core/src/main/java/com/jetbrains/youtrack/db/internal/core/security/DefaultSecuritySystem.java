@@ -20,7 +20,6 @@
 package com.jetbrains.youtrack.db.internal.core.security;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
@@ -35,11 +34,11 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInterna
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecuritySystemUserImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.DatabaseUserAuthenticator;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.ServerConfigAuthenticator;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.SystemUserAuthenticator;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.TemporaryGlobalUser;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -48,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Provides an implementation of OServerSecurity.
@@ -76,17 +74,17 @@ public class DefaultSecuritySystem implements SecuritySystem {
   private final Object auditingSynch = new Object();
   private AuditingService auditingService;
 
-  private EntityImpl configEntity; // Holds the
+  private Map<String, Object> configEntity; // Holds the
   // current JSON
   // configuration.
   private SecurityConfig serverConfig;
   private YouTrackDBInternal context;
 
-  private EntityImpl auditingEntity;
-  private EntityImpl serverEntity;
-  private EntityImpl authEntity;
-  private EntityImpl passwdValEntity;
-  private EntityImpl ldapImportEntity;
+  private Map<String, Object> auditingEntity;
+  private Map<String, Object> serverEntity;
+  private Map<String, Object> authEntity;
+  private Map<String, Object> passwdValEntity;
+  private Map<String, Object> ldapImportEntity;
 
   // We use a list because the order indicates priority of method.
   private volatile List<SecurityAuthenticator> authenticatorsList;
@@ -194,12 +192,12 @@ public class DefaultSecuritySystem implements SecuritySystem {
     close();
   }
 
-  private Class<?> getClass(final EntityImpl jsonConfig) {
+  private Class<?> getClass(final Map<String, Object> jsonConfig) {
     Class<?> cls = null;
 
     try {
-      if (jsonConfig.containsField("class")) {
-        final String clsName = jsonConfig.field("class");
+      if (jsonConfig.containsKey("class")) {
+        final var clsName = jsonConfig.get("class").toString();
 
         if (securityClassMap.containsKey(clsName)) {
           cls = securityClassMap.get(clsName);
@@ -311,16 +309,16 @@ public class DefaultSecuritySystem implements SecuritySystem {
       for (var sa : enabledAuthenticators) {
         var sah = sa.getAuthenticationHeader(databaseName);
 
-        if (sah != null && sah.trim().length() > 0) {
+        if (sah != null && !sah.trim().isEmpty()) {
           // If we're not the first authenticator, then append "\n".
-          if (sb.length() > 0) {
+          if (!sb.isEmpty()) {
             sb.append("\r\n");
           }
           sb.append(sah);
         }
       }
 
-      if (sb.length() > 0) {
+      if (!sb.isEmpty()) {
         header = sb.toString();
       }
     }
@@ -345,7 +343,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
       for (var sa : enabledAuthenticators) {
         if (sa.isEnabled()) {
           var currentHeaders = sa.getAuthenticationHeaders(databaseName);
-          currentHeaders.entrySet().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
+          headers.putAll(currentHeaders);
         }
       }
     }
@@ -354,31 +352,31 @@ public class DefaultSecuritySystem implements SecuritySystem {
   }
 
   // SecuritySystem (via OServerSecurity)
-  public EntityImpl getConfig() {
-    var jsonConfig = new EntityImpl(null);
+  public Map<String, Object> getConfig() {
+    var jsonConfig = new HashMap<String, Object>();
 
     try {
-      jsonConfig.field("enabled", enabled);
-      jsonConfig.field("debug", debug);
+      jsonConfig.put("enabled", enabled);
+      jsonConfig.put("debug", debug);
 
       if (serverEntity != null) {
-        jsonConfig.field("server", serverEntity, PropertyType.EMBEDDED);
+        jsonConfig.put("server", serverEntity);
       }
 
       if (authEntity != null) {
-        jsonConfig.field("authentication", authEntity, PropertyType.EMBEDDED);
+        jsonConfig.put("authentication", authEntity);
       }
 
       if (passwdValEntity != null) {
-        jsonConfig.field("passwordValidator", passwdValEntity, PropertyType.EMBEDDED);
+        jsonConfig.put("passwordValidator", passwdValEntity);
       }
 
       if (ldapImportEntity != null) {
-        jsonConfig.field("ldapImporter", ldapImportEntity, PropertyType.EMBEDDED);
+        jsonConfig.put("ldapImporter", ldapImportEntity);
       }
 
       if (auditingEntity != null) {
-        jsonConfig.field("auditing", auditingEntity, PropertyType.EMBEDDED);
+        jsonConfig.put("auditing", auditingEntity);
       }
     } catch (Exception ex) {
       LogManager.instance().error(this, "DefaultServerSecurity.getConfig() Exception: %s", ex);
@@ -390,7 +388,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
   // SecuritySystem (via OServerSecurity)
   // public EntityImpl getComponentConfig(final String name) { return getSection(name); }
 
-  public EntityImpl getComponentConfig(final String name) {
+  public Map<String, Object> getComponentConfig(final String name) {
     if (name != null) {
       if (name.equalsIgnoreCase("auditing")) {
         return auditingEntity;
@@ -545,8 +543,8 @@ public class DefaultSecuritySystem implements SecuritySystem {
   public SecurityAuthenticator getPrimaryAuthenticator() {
     if (enabled) {
       var auth = authenticatorsList;
-      if (auth.size() > 0) {
-        return auth.get(0);
+      if (!auth.isEmpty()) {
+        return auth.getFirst();
       }
     }
 
@@ -649,13 +647,13 @@ public class DefaultSecuritySystem implements SecuritySystem {
   }
 
   // SecuritySystem
-  public void reload(DatabaseSessionInternal session, final EntityImpl configEntity) {
+  public void reload(DatabaseSessionInternal session, final Map<String, Object> configEntity) {
     reload(session, null, configEntity);
   }
 
   @Override
   public void reload(DatabaseSessionInternal session, SecurityUser user,
-      EntityImpl configEntity) {
+      Map<String, Object> configEntity) {
     if (configEntity != null) {
       close();
 
@@ -679,7 +677,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
   }
 
   public void reloadComponent(DatabaseSessionInternal session, SecurityUser user,
-      final String name, final EntityImpl jsonConfig) {
+      final String name, final Map<String, Object> jsonConfig) {
     if (name == null || name.isEmpty()) {
       throw new SecuritySystemException(
           "DefaultServerSecurity.reloadComponent() name is null or empty");
@@ -715,21 +713,24 @@ public class DefaultSecuritySystem implements SecuritySystem {
         user, String.format("The %s security component has been reloaded", name));
   }
 
-  private void loadAuthenticators(DatabaseSessionInternal session, final EntityImpl authEntity) {
-    if (authEntity.containsField("authenticators")) {
+  private void loadAuthenticators(DatabaseSessionInternal session,
+      final Map<String, Object> authEntity) {
+    if (authEntity.containsKey("authenticators")) {
       List<SecurityAuthenticator> autheticators = new ArrayList<>();
-      List<EntityImpl> authMethodsList = authEntity.field("authenticators");
+      @SuppressWarnings("unchecked")
+      var authMethodsList = (List<Map<String, Object>>) authEntity.get(
+          "authenticators");
 
       for (var authMethodEntity : authMethodsList) {
         try {
-          if (authMethodEntity.containsField("name")) {
-            final String name = authMethodEntity.field("name");
+          if (authMethodEntity.containsKey("name")) {
+            final var name = authMethodEntity.get("name").toString();
 
             // defaults to enabled if "enabled" is missing
             var enabled = true;
 
-            if (authMethodEntity.containsField("enabled")) {
-              enabled = authMethodEntity.field("enabled");
+            if (authMethodEntity.containsKey("enabled")) {
+              enabled = (Boolean) authMethodEntity.get("enabled");
             }
 
             if (enabled) {
@@ -831,13 +832,14 @@ public class DefaultSecuritySystem implements SecuritySystem {
   }
 
   // Returns a section of the JSON document configuration as an EntityImpl if section is present.
-  private EntityImpl getSection(final String section) {
-    EntityImpl sectionEntity = null;
+  private Map<String, Object> getSection(final String section) {
+    Map<String, Object> sectionEntity = null;
 
     try {
       if (configEntity != null) {
-        if (configEntity.containsField(section)) {
-          sectionEntity = configEntity.field(section);
+        if (configEntity.containsKey(section)) {
+          //noinspection unchecked
+          sectionEntity = (Map<String, Object>) configEntity.get(section);
         }
       } else {
         LogManager.instance()
@@ -855,13 +857,13 @@ public class DefaultSecuritySystem implements SecuritySystem {
   }
 
   // Change the component section and save it to disk
-  private void setSection(final String section, EntityImpl sectionEntity) {
+  private void setSection(final String section, Map<String, Object> sectionEntity) {
 
     var oldSection = getSection(section);
     try {
       if (configEntity != null) {
 
-        configEntity.field(section, sectionEntity);
+        configEntity.put(section, sectionEntity);
         var configFile =
             SystemVariableResolver.resolveSystemVariables(
                 "${YOUTRACKDB_HOME}/config/security.json");
@@ -872,17 +874,17 @@ public class DefaultSecuritySystem implements SecuritySystem {
         }
 
         var f = new File(configFile);
-        IOUtils.writeFile(f, configEntity.toJSON("prettyPrint"));
+        IOUtils.writeFile(f, RecordSerializerJackson.mapToJson(configEntity));
       }
     } catch (Exception ex) {
-      configEntity.field(section, oldSection);
+      configEntity.put(section, oldSection);
       LogManager.instance().error(this, "DefaultServerSecurity.setSection(%s)", ex, section);
     }
   }
 
   // "${YOUTRACKDB_HOME}/config/security.json"
-  private EntityImpl loadConfig(final String cfgPath) {
-    EntityImpl securityEntity = null;
+  private Map<String, Object> loadConfig(final String cfgPath) {
+    Map<String, Object> securityEntity = null;
 
     try {
       if (cfgPath != null) {
@@ -892,19 +894,12 @@ public class DefaultSecuritySystem implements SecuritySystem {
         var file = new File(jsonFile);
 
         if (file.exists() && file.canRead()) {
-          FileInputStream fis = null;
 
-          try {
-            fis = new FileInputStream(file);
-
+          try (FileInputStream fis = new FileInputStream(file)) {
             final var buffer = new byte[(int) file.length()];
             fis.read(buffer);
 
-            securityEntity = new EntityImpl(null).updateFromJSON(new String(buffer), "noMap");
-          } finally {
-            if (fis != null) {
-              fis.close();
-            }
+            securityEntity = RecordSerializerJackson.mapFromJson(new String(buffer));
           }
         } else {
           if (file.exists()) {
@@ -925,12 +920,12 @@ public class DefaultSecuritySystem implements SecuritySystem {
     return securityEntity;
   }
 
-  private boolean isEnabled(final EntityImpl sectionEntity) {
+  private boolean isEnabled(final Map<String, Object> sectionEntity) {
     var enabled = true;
 
     try {
-      if (sectionEntity.containsField("enabled")) {
-        enabled = sectionEntity.field("enabled");
+      if (sectionEntity.containsKey("enabled")) {
+        enabled = (Boolean) sectionEntity.get("enabled");
       }
     } catch (Exception ex) {
       LogManager.instance().error(this, "DefaultServerSecurity.isEnabled()", ex);
@@ -944,12 +939,12 @@ public class DefaultSecuritySystem implements SecuritySystem {
       enabled = false;
 
       if (configEntity != null) {
-        if (configEntity.containsField("enabled")) {
-          enabled = configEntity.field("enabled");
+        if (configEntity.containsKey("enabled")) {
+          enabled = (Boolean) configEntity.get("enabled");
         }
 
-        if (configEntity.containsField("debug")) {
-          debug = configEntity.field("debug");
+        if (configEntity.containsKey("debug")) {
+          debug = (Boolean) configEntity.get("debug");
         }
       } else {
         LogManager.instance()
@@ -965,13 +960,13 @@ public class DefaultSecuritySystem implements SecuritySystem {
       storePasswords = true;
 
       if (serverEntity != null) {
-        if (serverEntity.containsField("createDefaultUsers")) {
+        if (serverEntity.containsKey("createDefaultUsers")) {
           GlobalConfiguration.CREATE_DEFAULT_USERS.setValue(
-              serverEntity.field("createDefaultUsers"));
+              serverEntity.get("createDefaultUsers"));
         }
 
-        if (serverEntity.containsField("storePasswords")) {
-          storePasswords = serverEntity.field("storePasswords");
+        if (serverEntity.containsKey("storePasswords")) {
+          storePasswords = (Boolean) serverEntity.get("storePasswords");
         }
       }
     } catch (Exception ex) {
@@ -981,8 +976,8 @@ public class DefaultSecuritySystem implements SecuritySystem {
 
   private void reloadAuthMethods(DatabaseSessionInternal session) {
     if (authEntity != null) {
-      if (authEntity.containsField("allowDefault")) {
-        allowDefault = authEntity.field("allowDefault");
+      if (authEntity.containsKey("allowDefault")) {
+        allowDefault = (Boolean) authEntity.get("allowDefault");
       }
 
       loadAuthenticators(session, authEntity);
@@ -1175,8 +1170,8 @@ public class DefaultSecuritySystem implements SecuritySystem {
     }
     this.authenticatorsList = Collections.unmodifiableList(authenticators);
     this.enabledAuthenticators =
-        Collections.unmodifiableList(
-            authenticators.stream().filter((x) -> x.isEnabled()).collect(Collectors.toList()));
+        authenticators.stream().filter(SecurityComponent::isEnabled)
+            .toList();
   }
 
   public synchronized List<SecurityAuthenticator> getEnabledAuthenticators() {

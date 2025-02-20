@@ -18,6 +18,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import javax.annotation.Nonnull;
+
 /**
  * Abstract Listener Interface to receive callbacks on database usage.
  */
@@ -29,19 +31,19 @@ public abstract class DatabaseLifecycleListenerAbstract implements DatabaseLifec
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal session) {
+  public void onCreate(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal session) {
+  public void onOpen(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal session) {
+  public void onClose(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal session) {
+  public void onDrop(@Nonnull DatabaseSessionInternal session) {
   }
 
 }

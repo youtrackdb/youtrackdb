@@ -18,7 +18,6 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityAuthenticator;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityComponent;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
@@ -80,7 +79,7 @@ public class LDAPImporter implements SecurityComponent {
   }
 
   // SecurityComponent
-  public void config(DatabaseSessionInternal session, final EntityImpl importDoc,
+  public void config(DatabaseSessionInternal session, final Map<String, Object> importDoc,
       SecuritySystem security) {
     try {
       context = security.getContext();
@@ -88,71 +87,73 @@ public class LDAPImporter implements SecurityComponent {
 
       databaseMap.clear();
 
-      if (importDoc.containsField("debug")) {
-        debug = importDoc.field("debug");
+      if (importDoc.containsKey("debug")) {
+        debug = (Boolean) importDoc.get("debug");
       }
 
-      if (importDoc.containsField("enabled")) {
-        enabled = importDoc.field("enabled");
+      if (importDoc.containsKey("enabled")) {
+        enabled = (Boolean) importDoc.get("enabled");
       }
 
-      if (importDoc.containsField("period")) {
-        importPeriod = importDoc.field("period");
+      if (importDoc.containsKey("period")) {
+        importPeriod = (Integer) importDoc.get("period");
 
         if (debug) {
           LogManager.instance().info(this, "Import Period = " + importPeriod);
         }
       }
 
-      if (importDoc.containsField("databases")) {
-        List<EntityImpl> list = importDoc.field("databases");
+      if (importDoc.containsKey("databases")) {
+        @SuppressWarnings("unchecked")
+        var list = (List<Map<String, Object>>) importDoc.get("databases");
 
         for (var dbDoc : list) {
-          if (dbDoc.containsField("database")) {
-            String dbName = dbDoc.field("database");
-
+          if (dbDoc.containsKey("database")) {
+            var dbName = dbDoc.get("database").toString();
             if (debug) {
               LogManager.instance().info(this, "config() database: %s", dbName);
             }
 
             var ignoreLocal = true;
 
-            if (dbDoc.containsField("ignoreLocal")) {
-              ignoreLocal = dbDoc.field("ignoreLocal");
+            if (dbDoc.containsKey("ignoreLocal")) {
+              ignoreLocal = (Boolean) dbDoc.get("ignoreLocal");
             }
 
-            if (dbDoc.containsField("domains")) {
+            if (dbDoc.containsKey("domains")) {
               final List<DatabaseDomain> dbDomainsList = new ArrayList<DatabaseDomain>();
 
-              final List<EntityImpl> dbdList = dbDoc.field("domains");
+              @SuppressWarnings("unchecked")
+              var dbdList = (List<Map<String, Object>>) dbDoc.get("domains");
 
               for (var dbDomainDoc : dbdList) {
-                String domain = null;
+                String domain;
 
                 // "domain" is mandatory.
-                if (dbDomainDoc.containsField("domain")) {
-                  domain = dbDomainDoc.field("domain");
+                if (dbDomainDoc.containsKey("domain")) {
+                  domain = dbDomainDoc.get("domain").toString();
 
                   // If authenticator is null, it defaults to LDAPImporter's primary
                   // SecurityAuthenticator.
                   String authenticator = null;
 
-                  if (dbDomainDoc.containsField("authenticator")) {
-                    authenticator = dbDomainDoc.field("authenticator");
+                  if (dbDomainDoc.containsKey("authenticator")) {
+                    authenticator = dbDomainDoc.get("authenticator").toString();
                   }
 
-                  if (dbDomainDoc.containsField("servers")) {
+                  if (dbDomainDoc.containsKey("servers")) {
                     final List<LDAPServer> ldapServerList = new ArrayList<LDAPServer>();
 
-                    final List<EntityImpl> ldapServers = dbDomainDoc.field("servers");
+                    @SuppressWarnings("unchecked") final var ldapServers = (List<Map<String, Object>>) dbDomainDoc.get(
+                        "servers");
 
                     for (var ldapServerDoc : ldapServers) {
-                      final String url = ldapServerDoc.field("url");
+                      final var url = (String) ldapServerDoc.get("url");
 
                       var isAlias = false;
 
-                      if (ldapServerDoc.containsField("isAlias")) {
-                        isAlias = ldapServerDoc.field("isAlias");
+                      if (ldapServerDoc.containsKey("isAlias")) {
+                        isAlias = (Boolean) ldapServerDoc.get("isAlias");
                       }
 
                       var server = LDAPServer.validateURL(url, isAlias);
@@ -175,16 +176,17 @@ public class LDAPImporter implements SecurityComponent {
                     //
                     final List<User> userList = new ArrayList<User>();
 
-                    final List<EntityImpl> userDocList = dbDomainDoc.field("users");
+                    @SuppressWarnings("unchecked") final var userDocList = (List<Map<String, Object>>) dbDomainDoc.get(
+                        "users");
 
                     // userDocList can be null if only the oldapUserClass is used instead
                     // security.json.
                     if (userDocList != null) {
                       for (var userDoc : userDocList) {
-                        if (userDoc.containsField("baseDN") && userDoc.containsField("filter")) {
-                          if (userDoc.containsField("roles")) {
-                            final String baseDN = userDoc.field("baseDN");
-                            final String filter = userDoc.field("filter");
+                        if (userDoc.containsKey("baseDN") && userDoc.containsKey("filter")) {
+                          if (userDoc.containsKey("roles")) {
+                            final var baseDN = userDoc.get("baseDN").toString();
+                            final var filter = userDoc.get("filter").toString();
 
                             if (debug) {
                               LogManager.instance()
@@ -196,8 +198,8 @@ public class LDAPImporter implements SecurityComponent {
                                       filter);
                             }
 
-                            final List<String> roleList = userDoc.field("roles");
-
+                            @SuppressWarnings("unchecked") final var roleList = (List<String>) userDoc.get(
+                                "roles");
                             final var User = new User(baseDN, filter, roleList);
 
                             userList.add(User);

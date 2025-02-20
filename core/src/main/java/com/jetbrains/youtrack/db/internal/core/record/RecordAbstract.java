@@ -62,20 +62,22 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   protected boolean contentChanged = true;
   protected STATUS status = STATUS.LOADED;
 
+  @Nullable
   protected DatabaseSessionInternal session;
 
-  public RecordAbstract(DatabaseSessionInternal db) {
+  public RecordAbstract(@Nonnull DatabaseSessionInternal session) {
     recordId = new ChangeableRecordId();
-    this.session = db;
+    this.session = session;
   }
 
-  public RecordAbstract(DatabaseSessionInternal db, final byte[] iSource) {
-    source = iSource;
-    size = iSource.length;
+  public RecordAbstract(@Nonnull DatabaseSessionInternal session, final byte[] source) {
+    this.source = source;
+    size = source.length;
+
     recordId = new ChangeableRecordId();
 
     unsetDirty();
-    session = db;
+    this.session = session;
   }
 
   public long getDirtyCounter() {

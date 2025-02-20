@@ -436,7 +436,8 @@ public class ConsoleDatabaseApp extends ConsoleApplication
 
     List<RawPair<RID, Object>> resultSet = new ArrayList<>();
 
-    final List<Map<String, Object>> connections = serverInfo.field("connections");
+    @SuppressWarnings("unchecked") final var connections = (List<Map<String, Object>>) serverInfo.get(
+        "connections");
     for (var conn : connections) {
 
       var commandDetail = new StringBuilder();

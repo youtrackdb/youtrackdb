@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security.authenticator;
 
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,13 +47,14 @@ public class DefaultPasswordAuthenticator extends SecurityAuthenticatorAbstract 
   }
 
   // SecurityComponent
-  public void config(DatabaseSessionInternal session, final EntityImpl jsonConfig,
+  public void config(DatabaseSessionInternal session, final Map<String, Object> jsonConfig,
       SecuritySystem security) {
     super.config(session, jsonConfig, security);
 
     try {
-      if (jsonConfig.containsField("users")) {
-        List<EntityImpl> usersList = jsonConfig.field("users");
+      if (jsonConfig.containsKey("users")) {
+        @SuppressWarnings("unchecked")
+        var usersList = (List<Map<String, Object>>) jsonConfig.get("users");
 
         for (var userDoc : usersList) {
 
@@ -77,13 +78,13 @@ public class DefaultPasswordAuthenticator extends SecurityAuthenticatorAbstract 
 
   // Derived implementations can override this method to provide new server user implementations.
   protected SecurityUser createServerUser(DatabaseSessionInternal session,
-      final EntityImpl userDoc) {
+      final Map<String, Object> userMap) {
     SecurityUser userCfg = null;
 
-    if (userDoc.containsField("username") && userDoc.containsField("resources")) {
-      final String user = userDoc.field("username");
-      final String resources = userDoc.field("resources");
-      String password = userDoc.field("password");
+    if (userMap.containsKey("username") && userMap.containsKey("resources")) {
+      final var user = userMap.get("username").toString();
+      final var resources = userMap.get("resources").toString();
+      var password = (String) userMap.get("password");
 
       if (password == null) {
         password = "";

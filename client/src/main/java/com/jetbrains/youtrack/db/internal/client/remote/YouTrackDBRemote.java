@@ -58,10 +58,10 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
 import java.io.IOException;
@@ -252,13 +252,10 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     remote.shutdown();
   }
 
-  public EntityImpl getServerInfo(String username, String password) {
+  public Map<String, Object> getServerInfo(String username, String password) {
     var request = new ServerInfoRequest();
     var response = connectAndSend(null, username, password, request);
-    var res = new EntityImpl(null);
-    res.updateFromJSON(response.getResult());
-
-    return res;
+    return RecordSerializerJackson.mapFromJson(response.getResult());
   }
 
   public String getGlobalConfiguration(

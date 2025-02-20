@@ -64,7 +64,7 @@ public class ResultSerializerNetwork {
   }
 
   public ResultInternal deserialize(DatabaseSessionInternal db, final BytesContainer bytes) {
-    final var entity = new ResultInternal(db);
+    final var resultInternal = new ResultInternal(db);
     String fieldName;
     PropertyType type;
     var size = VarIntSerializer.readAsInteger(bytes);
@@ -77,10 +77,10 @@ public class ResultSerializerNetwork {
       type = readOType(bytes);
 
       if (type == null) {
-        entity.setProperty(fieldName, null);
+        resultInternal.setProperty(fieldName, null);
       } else {
         final var value = deserializeValue(db, bytes, type);
-        entity.setProperty(fieldName, value);
+        resultInternal.setProperty(fieldName, value);
       }
     }
 
@@ -94,14 +94,14 @@ public class ResultSerializerNetwork {
       type = readOType(bytes);
 
       if (type == null) {
-        entity.setMetadata(fieldName, null);
+        resultInternal.setMetadata(fieldName, null);
       } else {
         final var value = deserializeValue(db, bytes, type);
-        entity.setMetadata(fieldName, value);
+        resultInternal.setMetadata(fieldName, value);
       }
     }
 
-    return entity;
+    return resultInternal;
   }
 
   public void serialize(DatabaseSessionInternal session, final Result result,
@@ -117,7 +117,8 @@ public class ResultSerializerNetwork {
           if (((Result) propertyValue).isEntity()) {
             var elem = ((Result) propertyValue).castToEntity();
             writeOType(bytes, bytes.alloc(1), PropertyType.LINK);
-            serializeValue(session, bytes, elem.getIdentity(), PropertyType.LINK);
+            serializeValue(session, bytes, session.refreshRid(elem.getIdentity()),
+                PropertyType.LINK);
           } else {
             writeOType(bytes, bytes.alloc(1), PropertyType.EMBEDDED);
             serializeValue(session, bytes, propertyValue, PropertyType.EMBEDDED);
@@ -233,16 +234,16 @@ public class ResultSerializerNetwork {
         value = readEmbeddedCollection(session, bytes, new ArrayList<>());
         break;
       case LINKSET:
-        value = readLinkCollection(bytes, new LinkedHashSet<>());
+        value = readLinkCollection(bytes, new LinkedHashSet<>(), session);
         break;
       case LINKLIST:
-        value = readLinkCollection(bytes, new ArrayList<>());
+        value = readLinkCollection(bytes, new ArrayList<>(), session);
         break;
       case BINARY:
         value = readBinary(bytes);
         break;
       case LINK:
-        value = readOptimizedLink(bytes);
+        value = readOptimizedLink(bytes, session);
         break;
       case LINKMAP:
         value = readLinkMap(session, bytes);
@@ -262,7 +263,7 @@ public class ResultSerializerNetwork {
     return value;
   }
 
-  private byte[] readBinary(BytesContainer bytes) {
+  private static byte[] readBinary(BytesContainer bytes) {
     var n = VarIntSerializer.readAsInteger(bytes);
     var newValue = new byte[n];
     System.arraycopy(bytes.bytes, bytes.offset, newValue, 0, newValue.length);
@@ -270,14 +271,14 @@ public class ResultSerializerNetwork {
     return newValue;
   }
 
-  private Map<Object, Identifiable> readLinkMap(DatabaseSessionInternal db,
+  private Map<Object, Identifiable> readLinkMap(DatabaseSessionInternal session,
       final BytesContainer bytes) {
     var size = VarIntSerializer.readAsInteger(bytes);
     Map<Object, Identifiable> result = new HashMap<>();
     while ((size--) > 0) {
       var keyType = readOType(bytes);
-      var key = deserializeValue(db, bytes, keyType);
-      var value = readOptimizedLink(bytes);
+      var key = deserializeValue(session, bytes, keyType);
+      var value = readOptimizedLink(bytes, session);
       if (value.equals(NULL_RECORD_ID)) {
         result.put(key, null);
       } else {
@@ -310,10 +311,10 @@ public class ResultSerializerNetwork {
   }
 
   private static Collection<Identifiable> readLinkCollection(
-      BytesContainer bytes, Collection<Identifiable> found) {
+      BytesContainer bytes, Collection<Identifiable> found, DatabaseSessionInternal session) {
     final var items = VarIntSerializer.readAsInteger(bytes);
     for (var i = 0; i < items; i++) {
-      var id = readOptimizedLink(bytes);
+      var id = readOptimizedLink(bytes, session);
       if (id.equals(NULL_RECORD_ID)) {
         found.add(null);
       } else {
@@ -323,9 +324,11 @@ public class ResultSerializerNetwork {
     return found;
   }
 
-  private static RecordId readOptimizedLink(final BytesContainer bytes) {
-    return new RecordId(
+  private static RID readOptimizedLink(final BytesContainer bytes,
+      DatabaseSessionInternal session) {
+    var rid = new RecordId(
         VarIntSerializer.readAsInteger(bytes), VarIntSerializer.readAsLong(bytes));
+    return session.refreshRid(rid);
   }
 
   private Collection<?> readEmbeddedCollection(

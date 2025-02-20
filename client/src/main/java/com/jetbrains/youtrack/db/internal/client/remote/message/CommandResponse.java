@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.client.remote.message;
 
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.FetchPlanResults;
 import com.jetbrains.youtrack.db.internal.client.remote.SimpleValueFetchPlanCommandListener;
@@ -37,14 +36,13 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.type.IdentityWrapper;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -264,16 +262,7 @@ public final class CommandResponse implements BinaryResponse {
         listener.linkdedBySimpleValue(db, entity);
       }
     } else {
-      channel.writeByte((byte) 'a');
-      final var value = new StringWriter(64);
-      if (listener != null) {
-        var entity = new EntityImpl(null);
-        entity.field("result", result);
-        listener.linkdedBySimpleValue(db, entity);
-      }
-      RecordSerializerStringAbstract.fieldTypeToString(db,
-          value, PropertyType.getTypeByClass(result.getClass()), result);
-      channel.writeString(value.toString());
+      throw new UnsupportedEncodingException();
     }
   }
 

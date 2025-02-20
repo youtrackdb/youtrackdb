@@ -299,6 +299,7 @@ public enum PropertyType {
     if (value == null) {
       return null;
     }
+
     var clazz = value.getClass();
     var type = TYPES_BY_CLASS.get(clazz);
     if (type != null) {
@@ -318,7 +319,6 @@ public enum PropertyType {
       if (checkLinkCollection(((Collection<?>) value))) {
         return LINKLIST;
       }
-
     } else if (EMBEDDEDMAP == byType) {
       if (checkLinkCollection(((Map<?, ?>) value).values())) {
         return LINKMAP;
@@ -327,18 +327,13 @@ public enum PropertyType {
     return byType;
   }
 
-  private static boolean checkLinkCollection(Collection<?> toCheck) {
-    var empty = true;
-    for (var object : toCheck) {
-      if (object != null
-          && (!(object instanceof Identifiable)
-          || (object instanceof EntityImpl && ((EntityImpl) object).isEmbedded()))) {
-        return false;
-      } else if (object != null) {
-        empty = false;
-      }
+  public static boolean checkLinkCollection(Collection<?> toCheck) {
+    if (toCheck.isEmpty()) {
+      return true;
     }
-    return !empty;
+
+    var first = toCheck.stream().findAny();
+    return first.map(o -> o instanceof Identifiable).orElse(false);
   }
 
   public static boolean isSimpleType(final Object iObject) {

@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.internal.common.profiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.common.util.Service;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
@@ -134,9 +133,5 @@ public interface Profiler extends Service {
 
   default boolean isEnterpriseEdition() {
     return false;
-  }
-
-  default EntityImpl getContext() {
-    return new EntityImpl(null).field("enterprise", false);
   }
 }

@@ -87,9 +87,7 @@ public class EntityFieldWalker {
     final var updateMode = fieldWalker.updateMode();
 
     SchemaImmutableClass result = null;
-    if (entity != null) {
-      result = entity.getImmutableSchemaClass(session);
-    }
+    result = entity.getImmutableSchemaClass(session);
     final SchemaClass clazz = result;
     for (var fieldName : entity.fieldNames()) {
 
@@ -105,7 +103,7 @@ public class EntityFieldWalker {
         }
       }
 
-      var fieldValue = entity.field(fieldName, fieldType);
+      var fieldValue = entity.getPropertyInternal(fieldName);
       var newValue = fieldWalker.visitField(session, fieldType, linkedType, fieldValue);
 
       boolean updated;

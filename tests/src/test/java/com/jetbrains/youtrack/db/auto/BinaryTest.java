@@ -17,7 +17,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
@@ -46,7 +45,7 @@ public class BinaryTest extends BaseDBTest {
 
     session.begin();
     doc = session.bindToSession(doc);
-    Assert.assertEquals(new String((byte[]) doc.field("binary", PropertyType.BINARY)),
+    Assert.assertEquals(new String(doc.getBinary("binary")),
         "Binary data");
     session.rollback();
   }

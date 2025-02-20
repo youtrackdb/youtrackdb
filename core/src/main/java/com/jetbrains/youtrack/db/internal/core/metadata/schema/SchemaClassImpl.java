@@ -614,7 +614,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
     properties.clear();
     properties.putAll(newProperties);
-    customFields = entity.field("customFields", PropertyType.EMBEDDEDMAP);
+    customFields = entity.getProperty("customFields");
     clusterSelection =
         owner.getClusterSelectionFactory().getStrategy(entity.field("clusterSelection"));
   }

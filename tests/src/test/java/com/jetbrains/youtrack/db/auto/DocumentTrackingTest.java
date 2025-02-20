@@ -711,7 +711,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     Assert.assertEquals(document.getDirtyProperties(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
-    final List<String> trackedList = document.field("embeddedlist", PropertyType.EMBEDDEDLIST);
+    final List<String> trackedList = document.getEmbeddedList("embeddedlist");
     trackedList.add("value2");
     session.rollback();
   }
@@ -734,7 +734,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyProperties(), new String[]{});
 
-    final Set<String> trackedSet = document.field("embeddedset", PropertyType.EMBEDDEDSET);
+    final Set<String> trackedSet = document.getEmbeddedSet("embeddedset");
     trackedSet.add("value2");
     session.rollback();
   }

@@ -6,9 +6,9 @@ import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
@@ -45,11 +45,9 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
     var serializer = new RecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
-    var parms = new EntityImpl(null);
-    parms.field("params", this.params);
-
-    var bytes = MessageHelper.getRecordBytes(databaseSession, parms, serializer);
-    network.writeBytes(bytes);
+    var paramsResult = new ResultInternal(databaseSession);
+    paramsResult.setProperty("params", this.params);
+    MessageHelper.writeResult(databaseSession, paramsResult, network, serializer);
     network.writeBoolean(namedParams);
   }
 
@@ -59,10 +57,10 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
       RecordSerializerNetwork serializer)
       throws IOException {
     this.query = channel.readString();
-    var paramsEntity = new EntityImpl(null);
-    var bytes = channel.readBytes();
-    serializer.fromStream(databaseSession, bytes, paramsEntity, null);
-    this.params = paramsEntity.field("params");
+
+    var paramsResult = MessageHelper.readResult(databaseSession, channel);
+    this.params = paramsResult.getProperty("params");
+
     this.namedParams = channel.readBoolean();
   }
 

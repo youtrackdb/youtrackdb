@@ -17,11 +17,9 @@
 
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
 import java.io.IOException;
 
@@ -57,17 +55,11 @@ public class ServerCommandIsEnterprise extends ServerCommandAuthenticatedServerA
       throws IOException {
 
     if ("isEE".equalsIgnoreCase(parts[0])) {
-
-      var context = YouTrackDBEnginesManager.instance().getProfiler().getContext();
-
-      if (context.getProperty("enterprise") == null) {
-        context.setProperty("enterprise", false);
-      }
       iResponse.send(
           HttpUtils.STATUS_OK_CODE,
           "OK",
           HttpUtils.CONTENT_JSON,
-          context.toJSON("prettyPrint"),
+          "{\"enterprise\":true}",
           null);
 
     } else {

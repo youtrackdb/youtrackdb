@@ -18,8 +18,6 @@ package com.jetbrains.youtrack.db.auto
 import com.jetbrains.youtrack.db.api.exception.CommitSerializationException
 import com.jetbrains.youtrack.db.api.record.Entity
 import com.jetbrains.youtrack.db.api.record.RID
-import com.jetbrains.youtrack.db.api.schema.PropertyType
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal
@@ -71,7 +69,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             documentTarget.fromStream(documentSource.toStream())
 
             val list =
-                documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
+                documentTarget.getEmbeddedList<String>("list")!!
             Assert.assertEquals(list[0], "string")
             Assert.assertNull(list[1])
         }
@@ -90,7 +88,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             documentTarget.fromStream(documentSource.toStream())
 
             val list =
-                documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
+                documentTarget.getEmbeddedList<Boolean>("list")!!
             Assert.assertEquals(list[0], true)
             Assert.assertEquals(list[1], false)
         }
@@ -109,7 +107,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             documentTarget.fromStream(documentSource.toStream())
 
             val list =
-                documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
+                documentTarget.getEmbeddedList<Int>("list")!!
             Assert.assertEquals(list[0], 17)
             Assert.assertEquals(list[1], 42)
         }
@@ -128,7 +126,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             documentTarget.fromStream(documentSource.toStream())
 
             val list =
-                documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
+                documentTarget.getEmbeddedList<Long>("list")!!
             Assert.assertEquals(list[0], 100000000000L)
             Assert.assertEquals(list[1], 100000000001L)
         }
@@ -147,7 +145,7 @@ class JSONTest @Parameters(value = ["remote"]) constructor(@Optional remote: Boo
             documentTarget.fromStream(documentSource.toStream())
 
             val list =
-                documentTarget.field<TrackedList<Any>>("list", PropertyType.EMBEDDEDLIST)
+                documentTarget.getEmbeddedList<Double>("list")!!
             Assert.assertEquals(list[0], 17.3)
             Assert.assertEquals(list[1], 42.7)
         }

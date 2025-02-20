@@ -94,7 +94,7 @@ public class SymmetricKeySecurity implements SecurityInternal {
 
     try {
       var userConfig = new UserSymmetricKeyConfig(
-          (EntityImpl) user.getIdentity().getEntity(session));
+          user.getIdentity().getEntity(session).toMap(false));
 
       var sk = SymmetricKey.fromConfig(userConfig);
 

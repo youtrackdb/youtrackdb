@@ -20,6 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import javax.annotation.Nonnull;
 
 /**
  * Listener Interface to receive callbacks on database usage.
@@ -37,13 +38,13 @@ public interface DatabaseLifecycleListener {
     return PRIORITY.LAST;
   }
 
-  void onCreate(DatabaseSessionInternal session);
+  void onCreate(@Nonnull DatabaseSessionInternal session);
 
-  void onOpen(DatabaseSessionInternal session);
+  void onOpen(@Nonnull DatabaseSessionInternal session);
 
-  void onClose(DatabaseSessionInternal session);
+  void onClose(@Nonnull DatabaseSessionInternal session);
 
-  void onDrop(DatabaseSessionInternal session);
+  void onDrop(@Nonnull DatabaseSessionInternal session);
 
   @Deprecated
   default void onCreateClass(DatabaseSessionInternal session, SchemaClass iClass) {

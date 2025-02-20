@@ -32,6 +32,7 @@ import com.jetbrains.youtrack.db.internal.tools.config.ServerParameterConfigurat
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * User: kasper fock Date: 09/11/12 Time: 22:35 Registers hooks defined the in xml configuration.
@@ -68,11 +69,11 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   }
 
   @Override
-  public void onCreate(final DatabaseSessionInternal session) {
+  public void onCreate(final @Nonnull DatabaseSessionInternal session) {
     onOpen(session);
   }
 
-  public void onOpen(DatabaseSessionInternal session) {
+  public void onOpen(@Nonnull DatabaseSessionInternal session) {
     if (!session.isRemote()) {
       var db = session;
       for (var hook : configuredHooks) {
@@ -122,11 +123,11 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal session) {
+  public void onClose(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal session) {
+  public void onDrop(@Nonnull DatabaseSessionInternal session) {
   }
 
   public String getName() {

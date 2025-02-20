@@ -125,7 +125,7 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
 
     RID linked;
     for (var d : resultset) {
-      linked = d.field("linked", RID.class);
+      linked = d.getLink("linked");
       if (linked != null) {
         Assert.assertNull(session.getLocalCache().findRecord(linked));
       }

@@ -25,8 +25,8 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
-import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -40,7 +40,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -65,6 +64,16 @@ public class ResultInternal implements Result {
     this.session = session;
   }
 
+  public ResultInternal(@Nullable DatabaseSessionInternal session,
+      @Nonnull Map<String, ?> data) {
+    content = new LinkedHashMap<>();
+    this.session = session;
+
+    for (var entry : data.entrySet()) {
+      setProperty(entry.getKey(), entry.getValue());
+    }
+  }
+
   public ResultInternal(@Nullable DatabaseSessionInternal session, Identifiable ident) {
     setIdentifiable(ident);
     this.session = session;
@@ -79,7 +88,7 @@ public class ResultInternal implements Result {
     }
   }
 
-  public static Object toMapValue(Object value, boolean includeMetadata) {
+  public static Object toMapValue(Object value, boolean includeEntityMetadata) {
     return switch (value) {
       case null -> null;
 
@@ -94,7 +103,7 @@ public class ResultInternal implements Result {
 
       case Entity entity -> {
         if (entity.isEmbedded()) {
-          yield entity.toMap(includeMetadata);
+          yield entity.toMap(includeEntityMetadata);
         } else {
           yield entity.getIdentity();
         }
@@ -191,27 +200,122 @@ public class ResultInternal implements Result {
     return identifiable != null;
   }
 
-  private static void checkType(Object value) {
+  private Object checkType(Object value) {
     if (value == null) {
-      return;
+      return value;
     }
-    if (PropertyType.isSimpleType(value) || value instanceof Character) {
-      return;
+
+    if (isSimpleType(value)) {
+      return value;
     }
-    if (value instanceof Identifiable) {
-      return;
+
+    switch (value) {
+      case Identifiable id -> {
+        var res = id.getIdentity();
+
+        if (session != null) {
+          res = session.refreshRid(res);
+        }
+
+        return res;
+      }
+
+      case Result result -> {
+        return result;
+      }
+
+      case List<?> collection -> {
+        var listCopy = new ArrayList<>(collection.size());
+        var allIdentifiable = false;
+
+        for (var o : collection) {
+          var res = checkType(o);
+
+          if (res instanceof Identifiable) {
+            allIdentifiable = true;
+          } else if (allIdentifiable) {
+            throw new IllegalArgumentException(
+                "Invalid property value, if list contains identifiables, it should contain only them");
+          }
+
+          listCopy.add(res);
+        }
+
+        return listCopy;
+      }
+      case Set<?> set -> {
+        var setCopy = new HashSet<>(set.size());
+        var allIdentifiable = false;
+
+        for (var o : set) {
+          var res = checkType(o);
+
+          if (res instanceof Identifiable) {
+            allIdentifiable = true;
+          } else if (allIdentifiable) {
+            throw new IllegalArgumentException(
+                "Invalid property value, if set contains identifiables, it should contain only them");
+          }
+
+          setCopy.add(res);
+        }
+
+        return setCopy;
+      }
+
+      case Map<?, ?> map -> {
+        var mapCopy = new HashMap<String, Object>(map.size());
+        var allIdentifiable = false;
+
+        for (var entry : map.entrySet()) {
+          var key = entry.getKey();
+
+          if (!(key instanceof String stringKey)) {
+            throw new IllegalArgumentException(
+                "Invalid property value, only maps with key types of String are supported : " +
+                    key);
+          }
+
+          var res = checkType(entry.getValue());
+          if (res instanceof Identifiable) {
+            allIdentifiable = true;
+          } else if (allIdentifiable) {
+            throw new IllegalArgumentException(
+                "Invalid property value, if map contains identifiables, it should contain only them");
+          }
+
+          mapCopy.put(stringKey, res);
+        }
+
+        return mapCopy;
+      }
+
+      default -> {
+        throw new IllegalArgumentException(
+            "Invalid property value for Result: " + value + " - " + value.getClass().getName());
+      }
     }
-    if (value instanceof Result) {
-      return;
+  }
+
+  private static boolean isSimpleType(Object value) {
+    if (value == null) {
+      return true;
     }
-    if (value instanceof Collection || value instanceof Map) {
-      return;
+
+    var cls = value.getClass();
+    if (cls.isPrimitive()) {
+      return true;
     }
-    if (value instanceof Serializable) {
-      return;
+
+    if (cls.isArray() && cls.getComponentType().equals(byte.class)) {
+      return true;
     }
-    throw new IllegalArgumentException(
-        "Invalid property value for Result: " + value + " - " + value.getClass().getName());
+
+    return Integer.class.isAssignableFrom(cls) || Long.class.isAssignableFrom(cls) || Short.class
+        .isAssignableFrom(cls) || Byte.class.isAssignableFrom(cls) || Double.class
+        .isAssignableFrom(cls) || Float.class.isAssignableFrom(cls) || Boolean.class
+        .isAssignableFrom(cls) || BigDecimal.class.isAssignableFrom(cls) ||
+        Date.class.isAssignableFrom(cls) || String.class.isAssignableFrom(cls);
   }
 
   public void setTemporaryProperty(String name, Object value) {
@@ -425,42 +529,9 @@ public class ResultInternal implements Result {
       }
 
       return result;
-    } else {
-      if (isEmbeddedList(input)) {
-        return ((List<?>) input).stream().map(in -> wrap(session, in)).collect(Collectors.toList());
-      } else {
-        if (isEmbeddedSet(input)) {
-          var mappedSet = ((Set<?>) input).stream().map(in -> wrap(session, in));
-          if (input instanceof LinkedHashSet<?>) {
-            return mappedSet.collect(Collectors.toCollection(LinkedHashSet::new));
-          } else {
-            return mappedSet.collect(Collectors.toSet());
-          }
-        } else {
-          if (isEmbeddedMap(input)) {
-            var result = new HashMap<String, Object>();
-            //noinspection unchecked
-            for (var o : ((Map<String, Object>) input).entrySet()) {
-              result.put(o.getKey(), wrap(session, o.getValue()));
-            }
-            return result;
-          }
-        }
-      }
     }
+
     return input;
-  }
-
-  private static boolean isEmbeddedSet(Object input) {
-    return input instanceof Set && PropertyType.getTypeByValue(input) == PropertyType.EMBEDDEDSET;
-  }
-
-  private static boolean isEmbeddedMap(Object input) {
-    return input instanceof Map && PropertyType.getTypeByValue(input) == PropertyType.EMBEDDEDMAP;
-  }
-
-  private static boolean isEmbeddedList(Object input) {
-    return input instanceof List && PropertyType.getTypeByValue(input) == PropertyType.EMBEDDEDLIST;
   }
 
   public @Nonnull Collection<String> getPropertyNames() {

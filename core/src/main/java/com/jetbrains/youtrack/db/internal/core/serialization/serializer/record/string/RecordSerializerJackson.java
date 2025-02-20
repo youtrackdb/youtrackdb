@@ -22,7 +22,10 @@ package com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.record.Blob;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
@@ -63,9 +66,35 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class RecordSerializerJackson {
+
   private static final JsonFactory JSON_FACTORY = new JsonFactory();
+
+  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  public static final MapType MAP_TYPE_REFERENCE =
+      OBJECT_MAPPER.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
+
+
   public static final String NAME = "jackson";
   public static final RecordSerializerJackson INSTANCE = new RecordSerializerJackson();
+
+  public static Map<String, Object> mapFromJson(@Nonnull String value) {
+    try {
+      return OBJECT_MAPPER.readValue(value, MAP_TYPE_REFERENCE);
+    } catch (JsonProcessingException e) {
+      throw BaseException.wrapException(
+          new SerializationException("Error on unmarshalling JSON content"), e, (String) null);
+    }
+  }
+
+  @Nonnull
+  public static String mapToJson(@Nonnull Map<String, Object> value) {
+    try {
+      return OBJECT_MAPPER.writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      throw BaseException.wrapException(
+          new SerializationException("Error on marshalling JSON content"), e, (String) null);
+    }
+  }
 
   public static RecordAbstract fromString(@Nonnull DatabaseSessionInternal session,
       @Nonnull String source) {

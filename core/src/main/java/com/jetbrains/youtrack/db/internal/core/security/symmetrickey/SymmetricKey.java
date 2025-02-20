@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJackson;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
@@ -581,25 +581,25 @@ public class SymmetricKey {
 
       var json = new String(decoded, StandardCharsets.UTF_8);
 
-      // Convert the JSON content to an EntityImpl to make parsing it easier.
-      final var entity = new EntityImpl(null).updateFromJSON(json, "noMap");
+      // Convert the JSON content to an Map to make parsing it easier.
+      final var map = RecordSerializerJackson.mapFromJson(json);
 
       // Set a default in case the JSON document does not contain an "algorithm" property.
       var algorithm = secretKeyAlgorithm;
 
-      if (entity.containsField("algorithm")) {
-        algorithm = entity.field("algorithm");
+      if (map.containsKey("algorithm")) {
+        algorithm = map.get("algorithm").toString();
       }
 
       // Set a default in case the JSON document does not contain a "transform" property.
       var transform = defaultCipherTransformation;
 
-      if (entity.containsField("transform")) {
-        transform = entity.field("transform");
+      if (map.containsKey("transform")) {
+        transform = map.get("transform").toString();
       }
 
-      String payloadBase64 = entity.field("payload");
-      String ivBase64 = entity.field("iv");
+      var payloadBase64 = map.get("payload").toString();
+      var ivBase64 = map.get("iv").toString();
 
       byte[] payload = null;
       byte[] iv = null;

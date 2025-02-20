@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycleListener {
@@ -120,20 +121,20 @@ public class LuceneSpatialIndexFactory implements IndexFactory, DatabaseLifecycl
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal session) {
+  public void onCreate(@Nonnull DatabaseSessionInternal session) {
     spatialManager.init(session);
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal session) {
+  public void onOpen(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal session) {
+  public void onClose(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(final DatabaseSessionInternal session) {
+  public void onDrop(final @Nonnull DatabaseSessionInternal session) {
     try {
       if (session.isClosed()) {
         return;

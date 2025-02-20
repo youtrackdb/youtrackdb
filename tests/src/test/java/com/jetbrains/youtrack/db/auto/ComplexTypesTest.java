@@ -154,7 +154,7 @@ public class ComplexTypesTest extends BaseDBTest {
 
     EntityImpl loadedDoc = session.load(rid);
     Assert.assertTrue(loadedDoc.containsField("embeddedSet"));
-    Assert.assertTrue(loadedDoc.field("embeddedSet", Set.class) instanceof Set<?>);
+    Assert.assertNotNull(loadedDoc.getEmbeddedSet("embeddedSet"));
 
     final var it =
         ((Collection<EntityImpl>) loadedDoc.field("embeddedSet")).iterator();
@@ -198,7 +198,7 @@ public class ComplexTypesTest extends BaseDBTest {
 
     EntityImpl loadedDoc = session.load(rid);
     Assert.assertTrue(loadedDoc.containsField("linkedSet"));
-    Assert.assertTrue(loadedDoc.field("linkedSet", Set.class) instanceof Set<?>);
+    Assert.assertNotNull(loadedDoc.getLinkSet("linkedSet"));
 
     final var it =
         ((Collection<Identifiable>) loadedDoc.field("linkedSet")).iterator();
@@ -308,7 +308,7 @@ public class ComplexTypesTest extends BaseDBTest {
     session = acquireSession();
 
     EntityImpl loadedDoc = session.load(rid);
-    Assert.assertNotNull(loadedDoc.field("linkedMap", PropertyType.LINKMAP));
+    Assert.assertNotNull(loadedDoc.getLinkMap("linkedMap"));
     Assert.assertTrue(loadedDoc.field("linkedMap") instanceof Map<?, ?>);
     Assert.assertTrue(
         ((Map<String, Identifiable>) loadedDoc.field("linkedMap")).values().iterator().next()

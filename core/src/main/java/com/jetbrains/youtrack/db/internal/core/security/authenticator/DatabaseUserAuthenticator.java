@@ -7,17 +7,17 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.UserPasswordAuthInfo;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.security.TokenSign;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
+import java.util.Map;
 
 public class DatabaseUserAuthenticator extends SecurityAuthenticatorAbstract {
 
   private TokenSign tokenSign;
 
   @Override
-  public void config(DatabaseSessionInternal session, EntityImpl jsonConfig,
+  public void config(DatabaseSessionInternal session, Map<String, Object> jsonConfig,
       SecuritySystem security) {
     super.config(session, jsonConfig, security);
     tokenSign = security.getTokenSign();

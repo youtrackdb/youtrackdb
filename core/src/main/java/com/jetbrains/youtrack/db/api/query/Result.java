@@ -10,12 +10,7 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.StatefulEdge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
@@ -26,7 +21,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface Result {
-
   /**
    * returns a property from the result
    *
@@ -39,7 +33,7 @@ public interface Result {
   <T> T getProperty(@Nonnull String name);
 
   @Nullable
-  default Boolean getBooleanProperty(@Nonnull String name) {
+  default Boolean getBoolean(@Nonnull String name) {
     var value = getProperty(name);
     if (value == null) {
       return null;
@@ -101,6 +95,7 @@ public interface Result {
     if (value == null) {
       return null;
     }
+
     if (value instanceof Long) {
       return (Long) value;
     }
@@ -180,6 +175,11 @@ public interface Result {
   }
 
   @Nullable
+  default Date getDateTime(@Nonnull String name) {
+    return getDate(name);
+  }
+
+  @Nullable
   default BigDecimal getDecimal(@Nonnull String name) {
     var value = getProperty(name);
     if (value == null) {
@@ -196,24 +196,18 @@ public interface Result {
 
   @Nullable
   default <T> List<T> getEmbeddedList(@Nonnull String name) {
-    List<T> value;
     if (isEntity()) {
-      var entity = castToEntity();
-      value = entity.getProperty(name);
-
-      if (value instanceof TrackedList<?> trackedList && trackedList.isEmbeddedContainer()) {
-        return (List<T>) trackedList;
-      }
-    } else {
-      value = getProperty(name);
-      if (value instanceof List<?> list && (!(value instanceof LinkList))) {
-        //noinspection unchecked
-        return (List<T>) list;
-      }
+      return castToEntity().getEmbeddedList(name);
     }
 
+    var value = getProperty(name);
     if (value == null) {
       return null;
+    }
+
+    if (value instanceof List<?> list && !PropertyType.checkLinkCollection(list)) {
+      //noinspection unchecked
+      return (List<T>) list;
     }
 
     throw new DatabaseException(
@@ -223,47 +217,38 @@ public interface Result {
   @Nullable
   default List<Identifiable> getLinkList(@Nonnull String name) {
     if (isEntity()) {
-      var entity = castToEntity();
-      var value = entity.getProperty(name);
-
-      if (value == null) {
-        return null;
-      }
-
-      if (value instanceof LinkList list) {
-        return list;
-      }
-
-      throw new DatabaseException(
-          "Property " + name + " is not a link list type, but " + value.getClass().getName());
-    } else {
-      return getEmbeddedList(name);
+      return castToEntity().getLinkList(name);
     }
+
+    var value = getProperty(name);
+
+    if (value == null) {
+      return null;
+    }
+
+    if (value instanceof List<?> list && PropertyType.checkLinkCollection(list)) {
+      //noinspection unchecked
+      return (List<Identifiable>) list;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a link list type, but " + value.getClass().getName());
   }
 
   @Nullable
   default <T> Set<T> getEmbeddedSet(@Nonnull String name) {
-    Set<T> value;
-
     if (isEntity()) {
-      var entity = castToEntity();
-      value = entity.getProperty(name);
-
-      if (value instanceof TrackedSet<?> trackedSet && trackedSet.isEmbeddedContainer()) {
-        //noinspection unchecked
-        return (Set<T>) trackedSet;
-      }
-    } else {
-      value = getProperty(name);
-
-      if (value instanceof Set<?> set && (!(value instanceof LinkSet))) {
-        //noinspection unchecked
-        return (Set<T>) set;
-      }
+      return castToEntity().getEmbeddedSet(name);
     }
 
+    var value = getProperty(name);
     if (value == null) {
       return null;
+    }
+
+    if (value instanceof Set<?> set && !PropertyType.checkLinkCollection(set)) {
+      //noinspection unchecked
+      return (Set<T>) set;
     }
 
     throw new DatabaseException(
@@ -273,46 +258,37 @@ public interface Result {
   @Nullable
   default Set<Identifiable> getLinkSet(@Nonnull String name) {
     if (isEntity()) {
-      var entity = castToEntity();
-      var value = entity.getProperty(name);
-
-      if (value == null) {
-        return null;
-      }
-
-      if (value instanceof LinkSet set) {
-        return set;
-      }
-
-      throw new DatabaseException(
-          "Property " + name + " is not a link set type, but " + value.getClass().getName());
-    } else {
-      return getEmbeddedSet(name);
+      return castToEntity().getLinkSet(name);
     }
+
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+
+    if (value instanceof Set<?> set && PropertyType.checkLinkCollection(set)) {
+      //noinspection unchecked
+      return (Set<Identifiable>) set;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a link set type, but " + value.getClass().getName());
   }
 
   @Nullable
   default <T> Map<String, T> getEmbeddedMap(@Nonnull String name) {
-    Map<String, T> value;
-
     if (isEntity()) {
-      var entity = castToEntity();
-      value = entity.getProperty(name);
-
-      if (value instanceof TrackedMap<?> trackedMap && trackedMap.isEmbeddedContainer()) {
-        //noinspection unchecked
-        return (Map<String, T>) trackedMap;
-      }
-    } else {
-      value = getProperty(name);
-      if (value instanceof Map<?, ?> map && (!(value instanceof LinkMap))) {
-        //noinspection unchecked
-        return (Map<String, T>) map;
-      }
+      return castToEntity().getEmbeddedMap(name);
     }
 
+    var value = getProperty(name);
     if (value == null) {
       return null;
+    }
+
+    if (value instanceof Map<?, ?> map && !PropertyType.checkLinkCollection(map.values())) {
+      //noinspection unchecked
+      return (Map<String, T>) map;
     }
 
     throw new DatabaseException(
@@ -322,22 +298,20 @@ public interface Result {
   @Nullable
   default Map<String, Identifiable> getLinkMap(@Nonnull String name) {
     if (isEntity()) {
-      var entity = castToEntity();
-      var value = entity.getProperty(name);
-
-      if (value == null) {
-        return null;
-      }
-
-      if (value instanceof LinkMap map) {
-        return map;
-      }
-
-      throw new DatabaseException(
-          "Property " + name + " is not a link map type, but " + value.getClass().getName());
-    } else {
-      return getEmbeddedMap(name);
+      return castToEntity().getLinkMap(name);
     }
+    var value = getProperty(name);
+    if (value == null) {
+      return null;
+    }
+
+    if (value instanceof Map<?, ?> map && PropertyType.checkLinkCollection(map.values())) {
+      //noinspection unchecked
+      return (Map<String, Identifiable>) map;
+    }
+
+    throw new DatabaseException(
+        "Property " + name + " is not a link map type, but " + value.getClass().getName());
   }
 
   /**

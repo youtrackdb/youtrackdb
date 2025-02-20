@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Helper class to manage documents.
@@ -123,34 +124,38 @@ public class EntityHelper {
 
   @SuppressWarnings("unchecked")
   public static <RET> RET convertField(
-      DatabaseSessionInternal session, final EntityImpl entity,
-      final String iFieldName,
-      PropertyType type,
-      Class<?> iFieldType,
-      Object iValue) {
-    if (iFieldType == null && type != null) {
-      iFieldType = type.getDefaultJavaType();
+      @Nonnull DatabaseSessionInternal session, @Nonnull final EntityImpl entity,
+      @Nonnull final String fieldName,
+      @Nullable PropertyType type,
+      @Nullable Class<?> fieldJavaClass,
+      @Nullable Object value) {
+    if (type == null) {
+      type = PropertyType.getTypeByValue(value);
     }
 
-    if (iFieldType == null) {
-      return (RET) iValue;
+    if (fieldJavaClass == null && type != null) {
+      fieldJavaClass = type.getDefaultJavaType();
     }
 
-    if (RID.class.isAssignableFrom(iFieldType)) {
-      if (iValue instanceof RID) {
-        return (RET) iValue;
-      } else if (iValue instanceof String) {
-        return (RET) new RecordId((String) iValue);
-      } else if (iValue instanceof DBRecord) {
-        return (RET) ((DBRecord) iValue).getIdentity();
+    if (fieldJavaClass == null) {
+      return (RET) value;
+    }
+
+    if (RID.class.isAssignableFrom(fieldJavaClass)) {
+      if (value instanceof RID) {
+        return (RET) value;
+      } else if (value instanceof String) {
+        return (RET) new RecordId((String) value);
+      } else if (value instanceof DBRecord) {
+        return (RET) ((DBRecord) value).getIdentity();
       }
-    } else if (Identifiable.class.isAssignableFrom(iFieldType)) {
-      if (iValue instanceof RID || iValue instanceof DBRecord) {
-        return (RET) iValue;
-      } else if (iValue instanceof String) {
-        return (RET) new RecordId((String) iValue);
-      } else if (MultiValue.isMultiValue(iValue) && MultiValue.getSize(iValue) == 1) {
-        var val = MultiValue.getFirstValue(iValue);
+    } else if (Identifiable.class.isAssignableFrom(fieldJavaClass)) {
+      if (value instanceof RID || value instanceof DBRecord) {
+        return (RET) value;
+      } else if (value instanceof String) {
+        return (RET) new RecordId((String) value);
+      } else if (MultiValue.isMultiValue(value) && MultiValue.getSize(value) == 1) {
+        var val = MultiValue.getFirstValue(value);
         if (val instanceof Result) {
           val = ((Result) val).getIdentity();
         }
@@ -158,8 +163,8 @@ public class EntityHelper {
           return (RET) val;
         }
       }
-    } else if (Set.class.isAssignableFrom(iFieldType)) {
-      if (!(iValue instanceof Set)) {
+    } else if (Set.class.isAssignableFrom(fieldJavaClass)) {
+      if (!(value instanceof Set)) {
         // CONVERT IT TO SET
         final Collection<?> newValue;
         if (type.isLink()) {
@@ -167,11 +172,11 @@ public class EntityHelper {
         } else {
           newValue = new TrackedSet<>(entity);
         }
-        if (iValue instanceof Collection<?>) {
-          ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
-        } else if (iValue instanceof Map) {
-          ((Collection<Object>) newValue).addAll(((Map<String, Object>) iValue).values());
-        } else if (iValue instanceof String stringValue) {
+        if (value instanceof Collection<?>) {
+          ((Collection<Object>) newValue).addAll((Collection<Object>) value);
+        } else if (value instanceof Map) {
+          ((Collection<Object>) newValue).addAll(((Map<String, Object>) value).values());
+        } else if (value instanceof String stringValue) {
 
           if (!stringValue.isEmpty()) {
             final var items = stringValue.split(",");
@@ -179,18 +184,18 @@ public class EntityHelper {
               ((Collection<Object>) newValue).add(s);
             }
           }
-        } else if (MultiValue.isMultiValue(iValue)) {
+        } else if (MultiValue.isMultiValue(value)) {
           // GENERIC MULTI VALUE
-          for (var s : MultiValue.getMultiValueIterable(iValue)) {
+          for (var s : MultiValue.getMultiValueIterable(value)) {
             ((Collection<Object>) newValue).add(s);
           }
         }
         return (RET) newValue;
       } else {
-        return (RET) iValue;
+        return (RET) value;
       }
-    } else if (List.class.isAssignableFrom(iFieldType)) {
-      if (!(iValue instanceof List)) {
+    } else if (List.class.isAssignableFrom(fieldJavaClass)) {
+      if (!(value instanceof List)) {
         // CONVERT IT TO LIST
         final Collection<?> newValue;
 
@@ -200,11 +205,11 @@ public class EntityHelper {
           newValue = new TrackedList<Object>(entity);
         }
 
-        if (iValue instanceof Collection) {
-          ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
-        } else if (iValue instanceof Map) {
-          ((Collection<Object>) newValue).addAll(((Map<String, Object>) iValue).values());
-        } else if (iValue instanceof String stringValue) {
+        if (value instanceof Collection) {
+          ((Collection<Object>) newValue).addAll((Collection<Object>) value);
+        } else if (value instanceof Map) {
+          ((Collection<Object>) newValue).addAll(((Map<String, Object>) value).values());
+        } else if (value instanceof String stringValue) {
 
           if (!stringValue.isEmpty()) {
             final var items = stringValue.split(",");
@@ -212,39 +217,39 @@ public class EntityHelper {
               ((Collection<Object>) newValue).add(s);
             }
           }
-        } else if (MultiValue.isMultiValue(iValue)) {
+        } else if (MultiValue.isMultiValue(value)) {
           // GENERIC MULTI VALUE
-          for (var s : MultiValue.getMultiValueIterable(iValue)) {
+          for (var s : MultiValue.getMultiValueIterable(value)) {
             ((Collection<Object>) newValue).add(s);
           }
         }
         return (RET) newValue;
       } else {
-        return (RET) iValue;
+        return (RET) value;
       }
-    } else if (iValue instanceof Enum) {
+    } else if (value instanceof Enum) {
       // ENUM
-      if (Number.class.isAssignableFrom(iFieldType)) {
-        iValue = ((Enum<?>) iValue).ordinal();
+      if (Number.class.isAssignableFrom(fieldJavaClass)) {
+        value = ((Enum<?>) value).ordinal();
       } else {
-        iValue = iValue.toString();
+        value = value.toString();
       }
-      if (!(iValue instanceof String) && !iFieldType.isAssignableFrom(iValue.getClass())) {
+      if (!(value instanceof String) && !fieldJavaClass.isAssignableFrom(value.getClass())) {
         throw new IllegalArgumentException(
             "Property '"
-                + iFieldName
+                + fieldName
                 + "' of type '"
-                + iFieldType
+                + fieldJavaClass
                 + "' cannot accept value of type: "
-                + iValue.getClass());
+                + value.getClass());
       }
-    } else if (Date.class.isAssignableFrom(iFieldType)) {
-      if (iValue instanceof String) {
+    } else if (Date.class.isAssignableFrom(fieldJavaClass)) {
+      if (value instanceof String) {
         final var config = session.getStorageInfo().getConfiguration();
 
         DateFormat formatter;
 
-        if (((String) iValue).length() > config.getDateFormat().length()) {
+        if (((String) value).length() > config.getDateFormat().length()) {
           // ASSUMES YOU'RE USING THE DATE-TIME FORMATTE
           formatter = config.getDateTimeFormatInstance();
         } else {
@@ -252,25 +257,25 @@ public class EntityHelper {
         }
 
         try {
-          var newValue = formatter.parse((String) iValue);
+          var newValue = formatter.parse((String) value);
           // _fieldValues.put(iFieldName, newValue);
           return (RET) newValue;
         } catch (ParseException pe) {
           final var dateFormat =
-              ((String) iValue).length() > config.getDateFormat().length()
+              ((String) value).length() > config.getDateFormat().length()
                   ? config.getDateTimeFormat()
                   : config.getDateFormat();
           throw BaseException.wrapException(
               new QueryParsingException(session.getDatabaseName(),
-                  "Error on conversion of date '" + iValue + "' using the format: " + dateFormat),
+                  "Error on conversion of date '" + value + "' using the format: " + dateFormat),
               pe, session.getDatabaseName());
         }
       }
     }
 
-    iValue = PropertyType.convert(session, iValue, iFieldType);
+    value = PropertyType.convert(session, value, fieldJavaClass);
 
-    return (RET) iValue;
+    return (RET) value;
   }
 
   public static <RET> RET getFieldValue(DatabaseSessionInternal db, Object value,

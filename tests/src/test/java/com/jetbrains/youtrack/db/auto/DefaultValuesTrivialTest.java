@@ -76,13 +76,13 @@ public class DefaultValuesTrivialTest {
 
       try {
         //
-        Date dt = doc.field("join_date", PropertyType.DATETIME);
+        var dt = doc.getDateTime("join_date");
 
         var isInRange = (!dt.before(dtStart)) && (!dt.after(dtAfter));
         Assert.assertTrue(isInRange);
 
         //
-        boolean active = doc.field("active", PropertyType.BOOLEAN);
+        boolean active = doc.getBoolean("active");
         Assert.assertTrue(active);
       } catch (Exception ex) {
         ex.printStackTrace();

@@ -22,6 +22,7 @@ public class SchemaPropertyAccessTest extends DbTestBase {
 
   @Test
   public void testNotAccessible() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertEquals("one value", doc.getProperty("name"));
@@ -32,14 +33,16 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertNull(doc.getProperty("name"));
     assertNull(doc.field("name"));
-    assertNull(doc.field("name", PropertyType.STRING));
-    assertNull(doc.field("name", String.class));
+    assertNull(doc.getString("name"));
+    assertNull(doc.getString("name"));
     assertFalse(doc.containsField("name"));
     assertNull(doc.getPropertyType("name"));
+    session.rollback();
   }
 
   @Test
   public void testNotAccessibleAfterConvert() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     var doc1 = (EntityImpl) session.newEntity();
@@ -57,10 +60,12 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     assertNull(doc1.field("name"));
     assertFalse(doc1.containsField("name"));
     assertNull(doc1.getPropertyType("name"));
+    session.rollback();
   }
 
   @Test
   public void testNotAccessiblePropertyListing() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, doc.getPropertyNames().toArray());
@@ -81,10 +86,12 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     for (var e : doc) {
       assertNotEquals("name", e.getKey());
     }
+    session.rollback();
   }
 
   @Test
   public void testNotAccessiblePropertyListingSer() {
+    session.begin();
     var docPre = (EntityImpl) session.newEntity();
     docPre.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, docPre.getPropertyNames().toArray());
@@ -109,22 +116,31 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     for (var e : doc) {
       assertNotEquals("name", e.getKey());
     }
+    session.rollback();
   }
 
   @Test
   public void testJsonSerialization() {
-    var doc = (EntityImpl) session.newEntity();
-    doc.setProperty("name", "one value");
-    assertTrue(doc.toJSON().contains("name"));
+    session.begin();
+    var entity = (EntityImpl) session.newEntity();
+    entity.setProperty("name", "one value");
+    session.commit();
+
+    session.begin();
+    entity = session.bindToSession(entity);
+    assertTrue(entity.toJSON().contains("name"));
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
-    assertFalse(doc.toJSON().contains("name"));
+    EntityInternalUtils.setPropertyAccess(entity, new PropertyAccess(toHide));
+    assertFalse(entity.toJSON().contains("name"));
+    entity.delete();
+    session.commit();
   }
 
   @Test
   public void testToMap() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toMap().containsKey("name"));
@@ -133,10 +149,12 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     toHide.add("name");
     EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertFalse(doc.toMap().containsKey("name"));
+    session.rollback();
   }
 
   @Test
   public void testStringSerialization() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.setProperty("name", "one value");
     assertTrue(doc.toString().contains("name"));
@@ -145,5 +163,6 @@ public class SchemaPropertyAccessTest extends DbTestBase {
     toHide.add("name");
     EntityInternalUtils.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertFalse(doc.toString().contains("name"));
+    session.rollback();
   }
 }

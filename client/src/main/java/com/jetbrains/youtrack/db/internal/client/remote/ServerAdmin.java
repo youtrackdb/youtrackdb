@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -134,11 +133,9 @@ public class ServerAdmin {
 
   /**
    * Returns the server information in form of entity.
-   *
-   * @throws IOException
    */
   @Deprecated
-  public synchronized EntityImpl getServerInfo() throws IOException {
+  public synchronized Map<String, Object> getServerInfo() throws IOException {
     checkConnected();
     return remote.getServerInfo(user, password);
   }

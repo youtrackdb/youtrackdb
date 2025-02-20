@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingService;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
@@ -39,6 +38,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 
 public class DefaultAuditing
     implements AuditingService, DatabaseLifecycleListener {
@@ -59,8 +59,6 @@ public class DefaultAuditing
   protected static final String DEFAULT_FILE_AUDITING_DB_CONFIG = "default-auditing-config.json";
   protected static final String FILE_AUDITING_DB_CONFIG = "auditing-config.json";
 
-  private AuditingDistribConfig distribConfig;
-
   private SystemDBImporter systemDbImporter;
 
   private SecuritySystem security;
@@ -68,25 +66,24 @@ public class DefaultAuditing
   public static final String IMPORTER_FLAG = "AUDITING_IMPORTER";
 
   private class AuditingDistribConfig extends AuditingConfig {
-
     private boolean onNodeJoinedEnabled = false;
     private String onNodeJoinedMessage = "The node ${node} has joined";
 
     private boolean onNodeLeftEnabled = false;
     private String onNodeLeftMessage = "The node ${node} has left";
 
-    public AuditingDistribConfig(final EntityImpl cfg) {
-      if (cfg.containsField("onNodeJoinedEnabled")) {
-        onNodeJoinedEnabled = cfg.field("onNodeJoinedEnabled");
+    public AuditingDistribConfig(final Map<String, Object> cfg) {
+      if (cfg.containsKey("onNodeJoinedEnabled")) {
+        onNodeJoinedEnabled = (Boolean) cfg.get("onNodeJoinedEnabled");
       }
 
-      onNodeJoinedMessage = cfg.field("onNodeJoinedMessage");
+      onNodeJoinedMessage = (String) cfg.get("onNodeJoinedMessage");
 
-      if (cfg.containsField("onNodeLeftEnabled")) {
-        onNodeLeftEnabled = cfg.field("onNodeLeftEnabled");
+      if (cfg.containsKey("onNodeLeftEnabled")) {
+        onNodeLeftEnabled = (Boolean) cfg.get("onNodeLeftEnabled");
       }
 
-      onNodeLeftMessage = cfg.field("onNodeLeftMessage");
+      onNodeLeftMessage = (String) cfg.get("onNodeLeftMessage");
     }
 
     @Override
@@ -122,7 +119,7 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onCreate(final DatabaseSessionInternal session) {
+  public void onCreate(final @Nonnull DatabaseSessionInternal session) {
     // Don't audit system database events.
     if (session.getDatabaseName().equalsIgnoreCase(SystemDatabase.SYSTEM_DB_NAME)) {
       return;
@@ -225,7 +222,7 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal session) {
+  public void onOpen(@Nonnull DatabaseSessionInternal session) {
     // Don't audit system database events.
     if (session.getDatabaseName().equalsIgnoreCase(SystemDatabase.SYSTEM_DB_NAME)) {
       return;
@@ -246,7 +243,7 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal session) {
+  public void onClose(@Nonnull DatabaseSessionInternal session) {
     final var oAuditingHook = hooks.get(session.getDatabaseName());
     if (oAuditingHook != null) {
       session.unregisterHook(oAuditingHook);
@@ -255,7 +252,7 @@ public class DefaultAuditing
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal session) {
+  public void onDrop(@Nonnull DatabaseSessionInternal session) {
     onClose(session);
 
     final var oAuditingHook = hooks.get(session.getDatabaseName());
@@ -264,7 +261,7 @@ public class DefaultAuditing
     }
 
     var f = getConfigFile(session.getDatabaseName());
-    if (f != null && f.exists()) {
+    if (f.exists()) {
       LogManager.instance()
           .info(this, "Removing Auditing config for db : %s", session.getDatabaseName());
       f.delete();
@@ -471,26 +468,22 @@ public class DefaultAuditing
             }));
   }
 
-  public void config(DatabaseSessionInternal session, final EntityImpl jsonConfig,
+  public void config(DatabaseSessionInternal session, final Map<String, Object> jsonConfig,
       SecuritySystem security) {
     context = security.getContext();
     this.security = security;
     try {
-      if (jsonConfig.containsField("enabled")) {
-        enabled = jsonConfig.field("enabled");
+      if (jsonConfig.containsKey("enabled")) {
+        enabled = (Boolean) jsonConfig.get("enabled");
       }
 
-      if (jsonConfig.containsField("retentionDays")) {
-        globalRetentionDays = jsonConfig.field("retentionDays");
+      if (jsonConfig.containsKey("retentionDays")) {
+        globalRetentionDays = (Integer) jsonConfig.get("retentionDays");
       }
 
-      if (jsonConfig.containsField("distributed")) {
-        EntityImpl distribDoc = jsonConfig.field("distributed");
-        distribConfig = new AuditingDistribConfig(distribDoc);
-      }
-
-      if (jsonConfig.containsField("systemImport")) {
-        EntityImpl sysImport = jsonConfig.field("systemImport");
+      if (jsonConfig.containsKey("systemImport")) {
+        @SuppressWarnings("unchecked")
+        var sysImport = (Map<String, Object>) jsonConfig.get("systemImport");
 
         systemDbImporter = new SystemDBImporter(context, sysImport);
       }

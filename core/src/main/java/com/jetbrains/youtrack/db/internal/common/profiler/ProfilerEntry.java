@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -54,24 +53,6 @@ public class ProfilerEntry {
 
   public void updateLastExecution() {
     lastExecution = System.currentTimeMillis();
-  }
-
-  public EntityImpl toDocument() {
-    final var entity = new EntityImpl(null);
-    entity.field("entries", entries);
-    entity.field("last", last);
-    entity.field("min", min);
-    entity.field("max", max);
-    entity.field("average", average);
-    entity.field("total", total);
-    entity.field("firstExecution", firstExecution);
-    entity.field("lastExecution", lastExecution);
-    entity.field("lastReset", lastReset);
-    entity.field("lastResetEntries", lastResetEntries);
-    if (payLoad != null) {
-      entity.field("payload", payLoad);
-    }
-    return entity;
   }
 
   public String toJSON() {

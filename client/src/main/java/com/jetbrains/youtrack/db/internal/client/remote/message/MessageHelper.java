@@ -72,17 +72,17 @@ public class MessageHelper {
     }
   }
 
-  public static byte[] getRecordBytes(@Nullable DatabaseSessionInternal db,
+  public static byte[] getRecordBytes(@Nullable DatabaseSessionInternal session,
       final RecordAbstract iRecord, RecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;
-    if (db != null) {
-      dbSerializerName = db.getSerializer().toString();
+    if (session != null) {
+      dbSerializerName = session.getSerializer().toString();
     }
-    if (RecordInternal.getRecordType(db, iRecord) == EntityImpl.RECORD_TYPE
+    if (RecordInternal.getRecordType(session, iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
       ((EntityImpl) iRecord).deserializeFields();
-      stream = serializer.toStream(db, iRecord);
+      stream = serializer.toStream(session, iRecord);
     } else {
       stream = iRecord.toStream();
     }
@@ -296,7 +296,7 @@ public class MessageHelper {
   }
 
   public static Identifiable readIdentifiable(
-      DatabaseSessionInternal db, final ChannelDataInput network, RecordSerializer serializer)
+      DatabaseSessionInternal session, final ChannelDataInput network, RecordSerializer serializer)
       throws IOException {
     final int classId = network.readShort();
     if (classId == ChannelBinaryProtocol.RECORD_NULL) {
@@ -306,13 +306,13 @@ public class MessageHelper {
     if (classId == ChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();
     } else {
-      final var record = readRecordFromBytes(db, network, serializer);
+      final var record = readRecordFromBytes(session, network, serializer);
       return record;
     }
   }
 
   private static DBRecord readRecordFromBytes(
-      DatabaseSessionInternal db, ChannelDataInput network, RecordSerializer serializer)
+      DatabaseSessionInternal session, ChannelDataInput network, RecordSerializer serializer)
       throws IOException {
     var rec = network.readByte();
     final var rid = network.readRID();
@@ -322,20 +322,20 @@ public class MessageHelper {
     var record =
         YouTrackDBEnginesManager.instance()
             .getRecordFactoryManager()
-            .newInstance(rec, rid, db);
+            .newInstance(rec, rid, session);
     RecordInternal.setVersion(record, version);
-    serializer.fromStream(db, content, record, null);
+    serializer.fromStream(session, content, record, null);
     RecordInternal.unsetDirty(record);
 
     return record;
   }
 
-  private static void writeProjection(DatabaseSessionInternal db, Result item,
+  private static void writeProjection(DatabaseSessionInternal session, Result item,
       ChannelDataOutput channel)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_PROJECTION);
     var ser = new ResultSerializerNetwork();
-    ser.toStream(db, item, channel);
+    ser.toStream(session, item, channel);
   }
 
   private static void writeBlob(
@@ -347,27 +347,27 @@ public class MessageHelper {
   }
 
   private static void writeVertex(
-      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_VERTEX);
-    writeDocument(db, channel, row.castToEntity().getRecord(db), recordSerializer);
+    writeDocument(session, channel, row.castToEntity().getRecord(session), recordSerializer);
   }
 
-  private static void writeElement(
-      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
+  private static void writeEntity(
+      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_ELEMENT);
-    writeDocument(db, channel, row.castToEntity().getRecord(db), recordSerializer);
+    writeDocument(session, channel, row.castToEntity().getRecord(session), recordSerializer);
   }
 
   private static void writeEdge(
-      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(QueryResponse.RECORD_TYPE_EDGE);
-    writeDocument(db, channel, row.castToEntity().getRecord(db), recordSerializer);
+    writeDocument(session, channel, row.castToEntity().getRecord(session), recordSerializer);
   }
 
   private static void writeDocument(
@@ -377,67 +377,67 @@ public class MessageHelper {
   }
 
   public static void writeResult(
-      DatabaseSessionInternal db, Result row, ChannelDataOutput channel,
+      DatabaseSessionInternal session, Result row, ChannelDataOutput channel,
       RecordSerializer recordSerializer)
       throws IOException {
     if (row.isBlob()) {
-      writeBlob(db, row, channel, recordSerializer);
+      writeBlob(session, row, channel, recordSerializer);
     } else if (row.isVertex()) {
-      writeVertex(db, row, channel, recordSerializer);
+      writeVertex(session, row, channel, recordSerializer);
     } else if (row.isStatefulEdge()) {
-      writeEdge(db, row, channel, recordSerializer);
+      writeEdge(session, row, channel, recordSerializer);
     } else if (row.isEntity()) {
-      writeElement(db, row, channel, recordSerializer);
+      writeEntity(session, row, channel, recordSerializer);
     } else {
-      writeProjection(db, row, channel);
+      writeProjection(session, row, channel);
     }
   }
 
-  private static ResultInternal readBlob(DatabaseSessionInternal db, ChannelDataInput channel)
+  private static ResultInternal readBlob(DatabaseSessionInternal session, ChannelDataInput channel)
       throws IOException {
     RecordSerializer serializer = RecordSerializerNetworkV37.INSTANCE;
-    return new ResultInternal(db, readIdentifiable(db, channel, serializer));
+    return new ResultInternal(session, readIdentifiable(session, channel, serializer));
   }
 
-  public static ResultInternal readResult(DatabaseSessionInternal db, ChannelDataInput channel)
+  public static ResultInternal readResult(DatabaseSessionInternal session, ChannelDataInput channel)
       throws IOException {
     var type = channel.readByte();
     return switch (type) {
-      case QueryResponse.RECORD_TYPE_BLOB -> readBlob(db, channel);
-      case QueryResponse.RECORD_TYPE_VERTEX -> readVertex(db, channel);
-      case QueryResponse.RECORD_TYPE_EDGE -> readEdge(db, channel);
-      case QueryResponse.RECORD_TYPE_ELEMENT -> readElement(db, channel);
-      case QueryResponse.RECORD_TYPE_PROJECTION -> readProjection(db, channel);
-      default -> new ResultInternal(db);
+      case QueryResponse.RECORD_TYPE_BLOB -> readBlob(session, channel);
+      case QueryResponse.RECORD_TYPE_VERTEX -> readVertex(session, channel);
+      case QueryResponse.RECORD_TYPE_EDGE -> readEdge(session, channel);
+      case QueryResponse.RECORD_TYPE_ELEMENT -> readEntityAsResult(session, channel);
+      case QueryResponse.RECORD_TYPE_PROJECTION -> readProjection(session, channel);
+      default -> new ResultInternal(session);
     };
   }
 
-  private static ResultInternal readElement(DatabaseSessionInternal db,
+  private static ResultInternal readEntityAsResult(DatabaseSessionInternal session,
       ChannelDataInput channel)
       throws IOException {
-    return new ResultInternal(db, readDocument(db, channel));
+    return new ResultInternal(session, readEntity(session, channel));
   }
 
-  private static ResultInternal readVertex(DatabaseSessionInternal db,
+  private static ResultInternal readVertex(DatabaseSessionInternal session,
       ChannelDataInput channel)
       throws IOException {
-    return new ResultInternal(db, readDocument(db, channel));
+    return new ResultInternal(session, readEntity(session, channel));
   }
 
-  private static ResultInternal readEdge(DatabaseSessionInternal db, ChannelDataInput channel)
+  private static ResultInternal readEdge(DatabaseSessionInternal session, ChannelDataInput channel)
       throws IOException {
-    return new ResultInternal(db, readDocument(db, channel));
+    return new ResultInternal(session, readEntity(session, channel));
   }
 
-  private static DBRecord readDocument(DatabaseSessionInternal db, ChannelDataInput channel)
+  private static DBRecord readEntity(DatabaseSessionInternal session, ChannelDataInput channel)
       throws IOException {
     RecordSerializer serializer = RecordSerializerNetworkV37Client.INSTANCE;
-    return (DBRecord) readIdentifiable(db, channel, serializer);
+    return (DBRecord) readIdentifiable(session, channel, serializer);
   }
 
-  private static ResultInternal readProjection(DatabaseSessionInternal db,
+  private static ResultInternal readProjection(DatabaseSessionInternal session,
       ChannelDataInput channel) throws IOException {
     var ser = new ResultSerializerNetwork();
-    return ser.fromStream(db, channel);
+    return ser.fromStream(session, channel);
   }
 }

@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListener {
@@ -118,22 +119,22 @@ public class LuceneIndexFactory implements IndexFactory, DatabaseLifecycleListen
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal session) {
+  public void onCreate(@Nonnull DatabaseSessionInternal session) {
     LogManager.instance().debug(this, "onCreate");
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal session) {
+  public void onOpen(@Nonnull DatabaseSessionInternal session) {
     LogManager.instance().debug(this, "onOpen");
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal session) {
+  public void onClose(@Nonnull DatabaseSessionInternal session) {
     LogManager.instance().debug(this, "onClose");
   }
 
   @Override
-  public void onDrop(final DatabaseSessionInternal session) {
+  public void onDrop(final @Nonnull DatabaseSessionInternal session) {
     try {
       if (session.isClosed()) {
         return;

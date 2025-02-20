@@ -24,6 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
 import com.jetbrains.youtrack.db.internal.tools.config.ServerParameterConfiguration;
+import javax.annotation.Nonnull;
 
 /**
  * <p>Not needed anymore, keeping the class for backward compatibilty
@@ -70,19 +71,19 @@ public class LiveQueryPlugin extends ServerPluginAbstract implements DatabaseLif
   }
 
   @Override
-  public void onCreate(DatabaseSessionInternal session) {
+  public void onCreate(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onOpen(DatabaseSessionInternal session) {
+  public void onOpen(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onClose(DatabaseSessionInternal session) {
+  public void onClose(@Nonnull DatabaseSessionInternal session) {
   }
 
   @Override
-  public void onDrop(DatabaseSessionInternal session) {
+  public void onDrop(@Nonnull DatabaseSessionInternal session) {
   }
 
 }

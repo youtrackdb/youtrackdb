@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Locale;
 import java.util.Map;
 
@@ -43,14 +44,14 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
   public CommandExecutorSQLLiveUnsubscribe() {
   }
 
-  private Object executeUnsubscribe(DatabaseSessionInternal db) {
+  private Object executeUnsubscribe(DatabaseSessionInternal session) {
     try {
 
-      LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), db);
-      var result = new EntityImpl(null);
-      result.field("unsubscribed", unsubscribeToken);
-      result.field("unsubscribe", true);
-      result.field("token", unsubscribeToken);
+      LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), session);
+      var result = new ResultInternal(session);
+      result.setProperty("unsubscribed", unsubscribeToken);
+      result.setProperty("unsubscribe", true);
+      result.setProperty("token", unsubscribeToken);
 
       return result;
     } catch (Exception e) {
@@ -77,8 +78,8 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
     if (this.unsubscribeToken != null) {
       return executeUnsubscribe(session);
     }
-    var result = new EntityImpl(null);
-    result.field("error-unsubscribe", "no token");
+    var result = new ResultInternal(session);
+    result.setProperty("error-unsubscribe", "no token");
     return result;
   }
 

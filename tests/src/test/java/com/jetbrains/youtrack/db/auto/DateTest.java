@@ -54,8 +54,7 @@ public class DateTest extends BaseDBTest {
 
     session.begin();
     doc2 = session.bindToSession(doc2);
-    Assert.assertTrue(doc2.field("date", PropertyType.DATE) instanceof Date);
-    Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
+    Assert.assertNotNull(doc2.getDate("date"));
 
     var result =
         session.command("select * from Order where date >= ? and context = 'test'", begin);

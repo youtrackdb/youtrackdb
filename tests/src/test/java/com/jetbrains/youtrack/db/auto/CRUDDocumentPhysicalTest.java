@@ -106,9 +106,9 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
         Assert.assertEquals(((Number) rec.field("testLong")).longValue(), 10000000000L);
         Assert.assertEquals(((Number) rec.field("salary")).intValue(), id + 300);
         Assert.assertNotNull(rec.field("extra"));
-        Assert.assertEquals(((Byte) rec.field("value", Byte.class)).byteValue(), (byte) 10);
+        Assert.assertEquals(rec.getByte("value"), (byte) 10);
 
-        binary = rec.field("binary", PropertyType.BINARY);
+        binary = rec.getBinary("binary");
 
         for (var b = 0; b < binary.length; ++b) {
           Assert.assertEquals(binary[b], (byte) b);

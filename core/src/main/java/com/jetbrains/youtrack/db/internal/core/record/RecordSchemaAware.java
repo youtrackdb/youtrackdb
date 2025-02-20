@@ -37,17 +37,6 @@ public interface RecordSchemaAware extends Entity {
   <RET> RET field(String iFieldName);
 
   /**
-   * Returns the value of a field forcing the return type. This is useful when you want avoid
-   * automatic conversions (for example record id to record) or need expressly a conversion between
-   * types.
-   *
-   * @param iFieldName Field name
-   * @param iType      Type between the values defined in the {@link PropertyType} enum
-   * @return Field value if exists, otherwise null
-   */
-  <RET> RET field(String iFieldName, PropertyType iType);
-
-  /**
    * Sets the value for a field.
    *
    * @param iFieldName  Field name

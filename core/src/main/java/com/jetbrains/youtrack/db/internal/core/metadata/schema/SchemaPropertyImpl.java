@@ -591,7 +591,7 @@ public abstract class SchemaPropertyImpl implements SchemaPropertyInternal {
             ? PropertyType.getById(((Integer) entity.field("linkedType")).byteValue())
             : null;
     if (entity.containsField("customFields")) {
-      customFields = entity.field("customFields", PropertyType.EMBEDDEDMAP);
+      customFields = entity.getProperty("customFields");
     } else {
       customFields = null;
     }
