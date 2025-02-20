@@ -29,6 +29,7 @@ import com.jetbrains.youtrack.db.internal.common.util.ArrayUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -171,6 +172,12 @@ public class ImmutableSchema implements SchemaInternal {
 
   @Override
   public SchemaClass createAbstractClass(String iClassName, SchemaClass... superClasses) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public SchemaClass registerMaterializedEntity(
+      @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
     throw new UnsupportedOperationException();
   }
 

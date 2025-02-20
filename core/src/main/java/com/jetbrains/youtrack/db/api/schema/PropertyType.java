@@ -19,15 +19,19 @@
  */
 package com.jetbrains.youtrack.db.api.schema;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.exception.BaseException;
+import com.jetbrains.youtrack.db.api.exception.DatabaseException;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
@@ -35,17 +39,12 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
@@ -63,6 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -113,7 +113,7 @@ public enum PropertyType {
    * {@link Vertex#addEdge(Vertex, SchemaClass)} or
    * {@link Vertex#addLightWeightEdge(Vertex, SchemaClass)} instead.
    */
-  LINK("Link", 13, Identifiable.class, new Class<?>[]{Identifiable.class, RID.class}),
+  LINK("Link", 13, Identifiable.class, new Class<?>[]{Identifiable.class}),
 
   /**
    * Link lists do not support link consistency and can keep broken links if you delete elements.
@@ -286,6 +286,52 @@ public enum PropertyType {
 
     return type;
   }
+
+  /**
+   * Return the correspondent type by checking the "assignability" of the class received as
+   * parameter.
+   *
+   * @param cls Class to check
+   * @return PropertyType instance if found, otherwise null
+   */
+  public static PropertyType getTypeByClass(@Nonnull final Class<?> cls,
+      @Nullable final Class<?> linkedClass) {
+    PropertyType type = TYPES_BY_CLASS.get(cls);
+
+    if (type != null) {
+      return detectLinkedContainer(type, linkedClass);
+    }
+
+    type = getTypeByClassInherit(cls);
+
+    return detectLinkedContainer(type, linkedClass);
+  }
+
+  private static PropertyType detectLinkedContainer(PropertyType type, Class<?> linkedClass) {
+    switch (type) {
+      case EMBEDDEDLIST -> {
+        if (linkedClass != null && Identifiable.class.isAssignableFrom(linkedClass)) {
+          return LINKLIST;
+        }
+      }
+      case EMBEDDEDSET -> {
+        if (linkedClass != null && Identifiable.class.isAssignableFrom(linkedClass)) {
+          return LINKSET;
+        }
+      }
+      case EMBEDDEDMAP -> {
+        if (linkedClass != null && Identifiable.class.isAssignableFrom(linkedClass)) {
+          return LINKMAP;
+        }
+      }
+      default -> {
+        return type;
+      }
+    }
+
+    return type;
+  }
+
 
   private static PropertyType getTypeByClassInherit(final Class<?> iClass) {
     if (iClass.isArray()) {

@@ -34,6 +34,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.Valida
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationLinkbagComparable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationMapComparable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.validation.ValidationStringComparable;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +42,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @since 10/21/14
@@ -72,6 +75,10 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   private final Comparable<Object> minComparable;
   private final Comparable<Object> maxComparable;
   private final Collection<Index> allIndexes;
+  @Nonnull
+  private final Method getter;
+  @Nullable
+  private final Method setter;
 
   public ImmutableSchemaProperty(DatabaseSessionInternal session, SchemaPropertyInternal property,
       SchemaImmutableClass owner) {
@@ -209,6 +216,8 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
 
     this.maxComparable = maxComparable;
     this.allIndexes = property.getAllIndexesInternal(session);
+    this.getter = property.getMaterializedGetter();
+    this.setter = property.getMaterializedSetter();
   }
 
   private <T> T safeConvert(DatabaseSessionInternal session, Object value, Class<T> target,
@@ -512,7 +521,24 @@ public class ImmutableSchemaProperty implements SchemaPropertyInternal {
   }
 
   @Override
-  public Collection<Index> getAllIndexesInternal(DatabaseSession session) {
+  public Collection<Index> getAllIndexesInternal(@Nonnull DatabaseSession session) {
     return this.allIndexes;
+  }
+
+  @Override
+  public void setMaterializedAccessMethods(@Nonnull Method getter, @Nullable Method setter) {
+
+  }
+
+  @Nonnull
+  @Override
+  public Method getMaterializedGetter() {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public Method getMaterializedSetter() {
+    return null;
   }
 }

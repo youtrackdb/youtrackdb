@@ -36,6 +36,9 @@ import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadata;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadataProcessor;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -156,6 +159,7 @@ public abstract class SchemaShared implements CloseableInStorage {
     return null;
   }
 
+
   public static Character checkIndexNameIfValid(String iName) {
     if (iName == null) {
       throw new IllegalArgumentException("Name is null");
@@ -221,7 +225,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
   }
 
-
   /**
    * Callback invoked when the schema is loaded, after all the initializations.
    */
@@ -232,6 +235,114 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
     }
   }
+
+  public SchemaClass registerMaterializedEntity(@Nonnull DatabaseSessionInternal session,
+      @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
+    var result =
+        MaterializedEntityMetadataProcessor.validateAndFetchMaterializedEntityAccessMethods(
+            materializedEntityInterface);
+
+    return doRegisterMaterializedEntity(session, result, new HashSet<>());
+  }
+
+  @Nonnull
+  private SchemaClass doRegisterMaterializedEntity(@Nonnull DatabaseSessionInternal session,
+      @Nonnull MaterializedEntityMetadata result,
+      @Nonnull HashSet<Class<? extends MaterializedEntity>> visited) {
+    var entityInterface = result.entityInterface();
+    if (!visited.add(entityInterface)) {
+      var visitedClass = getClass(entityInterface);
+      if (visitedClass == null) {
+        throw new SchemaException("Circular dependency detected for class " + entityInterface);
+      }
+      return visitedClass;
+    }
+
+    var requiredDeclarations = result.requiredDeclarations();
+    //unwind potential recursion, create classes first and later fill their metadata
+    for (var requiredCls : requiredDeclarations.keySet()) {
+      var requiredClsName = requiredCls.getSimpleName();
+      var foundCls = getClass(requiredClsName);
+
+      if (foundCls == null) {
+        createClass(session, requiredClsName);
+      }
+    }
+
+    var parents = result.parents();
+    var parentClasses = new ArrayList<SchemaClass>();
+
+    for (var parent : parents) {
+      var parentName = parent.getSimpleName();
+      var foundParent = getClass(parentName);
+
+      assert foundParent != null;
+      parentClasses.add(foundParent);
+    }
+
+    var currentClassName = entityInterface.getSimpleName();
+    var declaredClass = getClass(currentClassName);
+    var superClasses = new HashSet<>(declaredClass.getSuperClasses());
+
+    for (var parent : parentClasses) {
+      if (!superClasses.contains(parent)) {
+        declaredClass.addSuperClass(session, parent);
+      }
+    }
+
+    var properties = result.properties();
+    for (var property : properties) {
+      var propertyName = property.name();
+      var propertyType = property.type();
+
+      var containerType = property.containerType();
+      var schemaPropertyType = PropertyType.getTypeByClass(propertyType, containerType);
+
+      if (!schemaPropertyType.isMultiValue()) {
+        if (!schemaPropertyType.isLink()) {
+          declaredClass.createProperty(session, propertyName, schemaPropertyType);
+        } else {
+          var schemaLinkedClass = getClass(propertyType);
+          if (schemaLinkedClass == null) {
+            throw new SchemaException("Linked class " + containerType.getSimpleName() +
+                " for property " + propertyName + " not found.");
+          }
+
+          declaredClass.createProperty(session, propertyName, schemaPropertyType,
+              schemaLinkedClass);
+        }
+      } else if (schemaPropertyType.isEmbedded()) {
+        if (containerType == null) {
+          throw new SchemaException("Embedded property " + propertyName +
+              " must have a linked type declared.");
+        }
+
+        var linkedPropertyType = PropertyType.getTypeByClass(containerType);
+        declaredClass.createProperty(session, propertyName, schemaPropertyType, linkedPropertyType);
+      } else if (schemaPropertyType.isLink()) {
+        if (containerType == null) {
+          throw new SchemaException("Link based property " + propertyName +
+              " must have a linked class declared.");
+        }
+
+        var schemaLinkedClass = getClass(containerType.getSimpleName());
+        if (schemaLinkedClass == null) {
+          throw new SchemaException("Linked class " + containerType.getSimpleName() +
+              " for property " + propertyName + " not found.");
+        }
+        declaredClass.createProperty(session, propertyName, schemaPropertyType, schemaLinkedClass);
+      }
+    }
+
+    for (var requiredClsMetadata : requiredDeclarations.values()) {
+      doRegisterMaterializedEntity(session, requiredClsMetadata, visited);
+    }
+
+    declaredClass.setMaterializedEntity(entityInterface);
+
+    return declaredClass;
+  }
+
 
   public SchemaClass createClass(DatabaseSessionInternal database, final String className) {
     return createClass(database, className, null, (int[]) null);
@@ -621,7 +732,6 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
-
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
@@ -656,7 +766,6 @@ public abstract class SchemaShared implements CloseableInStorage {
         classesEntities.add(c.toStream());
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
-
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {

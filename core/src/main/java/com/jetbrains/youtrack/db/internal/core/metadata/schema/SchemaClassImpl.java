@@ -42,6 +42,8 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntityMetadataProcessor;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -62,6 +64,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Schema Class implementation.
@@ -86,6 +90,8 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   protected Map<String, String> customFields;
   protected volatile ClusterSelectionStrategy clusterSelection; // @SINCE 1.7
   protected volatile int hashCode;
+  @Nullable
+  protected Class<? extends MaterializedEntity> materializedEntityInterface;
 
   private static final Set<String> reserved = new HashSet<String>();
 
@@ -126,6 +132,27 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   protected SchemaClassImpl(final SchemaShared iOwner, final String iName) {
     name = iName;
     owner = iOwner;
+  }
+
+  public void setMaterializedEntity(
+      @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
+    MaterializedEntityMetadataProcessor.validateAndFetchMaterializedEntityAccessMethods(
+        materializedEntityInterface);
+    if (this.materializedEntityInterface != null) {
+      if (!this.materializedEntityInterface
+          .equals(materializedEntityInterface)) {
+        throw new SchemaException("Materialized entity class is already registered");
+      }
+      return;
+    }
+
+    this.materializedEntityInterface = materializedEntityInterface;
+  }
+
+  @Nullable
+  @Override
+  public Class<? extends MaterializedEntity> getMaterializedEntity() {
+    return materializedEntityInterface;
   }
 
   public static int[] readableClusters(
@@ -608,6 +635,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   public EntityImpl toStream() {
     EntityImpl entity = new EntityImpl();
+
     entity.field("name", name);
     entity.field("shortName", shortName);
     entity.field("description", description);
@@ -617,6 +645,9 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
     entity.field("overSize", overSize);
     entity.field("strictMode", strictMode);
     entity.field("abstract", abstractClass);
+
+    entity.setPropertyInternal("materializedEntityInterface",
+        materializedEntityInterface != null ? materializedEntityInterface.getName() : null);
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
     for (final SchemaProperty p : properties.values()) {

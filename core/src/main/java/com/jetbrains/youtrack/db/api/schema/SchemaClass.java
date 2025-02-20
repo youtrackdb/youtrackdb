@@ -21,10 +21,13 @@ package com.jetbrains.youtrack.db.api.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Schema class
@@ -74,6 +77,11 @@ public interface SchemaClass extends Comparable<SchemaClass> {
       return automaticIndexable;
     }
   }
+
+  void setMaterializedEntity(@Nonnull Class<? extends MaterializedEntity> materializedEntityInterface);
+
+  @Nullable
+  Class<? extends MaterializedEntity> getMaterializedEntity();
 
   boolean isAbstract();
 

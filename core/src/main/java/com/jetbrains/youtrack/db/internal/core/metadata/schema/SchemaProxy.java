@@ -29,6 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ProxedResource;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ClusterSelectionFactory;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -124,6 +125,12 @@ public class SchemaProxy extends ProxedResource<SchemaShared> implements SchemaI
   @Override
   public SchemaClass createAbstractClass(String iClassName, SchemaClass... superClasses) {
     return delegate.createAbstractClass(database, iClassName, superClasses);
+  }
+
+  @Override
+  public SchemaClass registerMaterializedEntity(
+      @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface) {
+    return delegate.registerMaterializedEntity(database, materializedEntityInterface);
   }
 
   public void dropClass(final String iClassName) {

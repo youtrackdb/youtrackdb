@@ -20,6 +20,8 @@
 package com.jetbrains.youtrack.db.api.schema;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.materialized.MaterializedEntity;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -45,6 +47,9 @@ public interface Schema {
   SchemaClass createAbstractClass(String iClassName, SchemaClass iSuperClass);
 
   SchemaClass createAbstractClass(String iClassName, SchemaClass... superClasses);
+
+  SchemaClass registerMaterializedEntity(
+      @Nonnull Class<? extends MaterializedEntity> materializedEntityInterface);
 
   void dropClass(String iClassName);
 
