@@ -32,7 +32,7 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
 
   @Test
   public void testSimpleDocumentDebug() {
-
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
@@ -43,18 +43,19 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var debugger = new RecordSerializerBinaryDebug();
     var debug = debugger.deserializeDebug(bytes, session);
 
-    assertEquals(debug.properties.size(), 3);
-    assertEquals(debug.properties.get(0).name, "test");
-    assertEquals(debug.properties.get(0).type, PropertyType.STRING);
-    assertEquals(debug.properties.get(0).value, "test");
+    assertEquals(3, debug.properties.size());
+    assertEquals("test", debug.properties.getFirst().name);
+    assertEquals(PropertyType.STRING, debug.properties.get(0).type);
+    assertEquals("test", debug.properties.get(0).value);
 
-    assertEquals(debug.properties.get(1).name, "anInt");
-    assertEquals(debug.properties.get(1).type, PropertyType.INTEGER);
-    assertEquals(debug.properties.get(1).value, 2);
+    assertEquals("anInt", debug.properties.get(1).name);
+    assertEquals(PropertyType.INTEGER, debug.properties.get(1).type);
+    assertEquals(2, debug.properties.get(1).value);
 
-    assertEquals(debug.properties.get(2).name, "anDouble");
-    assertEquals(debug.properties.get(2).type, PropertyType.DOUBLE);
-    assertEquals(debug.properties.get(2).value, 2D);
+    assertEquals("anDouble", debug.properties.get(2).name);
+    assertEquals(PropertyType.DOUBLE, debug.properties.get(2).type);
+    assertEquals(2D, debug.properties.get(2).value);
+    session.rollback();
   }
 
   @Test
@@ -62,6 +63,8 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var clazz = session.getMetadata().getSchema().createClass("some");
     clazz.createProperty(session, "testP", PropertyType.STRING);
     clazz.createProperty(session, "theInt", PropertyType.INTEGER);
+
+    session.begin();
     var doc = (EntityImpl) session.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
@@ -72,22 +75,24 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var debugger = new RecordSerializerBinaryDebug();
     var debug = debugger.deserializeDebug(bytes, session);
 
-    assertEquals(debug.properties.size(), 3);
-    assertEquals(debug.properties.get(0).name, "testP");
-    assertEquals(debug.properties.get(0).type, PropertyType.STRING);
-    assertEquals(debug.properties.get(0).value, "test");
+    assertEquals(3, debug.properties.size());
+    assertEquals("testP", debug.properties.getFirst().name);
+    assertEquals(PropertyType.STRING, debug.properties.get(0).type);
+    assertEquals("test", debug.properties.get(0).value);
 
-    assertEquals(debug.properties.get(1).name, "theInt");
-    assertEquals(debug.properties.get(1).type, PropertyType.INTEGER);
-    assertEquals(debug.properties.get(1).value, 2);
+    assertEquals("theInt", debug.properties.get(1).name);
+    assertEquals(PropertyType.INTEGER, debug.properties.get(1).type);
+    assertEquals(2, debug.properties.get(1).value);
 
-    assertEquals(debug.properties.get(2).name, "anDouble");
-    assertEquals(debug.properties.get(2).type, PropertyType.DOUBLE);
-    assertEquals(debug.properties.get(2).value, 2D);
+    assertEquals("anDouble", debug.properties.get(2).name);
+    assertEquals(PropertyType.DOUBLE, debug.properties.get(2).type);
+    assertEquals(2D, debug.properties.get(2).value);
+    session.rollback();
   }
 
   @Test
   public void testSimpleBrokenDocumentDebug() {
+    session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("test", "test");
     doc.field("anInt", 2);
@@ -100,21 +105,22 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var debugger = new RecordSerializerBinaryDebug();
     var debug = debugger.deserializeDebug(brokenBytes, session);
 
-    assertEquals(debug.properties.size(), 3);
-    assertEquals(debug.properties.get(0).name, "test");
-    assertEquals(debug.properties.get(0).type, PropertyType.STRING);
+    assertEquals(3, debug.properties.size());
+    assertEquals("test", debug.properties.getFirst().name);
+    assertEquals(PropertyType.STRING, debug.properties.getFirst().type);
     assertTrue(debug.properties.get(0).faildToRead);
     assertNotNull(debug.properties.get(0).readingException);
 
-    assertEquals(debug.properties.get(1).name, "anInt");
-    assertEquals(debug.properties.get(1).type, PropertyType.INTEGER);
+    assertEquals("anInt", debug.properties.get(1).name);
+    assertEquals(PropertyType.INTEGER, debug.properties.get(1).type);
     assertTrue(debug.properties.get(1).faildToRead);
     assertNotNull(debug.properties.get(1).readingException);
 
-    assertEquals(debug.properties.get(2).name, "anDouble");
-    assertEquals(debug.properties.get(2).type, PropertyType.DOUBLE);
+    assertEquals("anDouble", debug.properties.get(2).name);
+    assertEquals(PropertyType.DOUBLE, debug.properties.get(2).type);
     assertTrue(debug.properties.get(2).faildToRead);
     assertNotNull(debug.properties.get(2).readingException);
+    session.rollback();
   }
 
   @Test
@@ -122,6 +128,8 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var clazz = session.getMetadata().getSchema().createClass("some");
     clazz.createProperty(session, "testP", PropertyType.STRING);
     clazz.createProperty(session, "theInt", PropertyType.INTEGER);
+
+    session.begin();
     var doc = (EntityImpl) session.newEntity("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
@@ -134,20 +142,21 @@ public class DBRecordSerializerBinaryDebugTest extends DbTestBase {
     var debugger = new RecordSerializerBinaryDebug();
     var debug = debugger.deserializeDebug(brokenBytes, session);
 
-    assertEquals(debug.properties.size(), 3);
-    assertEquals(debug.properties.get(0).name, "testP");
-    assertEquals(debug.properties.get(0).type, PropertyType.STRING);
+    assertEquals(3, debug.properties.size());
+    assertEquals("testP", debug.properties.getFirst().name);
+    assertEquals(PropertyType.STRING, debug.properties.getFirst().type);
     assertTrue(debug.properties.get(0).faildToRead);
     assertNotNull(debug.properties.get(0).readingException);
 
-    assertEquals(debug.properties.get(1).name, "theInt");
-    assertEquals(debug.properties.get(1).type, PropertyType.INTEGER);
+    assertEquals("theInt", debug.properties.get(1).name);
+    assertEquals(PropertyType.INTEGER, debug.properties.get(1).type);
     assertTrue(debug.properties.get(1).faildToRead);
     assertNotNull(debug.properties.get(1).readingException);
 
-    assertEquals(debug.properties.get(2).name, "anDouble");
-    assertEquals(debug.properties.get(2).type, PropertyType.DOUBLE);
+    assertEquals("anDouble", debug.properties.get(2).name);
+    assertEquals(PropertyType.DOUBLE, debug.properties.get(2).type);
     assertTrue(debug.properties.get(2).faildToRead);
     assertNotNull(debug.properties.get(2).readingException);
+    session.rollback();
   }
 }

@@ -53,7 +53,6 @@ public class ResultSerializationTest extends DbTestBase {
         document.setProperty("heigth", 12.5f);
         document.setProperty("bitHeigth", 12.5d);
         document.setProperty("class", (byte) 'C');
-        document.setProperty("character", 'C');
         document.setProperty("alive", true);
         document.setProperty("date", new Date());
         document.setProperty("recordId", new RecordId(10, 10));
@@ -70,6 +69,7 @@ public class ResultSerializationTest extends DbTestBase {
         assertEquals(extr.<String>getProperty("class"), document.getProperty("class"));
         assertEquals(extr.<String>getProperty("alive"), document.getProperty("alive"));
         assertEquals(extr.<String>getProperty("date"), document.getProperty("date"));
+        assertEquals(extr.getLink("recordId"), document.getLink("recordId"));
       }
     }
   }

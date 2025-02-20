@@ -982,7 +982,7 @@ public class ResultInternal implements Result {
     if (identifiable != null) {
       return identifiable.equals(resultObj.identifiable);
     } else {
-      if (resultObj.identifiable == null) {
+      if (resultObj.identifiable != null) {
         return false;
       }
       if (content != null) {
