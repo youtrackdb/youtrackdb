@@ -48,7 +48,9 @@ import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.api.session.SessionListener;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -1031,6 +1033,30 @@ public interface DatabaseSession extends AutoCloseable {
    * @param iValue     Value to set
    */
   void set(ATTRIBUTES iAttribute, Object iValue);
+
+  <T> List<T> newEmbeddedList();
+
+  <T> List<T> newEmbeddedList(int size);
+
+  List<Identifiable> newLinkList();
+
+  List<Identifiable> newLinkList(int size);
+
+  <T> Set<T> newEmbeddedSet();
+
+  <T> Set<T> newEmbeddedSet(int size);
+
+  Set<Identifiable> newLinkSet();
+
+  Set<Identifiable> newLinkSet(int size);
+
+  <V> Map<String, V> newEmbeddedMap();
+
+  <V> Map<String, V> newEmbeddedMap(int size);
+
+  Map<String, Identifiable> newLinkMap();
+
+  Map<String, Identifiable> newLinkMap(int size);
 
   enum ATTRIBUTES {
     DATEFORMAT,

@@ -23,7 +23,6 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serializable;
 import java.util.Collection;
@@ -41,7 +40,7 @@ import javax.annotation.Nullable;
 public class TrackedSet<T> extends LinkedHashSet<T>
     implements RecordElement, TrackedMultiValue<T, T>, Serializable {
 
-  protected final RecordElement sourceRecord;
+  protected RecordElement sourceRecord;
   private final boolean embeddedCollection;
   protected Class<?> genericClass;
   private boolean dirty = false;
@@ -52,6 +51,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   public TrackedSet(
       final RecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {
     this(iRecord);
+
     genericClass = cls;
     if (iOrigin != null && !iOrigin.isEmpty()) {
       addAll(iOrigin);
@@ -61,6 +61,20 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   public TrackedSet(final RecordElement iSourceRecord) {
     this.sourceRecord = iSourceRecord;
     embeddedCollection = this.getClass().equals(TrackedSet.class);
+  }
+
+  public TrackedSet() {
+    embeddedCollection = this.getClass().equals(TrackedSet.class);
+  }
+
+  public TrackedSet(int size) {
+    super(size);
+    embeddedCollection = this.getClass().equals(TrackedSet.class);
+  }
+
+  @Override
+  public void setOwner(RecordElement owner) {
+    sourceRecord = owner;
   }
 
   @Override
@@ -112,7 +126,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   public boolean add(@Nullable final T e) {
-    checkEmbedded(e);
+    checkValue(e);
     if (super.add(e)) {
       addEvent(e);
       return true;
@@ -121,9 +135,9 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   public boolean addInternal(final T e) {
-    checkEmbedded(e);
+    checkValue(e);
     if (super.add(e)) {
-      addOwnerToEmbeddedDoc(e);
+      addOwner(e);
       return true;
     }
     return false;
@@ -148,7 +162,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   protected void addEvent(T added) {
-    addOwnerToEmbeddedDoc(added);
+    addOwner(added);
 
     if (tracker.isEnabled()) {
       tracker.add(added, added);
@@ -158,9 +172,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   private void removeEvent(T removed) {
-    if (removed instanceof EntityImpl) {
-      EntityInternalUtils.removeOwner((EntityImpl) removed, this);
-    }
+    removeOwner(removed);
 
     if (tracker.isEnabled()) {
       tracker.remove(removed, removed);
@@ -217,15 +229,28 @@ public class TrackedSet<T> extends LinkedHashSet<T>
     return genericClass;
   }
 
-  private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof EntityImpl entity) {
-      var rid = entity.getIdentity();
+  private void addOwner(T e) {
+    if (embeddedCollection) {
+      if (e instanceof EntityImpl entity) {
+        var rid = entity.getIdentity();
 
-      if (!rid.isValid() || rid.isNew()) {
-        EntityInternalUtils.addOwner((EntityImpl) e, this);
+        if (!rid.isValid() || rid.isNew()) {
+          ((EntityImpl) e).addOwner(this);
+        }
       }
+    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(this);
     }
   }
+
+  private void removeOwner(T oldValue) {
+    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
+    } else if (oldValue instanceof EntityImpl entity) {
+      entity.removeOwner(this);
+    }
+  }
+
 
   private Object writeReplace() {
     return new HashSet<T>(this);
@@ -242,6 +267,8 @@ public class TrackedSet<T> extends LinkedHashSet<T>
       this.tracker.enable();
       TrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
+
+    this.sourceRecord = parent;
   }
 
   public void disableTracking(RecordElement entity) {
@@ -249,7 +276,9 @@ public class TrackedSet<T> extends LinkedHashSet<T>
       this.tracker.disable();
       TrackedMultiValue.nestedDisable(this.iterator(), this);
     }
+
     this.dirty = false;
+    this.sourceRecord = entity;
   }
 
   @Override

@@ -51,7 +51,6 @@ import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -621,7 +620,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
             result)) {
           for (var prop : restricted.properties(session)) {
             fieldsToPreserve.field(prop.getName(session),
-                record.<Object>field(prop.getName(session)));
+                record.field(prop.getName(session)));
           }
         }
       }
@@ -634,13 +633,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       if (recordClass != null && recordClass.isSubClassOf(session, "V")) {
         for (var fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
-            fieldsToPreserve.field(fieldName, record.<Object>field(fieldName));
+            fieldsToPreserve.field(fieldName, record.field(fieldName));
           }
         }
       } else if (recordClass != null && recordClass.isSubClassOf(session, "E")) {
         for (var fieldName : record.fieldNames()) {
           if (fieldName.equals("in") || fieldName.equals("out")) {
-            fieldsToPreserve.field(fieldName, record.<Object>field(fieldName));
+            fieldsToPreserve.field(fieldName, record.field(fieldName));
           }
         }
       }
@@ -709,26 +708,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     // BIND VALUES TO ADD
     Object fieldValue;
     for (var entry : addEntries) {
-      Collection<Object> coll = null;
+      Collection coll = null;
       RidBag bag = null;
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
-        SchemaImmutableClass result1 = null;
-        if (record != null) {
-          result1 = record.getImmutableSchemaClass(session);
-        }
-        if (result1 != null) {
-          SchemaImmutableClass result = null;
-          if (record != null) {
-            result = record.getImmutableSchemaClass(session);
-          }
-          var prop =
-              result
-                  .getProperty(session, entry.getKey());
+        var cls = record.getImmutableSchemaClass(session);
+        if (cls != null) {
+          var prop = cls.getProperty(session, entry.getKey());
           if (prop != null && prop.getType(session) == PropertyType.LINKSET)
           // SET TYPE
           {
-            coll = new HashSet<Object>();
+            coll = session.newLinkSet();
           }
           if (prop != null && prop.getType(session) == PropertyType.LINKBAG) {
             // there is no ridbag value already but property type is defined as LINKBAG

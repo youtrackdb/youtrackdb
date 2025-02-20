@@ -19,14 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface that indicates that collection will send notifications about operations that are
@@ -62,12 +65,22 @@ public interface TrackedMultiValue<K, V> {
 
   boolean isEmbeddedContainer();
 
-  default void checkEmbedded(V value) {
+  default void checkValue(V value) {
     if (isEmbeddedContainer()) {
       if ((value instanceof RID
           || value instanceof Entity entity && !entity.isEmbedded())) {
         throw new SchemaException(
             "Cannot add a RID or a non-embedded entity to a embedded data container");
+      }
+      if ((value instanceof Collection<?> && !((value instanceof TrackedList<?>)
+          || (value instanceof TrackedSet<?>))) || (value instanceof Map<?, ?> &&
+          !(value instanceof TrackedMap<?>))) {
+        throw new SchemaException(
+            "Cannot add a non tracked collection to a embedded data container. Please use "
+                + DatabaseSession.class.getName() +
+                " factory methods instead : "
+                + "newEmbeddedList(), newEmbeddedSet(), newEmbeddedMap(), newLinkMap(), "
+                + "newLinkList(), newLinkSet().");
       }
     } else {
       if (value instanceof Entity entity && entity.isEmbedded()) {
@@ -113,4 +126,6 @@ public interface TrackedMultiValue<K, V> {
   boolean addInternal(final V e);
 
   MultiValueChangeTimeLine<K, V> getTransactionTimeLine();
+
+  void setOwner(RecordElement owner);
 }

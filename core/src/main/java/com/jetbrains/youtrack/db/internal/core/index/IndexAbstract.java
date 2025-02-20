@@ -701,8 +701,8 @@ public abstract class IndexAbstract implements IndexInternal {
     return im.getVersion();
   }
 
-  public Map<String, ?> updateConfiguration(DatabaseSessionInternal db) {
-    var map = new HashMap<String, Object>();
+  public Map<String, ?> updateConfiguration(DatabaseSessionInternal session) {
+    var map = session.newEmbeddedMap();
 
     map.put(CONFIG_TYPE, im.getType());
     map.put(CONFIG_NAME, im.getName());

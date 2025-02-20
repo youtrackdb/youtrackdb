@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -37,7 +36,7 @@ import java.util.Map;
 public class TrackedMap<T> extends LinkedHashMap<String, T>
     implements RecordElement, TrackedMultiValue<String, T>, Serializable {
 
-  protected final RecordElement sourceRecord;
+  protected RecordElement sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
   private boolean dirty = false;
@@ -59,6 +58,20 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     embeddedCollection = this.getClass().equals(TrackedMap.class);
   }
 
+  public TrackedMap() {
+    embeddedCollection = this.getClass().equals(TrackedMap.class);
+  }
+
+  public TrackedMap(int size) {
+    super(size);
+    embeddedCollection = this.getClass().equals(TrackedMap.class);
+  }
+
+  @Override
+  public void setOwner(RecordElement owner) {
+    this.sourceRecord = owner;
+  }
+
   @Override
   public boolean isEmbeddedContainer() {
     return embeddedCollection;
@@ -78,9 +91,9 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
-    checkEmbedded(value);
-    var containsKey = containsKey(key);
+    checkValue(value);
 
+    var containsKey = containsKey(key);
     var oldValue = super.put(key, value);
 
     if (containsKey && oldValue == value) {
@@ -88,11 +101,10 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     }
 
     if (oldValue instanceof EntityImpl) {
-      EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
+      ((EntityImpl) oldValue).removeOwner(this);
     }
 
-    addOwnerToEmbeddedDoc(value);
-
+    addOwner(value);
   }
 
   @Override
@@ -100,7 +112,8 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     if (key == null) {
       throw new IllegalArgumentException("null key not supported by embedded map");
     }
-    checkEmbedded(value);
+    checkValue(value);
+
     var containsKey = containsKey(key);
 
     var oldValue = super.put(key, value);
@@ -113,17 +126,8 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     } else {
       addEvent(key, value);
     }
+
     return oldValue;
-  }
-
-  private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof EntityImpl entity) {
-      var rid = entity.getIdentity();
-
-      if (!rid.isValid() || rid.isNew()) {
-        EntityInternalUtils.addOwner((EntityImpl) e, this);
-      }
-    }
   }
 
   @Override
@@ -139,12 +143,40 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     }
   }
 
+  private void addOwner(T e) {
+    if (embeddedCollection) {
+      if (e instanceof EntityImpl entity) {
+        var rid = entity.getIdentity();
+
+        if (!rid.isValid() || rid.isNew()) {
+          ((EntityImpl) e).addOwner(this);
+        }
+      }
+    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(this);
+    }
+  }
+
+  private void removeOwner(T oldValue) {
+    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
+    } else if (oldValue instanceof EntityImpl entity) {
+      entity.removeOwner(this);
+    }
+  }
+
 
   @Override
   public void clear() {
     for (var entry : super.entrySet()) {
-      removeEvent(entry.getKey(), entry.getValue());
+      var value = entry.getValue();
+      if (value instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+        trackedMultiValue.setOwner(null);
+      }
+
+      removeEvent(entry.getKey(), value);
     }
+
     super.clear();
   }
 
@@ -217,7 +249,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
   }
 
   private void addEvent(String key, T value) {
-    addOwnerToEmbeddedDoc(value);
+    addOwner(value);
 
     if (tracker.isEnabled()) {
       tracker.add(key, value);
@@ -227,11 +259,9 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
   }
 
   private void updateEvent(String key, T oldValue, T newValue) {
-    if (oldValue instanceof EntityImpl) {
-      EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
-    }
+    removeOwner(oldValue);
 
-    addOwnerToEmbeddedDoc(newValue);
+    addOwner(newValue);
 
     if (tracker.isEnabled()) {
       tracker.updated(key, newValue, oldValue);
@@ -241,9 +271,8 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
   }
 
   private void removeEvent(String key, T removed) {
-    if (removed instanceof EntityImpl) {
-      EntityInternalUtils.removeOwner((EntityImpl) removed, this);
-    }
+    removeOwner(removed);
+
     if (tracker.isEnabled()) {
       tracker.remove(key, removed);
     } else {
@@ -256,6 +285,8 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
       tracker.enable();
       TrackedMultiValue.nestedEnabled(this.values().iterator(), this);
     }
+
+    this.sourceRecord = parent;
   }
 
   public void disableTracking(RecordElement entity) {
@@ -264,6 +295,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
       TrackedMultiValue.nestedDisable(this.values().iterator(), this);
     }
     this.dirty = false;
+    this.sourceRecord = entity;
   }
 
   @Override

@@ -44,6 +44,14 @@ import javax.annotation.Nullable;
  */
 public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeListener {
 
+  public LinkSet() {
+    super();
+  }
+
+  public LinkSet(int size) {
+    super(size);
+  }
+
   public LinkSet(final RecordElement iSourceRecord) {
     super(iSourceRecord);
   }

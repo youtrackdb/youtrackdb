@@ -502,7 +502,7 @@ public class RecordSerializerBinaryV0 implements EntitySerializer {
         throw new RuntimeException(e);
       }
     } else {
-      EntityInternalUtils.addOwner((EntityImpl) value, owner);
+      ((EntityImpl) value).addOwner(owner);
     }
     return value;
   }

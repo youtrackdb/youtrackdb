@@ -1278,12 +1278,13 @@ public class DocumentSerializerDelta {
             throw new RuntimeException(e);
           }
         } else {
-          EntityInternalUtils.addOwner((EntityImpl) value, owner);
+          ((EntityImpl) value).addOwner(owner);
         }
 
         break;
       case EMBEDDEDSET:
         value = readEmbeddedSet(session, bytes, owner);
+
         break;
       case EMBEDDEDLIST:
         value = readEmbeddedList(session, bytes, owner);
@@ -1339,9 +1340,9 @@ public class DocumentSerializerDelta {
     return found;
   }
 
-  private Collection<?> readEmbeddedSet(DatabaseSessionInternal session,
+  private TrackedSet<?> readEmbeddedSet(DatabaseSessionInternal session,
       final BytesContainer bytes, final RecordElement owner) {
-    var found = new TrackedSet<Object>(owner);
+    var found = new TrackedSet<>(owner);
     final var items = VarIntSerializer.readAsInteger(bytes);
     for (var i = 0; i < items; i++) {
       var itemType = readNullableType(bytes);

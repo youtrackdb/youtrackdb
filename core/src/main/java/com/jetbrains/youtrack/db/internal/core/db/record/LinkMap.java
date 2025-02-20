@@ -35,18 +35,23 @@ import javax.annotation.Nonnull;
  */
 public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
 
-  private final byte recordType;
   private RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
 
-  public LinkMap(final RecordElement iSourceRecord) {
-    super(iSourceRecord);
-    this.recordType = EntityImpl.RECORD_TYPE;
+  public LinkMap() {
+    super();
   }
 
-  public LinkMap(final EntityImpl iSourceRecord, final byte iRecordType) {
+  public LinkMap(int size) {
+    super(size);
+  }
+
+  public LinkMap(final RecordElement iSourceRecord) {
     super(iSourceRecord);
-    this.recordType = iRecordType;
+  }
+
+  public LinkMap(final EntityImpl iSourceRecord) {
+    super(iSourceRecord);
   }
 
   public LinkMap(final EntityImpl iSourceRecord, final Map<String, Identifiable> iOrigin) {
@@ -56,6 +61,7 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
       putAll(iOrigin);
     }
   }
+
 
   @Override
   public boolean containsValue(final Object o) {
@@ -111,10 +117,6 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
   @Override
   public String toString() {
     return RecordMultiValueHelper.toString(this);
-  }
-
-  public byte getRecordType() {
-    return recordType;
   }
 
   public Iterator<Identifiable> rawIterator() {

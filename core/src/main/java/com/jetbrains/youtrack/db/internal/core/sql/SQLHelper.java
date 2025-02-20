@@ -35,7 +35,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -371,7 +370,7 @@ public class SQLHelper {
         .isValid())
     // EMBEDDED entity
     {
-      EntityInternalUtils.addOwner((EntityImpl) iFieldValue, entity);
+      ((EntityImpl) iFieldValue).addOwner(entity);
     }
 
     // can't use existing getValue with iContext
@@ -472,8 +471,8 @@ public class SQLHelper {
                   } else {
                     // TRANSFORM IT IN EMBEDDED
                     entity.getIdentity().reset();
-                    EntityInternalUtils.addOwner(entity, e);
-                    EntityInternalUtils.addOwner(entity, e);
+                    entity.addOwner(e);
+                    entity.addOwner(e);
                     tempColl.add(entity);
                   }
                 }

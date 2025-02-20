@@ -48,6 +48,10 @@ public class LinkList extends TrackedList<Identifiable> implements Sizeable {
     super(null);
   }
 
+  public LinkList(int size) {
+    super(size);
+  }
+
   public LinkList(final RecordElement iSourceRecord) {
     super(iSourceRecord);
     if (iSourceRecord != null) {

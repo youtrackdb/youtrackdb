@@ -300,7 +300,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializerNetwork {
             throw new RuntimeException(e);
           }
         } else {
-          EntityInternalUtils.addOwner((EntityImpl) value, owner);
+          ((EntityImpl) value).addOwner(owner);
         }
 
         break;

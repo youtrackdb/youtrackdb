@@ -56,7 +56,13 @@ import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.exception.SessionNotActivatedException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionBlockedException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
@@ -2406,5 +2412,65 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
     }
 
     return 0;
+  }
+
+  @Override
+  public <T> List<T> newEmbeddedList() {
+    return new TrackedList<T>();
+  }
+
+  @Override
+  public <T> List<T> newEmbeddedList(int size) {
+    return new TrackedList<>(size);
+  }
+
+  @Override
+  public List<Identifiable> newLinkList() {
+    return new LinkList();
+  }
+
+  @Override
+  public List<Identifiable> newLinkList(int size) {
+    return new LinkList(size);
+  }
+
+  @Override
+  public <T> Set<T> newEmbeddedSet() {
+    return new TrackedSet<>();
+  }
+
+  @Override
+  public <T> Set<T> newEmbeddedSet(int size) {
+    return new TrackedSet<>(size);
+  }
+
+  @Override
+  public Set<Identifiable> newLinkSet() {
+    return new LinkSet();
+  }
+
+  @Override
+  public Set<Identifiable> newLinkSet(int size) {
+    return new LinkSet(size);
+  }
+
+  @Override
+  public <V> Map<String, V> newEmbeddedMap() {
+    return new TrackedMap<>();
+  }
+
+  @Override
+  public <V> Map<String, V> newEmbeddedMap(int size) {
+    return new TrackedMap<>(size);
+  }
+
+  @Override
+  public Map<String, Identifiable> newLinkMap() {
+    return new LinkMap();
+  }
+
+  @Override
+  public Map<String, Identifiable> newLinkMap(int size) {
+    return new LinkMap(size);
   }
 }

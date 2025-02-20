@@ -377,7 +377,7 @@ public class RecordSerializerNetworkV0 implements EntitySerializer {
             throw new RuntimeException(e);
           }
         } else {
-          EntityInternalUtils.addOwner((EntityImpl) value, owner);
+          ((EntityImpl) value).addOwner(owner);
         }
 
         break;

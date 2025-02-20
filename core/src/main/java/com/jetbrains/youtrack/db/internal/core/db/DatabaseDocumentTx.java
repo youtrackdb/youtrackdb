@@ -1117,6 +1117,78 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
+  public <T> List<T> newEmbeddedList() {
+    checkOpenness();
+    return internal.newEmbeddedList();
+  }
+
+  @Override
+  public <T> List<T> newEmbeddedList(int size) {
+    checkOpenness();
+    return internal.newEmbeddedList(size);
+  }
+
+  @Override
+  public List<Identifiable> newLinkList() {
+    checkOpenness();
+    return internal.newLinkList();
+  }
+
+  @Override
+  public List<Identifiable> newLinkList(int size) {
+    checkOpenness();
+    return internal.newLinkList(size);
+  }
+
+  @Override
+  public <T> Set<T> newEmbeddedSet() {
+    checkOpenness();
+    return internal.newEmbeddedSet();
+  }
+
+  @Override
+  public <T> Set<T> newEmbeddedSet(int size) {
+    checkOpenness();
+    return internal.newEmbeddedSet(size);
+  }
+
+  @Override
+  public Set<Identifiable> newLinkSet() {
+    checkOpenness();
+    return internal.newLinkSet();
+  }
+
+  @Override
+  public Set<Identifiable> newLinkSet(int size) {
+    checkOpenness();
+    return internal.newLinkSet(size);
+  }
+
+  @Override
+  public <V> Map<String, V> newEmbeddedMap() {
+    checkOpenness();
+    return internal.newEmbeddedMap();
+  }
+
+  @Override
+  public <V> Map<String, V> newEmbeddedMap(int size) {
+    checkOpenness();
+    return internal.newEmbeddedMap(size);
+  }
+
+  @Override
+  public Map<String, Identifiable> newLinkMap() {
+    checkOpenness();
+    return internal.newLinkMap();
+  }
+
+  @Override
+  public Map<String, Identifiable> newLinkMap(int size) {
+    checkOpenness();
+    return internal.newLinkMap(size);
+  }
+
+  @Override
   public void registerListener(SessionListener iListener) {
     if (internal != null) {
       internal.registerListener(iListener);

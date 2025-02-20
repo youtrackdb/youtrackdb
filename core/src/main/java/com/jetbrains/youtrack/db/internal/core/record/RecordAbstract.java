@@ -204,7 +204,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public <RET extends DBRecord> RET updateFromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJackson.fromString(getSessionIfDefined(),
+      RecordSerializerJackson.fromString(getSession(),
           iSource, this);
       // nothing change
       return (RET) this;
@@ -216,7 +216,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   public void updateFromJSON(final @Nonnull String iSource) {
     status = STATUS.UNMARSHALLING;
     try {
-      RecordSerializerJackson.fromString(getSessionIfDefined(), iSource, this);
+      RecordSerializerJackson.fromString(getSession(), iSource, this);
     } finally {
       status = STATUS.LOADED;
     }
@@ -255,7 +255,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     checkForBinding();
 
     return RecordSerializerJackson
-        .toString(getSessionIfDefined(), this, new StringWriter(1024),
+        .toString(getSession(), this, new StringWriter(1024),
             format == null ? "" : format)
         .toString();
   }
@@ -316,12 +316,6 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     }
 
     assert session.assertIfNotActive();
-    return session;
-  }
-
-  @Nullable
-  protected DatabaseSessionInternal getSessionIfDefined() {
-    assert session == null || session.assertIfNotActive();
     return session;
   }
 
@@ -554,6 +548,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
   @Nullable
   @Override
   public DatabaseSession getBoundedToSession() {
-    return getSessionIfDefined();
+    assert session == null || session.assertIfNotActive();
+    return session;
   }
 }

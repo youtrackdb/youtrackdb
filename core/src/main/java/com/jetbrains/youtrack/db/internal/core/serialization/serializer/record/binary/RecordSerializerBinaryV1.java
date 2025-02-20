@@ -1180,7 +1180,7 @@ public class RecordSerializerBinaryV1 implements EntitySerializer {
       }
     } else {
       var entity = (EntityImpl) value;
-      EntityInternalUtils.addOwner(entity, owner);
+      entity.addOwner(owner);
       RecordInternal.unsetDirty(entity);
     }
 

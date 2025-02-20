@@ -434,11 +434,8 @@ public class EntityImpl extends RecordAbstract
   Set<String> calculatePropertyNames() {
     checkForBinding();
 
-    var session = getSessionIfDefined();
-    if (status == RecordElement.STATUS.LOADED
-        && source != null
-        && session != null
-        && !session.isClosed()) {
+    var session = getSession();
+    if (status == RecordElement.STATUS.LOADED && source != null) {
       // DESERIALIZE FIELD NAMES ONLY (SUPPORTED ONLY BY BINARY SERIALIZER)
       final var fieldNames = recordFormat.getFieldNames(session, this, source);
       if (fieldNames != null) {
@@ -565,7 +562,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     checkForBinding();
-    var session = getSessionIfDefined();
+    var session = getSession();
 
     var value = (RET) EntityHelper.getIdentifiableValue(session, this, name);
     if (!(!name.isEmpty() && name.charAt(0) == '@')
@@ -791,7 +788,7 @@ public class EntityImpl extends RecordAbstract
       return null;
     }
 
-    return (RET) EntityHelper.getIdentifiableValue(getSessionIfDefined(), this, iFieldName);
+    return (RET) EntityHelper.getIdentifiableValue(getSession(), this, iFieldName);
   }
 
   /**
@@ -1168,6 +1165,8 @@ public class EntityImpl extends RecordAbstract
     if (oldValue instanceof
         RidBag ridBag) {
       ridBag.setOwner(null);
+    } else if (value instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
     } else {
       if (oldValue instanceof EntityImpl) {
         ((EntityImpl) oldValue).removeOwner(this);
@@ -1178,15 +1177,15 @@ public class EntityImpl extends RecordAbstract
       if (value instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
           final var embeddedEntity = (EntityImpl) value;
-          EntityInternalUtils.addOwner(embeddedEntity, this);
+          embeddedEntity.addOwner(this);
         }
-      }
-
-      if (value instanceof RidBag ridBag) {
+      } else if (value instanceof RidBag ridBag) {
         ridBag.setOwner(
             null); // in order to avoid IllegalStateException when ridBag changes the owner
         ridBag.setOwner(this);
         ridBag.setRecordAndField(recordId, name);
+      } else if (value instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+        trackedMultiValue.setOwner(this);
       }
     }
 
@@ -1257,8 +1256,11 @@ public class EntityImpl extends RecordAbstract
     }
     fieldSize--;
     entry.disableTracking(this, oldValue);
+
     if (oldValue instanceof RidBag) {
       ((RidBag) oldValue).setOwner(null);
+    } else if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
     }
 
     setDirty();
@@ -2356,7 +2358,10 @@ public class EntityImpl extends RecordAbstract
     entry.disableTracking(this, oldValue);
     if (oldValue instanceof RidBag) {
       ((RidBag) oldValue).setOwner(null);
+    } else if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
     }
+
     setDirty();
     return oldValue;
   }
@@ -3231,11 +3236,10 @@ public class EntityImpl extends RecordAbstract
 
     try {
       final var buffer = new StringBuilder(128);
-
       checkForFields();
 
-      var session = getSessionIfDefined();
-      if (session != null && !session.isClosed()) {
+      var session = getSession();
+      if (!session.isClosed()) {
         final var clsName = getSchemaClassName();
         if (clsName != null) {
           buffer.append(clsName);
@@ -3666,7 +3670,7 @@ public class EntityImpl extends RecordAbstract
   /**
    * Internal.
    */
-  protected void addOwner(final RecordElement iOwner) {
+  public void addOwner(final RecordElement iOwner) {
     checkForBinding();
 
     if (iOwner == null) {
@@ -3694,7 +3698,7 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  void removeOwner(final RecordElement iRecordElement) {
+  public void removeOwner(final RecordElement iRecordElement) {
     if (owner != null && owner.get() == iRecordElement) {
       assert !recordId.isPersistent();
       owner = null;

@@ -862,7 +862,8 @@ public class EntityHelper {
     }
   }
 
-  public static Object getIdentifiableValue(DatabaseSessionInternal db, final Identifiable iCurrent,
+  public static Object getIdentifiableValue(@Nonnull DatabaseSessionInternal session,
+      final Identifiable current,
       final String iFieldName) {
     if (iFieldName == null) {
       return null;
@@ -871,44 +872,45 @@ public class EntityHelper {
     if (!iFieldName.isEmpty()) {
       final var begin = iFieldName.charAt(0);
       if (begin == '@') {
-        if (db == null) {
+        if (session == null) {
           throw new IllegalStateException(
               "Custom attribute can not be processed because record is not bound to the session");
         }
 
         // RETURN AN ATTRIBUTE
         if (iFieldName.equalsIgnoreCase(ATTRIBUTE_THIS)) {
-          return iCurrent.getRecord(db);
+          return current.getRecord(session);
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RID)) {
-          return iCurrent.getIdentity();
+          return current.getIdentity();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RID_ID)) {
-          return iCurrent.getIdentity().getClusterId();
+          return current.getIdentity().getClusterId();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RID_POS)) {
-          return iCurrent.getIdentity().getClusterPosition();
+          return current.getIdentity().getClusterPosition();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_VERSION)) {
-          return iCurrent.getRecord(db).getVersion();
+          return current.getRecord(session).getVersion();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_CLASS)) {
-          return ((EntityImpl) iCurrent.getRecord(db)).getSchemaClassName();
+          return ((EntityImpl) current.getRecord(session)).getSchemaClassName();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_TYPE)) {
           return YouTrackDBEnginesManager.instance()
               .getRecordFactoryManager()
-              .getRecordTypeName(RecordInternal.getRecordType(db, iCurrent.getRecord(db)));
+              .getRecordTypeName(
+                  RecordInternal.getRecordType(session, current.getRecord(session)));
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_SIZE)) {
-          final var stream = ((RecordAbstract) iCurrent.getRecord(db)).toStream();
+          final var stream = ((RecordAbstract) current.getRecord(session)).toStream();
           return stream != null ? stream.length : 0;
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_FIELDS)) {
-          return ((EntityImpl) iCurrent.getRecord(db)).fieldNames();
+          return ((EntityImpl) current.getRecord(session)).fieldNames();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RAW)) {
-          return new String(((RecordAbstract) iCurrent.getRecord(db)).toStream());
+          return new String(((RecordAbstract) current.getRecord(session)).toStream());
         }
       }
     }
-    if (iCurrent == null) {
+    if (current == null) {
       return null;
     }
 
     try {
-      final EntityImpl entity = iCurrent.getRecord(db);
+      final EntityImpl entity = current.getRecord(session);
       return entity.accessProperty(iFieldName);
     } catch (RecordNotFoundException rnf) {
       return null;

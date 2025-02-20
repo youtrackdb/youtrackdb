@@ -333,7 +333,9 @@ public enum PropertyType {
     }
 
     var first = toCheck.stream().findAny();
-    return first.map(o -> o instanceof Identifiable).orElse(false);
+    return first.map(
+        o -> o instanceof Identifiable identifiable && (!(identifiable instanceof Entity entity)
+            || !entity.isEmbedded())).orElse(false);
   }
 
   public static boolean isSimpleType(final Object iObject) {

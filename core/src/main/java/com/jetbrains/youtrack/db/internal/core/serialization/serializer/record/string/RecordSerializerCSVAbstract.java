@@ -169,8 +169,8 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         // REMOVE BEGIN & END MAP CHARACTERS
         var value = iValue.substring(1, iValue.length() - 1);
 
-        @SuppressWarnings("rawtypes") final Map map = new LinkMap((EntityImpl) iSourceRecord,
-            EntityImpl.RECORD_TYPE);
+        @SuppressWarnings("rawtypes") final Map map = new LinkMap((EntityImpl) iSourceRecord
+        );
 
         if (value.length() == 0) {
           return map;
@@ -240,7 +240,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
           final var embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(session, value);
           if (embeddedObject instanceof EntityImpl) {
-            EntityInternalUtils.addOwner((EntityImpl) embeddedObject, iSourceRecord);
+            ((EntityImpl) embeddedObject).addOwner(iSourceRecord);
           }
 
           // RECORD
@@ -274,7 +274,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
     @SuppressWarnings("rawtypes")
     Map map;
     if (iLinkedType == PropertyType.LINK || iLinkedType == PropertyType.EMBEDDED) {
-      map = new LinkMap(iSourceDocument, EntityImpl.RECORD_TYPE);
+      map = new LinkMap(iSourceDocument);
     } else {
       map = new TrackedMap<Object>(iSourceDocument);
     }
@@ -309,7 +309,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
                     || iSourceDocument.getPropertyType(iName) != PropertyType.EMBEDDEDMAP)
                     && isConvertToLinkedMap(map, linkedType)) {
                   // CONVERT IT TO A LAZY MAP
-                  map = new LinkMap(iSourceDocument, EntityImpl.RECORD_TYPE);
+                  map = new LinkMap(iSourceDocument);
                 } else if (map instanceof LinkMap && linkedType != PropertyType.LINK) {
                   map = new TrackedMap<Object>(iSourceDocument, map, null);
                 }
@@ -327,7 +327,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             mapValueObject = fieldTypeFromStream(session, iSourceDocument, linkedType, mapValue);
 
             if (mapValueObject != null && mapValueObject instanceof EntityImpl) {
-              EntityInternalUtils.addOwner((EntityImpl) mapValueObject, iSourceDocument);
+              ((EntityImpl) mapValueObject).addOwner(iSourceDocument);
             }
           } else {
             mapValueObject = null;
@@ -521,7 +521,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         if (invalidMap) {
-          final var newMap = new LinkMap(iRecord, EntityImpl.RECORD_TYPE);
+          final var newMap = new LinkMap(iRecord);
 
           // REPLACE ALL CHANGED ITEMS
           for (var entry : map.entrySet()) {
@@ -762,7 +762,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       if (objectToAdd != null
           && objectToAdd instanceof EntityImpl
           && coll instanceof RecordElement) {
-        EntityInternalUtils.addOwner((EntityImpl) objectToAdd, (RecordElement) coll);
+        ((EntityImpl) objectToAdd).addOwner((RecordElement) coll);
       }
 
       ((Collection<Object>) coll).add(objectToAdd);
@@ -905,7 +905,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         } else {
           final var entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
-            EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
+            ((EntityImpl) entity).addOwner(iSourceRecord);
           }
 
           coll.add(entity);
@@ -929,7 +929,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         } else {
           final var entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
-            EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
+            ((EntityImpl) entity).addOwner(iSourceRecord);
           }
 
           coll.add(entity);

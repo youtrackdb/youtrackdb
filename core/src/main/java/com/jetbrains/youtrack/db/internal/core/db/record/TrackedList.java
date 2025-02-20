@@ -22,13 +22,14 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of ArrayList bound to a source Record object to keep track of changes for literal
@@ -37,15 +38,17 @@ import java.util.List;
 public class TrackedList<T> extends ArrayList<T>
     implements RecordElement, TrackedMultiValue<Integer, T>, Serializable {
 
-  protected final RecordElement sourceRecord;
+  @Nullable
+  protected RecordElement sourceRecord;
   protected Class<?> genericClass;
+
   private final boolean embeddedCollection;
   private boolean dirty = false;
   private boolean transactionDirty = false;
   private final SimpleMultiValueTracker<Integer, T> tracker = new SimpleMultiValueTracker<>(this);
 
   public TrackedList(
-      final RecordElement iRecord,
+      @Nonnull final RecordElement iRecord,
       final Collection<? extends T> iOrigin,
       final Class<?> iGenericClass) {
     this(iRecord);
@@ -56,9 +59,23 @@ public class TrackedList<T> extends ArrayList<T>
     }
   }
 
-  public TrackedList(final RecordElement iSourceRecord) {
+  public TrackedList(@Nonnull final RecordElement iSourceRecord) {
     this.sourceRecord = iSourceRecord;
     embeddedCollection = this.getClass().equals(TrackedList.class);
+  }
+
+  public TrackedList() {
+    embeddedCollection = this.getClass().equals(TrackedList.class);
+  }
+
+  public TrackedList(int size) {
+    super(size);
+    embeddedCollection = this.getClass().equals(TrackedList.class);
+  }
+
+  @Override
+  public void setOwner(RecordElement owner) {
+    this.sourceRecord = owner;
   }
 
   @Override
@@ -73,7 +90,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public boolean add(T element) {
-    checkEmbedded(element);
+    checkValue(element);
     final var result = super.add(element);
 
     if (result) {
@@ -84,11 +101,11 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   public boolean addInternal(T element) {
-    checkEmbedded(element);
+    checkValue(element);
     final var result = super.add(element);
 
     if (result) {
-      addOwnerToEmbeddedDoc(element);
+      addOwner(element);
     }
 
     return result;
@@ -104,27 +121,27 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public void add(int index, T element) {
-    checkEmbedded(element);
+    checkValue(element);
     super.add(index, element);
     addEvent(index, element);
   }
 
   public void setInternal(int index, T element) {
-    checkEmbedded(element);
+    checkValue(element);
     final var oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
       if (oldValue instanceof EntityImpl) {
-        EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
+        ((EntityImpl) oldValue).removeOwner(this);
       }
 
-      addOwnerToEmbeddedDoc(element);
+      addOwner(element);
     }
   }
 
   @Override
   public T set(int index, T element) {
-    checkEmbedded(element);
+    checkValue(element);
     final var oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
@@ -134,15 +151,28 @@ public class TrackedList<T> extends ArrayList<T>
     return oldValue;
   }
 
-  private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof EntityImpl entity) {
-      var rid = entity.getIdentity();
+  private void addOwner(T e) {
+    if (embeddedCollection) {
+      if (e instanceof EntityImpl entity) {
+        var rid = entity.getIdentity();
 
-      if (!rid.isValid() || rid.isNew()) {
-        EntityInternalUtils.addOwner((EntityImpl) e, this);
+        if (!rid.isValid() || rid.isNew()) {
+          ((EntityImpl) e).addOwner(this);
+        }
       }
+    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(this);
     }
   }
+
+  private void removeOwner(T oldValue) {
+    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
+    } else if (oldValue instanceof EntityImpl entity) {
+      entity.removeOwner(this);
+    }
+  }
+
 
   @Override
   public T remove(int index) {
@@ -152,7 +182,7 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   private void addEvent(int index, T added) {
-    addOwnerToEmbeddedDoc(added);
+    addOwner(added);
 
     if (tracker.isEnabled()) {
       tracker.add(index, added);
@@ -162,11 +192,8 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   private void updateEvent(int index, T oldValue, T newValue) {
-    if (oldValue instanceof EntityImpl) {
-      EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
-    }
-
-    addOwnerToEmbeddedDoc(newValue);
+    removeOwner(oldValue);
+    addOwner(newValue);
 
     if (tracker.isEnabled()) {
       tracker.updated(index, newValue, oldValue);
@@ -176,9 +203,8 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   private void removeEvent(int index, T removed) {
-    if (removed instanceof EntityImpl) {
-      EntityInternalUtils.removeOwner((EntityImpl) removed, this);
-    }
+    removeOwner(removed);
+
     if (tracker.isEnabled()) {
       tracker.remove(index, removed);
     } else {
@@ -285,6 +311,8 @@ public class TrackedList<T> extends ArrayList<T>
       tracker.enable();
       TrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
+
+    this.sourceRecord = parent;
   }
 
   public void disableTracking(RecordElement parent) {
@@ -293,6 +321,7 @@ public class TrackedList<T> extends ArrayList<T>
       TrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
+    this.sourceRecord = parent;
   }
 
   @Override

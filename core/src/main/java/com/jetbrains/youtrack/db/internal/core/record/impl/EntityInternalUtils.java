@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
@@ -37,14 +36,6 @@ public class EntityInternalUtils {
 
   public static void convertAllMultiValuesToTrackedVersions(EntityImpl entity) {
     entity.convertAllMultiValuesToTrackedVersions();
-  }
-
-  public static void addOwner(EntityImpl entity, RecordElement iOwner) {
-    entity.addOwner(iOwner);
-  }
-
-  public static void removeOwner(EntityImpl entity, RecordElement iOwner) {
-    entity.removeOwner(iOwner);
   }
 
   public static void rawField(

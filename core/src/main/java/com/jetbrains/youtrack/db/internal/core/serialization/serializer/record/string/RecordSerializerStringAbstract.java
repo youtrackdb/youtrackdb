@@ -30,7 +30,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerEmbedded;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -84,7 +83,7 @@ public abstract class RecordSerializerStringAbstract {
         final var embeddedObject =
             StringSerializerEmbedded.INSTANCE.fromStream(session, (String) iValue);
         if (embeddedObject instanceof EntityImpl) {
-          EntityInternalUtils.addOwner((EntityImpl) embeddedObject, entity);
+          ((EntityImpl) embeddedObject).addOwner(entity);
         }
 
         // EMBEDDED OBJECT

@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -490,13 +489,13 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     var parent = ((EntityImpl) session.newEntity());
 
     var child1 = ((EntityImpl) session.newEntity());
-    EntityInternalUtils.addOwner(child1, parent);
+    child1.addOwner(parent);
     parent.field("child1", child1);
 
     Assert.assertTrue(child1.hasOwners());
 
     var child2 = ((EntityImpl) session.newEntity());
-    EntityInternalUtils.addOwner(child2, child1);
+    child2.addOwner(child1);
     child1.field("child2", child2);
 
     Assert.assertTrue(child2.hasOwners());

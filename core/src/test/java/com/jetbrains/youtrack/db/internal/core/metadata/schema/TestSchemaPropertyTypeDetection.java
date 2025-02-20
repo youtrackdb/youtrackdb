@@ -18,7 +18,6 @@ import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.EntitySerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import java.io.Serializable;
@@ -162,7 +161,8 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
 
     assertEquals(
         PropertyType.EMBEDDEDLIST,
-        PropertyType.getTypeByValue(new TrackedList<Object>((EntityImpl) session.newEntity())));
+        PropertyType.getTypeByValue(new TrackedList<Object>((EntityImpl) session.newEntity()
+        )));
 
     assertEquals(PropertyType.EMBEDDEDSET, PropertyType.getTypeByValue(new HashSet<Object>()));
 
@@ -217,7 +217,7 @@ public class TestSchemaPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet2));
 
     var document = (EntityImpl) session.newEntity();
-    EntityInternalUtils.addOwner(document, (EntityImpl) session.newEntity());
+    document.addOwner((EntityImpl) session.newEntity());
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(document));
     session.rollback();
   }

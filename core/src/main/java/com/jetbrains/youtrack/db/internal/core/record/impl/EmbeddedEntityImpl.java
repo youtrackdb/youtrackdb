@@ -22,7 +22,7 @@ public class EmbeddedEntityImpl extends EntityImpl {
 
 
   @Override
-  protected void addOwner(RecordElement iOwner) {
+  public void addOwner(RecordElement iOwner) {
     checkForBinding();
 
     if (iOwner == null) {
