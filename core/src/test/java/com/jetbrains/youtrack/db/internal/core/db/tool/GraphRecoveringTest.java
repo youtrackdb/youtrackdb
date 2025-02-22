@@ -75,9 +75,6 @@ public class GraphRecoveringTest {
     v1.addEdge(v2, "E1");
     v2.addEdge(v0, "E2");
 
-    v0.save();
-    v1.save();
-    v2.save();
     session.commit();
   }
 
@@ -161,7 +158,6 @@ public class GraphRecoveringTest {
           for (var f : v.<EntityImpl>getRecord(session).fieldNames()) {
             if (f.startsWith(Vertex.DIRECTION_OUT_PREFIX)) {
               v.<EntityImpl>getRecord(session).removeField(f);
-              v.save();
             }
           }
         }

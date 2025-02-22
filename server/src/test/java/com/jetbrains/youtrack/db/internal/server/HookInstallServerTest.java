@@ -103,7 +103,7 @@ public class HookInstallServerTest {
           db.createClassIfNotExist("Test");
 
           db.executeInTx(() -> {
-            db.save(((EntityImpl) db.newEntity("Test")).field("entry", id));
+            ((EntityImpl) db.newEntity("Test")).field("entry", id);
             db.commit();
           });
         }

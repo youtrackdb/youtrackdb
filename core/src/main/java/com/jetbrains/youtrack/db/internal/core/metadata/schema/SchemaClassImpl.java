@@ -51,7 +51,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -621,41 +620,43 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
 
   protected abstract SchemaPropertyImpl createPropertyInstance();
 
-  public EntityImpl toStream(DatabaseSessionInternal db) {
-    var entity = new EntityImpl(db);
-    entity.field("name", name);
-    entity.field("shortName", shortName);
-    entity.field("description", description);
-    entity.field("defaultClusterId", defaultClusterId);
-    entity.field("clusterIds", clusterIds);
-    entity.field("clusterSelection", clusterSelection.getName());
-    entity.field("overSize", overSize);
-    entity.field("strictMode", strictMode);
-    entity.field("abstract", abstractClass);
+  public Entity toStream(DatabaseSessionInternal session) {
+    var entity = session.newEmbededEntity();
+    entity.setProperty("name", name);
+    entity.setProperty("shortName", shortName);
+    entity.setProperty("description", description);
+    entity.setProperty("defaultClusterId", defaultClusterId);
+    entity.setProperty("clusterIds", clusterIds);
+    entity.setProperty("clusterSelection", clusterSelection.getName());
+    entity.setProperty("overSize", overSize);
+    entity.setProperty("strictMode", strictMode);
+    entity.setProperty("abstract", abstractClass);
 
-    var props = new LinkedHashSet<Entity>();
+    var props = session.newEmbeddedSet(properties.size());
     for (final SchemaProperty p : properties.values()) {
-      props.add(((SchemaPropertyImpl) p).toStream(db));
+      props.add(((SchemaPropertyImpl) p).toStream(session));
     }
-    entity.field("properties", props, PropertyType.EMBEDDEDSET);
+    entity.setProperty("properties", props);
 
     if (superClasses.isEmpty()) {
       // Single super class is deprecated!
-      entity.field("superClass", null, PropertyType.STRING);
-      entity.field("superClasses", null, PropertyType.EMBEDDEDLIST);
+      entity.setProperty("superClass", null, PropertyType.STRING);
+      entity.setProperty("superClasses", null, PropertyType.EMBEDDEDLIST);
     } else {
       // Single super class is deprecated!
-      entity.field("superClass", superClasses.getFirst().getName(db), PropertyType.STRING);
-      List<String> superClassesNames = new ArrayList<>();
+      entity.setProperty("superClass", superClasses.getFirst().getName(session),
+          PropertyType.STRING);
+      List<String> superClassesNames = session.newEmbeddedList(superClasses.size());
       for (var superClass : superClasses) {
-        superClassesNames.add(superClass.getName(db));
+        superClassesNames.add(superClass.getName(session));
       }
-      entity.field("superClasses", superClassesNames, PropertyType.EMBEDDEDLIST);
+      entity.setProperty("superClasses", superClassesNames, PropertyType.EMBEDDEDLIST);
     }
 
-    entity.field(
+    entity.setProperty(
         "customFields",
-        customFields != null && !customFields.isEmpty() ? customFields : null,
+        customFields != null && !customFields.isEmpty() ? session.newEmbeddedMap(customFields)
+            : null,
         PropertyType.EMBEDDEDMAP);
 
     return entity;
@@ -868,7 +869,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   /**
    * Check if the current instance extends specified schema class.
    *
-   * @param clazz   to check
+   * @param clazz to check
    * @return true if the current instance extends the passed schema class (iClass)
    * @see SchemaClass#isSuperClassOf(DatabaseSession, SchemaClass)
    */
@@ -896,7 +897,7 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
   /**
    * Returns true if the passed schema class (iClass) extends the current instance.
    *
-   * @param clazz   to check
+   * @param clazz to check
    * @return Returns true if the passed schema class extends the current instance
    * @see SchemaClass#isSubClassOf(DatabaseSession, SchemaClass)
    */
@@ -1336,7 +1337,6 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
               var record =
                   database.bindToSession((EntityImpl) result.next().castToEntity());
               record.field(propertyName, record.field(propertyName), type);
-              database.save(record);
             });
       }
     }
@@ -1364,7 +1364,6 @@ public abstract class SchemaClassImpl implements SchemaClassInternal {
                   database.bindToSession((EntityImpl) result.next().castToEntity());
               record.setFieldType(propertyName, type);
               record.field(newPropertyName, record.field(propertyName), type);
-              database.save(record);
             });
       }
     }

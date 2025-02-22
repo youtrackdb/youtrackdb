@@ -352,11 +352,11 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     session.begin();
     final var document = (EntityImpl) session.newEntity();
 
-    final Map<String, String> stringMap = new HashMap<String, String>();
+    final Map<String, String> stringMap = session.newEmbeddedMap();
     stringMap.put("key1", "val1");
     stringMap.put("key2", "val2");
 
-    document.field("fOne", 12);
+    document.setInt("fOne", 12);
     document.field("fTwo", stringMap);
 
     final var compositeIndexDefinition =
@@ -383,8 +383,8 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     session.begin();
     final var document = (EntityImpl) session.newEntity();
 
-    document.field("fOne", 12);
-    document.field("fTwo", Arrays.asList(1, 2));
+    document.setInt("fOne", 12);
+    document.newEmbeddedList("fTwo").addAll(Arrays.asList(1, 2));
 
     final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
@@ -411,7 +411,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
-    document.field("fTwo", Collections.emptyList());
+    document.newEmbeddedList("fTwo");
 
     final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
@@ -431,7 +431,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     session.begin();
     final var document = (EntityImpl) session.newEntity();
 
-    document.field("fOne", Collections.emptyList());
+    document.newEmbeddedList("fOne");
     document.field("fTwo", 12);
 
     final var compositeIndexDefinition =
@@ -453,7 +453,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
-    document.field("fTwo", Collections.emptyList());
+    document.newEmbeddedList("fTwo");
 
     final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
@@ -474,7 +474,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     session.begin();
     final var document = (EntityImpl) session.newEntity();
 
-    document.field("fOne", Collections.emptyList());
+    document.newEmbeddedList("fOne");
     document.field("fTwo", 12);
 
     final var compositeIndexDefinition =
@@ -530,7 +530,7 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     final var document = (EntityImpl) session.newEntity();
 
     document.field("fOne", 12);
-    document.field("fTwo", Arrays.asList(1, 2));
+    document.newEmbeddedList("fTwo").addAll(Arrays.asList(1, 2));
 
     final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");
@@ -589,9 +589,9 @@ public class CompositeIndexDefinitionTest extends DbTestBase {
     session.begin();
     final var document = (EntityImpl) session.newEntity();
 
-    document.field("fOne", 12);
-    document.field("fTwo", Arrays.asList(1, 2));
-    document.field("fThree", "test");
+    document.setInt("fOne", 12);
+    document.newEmbeddedList("fTwo").addAll(Arrays.asList(1, 2));
+    document.setString("fThree", "test");
 
     final var compositeIndexDefinition =
         new CompositeIndexDefinition("testCollectionClass");

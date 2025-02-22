@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
@@ -57,6 +56,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,52 +99,22 @@ public enum PropertyType {
       new Class<?>[]{EntitySerializable.class, SerializableStream.class}),
 
   EMBEDDEDLIST(
-      "EmbeddedList", 10, List.class, new Class<?>[]{List.class, MultiCollectionIterator.class}),
+      "EmbeddedList", 10, TrackedList.class,
+      new Class<?>[]{List.class, MultiCollectionIterator.class}),
 
-  EMBEDDEDSET("EmbeddedSet", 11, Set.class, new Class<?>[]{Set.class}),
+  EMBEDDEDSET("EmbeddedSet", 11, TrackedSet.class, new Class<?>[]{Set.class}),
 
-  EMBEDDEDMAP("EmbeddedMap", 12, Map.class, new Class<?>[]{Map.class}),
+  EMBEDDEDMAP("EmbeddedMap", 12, TrackedMap.class, new Class<?>[]{Map.class}),
 
-  /**
-   * Links do not support link consistency and can be broken if you delete elements. If you wish to
-   * keep link consistency in case you delete elements please consider to use edges instead.
-   * {@link Vertex#addEdge(Vertex, SchemaClass)} or
-   * {@link Vertex#addLightWeightEdge(Vertex, SchemaClass)} instead.
-   */
   LINK("Link", 13, Identifiable.class, new Class<?>[]{Identifiable.class, RID.class}),
 
-  /**
-   * Link lists do not support link consistency and can keep broken links if you delete elements.
-   * Also, they do not scale well if you have a high number of links.
-   * <p>
-   * If you wish to keep link consistency in case you delete elements please consider to use edges
-   * instead. {@link Vertex#addEdge(Vertex, SchemaClass)} or
-   * {@link Vertex#addLightWeightEdge(Vertex, SchemaClass)} instead.
-   */
-  LINKLIST("LinkList", 14, List.class, new Class<?>[]{List.class}),
+  LINKLIST("LinkList", 14, LinkList.class, new Class<?>[]{List.class}),
 
-  /**
-   * Link sets do not support link consistency and can keep broken links if you delete elements.
-   * Also, they do not scale well if you have a high number of links.
-   * <p>
-   * If you wish to keep link consistency in case you delete elements please consider to use edges
-   * instead. {@link Vertex#addEdge(Vertex, SchemaClass)} or
-   * {@link Vertex#addLightWeightEdge(Vertex, SchemaClass)} instead.
-   */
-  LINKSET("LinkSet", 15, Set.class, new Class<?>[]{Set.class}),
+  LINKSET("LinkSet", 15, LinkSet.class, new Class<?>[]{Set.class}),
 
-  /**
-   * Link maps do not support link consistency and can keep broken links if you delete elements.
-   * Also, they do not scale well if you have a high number of links.
-   * <p>
-   * If you wish to keep link consistency in case you delete elements please consider to use edges
-   * instead. {@link Vertex#addEdge(Vertex, SchemaClass)} or
-   * {@link Vertex#addLightWeightEdge(Vertex, SchemaClass)} instead.
-   */
-  LINKMAP("LinkMap", 16, Map.class, new Class<?>[]{Map.class}),
+  LINKMAP("LinkMap", 16, LinkMap.class, new Class<?>[]{Map.class}),
 
   BYTE("Byte", 17, Byte.class, new Class<?>[]{Number.class}),
-
 
   DATE("Date", 19, Date.class, new Class<?>[]{Number.class}),
 
@@ -350,32 +320,32 @@ public enum PropertyType {
             || !entity.isEmbedded())).orElse(true);
   }
 
-  public static boolean isSimpleType(final Object iObject) {
-    if (iObject == null) {
-      return false;
+  public static boolean isSimpleValueType(@Nullable Object value) {
+    if (value == null) {
+      return true;
     }
 
-    final var iType = iObject.getClass();
+    var cls = value.getClass();
+    if (cls.isPrimitive()) {
+      return true;
+    }
 
-    return iType.isPrimitive()
-        || Number.class.isAssignableFrom(iType)
-        || String.class.isAssignableFrom(iType)
-        || Boolean.class.isAssignableFrom(iType)
-        || Date.class.isAssignableFrom(iType)
-        || (iType.isArray()
-        && (iType.equals(byte[].class)
-        || iType.equals(char[].class)
-        || iType.equals(int[].class)
-        || iType.equals(long[].class)
-        || iType.equals(double[].class)
-        || iType.equals(float[].class)
-        || iType.equals(short[].class)
-        || iType.equals(Integer[].class)
-        || iType.equals(String[].class)
-        || iType.equals(Long[].class)
-        || iType.equals(Short[].class)
-        || iType.equals(Double[].class)));
+    return Integer.class.isAssignableFrom(cls) || Long.class.isAssignableFrom(cls) || Short.class
+        .isAssignableFrom(cls) || Byte.class.isAssignableFrom(cls) || Double.class
+        .isAssignableFrom(cls) || Float.class.isAssignableFrom(cls) || Boolean.class
+        .isAssignableFrom(cls) || BigDecimal.class.isAssignableFrom(cls) ||
+        Date.class.isAssignableFrom(cls) || String.class.isAssignableFrom(cls);
   }
+
+  public static boolean isSingleValueType(@Nullable Object value) {
+    if (isSimpleValueType(value)) {
+      return true;
+    }
+
+    var cls = value.getClass();
+    return cls.isArray() && cls.getComponentType().equals(byte.class);
+  }
+
 
   /**
    * Convert types based on the iTargetClass parameter.
@@ -544,6 +514,78 @@ public enum PropertyType {
           }
         }
 
+      } else if (LinkSet.class.isAssignableFrom(targetClass)) {
+        switch (value) {
+          case Collection<?> collection -> {
+            var linkSet = session.newLinkSet(collection.size());
+            linkSet.addAll((Collection<? extends Identifiable>) collection);
+            return (T) linkSet;
+          }
+          case Iterable<?> iterable -> {
+            var linkSet = session.newLinkSet();
+            for (var item : iterable) {
+              switch (item) {
+                case Identifiable identifiable -> linkSet.add(identifiable);
+                case String s -> linkSet.add(new RecordId(s));
+                case Result res when res.isRecord() -> linkSet.add(res.getIdentity());
+                case null, default -> throw new DatabaseException(session.getDatabaseName(),
+                    String.format(
+                        "Error in conversion of value '%s' to type '%s'", value, targetClass));
+              }
+            }
+            return (T) linkSet;
+          }
+          case Iterator<?> iterator -> {
+            var linkSet = session.newLinkSet();
+            while (iterator.hasNext()) {
+              var item = iterator.next();
+              switch (item) {
+                case Identifiable identifiable -> linkSet.add(identifiable);
+                case String s -> linkSet.add(new RecordId(s));
+                case Result res when res.isRecord() -> linkSet.add(res.getIdentity());
+                case null, default -> throw new DatabaseException(session.getDatabaseName(),
+                    String.format(
+                        "Error in conversion of value '%s' to type '%s'", value, targetClass));
+              }
+            }
+            return (T) linkSet;
+          }
+          default -> {
+            var linkSet = session.newLinkSet();
+            linkSet.add((Identifiable) value);
+            return (T) linkSet;
+
+          }
+        }
+      } else if (TrackedSet.class.isAssignableFrom(targetClass)) {
+        switch (value) {
+          case Collection<?> collection -> {
+            var embeddedSet = session.newEmbeddedSet(collection.size());
+            embeddedSet.addAll(collection);
+            return (T) embeddedSet;
+          }
+          case Iterable<?> iterable -> {
+            var embeddedSet = session.newEmbeddedSet();
+
+            for (var item : iterable) {
+              embeddedSet.add(item);
+            }
+
+            return (T) embeddedSet;
+          }
+          case Iterator<?> iterator -> {
+            var embeddedSet = session.newEmbeddedSet();
+            while (iterator.hasNext()) {
+              embeddedSet.add(iterator.next());
+            }
+            return (T) embeddedSet;
+          }
+          default -> {
+            var embeddedSet = session.newEmbeddedSet();
+            embeddedSet.add(value);
+            return (T) embeddedSet;
+          }
+        }
       } else if (Set.class.isAssignableFrom(targetClass)) {
         // The caller specifically wants a Set.  If the value is a collection
         // we will add all of the items in the collection to a set.  Otherwise
@@ -553,7 +595,75 @@ public enum PropertyType {
         } else {
           return (T) Collections.singleton(value);
         }
-
+      } else if (LinkList.class.isAssignableFrom(targetClass)) {
+        switch (value) {
+          case Collection<?> collection -> {
+            var linkList = session.newLinkList(collection.size());
+            linkList.addAll((Collection<? extends Identifiable>) collection);
+            return (T) linkList;
+          }
+          case Iterable<?> iterable -> {
+            var linkList = session.newLinkList();
+            for (var item : iterable) {
+              switch (item) {
+                case Identifiable identifiable -> linkList.add(identifiable);
+                case String s -> linkList.add(new RecordId(s));
+                case Result res when res.isRecord() -> linkList.add(res.getIdentity());
+                case null, default -> throw new DatabaseException(session.getDatabaseName(),
+                    String.format(
+                        "Error in conversion of value '%s' to type '%s'", value, targetClass));
+              }
+            }
+            return (T) linkList;
+          }
+          case Iterator<?> iterator -> {
+            var linkList = session.newLinkList();
+            while (iterator.hasNext()) {
+              var item = iterator.next();
+              switch (item) {
+                case Identifiable identifiable -> linkList.add(identifiable);
+                case String s -> linkList.add(new RecordId(s));
+                case Result res when res.isRecord() -> linkList.add(res.getIdentity());
+                case null, default -> throw new DatabaseException(session.getDatabaseName(),
+                    String.format(
+                        "Error in conversion of value '%s' to type '%s'", value, targetClass));
+              }
+            }
+            return (T) linkList;
+          }
+          default -> {
+            var linkList = session.newLinkList();
+            linkList.add((Identifiable) value);
+            return (T) linkList;
+          }
+        }
+      } else if (TrackedList.class.isAssignableFrom(targetClass)) {
+        switch (value) {
+          case Collection<?> collection -> {
+            var embeddedList = session.newEmbeddedList(collection.size());
+            embeddedList.addAll(collection);
+            return (T) embeddedList;
+          }
+          case Iterable<?> iterable -> {
+            var embeddedList = session.newEmbeddedList();
+            for (var item : iterable) {
+              embeddedList.add(item);
+            }
+            return (T) embeddedList;
+          }
+          case Iterator<?> iterator -> {
+            var embeddedList = session.newEmbeddedList();
+            while (iterator.hasNext()) {
+              embeddedList.add(iterator.next());
+            }
+            return (T) embeddedList;
+          }
+          default -> {
+            var embeddedList = session.newEmbeddedList();
+            embeddedList.add(value);
+            return (T) embeddedList;
+          }
+        }
       } else if (List.class.isAssignableFrom(targetClass)) {
         // The caller specifically wants a List.  If the value is a collection
         // we will add all of the items in the collection to a List.  Otherwise
@@ -574,6 +684,37 @@ public enum PropertyType {
           return (T) Collections.singleton(value);
         }
 
+      } else if (LinkMap.class.isAssignableFrom(targetClass)) {
+        if (value instanceof Map<?, ?> map) {
+          var linkMap = session.newLinkMap(map.size());
+          for (var entry : map.entrySet()) {
+            linkMap.put(entry.getKey().toString(), (Identifiable) entry.getValue());
+          }
+          return (T) linkMap;
+        } else {
+          var linkMap = session.newLinkMap();
+          linkMap.put("value", (Identifiable) value);
+          return (T) linkMap;
+        }
+      } else if (TrackedMap.class.isAssignableFrom(targetClass)) {
+        if (value instanceof Map<?, ?> map) {
+          var embeddedMap = session.newEmbeddedMap(map.size());
+          embeddedMap.putAll((Map) map);
+          return (T) embeddedMap;
+        } else {
+          var embeddedMap = session.newEmbeddedMap();
+          embeddedMap.put("value", value);
+          return (T) embeddedMap;
+        }
+      } else if (Map.class.isAssignableFrom(targetClass)) {
+        // The caller specifically wants a Map.  If the value is a map
+        // we will add all of the items in the map to a Map.  Otherwise
+        // we will create a singleton map with only the value in it.
+        if (value instanceof Map<?, ?>) {
+          return (T) new HashMap<Object, Object>((Map<?, ?>) value);
+        } else {
+          return (T) Collections.singletonMap("value", value);
+        }
       } else if (targetClass.equals(Date.class)) {
         if (value instanceof Number) {
           return (T) new Date(((Number) value).longValue());
@@ -1008,6 +1149,7 @@ public enum PropertyType {
     return new Number[]{context, max};
   }
 
+
   /**
    * Convert the input object to a string.
    *
@@ -1056,4 +1198,5 @@ public enum PropertyType {
   public String getName() {
     return name;
   }
+
 }

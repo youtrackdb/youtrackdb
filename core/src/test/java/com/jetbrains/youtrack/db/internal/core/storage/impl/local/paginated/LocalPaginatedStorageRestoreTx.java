@@ -294,8 +294,6 @@ public class LocalPaginatedStorageRestoreTx {
             }
             docOne.field("stringSet", stringSet);
 
-            docOne.save();
-
             EntityImpl docTwo = null;
 
             if (random.nextBoolean()) {
@@ -308,7 +306,7 @@ public class LocalPaginatedStorageRestoreTx {
               }
 
               docTwo.field("stringList", stringList);
-              docTwo.save();
+
             }
 
             if (!secondDocs.isEmpty()) {
@@ -323,7 +321,7 @@ public class LocalPaginatedStorageRestoreTx {
               }
 
               docOne.field("linkMap", linkMap);
-              docOne.save();
+
             }
 
             var deleteIndex = -1;
@@ -344,7 +342,7 @@ public class LocalPaginatedStorageRestoreTx {
               var conflictDocTwo = ((EntityImpl) db.newEntity());
               RecordInternal.setIdentity(conflictDocTwo, new RecordId(secondDocs.get(0)));
               conflictDocTwo.setDirty();
-              conflictDocTwo.save();
+
             }
 
             db.commit();

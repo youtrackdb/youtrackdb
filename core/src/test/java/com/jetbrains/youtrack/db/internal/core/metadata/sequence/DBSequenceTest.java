@@ -314,7 +314,6 @@ public class DBSequenceTest {
           for (var i = 0; i < 10; i++) {
             var person = db.newVertex("Person");
             person.setProperty("name", "Foo" + i);
-            person.save();
           }
         });
 
@@ -336,7 +335,6 @@ public class DBSequenceTest {
     for (var i = 0; i < 10; i++) {
       var person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
-      person.save();
     }
 
     db.commit();

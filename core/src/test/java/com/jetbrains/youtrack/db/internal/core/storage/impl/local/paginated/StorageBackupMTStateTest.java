@@ -350,7 +350,6 @@ public class StorageBackupMTStateTest {
       }
 
       doc.field("linkedDocuments", linkedDocuments);
-      doc.save();
 
       if (docId % 10000 == 0) {
         System.out.println(docId + " documents of class " + className + " were inserted");

@@ -240,11 +240,6 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
 
-  @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    // do nothing not needed
-  }
-
   private void addEvent(RID key, RID rid) {
     if (tracker.isEnabled()) {
       tracker.addNoDirty(key, rid);

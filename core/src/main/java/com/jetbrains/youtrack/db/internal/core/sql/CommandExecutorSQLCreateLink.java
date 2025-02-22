@@ -335,12 +335,10 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
                 target.field(linkName, value);
               }
 
-              target.save();
-
             } else {
               // SET THE REFERENCE
               entity.field(linkName, value);
-              entity.save();
+
             }
 
             total++;

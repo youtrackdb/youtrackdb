@@ -43,7 +43,6 @@ public class LuceneBooleanIndexTest extends LuceneBaseTest {
       var person = session.newVertex("Person");
       person.setProperty("isDeleted", i % 2 == 0);
       session.begin();
-      session.save(person);
       session.commit();
     }
   }

@@ -26,13 +26,11 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     session.begin();
     var v1 = session.newVertex(vClass);
     v1.setProperty("name", "v1");
-    v1.save();
     session.commit();
 
     session.begin();
     var v2 = session.newVertex(vClass);
     v2.setProperty("name", "v2");
-    v2.save();
     session.commit();
 
     session.begin();
@@ -71,13 +69,11 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
     session.begin();
     var v1 = session.newVertex(vClass);
     v1.setProperty("name", "v1");
-    v1.save();
     session.commit();
 
     session.begin();
     var v2 = session.newVertex(vClass);
     v2.setProperty("name", "v2");
-    v2.save();
     session.commit();
 
     session.begin();
@@ -116,7 +112,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -176,7 +171,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -184,7 +178,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -250,7 +243,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -258,7 +250,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -322,7 +313,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -330,7 +320,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -386,7 +375,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -394,7 +382,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 
@@ -427,7 +414,6 @@ public class CreateEdgeStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
-      v1.save();
       session.commit();
     }
 

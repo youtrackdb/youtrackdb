@@ -1278,7 +1278,7 @@ public class DocumentSerializerDelta {
             throw new RuntimeException(e);
           }
         } else {
-          ((EntityImpl) value).addOwner(owner);
+          ((EntityImpl) value).setOwner(owner);
         }
 
         break;

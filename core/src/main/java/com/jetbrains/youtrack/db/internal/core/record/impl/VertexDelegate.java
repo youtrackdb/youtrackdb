@@ -224,11 +224,6 @@ public final class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public void save() {
-    entity.save();
-  }
-
-  @Override
   public void updateFromJSON(@Nonnull String iJson) {
     entity.updateFromJSON(iJson);
   }
@@ -261,6 +256,11 @@ public final class VertexDelegate implements VertexInternal {
   @Override
   public void updateFromMap(@Nonnull Map<String, ?> map) {
     entity.updateFromMap(map);
+  }
+
+  @Override
+  public void updateFromResult(@Nonnull Result result) {
+    entity.updateFromResult(result);
   }
 
   @Nonnull

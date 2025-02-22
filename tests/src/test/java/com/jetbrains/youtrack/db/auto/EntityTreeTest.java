@@ -17,6 +17,7 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
@@ -121,7 +122,6 @@ public class EntityTreeTest extends BaseDBTest {
     nicholas.setProperty("invitedBy", winston);
     winston.setProperty("invitedBy", nicholas);
 
-    session.save(nicholas);
     session.commit();
   }
 
@@ -167,7 +167,6 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertNotNull(test.<Set<Identifiable>>getProperty("set"));
     Assert.assertEquals(test.<Set<Identifiable>>getProperty("set").size(), 100);
 
-    session.save(test);
     session.commit();
 
     // Assert.assertEquals(test.<Set<Identifiable>>getProperty("set").size(), 100);
@@ -230,7 +229,7 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(a.<List<Identifiable>>getProperty("list").size(), 4);
 
     session.begin();
-    a = session.save(a);
+    a = a;
     session.commit();
 
     session.begin();
@@ -268,7 +267,6 @@ public class EntityTreeTest extends BaseDBTest {
     near.setProperty("satellites", Collections.singletonList(satNear));
     p.setProperty("satellites", Collections.singletonList(sat));
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -280,9 +278,7 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
 
     satNear.setProperty("diameter", 100);
-    satNear.save();
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -306,7 +302,6 @@ public class EntityTreeTest extends BaseDBTest {
     sat.setProperty("name", "Moon");
 
     p.setProperty("satellitesMap", Collections.singletonMap(sat.<String>getProperty("name"), sat));
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -322,7 +317,6 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 50);
     sat.setProperty("diameter", 500);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -358,7 +352,6 @@ public class EntityTreeTest extends BaseDBTest {
         Collections.singletonMap(jupiterMoon.<String>getProperty("name"), jupiterMoon));
 
     session.begin();
-    session.save(jupiter);
     session.commit();
 
     session.begin();
@@ -384,7 +377,6 @@ public class EntityTreeTest extends BaseDBTest {
     Assert.assertEquals(mercury.getProperty("name"), "Mercury");
     Assert.assertEquals(mercury.<Integer>getProperty("distanceSun"), 5000);
     mercuryMoon.setProperty("diameter", 100);
-    session.save(jupiter);
     session.commit();
 
     session.close();
@@ -424,7 +416,7 @@ public class EntityTreeTest extends BaseDBTest {
     person.setProperty("name", "Guy");
     person.setProperty("surname", "Ritchie");
 
-    person = session.save(person);
+    person = person;
     session.commit();
 
     session.begin();
@@ -436,7 +428,6 @@ public class EntityTreeTest extends BaseDBTest {
     person2.setProperty("nick", "Guy2");
     person2.setProperty("name", "Guy");
     person2.setProperty("surname", "Brush");
-    session.save(person2);
 
     var it = session.browseClass("Profile");
     while (it.hasNext()) {
@@ -450,17 +441,16 @@ public class EntityTreeTest extends BaseDBTest {
   public void testSave() {
     session.begin();
     var parent1 = session.newEntity("RefParent");
-    parent1 = session.save(parent1);
+    parent1 = parent1;
     var parent2 = session.newEntity("RefParent");
-    parent2 = session.save(parent2);
+    parent2 = parent2;
 
     var child1 = session.newEntity("RefChild");
     parent1.setProperty("children", Collections.singleton(child1));
-    parent1 = session.save(parent1);
+    parent1 = parent1;
 
     var child2 = session.newEntity("RefChild");
     parent2.setProperty("children", Collections.singleton(child2));
-    session.save(parent2);
     session.commit();
 
     session.begin();
@@ -477,9 +467,6 @@ public class EntityTreeTest extends BaseDBTest {
 
     parent1.<Set<Identifiable>>getProperty("children").add(child3);
     parent2.<Set<Identifiable>>getProperty("children").add(child3);
-
-    session.save(parent1);
-    session.save(parent2);
 
     session.commit();
   }

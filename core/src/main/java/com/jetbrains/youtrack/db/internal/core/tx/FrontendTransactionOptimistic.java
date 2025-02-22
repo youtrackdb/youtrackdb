@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.DatabaseException;
 import com.jetbrains.youtrack.db.api.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.api.exception.TransactionException;
-import com.jetbrains.youtrack.db.api.exception.ValidationException;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
@@ -677,14 +676,7 @@ public class FrontendTransactionOptimistic extends FrontendTransactionAbstract i
             var className = entity.getSchemaClassName();
             if (recordOperation.recordCallBackDirtyCounter != record.getDirtyCounter()) {
               EntityInternalUtils.checkClass(entity, session);
-              try {
-                entity.autoConvertValues();
-              } catch (ValidationException e) {
-                entity.undo();
-                throw e;
-              }
-
-              EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
+              entity.checkAllMultiValuesAreTrackedVersions();
 
               if (recordOperation.type == RecordOperation.CREATED) {
                 if (className != null) {

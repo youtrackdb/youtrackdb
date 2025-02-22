@@ -526,7 +526,6 @@ public abstract class IndexOneValue extends IndexAbstract {
     if (!rid.isValid()) {
       if (value instanceof DBRecord) {
         // EARLY SAVE IT
-        ((DBRecord) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");

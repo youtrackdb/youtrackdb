@@ -107,7 +107,6 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
         doc.field("name", "Rome");
 
-        db.save(doc);
         if (i % commitBuf == 0) {
           db.commit();
           db.begin();

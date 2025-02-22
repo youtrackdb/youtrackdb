@@ -48,7 +48,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -109,7 +109,6 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         document.field("prop3", i);
       }
 
-      document.save();
     }
 
     session.commit();
@@ -178,7 +177,6 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         document.field("prop3", i);
       }
 
-      document.save();
     }
 
     var query =
@@ -243,7 +241,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -304,7 +302,6 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
         document.field("prop3", i);
       }
 
-      document.save();
     }
 
     var query =
@@ -364,7 +361,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.field("prop3", i);
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -446,7 +443,6 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
 
       document.field("prop3", i);
 
-      document.save();
     }
 
     var query =
@@ -524,7 +520,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.field("prop3", i);
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -576,7 +572,7 @@ public class CompositeIndexWithNullTest extends BaseDBTest {
       document.field("prop3", i);
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 

@@ -2,14 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.metadata.index;
 
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.RecordDuplicatedException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
@@ -50,13 +48,11 @@ public class TestImmutableIndexLoad {
     db.begin();
     var doc = (EntityImpl) db.newEntity("One");
     doc.setProperty("one", "a");
-    db.save(doc);
     db.commit();
     try {
       db.begin();
       var doc1 = (EntityImpl) db.newEntity("One");
       doc1.setProperty("one", "a");
-      db.save(doc1);
       db.commit();
       fail("It should fail the unique index");
     } catch (RecordDuplicatedException e) {

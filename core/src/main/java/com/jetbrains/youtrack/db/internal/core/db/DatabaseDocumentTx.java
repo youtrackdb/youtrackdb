@@ -622,12 +622,6 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends DBRecord> RET save(DBRecord record) {
-    checkOpenness();
-    return internal.save(record);
-  }
-
-  @Override
   public <RET extends DBRecord> RET save(DBRecord iObject, String iClusterName) {
     checkOpenness();
     return internal.save(iObject, iClusterName);

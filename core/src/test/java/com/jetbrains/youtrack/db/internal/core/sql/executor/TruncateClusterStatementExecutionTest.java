@@ -34,7 +34,6 @@ public class TruncateClusterStatementExecutionTest extends DbTestBase {
     final var document = ((EntityImpl) session.newEntity(className));
     document.field("value", "val");
 
-    document.save();
     session.commit();
 
     Assert.assertEquals(1, session.countClass(className));

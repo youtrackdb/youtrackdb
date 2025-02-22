@@ -161,15 +161,15 @@ public class ScriptDocumentDatabaseWrapper {
   }
 
   public EntityImpl save(final Map<String, Object> iObject) {
-    return database.save(new EntityImpl(database).fields(iObject));
+    return new EntityImpl(database).fields(iObject);
   }
 
   public EntityImpl save(final String iString) {
-    return database.save(new EntityImpl(database).updateFromJSON(iString, true));
+    return new EntityImpl(database).updateFromJSON(iString, true);
   }
 
   public EntityImpl save(DBRecord iRecord) {
-    return database.save(iRecord);
+    return (EntityImpl) iRecord;
   }
 
   public boolean dropCluster(String iClusterName) {

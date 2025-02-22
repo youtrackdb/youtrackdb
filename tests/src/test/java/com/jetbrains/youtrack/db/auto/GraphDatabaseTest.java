@@ -51,23 +51,19 @@ public class GraphDatabaseTest extends BaseDBTest {
     session.begin();
     var tom = session.newVertex();
     tom.setProperty("name", "Tom");
-    tom.save();
 
     var ferrari = session.newVertex("GraphCar");
     ferrari.setProperty("brand", "Ferrari");
-    ferrari.save();
 
     var maserati = session.newVertex("GraphCar");
     maserati.setProperty("brand", "Maserati");
-    maserati.save();
 
     var porsche = session.newVertex("GraphCar");
     porsche.setProperty("brand", "Porsche");
-    porsche.save();
 
-    session.newStatefulEdge(tom, ferrari, "drives").save();
-    session.newStatefulEdge(tom, maserati, "drives").save();
-    session.newStatefulEdge(tom, porsche, "owns").save();
+    session.newStatefulEdge(tom, ferrari, "drives");
+    session.newStatefulEdge(tom, maserati, "drives");
+    session.newStatefulEdge(tom, porsche, "owns");
 
     session.commit();
 
@@ -101,11 +97,9 @@ public class GraphDatabaseTest extends BaseDBTest {
     session.begin();
     var vertexA = session.newVertex("vertexA");
     vertexA.setProperty("name", "myKey");
-    vertexA.save();
 
     var vertexB = session.newVertex("vertexA");
     vertexB.setProperty("name", "anotherKey");
-    vertexB.save();
     session.commit();
 
     session.begin();
@@ -114,7 +108,6 @@ public class GraphDatabaseTest extends BaseDBTest {
 
     var v = session.newVertex("vertexA");
     v.setProperty("name", "myKey");
-    v.save();
 
     session.commit();
   }
@@ -148,25 +141,20 @@ public class GraphDatabaseTest extends BaseDBTest {
     session.begin();
     var vertex1 = session.newVertex();
     vertex1.setProperty("driver", "John");
-    vertex1.save();
 
     var vertex2 = session.newVertex();
     vertex2.setProperty("car", "ford");
-    vertex2.save();
 
     var targetVertex = session.newVertex();
     targetVertex.setProperty("car", "audi");
-    targetVertex.save();
 
     var edge = session.newStatefulEdge(vertex1, vertex2);
     edge.setProperty("color", "red");
     edge.setProperty("action", "owns");
-    edge.save();
 
     edge = session.newStatefulEdge(vertex1, targetVertex);
     edge.setProperty("color", "red");
     edge.setProperty("action", "wants");
-    edge.save();
 
     session.commit();
 
@@ -197,21 +185,19 @@ public class GraphDatabaseTest extends BaseDBTest {
     countryVertex1.setProperty("name", "UK");
     countryVertex1.setProperty("area", "Europe");
     countryVertex1.setProperty("code", "2");
-    countryVertex1.save();
 
     var cityVertex1 = session.newVertex();
     cityVertex1.setProperty("name", "leicester");
     cityVertex1.setProperty("lat", "52.64640");
     cityVertex1.setProperty("long", "-1.13159");
-    cityVertex1.save();
 
     var cityVertex2 = session.newVertex();
     cityVertex2.setProperty("name", "manchester");
     cityVertex2.setProperty("lat", "53.47497");
     cityVertex2.setProperty("long", "-2.25769");
 
-    session.newStatefulEdge(countryVertex1, cityVertex1, "owns").save();
-    session.newStatefulEdge(countryVertex1, cityVertex2, "owns").save();
+    session.newStatefulEdge(countryVertex1, cityVertex1, "owns");
+    session.newStatefulEdge(countryVertex1, cityVertex2, "owns");
 
     session.commit();
     var subquery = "select out('owns') as out from V where name = 'UK'";
@@ -286,11 +272,9 @@ public class GraphDatabaseTest extends BaseDBTest {
     session.begin();
     var vertex = session.newVertex();
     vertex.setProperty("name", "vertexWithEmbedded");
-    vertex.save();
 
     var doc = ((EntityImpl) session.newEntity());
     doc.field("foo", "bar");
-    doc.save();
 
     vertex.setProperty("emb1", doc);
 

@@ -53,8 +53,8 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
     doc1.field("name", "");
 
     session.begin();
-    doc = session.save(doc);
-    doc1 = session.save(doc1);
+    doc = doc;
+    doc1 = doc1;
     session.commit();
     session.begin();
 
@@ -63,8 +63,6 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends LuceneBaseTest {
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
 
-    session.save(doc);
-    session.save(doc1);
     session.commit();
 
     session.begin();

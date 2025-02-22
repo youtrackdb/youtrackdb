@@ -53,14 +53,11 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
 
     session.begin();
     var singleLinked = ((EntityImpl) session.newEntity());
-    session.save(singleLinked);
     var doc = ((EntityImpl) session.newEntity("FetchClass"));
     doc.field("name", "first");
-    session.save(doc);
     var doc1 = ((EntityImpl) session.newEntity("FetchClass"));
     doc1.field("name", "second");
     doc1.field("linked", singleLinked);
-    session.save(doc1);
     var doc2 = ((EntityImpl) session.newEntity("FetchClass"));
     doc2.field("name", "third");
     List<EntityImpl> linkList = new ArrayList<>();
@@ -72,24 +69,20 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     linkSet.add(doc);
     linkSet.add(doc1);
     doc2.field("linkSet", linkSet);
-    session.save(doc2);
 
     var doc3 = ((EntityImpl) session.newEntity("FetchClass"));
     doc3.field("name", "forth");
     doc3.field("ref", doc2);
     doc3.field("linkSet", linkSet);
     doc3.field("linkList", linkList);
-    session.save(doc3);
 
     var doc4 = ((EntityImpl) session.newEntity("SecondFetchClass"));
     doc4.field("name", "fifth");
     doc4.field("surname", "test");
-    session.save(doc4);
 
     var doc5 = ((EntityImpl) session.newEntity("SecondFetchClass"));
     doc5.field("name", "sixth");
     doc5.field("surname", "test");
-    session.save(doc5);
 
     var doc6 = ((EntityImpl) session.newEntity("OutInFetchClass"));
     var out = new RidBag(session);
@@ -101,7 +94,6 @@ public class QueryLocalCacheIntegrationTest extends BaseDBTest {
     in.add(doc5.getIdentity());
     doc6.field("in_friend", in);
     doc6.field("name", "myName");
-    session.save(doc6);
 
     session.commit();
   }

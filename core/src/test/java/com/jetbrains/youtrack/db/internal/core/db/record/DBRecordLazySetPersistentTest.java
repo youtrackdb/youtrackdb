@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
 
@@ -22,13 +21,13 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
     session.begin();
     {
       var doc1 = (EntityImpl) session.newEntity();
-      doc1.field("linkset", new HashSet<EntityImpl>());
-      Set<EntityImpl> linkset = doc1.field("linkset");
+      doc1.field("linkset", session.newLinkSet());
+      var linkset = doc1.getLinkSet("linkset");
       var doc2 = (EntityImpl) session.newEntity();
-      doc2.save();
+
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
-      doc1.save();
+
       orid1 = doc1.getIdentity();
       assertNotNull(orid1);
     }
@@ -63,13 +62,13 @@ public class DBRecordLazySetPersistentTest extends DbTestBase {
     session.begin();
     {
       var doc1 = (EntityImpl) session.newEntity();
-      doc1.field("linkset", new HashSet<Identifiable>());
-      Set<Identifiable> linkset = doc1.field("linkset");
+      doc1.field("linkset", session.newLinkSet());
+      var linkset = doc1.getLinkSet("linkset");
       var doc2 = (EntityImpl) session.newEntity();
-      doc2.save();
+
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
-      doc1.save();
+
       orid1 = doc1.getIdentity();
       assertNotNull(orid1);
     }

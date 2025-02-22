@@ -62,8 +62,6 @@ public class RecordBytes extends RecordAbstract implements Blob {
 
   @Override
   public RecordBytes fromStream(final byte[] iRecordBuffer) {
-    checkForBinding();
-
     if (dirty > 0) {
       throw new DatabaseException(getSession().getDatabaseName(),
           "Cannot call fromStream() on dirty records");
@@ -160,5 +158,10 @@ public class RecordBytes extends RecordAbstract implements Blob {
     if (source.length > 0) {
       out.write(source);
     }
+  }
+
+  @Override
+  public void setOwner(RecordElement owner) {
+    throw new UnsupportedOperationException("RecordBytes cannot be owned by another record");
   }
 }

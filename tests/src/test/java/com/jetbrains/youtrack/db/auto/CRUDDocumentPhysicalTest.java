@@ -130,8 +130,6 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
       rec.field("price", i[0] + 100);
 
-      rec.save();
-
       i[0]++;
     });
   }
@@ -163,14 +161,13 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     EntityImpl vDoc = session.newInstance("Profile");
     vDoc.field("nick", "JayM1").field("name", "Jay").field("surname", "Miner");
-    vDoc.save();
 
     Assert.assertTrue(profileClusterIds.contains(vDoc.getIdentity().getClusterId()));
 
     vDoc = session.load(vDoc.getIdentity());
     vDoc.field("nick", "JayM2");
     vDoc.field("nick", "JayM3");
-    vDoc.save();
+
     session.commit();
 
     var indexes =
@@ -199,12 +196,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     EntityImpl vDoc = session.newInstance("Profile");
     vDoc.field("nick", "Jacky").field("name", "Jack").field("surname", "Tramiel");
-    vDoc.save();
 
     // add a new record with the same name "nameA".
     vDoc = session.newInstance("Profile");
     vDoc.field("nick", "Jack").field("name", "Jack").field("surname", "Bauer");
-    vDoc.save();
+
     session.commit();
 
     var indexes =
@@ -238,7 +234,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
         .field("name", "Kiefer")
         .field("surname", "Sutherland")
         .field("tag_list", new String[]{"actor", "myth"});
-    vDoc.save();
+
     session.commit();
 
     @SuppressWarnings("deprecation")
@@ -257,9 +253,8 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     var coreDoc = ((EntityImpl) session.newEntity());
     var linkDoc = ((EntityImpl) session.newEntity());
 
-    linkDoc.save();
     coreDoc.field("link", linkDoc);
-    coreDoc.save();
+
     session.commit();
 
     EntityImpl coreDocCopy = session.load(coreDoc.getIdentity());
@@ -286,7 +281,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
         .field("name", "Michael")
         .field("surname", "Hall")
         .field("tag_list", tags);
-    vDoc.save();
+
     session.commit();
 
     @SuppressWarnings("deprecation")
@@ -303,7 +298,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     ((Collection<String>) dexter.field("tag_list")).add("actor");
 
     dexter.setDirty();
-    dexter.save();
+
     session.commit();
 
     //noinspection deprecation
@@ -346,7 +341,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     final Map<String, HashMap<?, ?>> map3 = new HashMap<>();
     map2.put("map3", (HashMap<?, ?>) map3);
-    newDoc.save();
+
     final var rid = newDoc.getIdentity();
     session.commit();
 
@@ -456,12 +451,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     var jaimeDoc = ((EntityImpl) session.newEntity("PersonTest"));
     jaimeDoc.field("name", "jaime");
-    jaimeDoc.save();
 
     var cerseiDoc = ((EntityImpl) session.newEntity("PersonTest"));
     cerseiDoc.updateFromJSON(
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON("") + "}");
-    cerseiDoc.save();
+
     session.commit();
 
     session.begin();
@@ -472,7 +466,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}}");
-    tyrionDoc.save();
+
     session.commit();
 
     for (var o : session.browseClass("PersonTest")) {
@@ -489,13 +483,13 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     var parent = ((EntityImpl) session.newEntity());
 
     var child1 = ((EntityImpl) session.newEntity());
-    child1.addOwner(parent);
+    child1.setOwner(parent);
     parent.field("child1", child1);
 
     Assert.assertTrue(child1.hasOwners());
 
     var child2 = ((EntityImpl) session.newEntity());
-    child2.addOwner(child1);
+    child2.setOwner(child1);
     child1.field("child2", child2);
 
     Assert.assertTrue(child2.hasOwners());
@@ -516,7 +510,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     var doc = ((EntityImpl) session.newEntity());
     doc.field("test", s);
-    doc.save();
+
     session.commit();
 
     doc = session.bindToSession(doc);
@@ -528,7 +522,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     final RecordAbstract newAccount =
         ((EntityImpl) session.newEntity("Account")).field("name", "testInheritanceName");
-    newAccount.save();
+
     session.commit();
 
     var superClassResult = executeQuery("select from Account");
@@ -582,7 +576,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     final RecordAbstract newAccount =
         ((EntityImpl) session.newEntity("Account")).field("name", "testInheritanceName");
-    newAccount.save();
+
     session.commit();
 
     var allResult = executeQuery("select from Account");
@@ -620,7 +614,6 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     EntityImpl bank2 = session.newInstance("Account");
     bank.field("embedded", bank2, PropertyType.EMBEDDED);
-    bank.save();
 
     session.commit();
 
@@ -668,7 +661,6 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
         };
     bank.field("linkeds", linkeds, PropertyType.LINKLIST);
 
-    bank.save();
     session.commit();
 
     session.close();
@@ -718,7 +710,6 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
 
     RecordInternal.setVersion(doc, -2);
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -745,7 +736,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     var testClass2Document = ((EntityImpl) session.newEntity(testClass2));
     testClass2Document.field("testClass1Property", session.newEntity(testClass1));
-    testClass2Document.save();
+
     session.commit();
 
     testClass2Document = session.load(testClass2Document.getIdentity());
@@ -765,12 +756,11 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     for (var i = 0; i < 10; i++) {
       final var linkDoc = ((EntityImpl) session.newEntity());
-      linkDoc.save();
 
       allDocs.add(linkDoc);
     }
     doc.field("linkList", allDocs);
-    doc.save();
+
     session.commit();
 
     session.begin();
@@ -788,11 +778,12 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     for (var i = 5; i < 10; i++) {
       Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
     }
-    doc.save();
+
     session.commit();
 
     session.begin();
-    session.bindToSession(doc).save();
+    session.bindToSession(doc);
+
     session.commit();
 
     session.begin();
@@ -812,7 +803,7 @@ public class CRUDDocumentPhysicalTest extends BaseDBTest {
     session.begin();
     {
       doc1 = ((EntityImpl) session.newEntity());
-      doc1.save();
+
     }
     session.commit();
 

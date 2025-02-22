@@ -62,19 +62,15 @@ public class SQLFunctionDijkstraTest {
     graph.begin();
     var e1 = graph.newStatefulEdge(v1, v2, "weight");
     e1.setProperty("weight", 1.0f);
-    e1.save();
 
     var e2 = graph.newStatefulEdge(v2, v3, "weight");
     e2.setProperty("weight", 1.0f);
-    e2.save();
 
     var e3 = graph.newStatefulEdge(v1, v3, "weight");
     e3.setProperty("weight", 100.0f);
-    e3.save();
 
     var e4 = graph.newStatefulEdge(v3, v4, "weight");
     e4.setProperty("weight", 1.0f);
-    e4.save();
     graph.commit();
   }
 

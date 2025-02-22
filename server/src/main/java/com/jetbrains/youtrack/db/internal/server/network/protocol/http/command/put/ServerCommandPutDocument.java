@@ -109,7 +109,6 @@ public class ServerCommandPutDocument extends ServerCommandDocumentAbstract {
                     RecordInternal.setVersion(currentEntity, entity.getVersion());
                   }
 
-                  currentEntity.save();
                 }
 
                 return currentEntity;

@@ -37,7 +37,7 @@ public class HookReadTest extends DbTestBase {
 
     session.getMetadata().getSchema().createClass("TestClass");
     session.begin();
-    session.save(session.newEntity("TestClass"));
+    session.newEntity("TestClass");
     session.commit();
 
     session.begin();

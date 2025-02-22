@@ -56,7 +56,6 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     var doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
 
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -73,7 +72,6 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
 
     doc.field("name", "London");
 
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -92,7 +90,6 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
 
     doc.field("name", "Berlin");
 
-    session.save(doc);
     session.commit();
 
     try (var stream = idx.getInternal().getRids(session, "Rome")) {

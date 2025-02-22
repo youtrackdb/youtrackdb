@@ -84,8 +84,6 @@ public class LuceneSortTest extends LuceneBaseTest {
 
     artist.setProperty("name", "Jimi Hendrix");
 
-    session.save(artist);
-
     var resultSet =
         session.query(
             "SELECT score, name from Author where SEARCH_CLASS('*:* ', {"

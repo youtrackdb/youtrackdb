@@ -22,7 +22,7 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       session.begin();
       EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -61,7 +61,7 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       session.begin();
       EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
     try {
@@ -86,7 +86,7 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       session.begin();
       EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -128,7 +128,6 @@ public class DeleteStatementExecutionTest extends DbTestBase {
         fourthId = doc.getIdentity();
       }
 
-      doc.save();
       session.commit();
     }
 
@@ -164,7 +163,7 @@ public class DeleteStatementExecutionTest extends DbTestBase {
       session.begin();
       EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
     session.begin();

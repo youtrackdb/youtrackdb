@@ -125,7 +125,6 @@ public class LuceneAutomaticBackupRestoreTest {
     doc.field("name", "Rome");
 
     db.begin();
-    db.save(doc);
     db.commit();
   }
 

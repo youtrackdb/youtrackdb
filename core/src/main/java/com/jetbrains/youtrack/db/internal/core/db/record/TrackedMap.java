@@ -24,24 +24,33 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of LinkedHashMap bound to a source Record object to keep track of changes. This
  * avoid to call the makeDirty() by hand when the map is changed.
  */
-public class TrackedMap<T> extends LinkedHashMap<String, T>
+public class TrackedMap<T> extends AbstractMap<String, T>
     implements RecordElement, TrackedMultiValue<String, T>, Serializable {
 
-  protected RecordElement sourceRecord;
+  protected WeakReference<RecordElement> sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
+  @Nonnull
+  private final HashMap<String, T> map;
   private final SimpleMultiValueTracker<String, T> tracker = new SimpleMultiValueTracker<>(this);
 
   public TrackedMap(
@@ -54,22 +63,26 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
   }
 
   public TrackedMap(final RecordElement iSourceRecord) {
-    this.sourceRecord = iSourceRecord;
+    this.map = new HashMap<>();
+    this.sourceRecord = new WeakReference<>(iSourceRecord);
     embeddedCollection = this.getClass().equals(TrackedMap.class);
   }
 
   public TrackedMap() {
+    this.map = new HashMap<>();
     embeddedCollection = this.getClass().equals(TrackedMap.class);
+    tracker.enable();
   }
 
   public TrackedMap(int size) {
-    super(size);
+    this.map = new HashMap<>(size);
     embeddedCollection = this.getClass().equals(TrackedMap.class);
+    tracker.enable();
   }
 
   @Override
   public void setOwner(RecordElement owner) {
-    this.sourceRecord = owner;
+    this.sourceRecord = new WeakReference<>(owner);
   }
 
   @Override
@@ -79,7 +92,10 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @Override
   public RecordElement getOwner() {
-    return sourceRecord;
+    if (sourceRecord == null) {
+      return null;
+    }
+    return sourceRecord.get();
   }
 
   @Override
@@ -94,7 +110,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     checkValue(value);
 
     var containsKey = containsKey(key);
-    var oldValue = super.put(key, value);
+    var oldValue = map.put(key, value);
 
     if (containsKey && oldValue == value) {
       return;
@@ -116,11 +132,11 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
     var containsKey = containsKey(key);
 
-    var oldValue = super.put(key, value);
-
+    var oldValue = map.put(key, value);
     if (containsKey && oldValue == value) {
       return oldValue;
     }
+
     if (containsKey) {
       updateEvent(key, oldValue, value);
     } else {
@@ -135,7 +151,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     var containsKey = containsKey(key);
 
     if (containsKey) {
-      final var oldValue = super.remove(key);
+      final var oldValue = map.remove(key);
       removeEvent(key.toString(), oldValue);
       return oldValue;
     } else {
@@ -143,32 +159,9 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     }
   }
 
-  private void addOwner(T e) {
-    if (embeddedCollection) {
-      if (e instanceof EntityImpl entity) {
-        var rid = entity.getIdentity();
-
-        if (!rid.isValid() || rid.isNew()) {
-          ((EntityImpl) e).addOwner(this);
-        }
-      }
-    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
-      trackedMultiValue.setOwner(this);
-    }
-  }
-
-  private void removeOwner(T oldValue) {
-    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
-      trackedMultiValue.setOwner(null);
-    } else if (oldValue instanceof EntityImpl entity) {
-      entity.removeOwner(this);
-    }
-  }
-
-
   @Override
   public void clear() {
-    for (var entry : super.entrySet()) {
+    for (var entry : map.entrySet()) {
       var value = entry.getValue();
       if (value instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
         trackedMultiValue.setOwner(null);
@@ -177,7 +170,13 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
       removeEvent(entry.getKey(), value);
     }
 
-    super.clear();
+    map.clear();
+  }
+
+  @Nonnull
+  @Override
+  public Set<Entry<String, T>> entrySet() {
+    return new EntrySet();
   }
 
   @Override
@@ -191,6 +190,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     this.dirty = true;
     this.transactionDirty = true;
 
+    var sourceRecord = getOwner();
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof RecordAbstract)
           || !((RecordAbstract) sourceRecord).isDirty()) {
@@ -201,6 +201,7 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   @Override
   public void setDirtyNoChanged() {
+    var sourceRecord = getOwner();
     if (sourceRecord != null) {
       sourceRecord.setDirtyNoChanged();
     }
@@ -238,14 +239,95 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
     return genericClass;
   }
 
-  private Object writeReplace() {
-    return new LinkedHashMap<Object, T>(this);
+  @Override
+  public int size() {
+    return map.size();
   }
 
   @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    //noinspection unchecked
-    super.put(event.getKey().toString(), (T) newValue);
+  public boolean isEmpty() {
+    return map.isEmpty();
+  }
+
+  @Override
+  public boolean containsValue(Object value) {
+    return map.containsValue(value);
+  }
+
+  @Override
+  public boolean containsKey(Object key) {
+    return map.containsKey(key);
+  }
+
+  @Override
+  public T get(Object key) {
+    return map.get(key);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof Map<?, ?>)) {
+      return false;
+    }
+
+    return map.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return map.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return map.toString();
+  }
+
+  @Override
+  public T getOrDefault(Object key, T defaultValue) {
+    return map.getOrDefault(key, defaultValue);
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super String, ? super T> action) {
+    map.forEach(action);
+  }
+
+  @Override
+  public boolean remove(Object key, Object value) {
+    var result = map.remove(key, value);
+    if (result) {
+      //noinspection unchecked
+      removeEvent(key.toString(), (T) value);
+    }
+    return result;
+  }
+
+  @Override
+  public boolean replace(String key, T oldValue, T newValue) {
+    var result = map.replace(key, oldValue, newValue);
+    if (result) {
+      updateEvent(key, oldValue, newValue);
+    }
+    return result;
+  }
+
+  @Nullable
+  @Override
+  public T replace(String key, T value) {
+    var result = map.replace(key, value);
+
+    if (result != null) {
+      updateEvent(key, result, value);
+    } else {
+      addEvent(key, value);
+    }
+
+    return result;
   }
 
   private void addEvent(String key, T value) {
@@ -286,16 +368,23 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
       TrackedMultiValue.nestedEnabled(this.values().iterator(), this);
     }
 
-    this.sourceRecord = parent;
+    if (getOwner() != parent) {
+      this.sourceRecord = new WeakReference<>(parent);
+    }
+
   }
 
-  public void disableTracking(RecordElement entity) {
+  public void disableTracking(RecordElement parent) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       TrackedMultiValue.nestedDisable(this.values().iterator(), this);
     }
     this.dirty = false;
-    this.sourceRecord = entity;
+
+    if (getOwner() != parent) {
+      this.sourceRecord = new WeakReference<>(parent);
+    }
+
   }
 
   @Override
@@ -322,5 +411,104 @@ public class TrackedMap<T> extends LinkedHashMap<String, T>
 
   public MultiValueChangeTimeLine<String, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
+  }
+
+  private final class EntrySet extends AbstractSet<Entry<String, T>> {
+
+    @Nonnull
+    @Override
+    public Iterator<Entry<String, T>> iterator() {
+      return new EntryIterator(map.entrySet().iterator());
+    }
+
+    @Override
+    public int size() {
+      return map.size();
+    }
+
+    @Override
+    public void clear() {
+      TrackedMap.this.clear();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+      if (!(o instanceof Entry)) {
+        return false;
+      }
+
+      @SuppressWarnings("unchecked") final var entry = (Entry<String, T>) o;
+      final var key = entry.getKey();
+      final var value = entry.getValue();
+
+      return map.remove(key, value);
+    }
+  }
+
+  private final class EntryIterator implements Iterator<Entry<String, T>> {
+
+    @Nonnull
+    private final Iterator<Entry<String, T>> iterator;
+    @Nullable
+    private TrackerEntry lastEntry;
+
+    private EntryIterator(@Nonnull Iterator<Entry<String, T>> iterator) {
+      this.iterator = iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public Entry<String, T> next() {
+      lastEntry = new TrackerEntry(iterator.next());
+      return lastEntry;
+    }
+
+    @Override
+    public void remove() {
+      if (lastEntry == null) {
+        throw new IllegalStateException();
+      }
+
+      final var key = lastEntry.getKey();
+      final var value = lastEntry.getValue();
+
+      map.remove(key, value);
+      lastEntry = null;
+    }
+  }
+
+  private final class TrackerEntry implements Entry<String, T> {
+
+    @Nonnull
+    private final Entry<String, T> entry;
+
+    private TrackerEntry(@Nonnull Entry<String, T> entry) {
+      this.entry = entry;
+    }
+
+    @Override
+    public String getKey() {
+      return entry.getKey();
+    }
+
+    @Override
+    public T getValue() {
+      return entry.getValue();
+    }
+
+    @Override
+    public T setValue(T value) {
+      final var key = getKey();
+      final var oldValue = getValue();
+
+      entry.setValue(value);
+      updateEvent(key, oldValue, value);
+
+      return oldValue;
+    }
   }
 }

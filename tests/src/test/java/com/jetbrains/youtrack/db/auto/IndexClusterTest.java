@@ -5,7 +5,6 @@ import static org.testng.Assert.assertEquals;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,7 +28,8 @@ public class IndexClusterTest extends BaseDBTest {
     oclass.createIndex(session, className + "index1", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     session.begin();
-    session.newInstance(className).field("key", "a").field("value", 1).save();
+    session.newInstance(className).field("key", "a").field("value", 1);
+
     session.commit();
 
     var clId = session.addCluster(className + "secondCluster");

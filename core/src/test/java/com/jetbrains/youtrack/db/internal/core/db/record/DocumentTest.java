@@ -63,7 +63,7 @@ public class DocumentTest extends DbTestBase {
     final var doc = (EntityImpl) session.newEntity("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
-    doc.save();
+
     session.commit();
 
     var map = session.bindToSession(doc).toMap();

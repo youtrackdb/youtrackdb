@@ -97,18 +97,15 @@ public class CRUDTest extends BaseDBTest {
     session.begin();
     var country = session.newEntity("Country");
     country.setProperty("name", "Italy");
-    country.save();
 
     rome = session.newEntity("City");
     rome.setProperty("name", "Rome");
     rome.setProperty("country", country);
-    session.save(rome);
 
     address = session.newEntity("Address");
     address.setProperty("type", "Residence");
     address.setProperty("street", "Piazza Navona, 1");
     address.setProperty("city", rome);
-    session.save(address);
 
     for (var i = startRecordNumber; i < startRecordNumber + TOT_RECORDS_ACCOUNT; ++i) {
       var account = session.newEntity("Account");
@@ -118,7 +115,6 @@ public class CRUDTest extends BaseDBTest {
       account.setProperty("birthDate", new Date());
       account.setProperty("salary", (i + 300.10f));
       account.setProperty("addresses", Collections.singletonList(address));
-      session.save(account);
     }
     session.commit();
   }
@@ -155,7 +151,6 @@ public class CRUDTest extends BaseDBTest {
     element.setProperty("flagSimple", true);
     element.setProperty("dateField", date);
 
-    session.save(element);
     session.commit();
 
     var id = element.getIdentity();
@@ -220,7 +215,6 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertNotNull(element.getProperty("dateField"));
 
     session.begin();
-    session.save(element);
     session.commit();
     var id = element.getIdentity();
     session.close();
@@ -275,7 +269,6 @@ public class CRUDTest extends BaseDBTest {
     loadedElement.setProperty("longSimple", longArray);
     loadedElement.setProperty("numberSimple", intArray);
 
-    session.save(loadedElement);
     session.commit();
     session.close();
 
@@ -358,7 +351,6 @@ public class CRUDTest extends BaseDBTest {
     Assert.assertNotNull(element.getProperty(fieldName));
 
     session.begin();
-    session.save(element);
     session.commit();
 
     var id = element.getIdentity();
@@ -378,7 +370,6 @@ public class CRUDTest extends BaseDBTest {
     }
     loadedElement.setProperty("binaryData", bytes);
 
-    session.save(loadedElement);
     session.commit();
     session.close();
 
@@ -415,7 +406,7 @@ public class CRUDTest extends BaseDBTest {
       a.setProperty("children", Collections.singletonMap("" + i, child3));
     }
 
-    a = session.save(a);
+    a = a;
     session.commit();
 
     var rid = a.getIdentity();
@@ -428,7 +419,6 @@ public class CRUDTest extends BaseDBTest {
 
     checkCollectionImplementations(testLoadedEntity);
 
-    session.save(testLoadedEntity);
     session.commit();
 
     session.freeze(false);
@@ -457,7 +447,7 @@ public class CRUDTest extends BaseDBTest {
       a.setProperty("children", Collections.singletonMap("" + i, child3));
     }
 
-    a = session.save(a);
+    a = a;
     session.commit();
 
     var rid = a.getIdentity();
@@ -471,7 +461,7 @@ public class CRUDTest extends BaseDBTest {
 
     checkCollectionImplementations(testLoadedEntity);
 
-    testLoadedEntity = session.save(testLoadedEntity);
+    testLoadedEntity = testLoadedEntity;
     session.commit();
 
     session.freeze(false);
@@ -496,7 +486,7 @@ public class CRUDTest extends BaseDBTest {
       a.setProperty("set", Collections.singleton(child2));
       a.setProperty("children", Collections.singletonMap("" + i, child3));
     }
-    a = session.save(a);
+    a = a;
     session.commit();
 
     var rid = a.getIdentity();
@@ -508,7 +498,7 @@ public class CRUDTest extends BaseDBTest {
     var testLoadedEntity = (EntityImpl) agendas.getFirst();
     checkCollectionImplementations(testLoadedEntity);
 
-    testLoadedEntity = session.save(testLoadedEntity);
+    testLoadedEntity = testLoadedEntity;
     session.commit();
 
     session.freeze(false);
@@ -554,7 +544,6 @@ public class CRUDTest extends BaseDBTest {
     var date = new Date();
     element.setProperty("dateField", date);
     session.begin();
-    element.save();
     session.commit();
 
     session.begin();
@@ -609,7 +598,7 @@ public class CRUDTest extends BaseDBTest {
   public void mapEnumAndInternalObjects() {
     session.executeInTxBatches((Iterator<EntityImpl>) session.browseClass("OUser"),
         ((session, document) -> {
-          document.save();
+
         }));
 
   }
@@ -647,7 +636,6 @@ public class CRUDTest extends BaseDBTest {
     p.setProperty("children", children);
 
     session.begin();
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -693,17 +681,17 @@ public class CRUDTest extends BaseDBTest {
     session.begin();
     var hanSolo = session.newInstance("PersonTest");
     hanSolo.setProperty("firstName", "Han");
-    hanSolo = session.save(hanSolo);
+    hanSolo = hanSolo;
     session.commit();
 
     session.begin();
     var obiWan = session.newInstance("PersonTest");
     obiWan.setProperty("firstName", "Obi-Wan");
-    obiWan = session.save(obiWan);
+    obiWan = obiWan;
 
     var luke = session.newInstance("PersonTest");
     luke.setProperty("firstName", "Luke");
-    luke = session.save(luke);
+    luke = luke;
     session.commit();
 
     // ============================== step 1
@@ -714,7 +702,6 @@ public class CRUDTest extends BaseDBTest {
     friends.add(session.bindToSession(hanSolo));
 
     luke.setProperty("friends", friends);
-    session.save(luke);
     session.commit();
 
     session.begin();
@@ -724,7 +711,7 @@ public class CRUDTest extends BaseDBTest {
     friends.add(session.bindToSession(obiWan));
     luke.setProperty("friends", friends);
 
-    session.save(session.bindToSession(luke));
+    session.bindToSession(luke);
     session.commit();
 
     session.begin();
@@ -742,7 +729,7 @@ public class CRUDTest extends BaseDBTest {
       a.setProperty("events", Collections.singletonList(session.newInstance("Event")));
     }
     session.begin();
-    a = session.save(a);
+    a = a;
     session.commit();
     var rid = a.getIdentity();
 
@@ -757,7 +744,7 @@ public class CRUDTest extends BaseDBTest {
       // NO NEED TO DO ANYTHING, JUST NEED TO ITERATE THE LIST
     }
 
-    agenda = session.save(agenda);
+    agenda = agenda;
     session.commit();
 
     session.freeze(false);
@@ -813,7 +800,6 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedList", list);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -914,7 +900,6 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedSet", embeddedSet);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -978,7 +963,6 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("embeddedChildren", embeddedChildren);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -1016,7 +1000,7 @@ public class CRUDTest extends BaseDBTest {
     p.setProperty("name", "Silvester");
 
     session.begin();
-    p = session.save(p);
+    p = p;
 
     var c1 = session.newInstance("Child");
     c1.setProperty("name", "John");
@@ -1030,7 +1014,6 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -1043,7 +1026,6 @@ public class CRUDTest extends BaseDBTest {
     p.<Map<String, Identifiable>>getProperty("children").put("third", c3);
     p.<Map<String, Identifiable>>getProperty("children").put("fourth", c4);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -1102,7 +1084,7 @@ public class CRUDTest extends BaseDBTest {
     p.setProperty("name", "Silvester");
 
     session.begin();
-    p = session.save(p);
+    p = p;
 
     var c1 = session.newInstance("Child");
     c1.setProperty("name", "John");
@@ -1116,8 +1098,6 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    session.save(p);
-
     var c3 = session.newInstance("Child");
     c3.setProperty("name", "Olivia");
     var c4 = session.newInstance("Child");
@@ -1126,7 +1106,6 @@ public class CRUDTest extends BaseDBTest {
     p.<Map<String, Identifiable>>getProperty("children").put("third", c3);
     p.<Map<String, Identifiable>>getProperty("children").put("fourth", c4);
 
-    session.save(p);
     session.commit();
 
     session.begin();
@@ -1202,7 +1181,6 @@ public class CRUDTest extends BaseDBTest {
     p.setProperty("children", children);
 
     session.begin();
-    session.save(p);
     session.commit();
 
     var rid = p.getIdentity();
@@ -1280,7 +1258,6 @@ public class CRUDTest extends BaseDBTest {
 
       children.put(c4.getProperty("name"), c4);
 
-      session.save(reloaded);
     }
     session.commit();
 
@@ -1339,7 +1316,7 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("children", children);
 
-    p = session.save(p);
+    p = p;
     session.commit();
 
     var rid = p.getIdentity();
@@ -1408,7 +1385,6 @@ public class CRUDTest extends BaseDBTest {
 
       reloaded.<Map<String, Identifiable>>getProperty("children").put(c4.getProperty("name"), c4);
 
-      session.save(reloaded);
     }
     session.commit();
 
@@ -1465,7 +1441,6 @@ public class CRUDTest extends BaseDBTest {
     }
 
     session.begin();
-    session.save(p);
     session.commit();
 
     var rid = p.getIdentity();
@@ -1482,7 +1457,6 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    session.save(loaded);
     session.commit();
 
     session.begin();
@@ -1518,7 +1492,6 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    session.save(p);
     session.commit();
 
     rid = p.getIdentity();
@@ -1536,7 +1509,6 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    session.save(loaded);
     session.commit();
 
     session.begin();
@@ -1573,7 +1545,7 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
-    p = session.save(p);
+    p = p;
     session.commit();
 
     rid = p.getIdentity();
@@ -1591,7 +1563,6 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    session.save(loaded);
     session.commit();
 
     session.begin();
@@ -1627,7 +1598,7 @@ public class CRUDTest extends BaseDBTest {
     roles.add("developer");
     testClass.setProperty("stringSet", roles);
 
-    Entity testClassProxy = session.save(testClass);
+    Entity testClassProxy = testClass;
     session.commit();
 
     session.begin();
@@ -1651,7 +1622,7 @@ public class CRUDTest extends BaseDBTest {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
 
-    session.save(session.bindToSession(loadedProxy));
+    session.bindToSession(loadedProxy);
     session.commit();
 
     session.begin();
@@ -1663,7 +1634,6 @@ public class CRUDTest extends BaseDBTest {
 
     loadedProxy.<Set<String>>getProperty("stringSet").remove("developer");
     roles.remove("developer");
-    session.save(loadedProxy);
     session.commit();
 
     session.begin();
@@ -1714,7 +1684,6 @@ public class CRUDTest extends BaseDBTest {
     }
 
     session.begin();
-    session.save(p);
     session.commit();
 
     var rid = p.getIdentity();
@@ -1745,7 +1714,6 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    session.save(p);
     session.commit();
 
     rid = p.getIdentity();
@@ -1788,7 +1756,6 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    session.save(p);
     session.commit();
 
     rid = p.getIdentity();
@@ -1819,7 +1786,7 @@ public class CRUDTest extends BaseDBTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    p = session.save(p);
+    p = p;
     session.commit();
 
     rid = p.getIdentity();
@@ -1869,7 +1836,6 @@ public class CRUDTest extends BaseDBTest {
     }
 
     session.begin();
-    session.save(p);
     session.commit();
 
     var rid = p.getIdentity();
@@ -1886,7 +1852,6 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    session.save(loaded);
     session.commit();
 
     session.begin();
@@ -1923,7 +1888,6 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    session.save(p);
     session.commit();
 
     rid = p.getIdentity();
@@ -1942,7 +1906,6 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
     relatives.put("brother", "Nike");
 
-    session.save(loaded);
     session.commit();
 
     session.begin();
@@ -1978,7 +1941,7 @@ public class CRUDTest extends BaseDBTest {
           entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
-    p = session.save(p);
+    p = p;
     session.commit();
 
     rid = p.getIdentity();
@@ -1995,7 +1958,6 @@ public class CRUDTest extends BaseDBTest {
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
 
     relatives.put("brother", "Nike");
-    session.save(loaded);
     session.commit();
 
     session.begin();
@@ -2059,7 +2021,7 @@ public class CRUDTest extends BaseDBTest {
     p.setProperty("map", map);
 
     session.begin();
-    p = session.save(p);
+    p = p;
     session.commit();
 
     var rid = p.getIdentity();
@@ -2090,7 +2052,6 @@ public class CRUDTest extends BaseDBTest {
     p.<Set>getProperty("set").add(other);
     p.<Map>getProperty("map").put("5", other);
 
-    session.save(p);
     session.commit();
 
     session.close();
@@ -2123,7 +2084,6 @@ public class CRUDTest extends BaseDBTest {
     var testDocument = ((EntityImpl) session.newEntity());
     testDocument.field("testField", "testValue");
 
-    testDocument.save();
     session.commit();
 
     session.begin();
@@ -2137,7 +2097,6 @@ public class CRUDTest extends BaseDBTest {
 
     p.setProperty("byteArray", testRecordBytes);
 
-    session.save(p);
     session.commit();
 
     var rid = p.getIdentity();
@@ -2187,10 +2146,9 @@ public class CRUDTest extends BaseDBTest {
             .getBytes();
     var oRecordBytes = session.newBlob(thumbnailImageBytes);
 
-    oRecordBytes.save();
     p.setProperty("byteArray", oRecordBytes);
 
-    p = session.save(p);
+    p = p;
     session.commit();
 
     session.begin();
@@ -2250,10 +2208,9 @@ public class CRUDTest extends BaseDBTest {
             .getBytes();
 
     oRecordBytes = session.newBlob(thumbnailImageBytes);
-    oRecordBytes.save();
     p.setProperty("byteArray", oRecordBytes);
 
-    p = session.save(p);
+    p = p;
     session.commit();
 
     session.begin();
@@ -2311,7 +2268,7 @@ public class CRUDTest extends BaseDBTest {
     media.setProperty("content", testRecord);
 
     session.begin();
-    media = session.save(media);
+    media = media;
     session.commit();
 
     session.begin();
@@ -2352,7 +2309,6 @@ public class CRUDTest extends BaseDBTest {
 
           a.setProperty("salary", (i[0] + 500.10f));
 
-          session.save(a);
           i[0]++;
         });
   }
@@ -2433,7 +2389,6 @@ public class CRUDTest extends BaseDBTest {
     neo.setProperty("followers", followers);
     neo.setProperty("location", address);
 
-    session.save(neo);
     session.commit();
 
     session.begin();
@@ -2629,7 +2584,7 @@ public class CRUDTest extends BaseDBTest {
 
     parent.setProperty("embeddedChild", embedded);
 
-    parent = session.save(parent);
+    parent = parent;
 
     var presult = executeQuery("select from Parent");
     var cresult = executeQuery("select from EmbeddedChild");
@@ -2640,7 +2595,7 @@ public class CRUDTest extends BaseDBTest {
     child.setProperty("name", "Little Child");
     parent.setProperty("child", child);
 
-    parent = session.save(parent);
+    parent = parent;
     session.commit();
 
     session.begin();
@@ -2669,7 +2624,7 @@ public class CRUDTest extends BaseDBTest {
     a.setProperty("id", 0);
     a.setProperty("thumbnail", new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-    a = session.save(a);
+    a = a;
     session.commit();
 
     session.close();
@@ -2755,7 +2710,6 @@ public class CRUDTest extends BaseDBTest {
 
       bObama.setProperty("followers", followers);
 
-      session.save(bObama);
       session.commit();
     } finally {
       session.close();

@@ -33,19 +33,19 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
     session.command("truncate class test_class");
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity(testClass)).field("name", "x")
-        .field("data", Arrays.asList(1, 2)));
-    session.save(((EntityImpl) session.newEntity(testClass)).field("name", "y")
-        .field("data", Arrays.asList(3, 0)));
+    ((EntityImpl) session.newEntity(testClass)).field("name", "x")
+        .field("data", Arrays.asList(1, 2));
+    ((EntityImpl) session.newEntity(testClass)).field("name", "y")
+        .field("data", Arrays.asList(3, 0));
     session.commit();
 
     session.command("truncate class test_class").close();
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity(testClass)).field("name", "x")
-        .field("data", Arrays.asList(5, 6, 7)));
-    session.save(((EntityImpl) session.newEntity(testClass)).field("name", "y")
-        .field("data", Arrays.asList(8, 9, -1)));
+    ((EntityImpl) session.newEntity(testClass)).field("name", "x")
+        .field("data", Arrays.asList(5, 6, 7));
+    ((EntityImpl) session.newEntity(testClass)).field("name", "y")
+        .field("data", Arrays.asList(8, 9, -1));
     session.commit();
 
     var result = session.query("select from test_class");
@@ -197,10 +197,10 @@ public class TruncateClassStatementExecutionTest extends BaseMemoryInternalDatab
     session.command("truncate class test_class");
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity(testClass)).field("name", "x")
-        .field("data", Arrays.asList(1, 2)));
-    session.save(((EntityImpl) session.newEntity(testClass)).field("name", "y")
-        .field("data", Arrays.asList(3, 0)));
+    ((EntityImpl) session.newEntity(testClass)).field("name", "x")
+        .field("data", Arrays.asList(1, 2));
+    ((EntityImpl) session.newEntity(testClass)).field("name", "y")
+        .field("data", Arrays.asList(3, 0));
     session.commit();
 
     var result = session.query("select from test_class");

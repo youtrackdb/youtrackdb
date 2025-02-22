@@ -153,7 +153,6 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
     if (clusterName != null) {
       vertex.getBaseEntity().save(clusterName);
     } else {
-      vertex.save();
     }
 
     return vertex.getRecord(session);

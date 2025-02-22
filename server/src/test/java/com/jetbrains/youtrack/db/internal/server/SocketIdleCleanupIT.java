@@ -3,15 +3,11 @@ package com.jetbrains.youtrack.db.internal.server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.internal.client.remote.RemoteConnectionManager;
-import com.jetbrains.youtrack.db.internal.client.remote.RemoteConnectionPool;
 import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import javax.management.InstanceAlreadyExistsException;
@@ -57,7 +53,7 @@ public class SocketIdleCleanupIT {
     youTrackDb.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
     var session = youTrackDb.open("test", "admin", "admin");
-    session.save(session.newVertex("V"));
+    session.newVertex("V");
     Thread.sleep(2000);
     var remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDb);
     var connectionManager = remote.getConnectionManager();

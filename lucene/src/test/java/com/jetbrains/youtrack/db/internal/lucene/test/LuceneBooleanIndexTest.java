@@ -56,7 +56,6 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
       var doc = ((EntityImpl) session.newEntity("Person"));
       doc.field("isDeleted", i % 2 == 0);
       session.begin();
-      session.save(doc);
       session.commit();
     }
 

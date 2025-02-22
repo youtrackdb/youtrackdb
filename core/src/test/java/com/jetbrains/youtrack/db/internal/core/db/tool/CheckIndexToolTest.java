@@ -20,7 +20,7 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
     session.begin();
     EntityImpl doc = session.newInstance("Foo");
     doc.field("name", "a");
-    doc.save();
+
     session.commit();
 
     RID rid = doc.getIdentity();
@@ -30,7 +30,7 @@ public class CheckIndexToolTest extends BaseMemoryInternalDatabase {
       session.begin();
       doc = session.newInstance("Foo");
       doc.field("name", "x" + i);
-      doc.save();
+
       session.commit();
     }
 

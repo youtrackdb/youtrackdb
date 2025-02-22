@@ -25,7 +25,7 @@ public class FindReferencesStatementExecutionTest extends DbTestBase {
     session.begin();
     var linked = (EntityImpl) session.newEntity(name);
     linked.field("foo", "bar");
-    linked.save();
+
     session.commit();
 
     Set<RID> ridsToMatch = new HashSet<>();
@@ -38,7 +38,7 @@ public class FindReferencesStatementExecutionTest extends DbTestBase {
       if (i % 2 == 0) {
         doc.field("link", linked);
       }
-      doc.save();
+
       session.commit();
       if (i % 2 == 0) {
         ridsToMatch.add(doc.getIdentity());

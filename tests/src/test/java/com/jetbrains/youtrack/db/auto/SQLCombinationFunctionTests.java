@@ -321,7 +321,6 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
       carNode.setProperty("brand", "Brand" + (i + 1));
       carNode.setProperty("model", "Car" + (i + 1));
       carNode.setProperty("year", r.nextInt(1990, 2024));
-      carNode.save();
       cars.add(carNode);
     }
 
@@ -332,7 +331,6 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
       motorcycleNode.setProperty("brand", "Brand" + (i + 1));
       motorcycleNode.setProperty("model", "Motorcycle" + (i + 1));
       motorcycleNode.setProperty("year", r.nextInt(1990, 2024));
-      motorcycleNode.save();
       motorcycles.add(motorcycleNode);
     }
     session.commit();
@@ -375,7 +373,7 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
         from = session.bindToSession(car);
         to = session.bindToSession(motorcycle);
       }
-      session.newStatefulEdge(from, to).save();
+      session.newStatefulEdge(from, to);
     }
     session.commit();
   }
@@ -430,7 +428,6 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
     country.setProperty("name", name);
     country.setProperty("continent", continent);
     country.setProperty("languages", languages);
-    country.save();
 
     return country;
   }
@@ -440,7 +437,6 @@ public class SQLCombinationFunctionTests extends BaseDBTest {
     city.setProperty("name", name);
     city.setProperty("localName", localName == null ? name : localName);
     city.setProperty("country", country);
-    city.save();
 
     return city;
   }

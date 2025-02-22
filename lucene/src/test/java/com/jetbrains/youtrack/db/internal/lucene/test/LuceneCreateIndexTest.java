@@ -53,7 +53,6 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
     doc.field("author", "Local");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     testMetadata();

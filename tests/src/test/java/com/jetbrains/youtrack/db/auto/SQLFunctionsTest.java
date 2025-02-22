@@ -162,14 +162,13 @@ public class SQLFunctionsTest extends BaseDBTest {
         new HashSet<Identifiable>(
             Collections.singletonList(admin.getIdentity().getIdentity())));
 
-    docAdmin.save();
     session.commit();
 
     session.begin();
     var docReader = ((EntityImpl) session.newEntity("QueryCountExtendsRestrictedClass"));
     docReader.setProperty("_allowRead",
         new HashSet<>(Collections.singletonList(reader.getIdentity())));
-    docReader.save();
+
     session.commit();
 
     var resultSet =

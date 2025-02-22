@@ -37,7 +37,7 @@ public class HttpMultipartFileToRecordContentParser implements
       throws IOException {
     var record = new RecordBytes(db);
     record.fromInputStream(in);
-    record.save();
+
     return record.getIdentity();
   }
 }

@@ -66,7 +66,6 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
-    session.save(collector);
     session.commit();
 
     final var index = getIndex("Collector.stringCollection");
@@ -92,7 +91,6 @@ public class CollectionIndexTest extends BaseDBTest {
       session.begin();
       var collector = session.newEntity("Collector");
       collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-      session.save(collector);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -120,9 +118,8 @@ public class CollectionIndexTest extends BaseDBTest {
     session.begin();
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    collector = session.save(collector);
+    collector = collector;
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-    session.save(collector);
     session.commit();
 
     final var index = getIndex("Collector.stringCollection");
@@ -147,13 +144,12 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
     try {
       session.begin();
       collector = session.bindToSession(collector);
       collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-      session.save(collector);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -182,13 +178,12 @@ public class CollectionIndexTest extends BaseDBTest {
     session.begin();
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     session.begin();
     collector = session.bindToSession(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
-    session.save(collector);
     session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
@@ -215,7 +210,7 @@ public class CollectionIndexTest extends BaseDBTest {
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     session.begin();
@@ -249,14 +244,13 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     try {
       session.begin();
       Entity loadedCollector = session.load(collector.getIdentity());
       loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
-      session.save(loadedCollector);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -286,13 +280,12 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     session.begin();
     Entity loadedCollector = session.load(collector.getIdentity());
     loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
-    session.save(loadedCollector);
     session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
@@ -317,14 +310,13 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     try {
       session.begin();
       Entity loadedCollector = session.load(collector.getIdentity());
       loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
-      session.save(loadedCollector);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -353,13 +345,12 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     session.begin();
     Entity loadedCollector = session.load(collector.getIdentity());
     loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
-    session.save(loadedCollector);
     session.rollback();
 
     final var index = getIndex("Collector.stringCollection");
@@ -384,7 +375,7 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     session.begin();
@@ -414,7 +405,7 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.delete(collector);
     session.commit();
 
@@ -429,7 +420,7 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
     try {
       session.begin();
@@ -451,7 +442,7 @@ public class CollectionIndexTest extends BaseDBTest {
     var collector = session.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     session.begin();
-    collector = session.save(collector);
+    collector = collector;
     session.commit();
 
     session.begin();
@@ -479,7 +470,6 @@ public class CollectionIndexTest extends BaseDBTest {
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     session.begin();
-    session.save(collector);
     session.commit();
 
     var result =

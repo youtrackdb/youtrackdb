@@ -7,7 +7,6 @@ import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Test;
 
 public class SessionPoolTest {
@@ -21,7 +20,7 @@ public class SessionPoolTest {
         new SessionPoolImpl(youTrackDb, "test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (DatabaseSessionInternal) pool.acquire();
     db.executeInTx(
-        () -> db.save(db.newEntity()));
+        () -> db.newEntity());
     db.close();
     pool.close();
     youTrackDb.close();
@@ -53,7 +52,7 @@ public class SessionPoolTest {
     var db = (DatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(db.newEntity("Test"));
+    db.newEntity("Test");
     db.close();
     db = (DatabaseSessionInternal) pool.acquire();
     assertEquals(db.countClass("Test"), 0);

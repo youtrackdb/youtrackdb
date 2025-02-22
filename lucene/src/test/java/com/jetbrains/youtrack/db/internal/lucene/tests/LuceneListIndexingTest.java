@@ -70,7 +70,6 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     var tagsIndex = schema.getClassInternal("City").getClassIndex(session, "City.tags");
@@ -90,7 +89,6 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -105,7 +103,6 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     tags.remove("Sunny");
     tags.add("Rainy");
 
-    session.save(doc);
     session.commit();
 
     try (var stream = tagsIndex.getInternal().getRids(session, "Rainy")) {
@@ -139,7 +136,6 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -155,7 +151,6 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -170,7 +165,6 @@ public class LuceneListIndexingTest extends LuceneBaseTest {
     tags.remove("Funny");
     tags.add("Geek");
 
-    session.save(doc);
     session.commit();
 
     try (var stream = idx.getInternal().getRids(session, "Funny")) {

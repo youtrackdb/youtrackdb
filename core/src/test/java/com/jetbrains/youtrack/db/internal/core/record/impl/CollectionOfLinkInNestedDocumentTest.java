@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
@@ -31,7 +32,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
     var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = session.save(base);
+    Identifiable id = base;
     session.commit();
 
     EntityImpl base1 = session.load(id.getIdentity());
@@ -59,7 +60,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
     var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = session.save(base);
+    Identifiable id = base;
     session.commit();
 
     EntityImpl base1 = session.load(id.getIdentity());
@@ -84,7 +85,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
     var base = (EntityImpl) session.newEntity();
     base.field("nested", nested, PropertyType.EMBEDDED);
-    Identifiable id = session.save(base);
+    Identifiable id = base;
     session.commit();
 
     EntityImpl base1 = session.load(id.getIdentity());

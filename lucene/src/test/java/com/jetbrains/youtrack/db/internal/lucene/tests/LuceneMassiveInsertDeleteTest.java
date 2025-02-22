@@ -49,7 +49,6 @@ public class LuceneMassiveInsertDeleteTest extends LuceneBaseTest {
       city.setProperty("name", "Rome " + i);
 
       session.begin();
-      session.save(city);
       session.commit();
     }
     var query = "select * from City where search_class('name:Rome')=true";

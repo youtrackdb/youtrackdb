@@ -1,25 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool.importer;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  *
  */
-public final class MapConverter extends AbstractCollectionConverter<Map> {
+public final class EmbeddedMapConverter extends AbstractCollectionConverter<Map<String, Object>> {
 
-  public MapConverter(ConverterData converterData) {
+  public EmbeddedMapConverter(ConverterData converterData) {
     super(converterData);
   }
 
   @Override
-  public Map convert(DatabaseSessionInternal db, Map value) {
-    final Map result = new LinkedHashMap();
+  public Map<String, Object> convert(DatabaseSessionInternal session, Map<String, Object> value) {
+    var result = session.newEmbeddedMap();
     var updated = false;
     final class MapResultCallback implements ResultCallback {
 
-      private Object key;
+      private String key;
 
       @Override
       public void add(Object item) {
@@ -27,14 +26,14 @@ public final class MapConverter extends AbstractCollectionConverter<Map> {
       }
 
       public void setKey(Object key) {
-        this.key = key;
+        this.key = key.toString();
       }
     }
 
     final var callback = new MapResultCallback();
-    for (var entry : (Iterable<Map.Entry>) value.entrySet()) {
+    for (var entry : value.entrySet()) {
       callback.setKey(entry.getKey());
-      updated = convertSingleValue(db, entry.getValue(), callback, updated) || updated;
+      updated = convertSingleValue(session, entry.getValue(), callback, updated) || updated;
     }
     if (updated) {
       return result;

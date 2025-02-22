@@ -71,8 +71,6 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
             }));
 
     session.begin();
-    session.save(linestring1);
-    session.save(linestring2);
     session.commit();
 
     session.begin();

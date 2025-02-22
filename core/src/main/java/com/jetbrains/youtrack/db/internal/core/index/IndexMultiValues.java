@@ -134,7 +134,6 @@ public abstract class IndexMultiValues extends IndexAbstract {
     if (!rid.isValid()) {
       if (singleValue instanceof DBRecord) {
         // EARLY SAVE IT
-        ((DBRecord) singleValue).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");

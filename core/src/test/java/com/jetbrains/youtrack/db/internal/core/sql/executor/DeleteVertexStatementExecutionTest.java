@@ -17,7 +17,6 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(className);
       v1.setProperty("name", "a" + i);
-      v1.save();
       session.commit();
     }
 
@@ -37,7 +36,6 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(className);
       v1.setProperty("name", "a" + i);
-      v1.save();
       session.commit();
     }
 
@@ -57,7 +55,6 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(className1);
       v1.setProperty("name", "a" + i);
-      v1.save();
       session.commit();
     }
 
@@ -67,7 +64,6 @@ public class DeleteVertexStatementExecutionTest extends DbTestBase {
       session.begin();
       var v1 = session.newVertex(className2);
       v1.setProperty("name", "a" + i);
-      v1.save();
       session.commit();
     }
 

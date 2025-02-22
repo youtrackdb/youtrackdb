@@ -4,19 +4,15 @@ import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.File;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
@@ -71,7 +67,7 @@ public class StorageTestIT {
     for (var i = 0; i < 10; i++) {
       var document = ((EntityImpl) session.newEntity("PageBreak"));
       document.field("value", "value");
-      document.save();
+
     }
 
     var storage =
@@ -137,7 +133,7 @@ public class StorageTestIT {
     for (var i = 0; i < 10; i++) {
       var document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
-      document.save();
+
     }
 
     var storage =
@@ -200,7 +196,7 @@ public class StorageTestIT {
     for (var i = 0; i < 10; i++) {
       var document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
-      document.save();
+
     }
 
     var storage =
@@ -234,8 +230,6 @@ public class StorageTestIT {
     var document = ((EntityImpl) db.newEntity("PageBreak"));
     document.field("value", "value");
 
-    document.save();
-
     db.close();
   }
 
@@ -265,7 +259,7 @@ public class StorageTestIT {
     for (var i = 0; i < 10; i++) {
       var document = ((EntityImpl) db.newEntity("PageBreak"));
       document.field("value", "value");
-      document.save();
+
     }
 
     var storage =
@@ -301,8 +295,6 @@ public class StorageTestIT {
 
     var document = ((EntityImpl) db.newEntity("PageBreak"));
     document.field("value", "value");
-
-    document.save();
 
     db.close();
   }

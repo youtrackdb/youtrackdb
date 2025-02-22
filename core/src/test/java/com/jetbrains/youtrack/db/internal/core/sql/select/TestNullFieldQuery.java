@@ -17,8 +17,7 @@ public class TestNullFieldQuery extends DbTestBase {
     session.getMetadata().getSchema().createClass("Test");
     session.begin();
     var doc = (EntityImpl) session.newEntity("Test");
-    doc.field("name", (Object) null);
-    session.save(doc);
+    doc.field("name", null);
     session.commit();
 
     var res = session.query("select from Test where name= 'some' ");
@@ -32,8 +31,7 @@ public class TestNullFieldQuery extends DbTestBase {
 
     session.begin();
     var doc = (EntityImpl) session.newEntity("Test");
-    doc.field("name", (Object) null);
-    session.save(doc);
+    doc.field("name", null);
     session.commit();
 
     var res = session.query("select from Test where name= 'some' ");

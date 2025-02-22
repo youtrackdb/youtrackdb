@@ -49,7 +49,6 @@ public class ServerCommandPostDocument extends ServerCommandDocumentAbstract {
                 // ASSURE TO MAKE THE RECORD ID INVALID
                 entity.getIdentity().setClusterPosition(RID.CLUSTER_POS_INVALID);
 
-                entity.save();
                 return entity;
               });
 

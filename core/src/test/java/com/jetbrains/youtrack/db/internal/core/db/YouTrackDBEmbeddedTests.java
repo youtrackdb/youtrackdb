@@ -63,7 +63,7 @@ public class YouTrackDBEmbeddedTests {
               youTrackDb.open(
                   "createAndUseEmbeddedDatabase", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
-          () -> db.save(db.newEntity()));
+          () -> db.newEntity());
       db.close();
     }
   }
@@ -533,7 +533,7 @@ public class YouTrackDBEmbeddedTests {
         (DatabaseSessionInternal)
             youTrackDb.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.executeInTx(
-        () -> db.save(db.newEntity()));
+        () -> db.newEntity());
     db.close();
     youTrackDb.close();
   }

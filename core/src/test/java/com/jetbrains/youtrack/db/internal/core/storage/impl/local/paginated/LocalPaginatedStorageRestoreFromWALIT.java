@@ -333,8 +333,6 @@ public class LocalPaginatedStorageRestoreFromWALIT {
           }
           docOne.field("stringSet", stringSet);
 
-          docOne.save();
-
           firstDocs.add(docOne.getIdentity());
 
           if (random.nextBoolean()) {
@@ -347,7 +345,6 @@ public class LocalPaginatedStorageRestoreFromWALIT {
             }
 
             docTwo.field("stringList", stringList);
-            docTwo.save();
 
             testTwoList.add(docTwo.getIdentity());
           }
@@ -364,7 +361,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
             }
 
             docOne.field("linkMap", linkMap);
-            docOne.save();
+
           }
 
           var deleteDoc = random.nextDouble() <= 0.2;

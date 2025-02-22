@@ -29,31 +29,24 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
     session.begin();
     var role = session.newVertex("Role");
     role.setProperty("name", "System IT Owner");
-    session.save(role);
 
     role = session.newVertex("Role");
     role.setProperty("name", "System Business Owner");
-    session.save(role);
 
     role = session.newVertex("Role");
     role.setProperty("name", "System Business SME");
-    session.save(role);
 
     role = session.newVertex("Role");
     role.setProperty("name", "System Technical SME");
-    session.save(role);
 
     role = session.newVertex("Role");
     role.setProperty("name", "System");
-    session.save(role);
 
     role = session.newVertex("Role");
     role.setProperty("name", "boat");
-    session.save(role);
 
     role = session.newVertex("Role");
     role.setProperty("name", "moat");
-    session.save(role);
     session.commit();
   }
 

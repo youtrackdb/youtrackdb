@@ -20,13 +20,10 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.lang.reflect.Array;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -43,9 +40,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- *
- */
+
 public class ResultInternal implements Result {
 
   protected Map<String, Object> content;
@@ -180,18 +175,20 @@ public class ResultInternal implements Result {
 
   public void setProperty(String name, Object value) {
     assert session == null || session.assertIfNotActive();
-    assert identifiable == null;
 
     if (content == null) {
+      if (identifiable != null) {
+        throw new IllegalStateException("Impossible to mutate result set containing entity");
+      }
+      if (lightweightEdge != null) {
+        throw new IllegalStateException(
+            "Impossible to mutate result set containing lightweight edge");
+      }
       throw new IllegalStateException("Impossible to mutate result set");
     }
 
-    checkType(value);
-    if (value instanceof Result && ((Result) value).isEntity()) {
-      content.put(name, ((Result) value).castToEntity());
-    } else {
-      content.put(name, value);
-    }
+    value = convertPropertyValue(value);
+    content.put(name, value);
   }
 
   @Override
@@ -200,44 +197,63 @@ public class ResultInternal implements Result {
     return identifiable != null;
   }
 
-  private Object checkType(Object value) {
+  private Object convertPropertyValue(Object value) {
     if (value == null) {
       return value;
     }
 
-    if (isSimpleType(value)) {
+    if (PropertyType.isSingleValueType(value)) {
       return value;
     }
 
     switch (value) {
-      case Entity entity -> {
-        if (entity.isEmbedded()) {
-          var map = entity.toMap(false);
-          return checkType(map);
+      case RidBag ridBag -> {
+        var list = new ArrayList<RID>(ridBag.size());
+        for (var rid : ridBag) {
+          list.add(rid);
         }
 
+        return list;
+      }
+      case Blob blob -> {
+        if (!blob.getIdentity().isPersistent()) {
+          return blob.toStream();
+        }
+        return blob.getIdentity();
+      }
+      case Entity entity -> {
+        if (entity.isEmbedded() || !entity.getIdentity().isPersistent()) {
+          return entity.detach();
+        }
         return entity.getIdentity();
       }
+
       case Identifiable id -> {
         var res = id.getIdentity();
-
         if (session != null) {
           res = session.refreshRid(res);
         }
 
         return res;
       }
-
       case Result result -> {
+        if (result.isEntity()) {
+          return convertPropertyValue(result.castToEntity());
+        } else if (result.isBlob()) {
+          return convertPropertyValue(result.castToBlob());
+        }
+        if (result.isEdge() && !result.isStatefulEdge()) {
+          throw new IllegalStateException("Lightweight edges are not supported in properties");
+        }
+
         return result;
       }
-
       case List<?> collection -> {
         var listCopy = new ArrayList<>(collection.size());
         var allIdentifiable = false;
 
         for (var o : collection) {
-          var res = checkType(o);
+          var res = convertPropertyValue(o);
 
           if (res instanceof Identifiable) {
             allIdentifiable = true;
@@ -256,7 +272,7 @@ public class ResultInternal implements Result {
         var allIdentifiable = false;
 
         for (var o : set) {
-          var res = checkType(o);
+          var res = convertPropertyValue(o);
 
           if (res instanceof Identifiable) {
             allIdentifiable = true;
@@ -284,7 +300,7 @@ public class ResultInternal implements Result {
                     key);
           }
 
-          var res = checkType(entry.getValue());
+          var res = convertPropertyValue(entry.getValue());
           if (res instanceof Identifiable) {
             allIdentifiable = true;
           } else if (allIdentifiable) {
@@ -305,26 +321,6 @@ public class ResultInternal implements Result {
     }
   }
 
-  private static boolean isSimpleType(Object value) {
-    if (value == null) {
-      return true;
-    }
-
-    var cls = value.getClass();
-    if (cls.isPrimitive()) {
-      return true;
-    }
-
-    if (cls.isArray() && cls.getComponentType().equals(byte.class)) {
-      return true;
-    }
-
-    return Integer.class.isAssignableFrom(cls) || Long.class.isAssignableFrom(cls) || Short.class
-        .isAssignableFrom(cls) || Byte.class.isAssignableFrom(cls) || Double.class
-        .isAssignableFrom(cls) || Float.class.isAssignableFrom(cls) || Boolean.class
-        .isAssignableFrom(cls) || BigDecimal.class.isAssignableFrom(cls) ||
-        Date.class.isAssignableFrom(cls) || String.class.isAssignableFrom(cls);
-  }
 
   public void setTemporaryProperty(String name, Object value) {
     if (temporaryContent == null) {
@@ -351,6 +347,7 @@ public class ResultInternal implements Result {
 
   public void removeProperty(String name) {
     assert session == null || session.assertIfNotActive();
+
     if (content != null) {
       content.remove(name);
     }
@@ -358,24 +355,17 @@ public class ResultInternal implements Result {
 
   public <T> T getProperty(@Nonnull String name) {
     assert session == null || session.assertIfNotActive();
-    loadIdentifiable();
 
     T result = null;
     if (content != null && content.containsKey(name)) {
       //noinspection unchecked
-      result = (T) wrap(session, content.get(name));
+      result = (T) content.get(name);
     } else {
       if (isEntity()) {
-        //noinspection unchecked
-        result = (T) wrap(session,
-            EntityInternalUtils.rawPropertyRead((Entity) identifiable, name));
+        result = EntityInternalUtils.rawPropertyRead(castToEntity(), name);
       }
     }
-    if (result instanceof Identifiable && ((Identifiable) result).getIdentity()
-        .isPersistent()) {
-      //noinspection unchecked
-      result = (T) ((Identifiable) result).getIdentity();
-    }
+
     return result;
   }
 
@@ -523,24 +513,6 @@ public class ResultInternal implements Result {
     throw new IllegalStateException("Property " + name + " is not a link");
   }
 
-  private static Object wrap(DatabaseSessionInternal session, Object input) {
-    if (input instanceof EntityInternal elem
-        && !((RecordId) ((Entity) input).getIdentity()).isValid()) {
-      var result = new ResultInternal(session);
-      for (var prop : elem.getPropertyNamesInternal()) {
-        result.setProperty(prop, elem.getPropertyInternal(prop));
-      }
-
-      var schemaClass = elem.getSchemaClassName();
-      if (schemaClass != null) {
-        result.setProperty("@class", schemaClass);
-      }
-
-      return result;
-    }
-
-    return input;
-  }
 
   public @Nonnull Collection<String> getPropertyNames() {
     assert session == null || session.assertIfNotActive();
@@ -729,7 +701,7 @@ public class ResultInternal implements Result {
     if (key == null) {
       return;
     }
-    checkType(value);
+    value = convertPropertyValue(value);
     if (metadata == null) {
       metadata = new HashMap<>();
     }
@@ -979,22 +951,25 @@ public class ResultInternal implements Result {
     if (!(obj instanceof ResultInternal resultObj)) {
       return false;
     }
-    if (identifiable != null) {
+
+    if (lightweightEdge != null) {
+      return lightweightEdge.equals(resultObj.lightweightEdge);
+    } else if (identifiable != null) {
       return identifiable.equals(resultObj.identifiable);
+    }
+
+    if (content != null) {
+      return this.content.equals(resultObj.content);
     } else {
-      if (resultObj.identifiable != null) {
-        return false;
-      }
-      if (content != null) {
-        return this.content.equals(resultObj.content);
-      } else {
-        return resultObj.content == null;
-      }
+      return resultObj.content == null;
     }
   }
 
   @Override
   public int hashCode() {
+    if (lightweightEdge != null) {
+      return lightweightEdge.hashCode();
+    }
     if (identifiable != null) {
       return identifiable.hashCode();
     }

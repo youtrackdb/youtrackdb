@@ -63,7 +63,6 @@ public class StorageBackupTest {
       document.field("num", num);
       document.field("data", data);
 
-      document.save();
       db.commit();
     }
 
@@ -150,7 +149,6 @@ public class StorageBackupTest {
       document.field("num", num);
       document.field("data", data);
 
-      document.save();
       db.commit();
     }
 
@@ -175,7 +173,6 @@ public class StorageBackupTest {
         document.field("num", num);
         document.field("data", data);
 
-        document.save();
         db.commit();
       }
 
@@ -264,7 +261,6 @@ public class StorageBackupTest {
       document.field("num", num);
       document.field("data", data);
 
-      document.save();
       db.commit();
     }
 
@@ -289,7 +285,6 @@ public class StorageBackupTest {
         document.field("num", num);
         document.field("data", data);
 
-        document.save();
         db.commit();
       }
 

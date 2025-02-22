@@ -47,16 +47,12 @@ public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
     session.begin();
     var user = session.newEntity("user");
     user.setProperty("name", "abc");
-    session.save(user);
     user = session.newEntity("user");
     user.setProperty("name", "aby");
-    session.save(user);
     user = session.newEntity("user");
     user.setProperty("name", "aby");
-    session.save(user);
     user = session.newEntity("user");
     user.setProperty("name", "abz");
-    session.save(user);
     session.commit();
   }
 

@@ -20,8 +20,10 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
@@ -29,8 +31,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Lazy implementation of Set. Can be bound to a source Record object to keep track of changes.
- * This avoid to call the makeDirty() by hand when the set is changed.
+ * Lazy implementation of Set. Can be bound to a source Record object to keep track of changes. This
+ * avoid to call the makeDirty() by hand when the set is changed.
  *
  * <p><b>Internals</b>:
  *
@@ -42,18 +44,26 @@ import javax.annotation.Nullable;
  *
  * <p>
  */
-public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeListener {
+public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeListener,
+    LinkTrackedMultiValue<Identifiable> {
 
-  public LinkSet() {
+  @Nonnull
+  private final WeakReference<DatabaseSessionInternal> session;
+
+
+  public LinkSet(DatabaseSessionInternal session) {
     super();
+    this.session = new WeakReference<>(session);
   }
 
-  public LinkSet(int size) {
+  public LinkSet(int size, DatabaseSessionInternal session) {
     super(size);
+    this.session = new WeakReference<>(session);
   }
 
   public LinkSet(final RecordElement iSourceRecord) {
     super(iSourceRecord);
+    this.session = new WeakReference<>(iSourceRecord.getSession());
   }
 
   public LinkSet(RecordElement iSourceRecord, Collection<Identifiable> iOrigin) {
@@ -64,7 +74,8 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
     }
   }
 
-  public boolean addInternal(final Identifiable e) {
+  public boolean addInternal(Identifiable e) {
+    e = convertToRid(e);
     var result = super.addInternal(e);
 
     if (result) {
@@ -104,13 +115,15 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
     return result;
   }
 
-  public boolean addAll(final Collection<? extends Identifiable> c) {
-    if (c == null || c.isEmpty()) {
+  public boolean addAll(@Nonnull final Collection<? extends Identifiable> c) {
+    if (c.isEmpty()) {
       return false;
     }
 
     var result = false;
     for (var o : c) {
+      o = convertToRid(o);
+
       var resultAdd = super.add(o);
       result = result || resultAdd;
 
@@ -150,11 +163,6 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
   }
 
   @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    // not needed do nothing
-  }
-
-  @Override
   @Nonnull
   public Iterator<Identifiable> iterator() {
     var iterator = super.iterator();
@@ -186,6 +194,7 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
 
   @Override
   public boolean add(@Nullable Identifiable e) {
+    e = convertToRid(e);
     var result = super.add(e);
 
     if (result) {
@@ -223,9 +232,9 @@ public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeL
     return result;
   }
 
+  @Nullable
   @Override
-  public String toString() {
-    return RecordMultiValueHelper.toString(this);
+  public DatabaseSessionInternal getSession() {
+    return session.get();
   }
-
 }

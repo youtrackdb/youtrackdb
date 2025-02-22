@@ -55,8 +55,8 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     var doc1 = ((EntityImpl) session.newEntity("City"));
     doc1.field("name", "");
     session.begin();
-    doc = session.save(doc);
-    doc1 = session.save(doc1);
+    doc = doc;
+    doc1 = doc1;
     session.commit();
 
     session.begin();
@@ -65,8 +65,6 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
 
-    session.save(doc);
-    session.save(doc1);
     session.commit();
 
     var idx = session.getClassInternal("City").getClassIndex(session, "City.name");

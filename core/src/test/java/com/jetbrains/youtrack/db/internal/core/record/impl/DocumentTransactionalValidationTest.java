@@ -19,7 +19,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     clazz.createProperty(session, "int", PropertyType.INTEGER).setMandatory(session, true);
     session.begin();
     var vertex = session.newVertex(clazz.getName(session));
-    vertex.save();
     session.commit();
   }
 
@@ -30,7 +29,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     var vertex = session.newVertex(clazz.getName(session));
     vertex.setProperty("int", 11);
-    vertex.save();
     session.commit();
     session.begin();
     session.begin();
@@ -45,7 +43,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     var vertex = session.newVertex(clazz.getName(session));
     vertex.setProperty("int", "11");
-    vertex.save();
     session.commit();
     session.begin();
     Integer value = session.bindToSession(vertex).getProperty("int");
@@ -62,7 +59,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     vertex = session.newVertex(clazz.getName(session));
     vertex.setProperty("str", "first");
     vertex.setProperty("str", "second");
-    vertex.save();
     vertex.setProperty("str", "abacorrect");
     session.commit();
     Assert.assertEquals("abacorrect", session.bindToSession(vertex).getProperty("str"));
@@ -77,7 +73,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     vertex = session.newVertex(clazz.getName(session));
     vertex.setProperty("str", "first");
-    vertex.save();
     session.commit();
   }
 
@@ -90,7 +85,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     clazz.createProperty(session, edgePropertyName, PropertyType.LINKBAG, linkClass)
         .setMandatory(session, true);
     session.begin();
-    session.newVertex(clazz.getName(session)).save();
+    session.newVertex(clazz.getName(session));
     session.commit();
   }
 
@@ -106,7 +101,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     var vrt = session.newVertex(clazz.getName(session));
     var link = session.newVertex(linkClass.getName(session));
     vrt.addLightWeightEdge(link, edgeClass);
-    vrt.save();
     session.commit();
   }
 
@@ -123,11 +117,9 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     var vrt = session.newVertex(clazz.getName(session));
     var link = session.newVertex(linkClass.getName(session));
     vrt.addEdge(link, edgeClass);
-    vrt.save();
     session.commit();
     session.begin();
     vrt.getEdges(Direction.OUT, edgeClass).forEach(Edge::delete);
-    vrt.save();
     session.commit();
   }
 
@@ -139,13 +131,11 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     var vrt = session.newVertex(clazz.getName(session));
     vrt.getOrCreateEmbeddedList("arr").addAll(Arrays.asList(1, 2, 3));
-    vrt.save();
     session.commit();
     session.begin();
     vrt = session.bindToSession(vrt);
     List<Integer> arr = vrt.getProperty("arr");
     arr.clear();
-    vrt.save();
     session.commit();
   }
 
@@ -160,18 +150,13 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     var vrt = session.newVertex(clazz.getName(session));
     var link = session.newVertex(linkClass.getName(session));
-    link.save();
     vrt.addLightWeightEdge(link, edgeClass);
-    vrt.save();
     session.commit();
     session.begin();
     vrt = session.bindToSession(vrt);
     vrt.getEdges(Direction.OUT, edgeClass).forEach(Edge::delete);
-    vrt.save();
     var link2 = session.newVertex(linkClass.getName(session));
-    link2.save();
     vrt.addLightWeightEdge(link2, edgeClass);
-    vrt.save();
     session.commit();
     session.begin();
     vrt = session.load(vrt.getIdentity());
@@ -189,9 +174,7 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     var vertex = session.newVertex(clazz.getName(session));
     vertex.setProperty("dbl", -100.0);
-    vertex.save();
     vertex.setProperty("dbl", 2.39);
-    vertex.save();
     session.commit();
     session.begin();
     vertex = session.bindToSession(vertex);
@@ -208,7 +191,6 @@ public class DocumentTransactionalValidationTest extends BaseMemoryInternalDatab
     session.begin();
     var vertex = session.newVertex(clazz.getName(session));
     vertex.setProperty("dbl", -100.0);
-    vertex.save();
     session.commit();
   }
 }

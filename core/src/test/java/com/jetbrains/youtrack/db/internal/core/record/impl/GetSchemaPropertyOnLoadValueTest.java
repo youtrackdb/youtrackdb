@@ -25,16 +25,16 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("test");
     doc.setProperty("name", "John Doe");
-    doc.save();
+
     session.commit();
     RID id = doc.getIdentity();
     session.activateOnCurrentThread();
     session.begin();
     EntityImpl doc2 = session.load(id);
     doc2.setProperty("name", "Sun Doe");
-    doc2.save();
+
     doc2.setProperty("name", "Jane Doe");
-    doc2.save();
+
     Assert.assertEquals("John Doe", doc2.getPropertyOnLoadValue("name"));
   }
 
@@ -52,7 +52,6 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
               linked.setProperty("name", i + "");
               doc.addEdge(linked, "myLink");
             });
-    doc.save();
     session.commit();
 
     session.begin();
@@ -66,13 +65,11 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     session.begin();
     var vertex = session.newVertex("test");
     vertex.getOrCreateEmbeddedList("list").addAll(Arrays.asList(1, 2, 3));
-    vertex.save();
     session.commit();
     session.begin();
     vertex = session.load(vertex.getIdentity());
     List<Integer> storedList = vertex.getProperty("list");
     storedList.add(4);
-    vertex.save();
     List<Integer> onLoad = vertex.getPropertyOnLoadValue("list");
     Assert.assertEquals(3, onLoad.size());
   }
@@ -83,13 +80,11 @@ public class GetSchemaPropertyOnLoadValueTest extends DbTestBase {
     session.begin();
     var doc = session.newVertex("test");
     doc.getOrCreateEmbeddedSet("set").addAll(new HashSet<>(Arrays.asList(1, 2, 3)));
-    doc.save();
     session.commit();
     session.begin();
     doc = session.load(doc.getIdentity());
     Set<Integer> storedSet = doc.getProperty("set");
     storedSet.add(4);
-    doc.save();
     Set<Integer> onLoad = doc.getPropertyOnLoadValue("set");
     Assert.assertEquals(3, onLoad.size());
   }

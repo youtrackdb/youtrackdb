@@ -53,8 +53,6 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
                 + PWKT
                 + "')")
         .close();
-    session.save(rome);
-    session.save(london);
     var query =
         "select * from City where location && 'LINESTRING(-160.06393432617188"
             + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
@@ -93,8 +91,6 @@ public class LuceneTransactionGeoQueryTest extends LuceneBaseTest {
     var rome = newCity(session, "Rome", 12.5, 41.9);
 
     session.begin();
-
-    session.save(rome);
 
     session.commit();
 

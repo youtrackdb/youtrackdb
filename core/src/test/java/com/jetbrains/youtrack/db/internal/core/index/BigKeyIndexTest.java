@@ -24,7 +24,6 @@ public class BigKeyIndexTest extends DbTestBase {
       }
       doc.setProperty("two", bigValue.toString());
 
-      session.save(doc);
       session.commit();
     }
   }
@@ -42,7 +41,6 @@ public class BigKeyIndexTest extends DbTestBase {
       bigValue.append("one").append(z);
     }
     doc.setProperty("two", bigValue.toString());
-    session.save(doc);
     session.commit();
   }
 }

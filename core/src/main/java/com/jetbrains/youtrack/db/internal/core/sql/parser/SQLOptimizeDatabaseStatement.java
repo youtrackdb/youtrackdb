@@ -110,8 +110,6 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
             }
           }
 
-          outV.save();
-
           // INCOMING
           final var inField = inV.getPropertyInternal("in_" + entity.getSchemaClassName());
           if (outField instanceof RidBag) {
@@ -126,8 +124,6 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
               }
             }
           }
-
-          inV.save();
 
           entity.delete();
 

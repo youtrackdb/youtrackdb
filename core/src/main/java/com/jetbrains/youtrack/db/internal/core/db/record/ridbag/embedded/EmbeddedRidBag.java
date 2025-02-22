@@ -323,11 +323,6 @@ public class EmbeddedRidBag implements RidBagDelegate {
     return null;
   }
 
-  @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    // do nothing not needed
-  }
-
   private void addEvent(final RID key, final RID rid) {
     if (tracker.isEnabled()) {
       tracker.add(key, rid);

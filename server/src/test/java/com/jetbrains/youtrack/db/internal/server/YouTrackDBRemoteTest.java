@@ -68,7 +68,7 @@ public class YouTrackDBRemoteTest {
     var db = (DatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
-    db.save(db.newEntity());
+    db.newEntity();
     db.commit();
     db.close();
   }
@@ -98,7 +98,7 @@ public class YouTrackDBRemoteTest {
     SessionPool pool = new SessionPoolImpl(factory, "test", "admin", "admin");
     var db = (DatabaseSessionInternal) pool.acquire();
     db.begin();
-    db.save(db.newEntity());
+    db.newEntity();
     db.commit();
     db.close();
     pool.close();

@@ -89,7 +89,6 @@ public class MatchStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newEntity("IndexedVertex");
       doc.setProperty("uid", i);
-      doc.save();
       session.commit();
     }
 
@@ -1600,14 +1599,14 @@ public class MatchStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance("testBigEntryPoint1");
       doc.setProperty("a", i);
-      doc.save();
+
       session.commit();
     }
 
     session.begin();
     var doc = session.newInstance("testBigEntryPoint2");
     doc.setProperty("b", "b");
-    doc.save();
+
     session.commit();
 
     var qResult =

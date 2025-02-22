@@ -58,13 +58,11 @@ public class TransactionConsistencyTest extends BaseDBTest {
     // Create docA.
     EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
-    database1.save(vDocA_db1);
 
     // Create docB.
     EntityImpl vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
 
-    database1.save(vDocB_db1);
     database1.commit();
 
     // Keep the IDs.
@@ -80,7 +78,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
       // Get docA and update in db2 transaction context
       EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
-      database2.save(vDocA_db2);
 
       // Concurrent update docA via database1 -> will throw ConcurrentModificationException at
       // database2.commit().
@@ -90,7 +87,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
         vDocA_db1 = database1.bindToSession(vDocA_db1);
 
         vDocA_db1.field(NAME, "docA_v3");
-        database1.save(vDocA_db1);
 
         database1.commit();
       } catch (ConcurrentModificationException e) {
@@ -109,7 +105,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
       database2.activateOnCurrentThread();
       EntityImpl vDocB_db2 = database2.load(vDocB_Rid);
       vDocB_db2.field(NAME, "docB_UpdatedInTranscationThatWillBeRollbacked");
-      database2.save(vDocB_db2);
 
       // Will throw ConcurrentModificationException
       database2.commit();
@@ -145,7 +140,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
-    database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the IDs.
@@ -157,14 +151,12 @@ public class TransactionConsistencyTest extends BaseDBTest {
       // Get docA and update in db2 transaction context
       EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
-      database2.save(vDocA_db2);
 
       database1.activateOnCurrentThread();
       database1.begin();
       try {
         vDocA_db1 = database1.bindToSession(vDocA_db1);
         vDocA_db1.field(NAME, "docA_v3");
-        database1.save(vDocA_db1);
         database1.commit();
       } catch (ConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
@@ -207,7 +199,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
-    database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the IDs.
@@ -219,14 +210,12 @@ public class TransactionConsistencyTest extends BaseDBTest {
       // Get docA and update in db2 transaction context
       EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
-      database2.save(vDocA_db2);
 
       database1.activateOnCurrentThread();
       database1.begin();
       try {
         vDocA_db1 = database1.bindToSession(vDocA_db1);
         vDocA_db1.field(NAME, "docA_v3");
-        database1.save(vDocA_db1);
         database1.commit();
       } catch (ConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
@@ -269,7 +258,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     database1.begin();
     EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
-    database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the ID.
@@ -280,7 +268,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     database2.begin();
     EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
     vDocA_db2.field(NAME, "docA_v2");
-    database2.save(vDocA_db2);
     database2.commit();
 
     // Later... read docA with db1.
@@ -318,8 +305,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
         .field("following"))
         .add(jack);
 
-    jack.save();
-
     session.commit();
 
     session.close();
@@ -331,7 +316,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     session.begin();
     loadedJack = session.bindToSession(loadedJack);
     loadedJack.field("occupation", "agent");
-    loadedJack.save();
+
     session.commit();
     Assert.assertTrue(jackLastVersion != session.bindToSession(loadedJack).getVersion());
 
@@ -375,13 +360,10 @@ public class TransactionConsistencyTest extends BaseDBTest {
         .field("surname", "Bauer");
 
     var myedge = ((EntityImpl) session.newEntity("MyEdge")).field("in", kim).field("out", jack);
-    myedge.save();
+
     ((HashSet<EntityImpl>) kim.field("out", new HashSet<RID>()).field("out")).add(myedge);
     ((HashSet<EntityImpl>) jack.field("in", new HashSet<RID>()).field("in")).add(myedge);
 
-    jack.save();
-    kim.save();
-    teri.save();
     session.commit();
 
     var result = session.command("select from MyProfile ");
@@ -421,11 +403,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     var schema = session.getSchema();
     var profileClusterIds =
         Arrays.asList(ArrayUtils.toObject(schema.getClass("Profile").getClusterIds(session)));
-
-    jack.save();
-    kim.save();
-    teri.save();
-    chloe.save();
 
     session.commit();
 
@@ -489,7 +466,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
                 .field("name", "" + i)
                 .field("color", "FOO")
                 .field("flavor", "BAR" + i);
-        d.save();
+
         v.add(d);
       }
 
@@ -531,15 +508,12 @@ public class TransactionConsistencyTest extends BaseDBTest {
     // Create several foo's
     var v = session.newVertex("Foo");
     v.setProperty("address", "test1");
-    v.save();
 
     v = session.newVertex("Foo");
     v.setProperty("address", "test2");
-    v.save();
 
     v = session.newVertex("Foo");
     v.setProperty("address", "test3");
-    v.save();
     session.commit();
 
     // remove those foos in a transaction
@@ -585,7 +559,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     var foo = session.newVertex("Foo");
     foo.setProperty("prop", "test1");
     session.begin();
-    foo.save();
     session.commit();
 
     // Comment out these two lines and the test will succeed. The issue appears to be related to
@@ -594,14 +567,12 @@ public class TransactionConsistencyTest extends BaseDBTest {
     var bar = session.newVertex("Bar");
     bar.setProperty("prop", "test1");
     session.begin();
-    bar.save();
     session.commit();
 
     session.begin();
     foo = session.bindToSession(foo);
     bar = session.bindToSession(bar);
     var sees = session.newStatefulEdge(foo, bar, "Sees");
-    sees.save();
     session.commit();
 
     var foos = session.query("select * from Foo").stream().toList();
@@ -651,10 +622,10 @@ public class TransactionConsistencyTest extends BaseDBTest {
         (person.<Set<EntityImpl>>getProperty("out")).add(edge);
         (session.bindToSession(inserted.get(i - 1)).<Set<EntityImpl>>getProperty("in")).add(
             edge);
-        edge.save();
+
       }
       inserted.add(person);
-      person.save();
+
     }
     session.commit();
 
@@ -680,18 +651,18 @@ public class TransactionConsistencyTest extends BaseDBTest {
                 edge.field("out", inserted2.get(i - 1));
                 (person.<Set<EntityImpl>>getProperty("out")).add(edge);
                 ((inserted2.get(i - 1)).<Set<EntityImpl>>getProperty("in")).add(edge);
-                edge.save();
+
               }
 
               inserted2.add(person);
-              person.save();
+
             }
 
             for (var i = 0; i < cnt; i++) {
               if (i != cnt - 1) {
                 var doc = session.bindToSession((EntityImpl) inserted.get(i));
                 doc.setProperty("myversion", 2);
-                doc.save();
+
               }
             }
 
@@ -716,7 +687,6 @@ public class TransactionConsistencyTest extends BaseDBTest {
     var v = session.newVertex();
 
     v.setProperty("purpose", "testQueryIsolation");
-    v.save();
 
     var result =
         session
@@ -747,14 +717,13 @@ public class TransactionConsistencyTest extends BaseDBTest {
     var account = session.newEntity("Account");
     account.setProperty("name", "John Grisham");
     session.begin();
-    account = session.save(account);
+    account = account;
     session.commit();
 
     session.begin();
     account = session.bindToSession(account);
     var address1 = session.newEntity("Address");
     address1.setProperty("street", "Mulholland drive");
-    address1.save();
 
     var address2 = session.newEntity("Address");
     address2.setProperty("street", "Via Veneto");
@@ -765,7 +734,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
 
     account.setProperty("addresses", addresses);
 
-    account = session.save(account);
+    account = account;
     session.commit();
 
     session.begin();
@@ -778,7 +747,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     Assert.assertEquals(account.<List<Identifiable>>getProperty("addresses").size(), 1);
     account.setProperty(
         "name", "New Name"); // change an attribute to see if the change is rolled back
-    account = session.save(account);
+    account = account;
 
     Assert.assertEquals(
         account.<List<Identifiable>>getProperty("addresses").size(),
@@ -812,7 +781,7 @@ public class TransactionConsistencyTest extends BaseDBTest {
     doc.field("name", "test1");
 
     session.begin();
-    doc.save();
+
     session.commit();
     RID orid = doc.getIdentity();
     session.begin();

@@ -258,7 +258,6 @@ public class SecurityEngineTest {
             () -> {
               var record1 = db.newEntity("Person");
               record1.setProperty("name", "foo");
-              record1.save();
               return record1;
             });
 
@@ -267,7 +266,6 @@ public class SecurityEngineTest {
             () -> {
               var record2 = db.newEntity("Person");
               record2.setProperty("name", "bar");
-              record2.save();
               return record2;
             });
 

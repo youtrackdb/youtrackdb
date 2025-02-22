@@ -111,11 +111,8 @@ public class UpdateEdgeStatementExecutionTest extends DbTestBase {
 
     session.begin();
     var v1 = session.newVertex();
-    session.save(v1);
     var v2 = session.newVertex();
-    session.save(v2);
     var v3 = session.newVertex();
-    session.save(v3);
     session.commit();
 
     session.begin();

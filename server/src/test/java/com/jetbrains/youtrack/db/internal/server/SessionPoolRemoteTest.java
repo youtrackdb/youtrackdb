@@ -11,7 +11,6 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +53,7 @@ public class SessionPoolRemoteTest {
     var db = (DatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(db.newEntity("Test"));
+    db.newEntity("Test");
     db.close();
     db = (DatabaseSessionInternal) pool.acquire();
     assertEquals(0, db.countClass("Test"));

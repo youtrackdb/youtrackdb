@@ -394,7 +394,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (updated) {
       handleUpdateEdge(session, record);
       record.setDirty();
-      record.save();
+
       returnHandler.afterUpdate(record);
       this.updated = true;
     }
@@ -470,7 +470,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
       if (prevBag != null) {
         prevBag.remove(edge.getIdentity());
-        prevOutDoc.save();
+
       }
 
       EntityImpl currentVertexDoc = currentVertex.getRecord(db);

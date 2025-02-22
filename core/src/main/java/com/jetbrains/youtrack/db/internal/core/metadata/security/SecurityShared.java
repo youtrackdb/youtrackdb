@@ -637,7 +637,7 @@ public class SecurityShared implements SecurityInternal {
   @Override
   public void saveSecurityPolicy(DatabaseSession session, SecurityPolicyImpl policy) {
     var sessionInternal = (DatabaseSessionInternal) session;
-    sessionInternal.save(policy.getEntity(sessionInternal));
+    policy.getEntity(sessionInternal);
   }
 
   @Override

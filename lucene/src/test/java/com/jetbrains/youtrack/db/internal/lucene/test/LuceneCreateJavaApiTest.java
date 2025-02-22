@@ -119,7 +119,6 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
             + "    \"text2\": \"Hello Bolzano how are you today?\",\n"
             + "    }\n"
             + "}");
-    session.save(songDoc);
     session.commit();
     var song = createEmbeddedMapIndex();
     checkCreatedEmbeddedMapIndex(song, "LUCENE");
@@ -147,7 +146,6 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     doc.field("String" + PropertyType.EMBEDDEDMAP.getName(), entries, PropertyType.EMBEDDEDMAP,
         PropertyType.STRING);
     session.begin();
-    session.save(doc);
     session.commit();
   }
 

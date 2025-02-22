@@ -45,15 +45,12 @@ public class TxUniqueIndexWithCollationTest extends DbTestBase {
     session.begin();
     var one = session.newEntity("user");
     one.setProperty("name", "abc");
-    session.save(one);
 
     var two = session.newEntity("user");
     two.setProperty("name", "aby");
-    session.save(two);
 
     var three = session.newEntity("user");
     three.setProperty("name", "abz");
-    session.save(three);
     session.commit();
   }
 

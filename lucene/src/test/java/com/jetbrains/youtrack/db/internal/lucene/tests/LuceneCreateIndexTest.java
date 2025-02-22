@@ -55,7 +55,6 @@ public class LuceneCreateIndexTest extends LuceneBaseTest {
     doc.setProperty("author", "Local");
 
     session.begin();
-    session.save(doc);
     session.commit();
   }
 

@@ -33,6 +33,7 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
@@ -47,7 +48,6 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EmbeddedEntityImpl;
@@ -428,8 +428,12 @@ public class RecordSerializerJackson {
             "Expected field -> 'value'. JSON content");
       }
     } else {
-      var type = determineType(session, entity, fieldName, fieldTypes.get(fieldName));
-      var v = parseValue(session, entity, jsonParser, type);
+      var schemaClass = entity.getImmutableSchemaClass(session);
+      var schemaProperty = schemaClass != null ? schemaClass.getProperty(session, fieldName) : null;
+
+      var type = determineType(session, entity, fieldName,
+          fieldTypes.get(fieldName), schemaProperty);
+      var v = parseValue(session, entity, jsonParser, type, schemaProperty);
 
       if (type != null) {
         entity.setPropertyInternal(fieldName, v, type);
@@ -636,19 +640,11 @@ public class RecordSerializerJackson {
   @Nullable
   private static PropertyType determineType(DatabaseSessionInternal session, EntityImpl entity,
       String fieldName,
-      String charType) {
+      String charType, SchemaProperty schemaProperty) {
     PropertyType type = null;
 
-    SchemaImmutableClass result = null;
-    if (entity != null) {
-      result = entity.getImmutableSchemaClass(session);
-    }
-    final SchemaClass cls = result;
-    if (cls != null) {
-      final var prop = cls.getProperty(session, fieldName);
-      if (prop != null) {
-        type = prop.getType(session);
-      }
+    if (schemaProperty != null) {
+      type = schemaProperty.getType(session);
     }
 
     if (type != null) {
@@ -797,7 +793,7 @@ public class RecordSerializerJackson {
       @Nonnull DatabaseSessionInternal session,
       @Nullable final EntityImpl entity,
       @Nonnull JsonParser jsonParser,
-      @Nullable PropertyType type) throws IOException {
+      @Nullable PropertyType type, @Nullable SchemaProperty schemaProperty) throws IOException {
     var token = jsonParser.currentToken();
     return switch (token) {
       case VALUE_NULL -> null;
@@ -833,21 +829,21 @@ public class RecordSerializerJackson {
       case VALUE_TRUE -> true;
 
       case START_ARRAY -> switch (type) {
-        case EMBEDDEDLIST -> parseEmbeddedList(session, entity, jsonParser);
-        case EMBEDDEDSET -> parseEmbeddedSet(session, entity, jsonParser);
+        case EMBEDDEDLIST -> parseEmbeddedList(session, entity, jsonParser, schemaProperty);
+        case EMBEDDEDSET -> parseEmbeddedSet(session, entity, jsonParser, schemaProperty);
 
         case LINKLIST -> parseLinkList(entity, jsonParser);
         case LINKSET -> parseLinkSet(entity, jsonParser);
         case LINKBAG -> parseLinkBag(entity, jsonParser);
 
-        case null -> parseEmbeddedList(session, entity, jsonParser);
+        case null -> parseEmbeddedList(session, entity, jsonParser, schemaProperty);
 
         default -> throw new SerializationException(session, "Unexpected value type: " + type);
       };
 
       case START_OBJECT -> switch (type) {
-        case EMBEDDED -> parseEmbeddedEntity(session, jsonParser, null);
-        case EMBEDDEDMAP -> parseEmbeddedMap(session, entity, jsonParser, null);
+        case EMBEDDED -> parseEmbeddedEntity(session, jsonParser, null, schemaProperty);
+        case EMBEDDEDMAP -> parseEmbeddedMap(session, entity, jsonParser, null, schemaProperty);
         case LINKMAP -> parseLinkMap(entity, jsonParser);
         case LINK -> recordFromJson(session, null, jsonParser);
 
@@ -857,7 +853,7 @@ public class RecordSerializerJackson {
 
           if (recordMetaData != null) {
             if (recordMetaData.isEmbedded) {
-              yield parseEmbeddedEntity(session, jsonParser, recordMetaData);
+              yield parseEmbeddedEntity(session, jsonParser, recordMetaData, schemaProperty);
             }
 
             yield createRecordFromJsonAfterMetadata(session, null, recordMetaData, jsonParser);
@@ -872,10 +868,10 @@ public class RecordSerializerJackson {
           var fieldName = jsonParser.currentName();
           jsonParser.nextToken();
 
-          var value = parseValue(session, null, jsonParser, null);
+          var value = parseValue(session, null, jsonParser, null, null);
           map.put(fieldName, value);
 
-          yield parseEmbeddedMap(session, entity, jsonParser, map);
+          yield parseEmbeddedMap(session, entity, jsonParser, map, schemaProperty);
         }
 
         default -> throw new SerializationException(session, "Unexpected value type: " + type);
@@ -898,14 +894,17 @@ public class RecordSerializerJackson {
 
   @Nonnull
   private static EmbeddedEntityImpl parseEmbeddedEntity(@Nonnull DatabaseSessionInternal db,
-      @Nonnull JsonParser jsonParser, @Nullable RecordMetadata metadata) throws IOException {
-    var embedded = (EmbeddedEntityImpl) db.newEmbededEntity();
+      @Nonnull JsonParser jsonParser, @Nullable RecordMetadata metadata,
+      SchemaProperty schemaProperty) throws IOException {
+
     if (metadata == null) {
       metadata = parseRecordMetadata(db, jsonParser, null, EntityImpl.RECORD_TYPE, true);
 
       if (metadata == null) {
+        var linkedClass = schemaProperty != null ? schemaProperty.getLinkedClass(db) : null;
         metadata = new RecordMetadata(EntityImpl.RECORD_TYPE, null,
-            null, Collections.emptyMap(), true, null);
+            linkedClass != null ? linkedClass.getName(db) : null,
+            Collections.emptyMap(), true, null);
       }
     }
 
@@ -913,13 +912,20 @@ public class RecordSerializerJackson {
       throw new SerializationException(db, "Expected embedded record");
     }
 
+    EmbeddedEntityImpl embedded;
+    if (metadata.className != null) {
+      embedded = (EmbeddedEntityImpl) db.newEmbededEntity(metadata.className);
+    } else {
+      embedded = (EmbeddedEntityImpl) db.newEmbededEntity();
+    }
     parseProperties(db, embedded, metadata, jsonParser);
 
     return embedded;
   }
 
-  private static TrackedMap<Object> parseEmbeddedMap(@Nonnull DatabaseSessionInternal db,
-      @Nonnull EntityImpl entity, @Nonnull JsonParser jsonParser, @Nullable TrackedMap<Object> map)
+  private static TrackedMap<Object> parseEmbeddedMap(@Nonnull DatabaseSessionInternal session,
+      @Nonnull EntityImpl entity, @Nonnull JsonParser jsonParser, @Nullable TrackedMap<Object> map,
+      SchemaProperty schemaProperty)
       throws IOException {
     if (map == null) {
       map = new TrackedMap<>(entity);
@@ -928,7 +934,8 @@ public class RecordSerializerJackson {
     while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
       var fieldName = jsonParser.currentName();
       jsonParser.nextToken();
-      var value = parseValue(db, null, jsonParser, null);
+      var value = parseValue(session, null, jsonParser,
+          schemaProperty != null ? schemaProperty.getType(session) : null, null);
       map.put(fieldName, value);
     }
 
@@ -971,24 +978,27 @@ public class RecordSerializerJackson {
     return bag;
   }
 
-  private static TrackedList<Object> parseEmbeddedList(DatabaseSessionInternal db,
+  private static TrackedList<Object> parseEmbeddedList(DatabaseSessionInternal session,
       EntityImpl entity,
-      JsonParser jsonParser) throws IOException {
+      JsonParser jsonParser, @Nullable SchemaProperty schemaProperty) throws IOException {
     var list = new TrackedList<>(entity);
 
     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-      list.add(parseValue(db, null, jsonParser, null));
+      list.add(parseValue(session, null, jsonParser,
+          schemaProperty != null ? schemaProperty.getType(session) : null, null));
     }
 
     return list;
   }
 
-  private static TrackedSet<Object> parseEmbeddedSet(DatabaseSessionInternal db, EntityImpl entity,
-      JsonParser jsonParser) throws IOException {
+  private static TrackedSet<Object> parseEmbeddedSet(DatabaseSessionInternal session,
+      EntityImpl entity,
+      JsonParser jsonParser, SchemaProperty schemaProperty) throws IOException {
     var list = new TrackedSet<>(entity);
 
     while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-      list.add(parseValue(db, null, jsonParser, null));
+      list.add(parseValue(session, null, jsonParser,
+          schemaProperty != null ? schemaProperty.getType(session) : null, null));
     }
 
     return list;

@@ -527,11 +527,6 @@ public class RidBag
   }
 
   @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    // not needed do nothing
-  }
-
-  @Override
   public boolean equals(Object other) {
     if (!(other instanceof RidBag otherRidbag)) {
       return false;

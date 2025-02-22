@@ -161,7 +161,6 @@ public class HookTxTest extends BaseDBTest {
     // TEST HOOKS ON CREATE
     Assert.assertEquals(callbackCount, 0);
     session.begin();
-    session.save(profile);
     session.commit();
 
     expectedHookState += RECORD_BEFORE_CREATE + RECORD_AFTER_CREATE;

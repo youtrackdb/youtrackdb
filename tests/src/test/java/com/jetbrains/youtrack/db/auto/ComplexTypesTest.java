@@ -51,7 +51,6 @@ public class ComplexTypesTest extends BaseDBTest {
     newDoc.field("decimal_float", new BigDecimal("10.34"));
 
     session.begin();
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -75,7 +74,6 @@ public class ComplexTypesTest extends BaseDBTest {
     list.add(((EntityImpl) session.newEntity("Account")).field("name", "Marcus"));
 
     session.begin();
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -105,13 +103,12 @@ public class ComplexTypesTest extends BaseDBTest {
     session.begin();
 
     var doc = ((EntityImpl) session.newEntity());
-    doc.field("name", "Luca")
-        .save();
+    doc.field("name", "Luca");
+
     list.add(doc);
 
     list.add(((EntityImpl) session.newEntity("Account")).field("name", "Marcus"));
 
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -144,7 +141,6 @@ public class ComplexTypesTest extends BaseDBTest {
     set.add(((EntityImpl) session.newEntity("Account")).field("name", "Marcus"));
 
     session.begin();
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -182,13 +178,12 @@ public class ComplexTypesTest extends BaseDBTest {
     newDoc.field("linkedSet", set, PropertyType.LINKSET);
     session.begin();
     var doc = ((EntityImpl) session.newEntity());
-    doc.field("name", "Luca")
-        .save();
+    doc.field("name", "Luca");
+
     set.add(doc);
 
     set.add(((EntityImpl) session.newEntity("Account")).field("name", "Marcus"));
 
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -228,7 +223,6 @@ public class ComplexTypesTest extends BaseDBTest {
     map.put("Cesare", ((EntityImpl) session.newEntity("Account")).field("name", "Cesare"));
 
     session.begin();
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -262,7 +256,6 @@ public class ComplexTypesTest extends BaseDBTest {
     newDoc.field("embeddedMap", map, PropertyType.EMBEDDEDMAP);
 
     session.begin();
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();
@@ -287,19 +280,19 @@ public class ComplexTypesTest extends BaseDBTest {
     newDoc.field("linkedMap", map, PropertyType.LINKMAP);
     session.begin();
     var doc1 = ((EntityImpl) session.newEntity());
-    doc1.field("name", "Luca")
-        .save();
+    doc1.field("name", "Luca");
+
     map.put("Luca", doc1);
     var doc2 = ((EntityImpl) session.newEntity());
-    doc2.field("name", "Marcus")
-        .save();
+    doc2.field("name", "Marcus");
+
     map.put("Marcus", doc2);
 
     var doc3 = ((EntityImpl) session.newEntity("Account"));
-    doc3.field("name", "Cesare").save();
+    doc3.field("name", "Cesare");
+
     map.put("Cesare", doc3);
 
-    session.save(newDoc);
     session.commit();
 
     final RID rid = newDoc.getIdentity();

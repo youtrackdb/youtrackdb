@@ -43,7 +43,6 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     v.setProperty("name", "London");
 
     session.begin();
-    session.save(v);
     session.commit();
 
     session.begin();
@@ -53,7 +52,6 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     v = session.bindToSession(v);
     v.setProperty("name", "Berlin");
 
-    v.save();
     session.commit();
 
     results = session.command("select from City where name lucene 'Berlin'");

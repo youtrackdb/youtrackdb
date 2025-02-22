@@ -313,7 +313,6 @@ public class StorageBackupMTTest {
                 document.field("num", num);
                 document.field("data", data);
 
-                document.save();
                 RID id = document.getIdentity();
                 if (ids.size() < 100) {
                   ids.add(id);

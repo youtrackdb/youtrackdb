@@ -17,7 +17,6 @@ package com.jetbrains.youtrack.db.auto;
 
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
@@ -67,11 +66,9 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
 
               EntityImpl vDoc1 = db.load(rid1);
               vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
-              vDoc1.save();
 
               EntityImpl vDoc2 = db.load(rid2);
               vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
-              vDoc2.save();
 
               db.commit();
 
@@ -154,7 +151,6 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
     EntityImpl doc1 = database.newInstance();
     doc1.field("INIT", "ok");
     database.begin();
-    database.save(doc1);
     database.commit();
 
     RID rid1 = doc1.getIdentity();
@@ -163,7 +159,6 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
     doc2.field("INIT", "ok");
 
     database.begin();
-    database.save(doc2);
     database.commit();
 
     RID rid2 = doc2.getIdentity();
@@ -226,7 +221,6 @@ public class ConcurrentUpdatesTest extends BaseDBTest {
     doc1.field("total", 0);
 
     database.begin();
-    database.save(doc1);
     database.commit();
 
     RID rid1 = doc1.getIdentity();

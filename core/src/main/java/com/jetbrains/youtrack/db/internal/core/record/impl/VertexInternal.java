@@ -242,10 +242,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default void setProperty(@Nonnull String name, Object value, @Nonnull PropertyType fieldType) {
-    checkPropertyName(name);
+  default void setProperty(@Nonnull String propertyName, Object value,
+      @Nonnull PropertyType fieldType) {
+    checkPropertyName(propertyName);
 
-    getBaseEntity().setProperty(name, value, fieldType);
+    getBaseEntity().setProperty(propertyName, value, fieldType);
   }
 
   @Override
@@ -699,7 +700,6 @@ public interface VertexInternal extends Vertex, EntityInternal {
       }
     }
 
-    vertex.save();
   }
 
   static void deleteLinks(Vertex delegate) {
@@ -879,8 +879,6 @@ public interface VertexInternal extends Vertex, EntityInternal {
       var currentRecord = currentInVertex.<EntityImpl>getRecord(db);
       createLink(db, currentRecord, edge, inFieldName);
 
-      prevRecord.save();
-      currentRecord.save();
     }
   }
 

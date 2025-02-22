@@ -7,8 +7,8 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.DBRecord;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
@@ -145,7 +145,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -170,7 +170,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from " + className + " ORDER BY @rid ASC");
@@ -201,7 +201,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -233,7 +233,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from " + className + " limit 10");
@@ -258,7 +258,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from " + className + " skip 100 limit 10");
@@ -283,7 +283,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from " + className + " order by surname desc");
@@ -313,7 +313,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from " + className + " order by surname asc");
@@ -343,7 +343,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i % 100);
-      doc.save();
+
       session.commit();
     }
 
@@ -369,7 +369,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
-      doc.save();
+
       session.commit();
     }
 
@@ -401,7 +401,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
-      doc.save();
+
       session.commit();
     }
 
@@ -435,7 +435,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -463,7 +463,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from " + className + " where name <> 'name1' ");
@@ -489,7 +489,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select name from " + className);
@@ -518,7 +518,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     for (var i = 0; i < 7; i++) {
       session.begin();
       var doc = (EntityImpl) session.newEntity(className);
-      doc.save();
+
       session.commit();
     }
 
@@ -547,7 +547,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = (EntityImpl) session.newEntity(className);
       doc.setProperty("name", "name" + (i % 5));
-      doc.save();
+
       session.commit();
     }
     try {
@@ -576,7 +576,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var elem = session.newEntity(className);
     elem.setProperty("name", "bar");
-    elem.save();
     session.commit();
 
     try {
@@ -603,7 +602,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var elem = session.newEntity(className);
     elem.setProperty("name", "bar");
-    elem.save();
     session.commit();
 
     try {
@@ -698,7 +696,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -721,7 +719,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select sum(val), type from " + className + " group by type");
@@ -755,7 +753,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
     var result =
@@ -795,7 +793,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select sum(val) from " + className + " group by type");
@@ -828,7 +826,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "dd1" : "dd2");
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
     var result =
@@ -849,19 +847,16 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testFetchFromClusterNumber() {
     var className = "testFetchFromClusterNumber";
     Schema schema = session.getMetadata().getSchema();
-    var clazz = schema.createClass(className);
-    var targetCluster = clazz.getClusterIds(session)[0];
-    var targetClusterName = session.getClusterNameById(targetCluster);
+    schema.createClass(className);
 
     for (var i = 0; i < 10; i++) {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("val", i);
-      doc.save(targetClusterName);
       session.commit();
     }
 
-    var result = session.query("select from cluster:" + targetClusterName);
+    var result = session.query("select from " + className);
     printExecutionPlan(result);
     var sum = 0;
     for (var i = 0; i < 10; i++) {
@@ -871,35 +866,38 @@ public class SelectStatementExecutionTest extends DbTestBase {
       Assert.assertNotNull(val);
       sum += val;
     }
+
     Assert.assertEquals(45, sum);
     Assert.assertFalse(result.hasNext());
     result.close();
   }
 
   @Test
-  public void testFetchFromClusterNumberOrderByRidDesc() {
+  public void testFetchFromClassNumberOrderByRidDesc() {
     var className = "testFetchFromClusterNumberOrderByRidDesc";
     Schema schema = session.getMetadata().getSchema();
-    var clazz = schema.createClass(className);
-    var targetCluster = clazz.getClusterIds(session)[0];
-    var targetClusterName = session.getClusterNameById(targetCluster);
+    schema.createClass(className);
 
     for (var i = 0; i < 10; i++) {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("val", i);
-      doc.save(targetClusterName);
       session.commit();
     }
     var result =
-        session.query("select from cluster:" + targetClusterName + " order by @rid desc");
+        session.query("select from " + className + " order by @rid desc");
     printExecutionPlan(result);
-    var sum = 0;
+
+    RID lastRid = null;
     for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Integer val = item.getProperty("val");
-      Assert.assertEquals(i, 9 - val);
+      if (lastRid == null) {
+        lastRid = item.getIdentity();
+      } else {
+        Assert.assertTrue(lastRid.compareTo(item.getIdentity()) > 0);
+        lastRid = item.getIdentity();
+      }
     }
 
     Assert.assertFalse(result.hasNext());
@@ -907,79 +905,31 @@ public class SelectStatementExecutionTest extends DbTestBase {
   }
 
   @Test
-  public void testFetchFromClusterNumberOrderByRidAsc() {
+  public void testFetchFromClassNumberOrderByRidAsc() {
     var className = "testFetchFromClusterNumberOrderByRidAsc";
     Schema schema = session.getMetadata().getSchema();
-    var clazz = schema.createClass(className);
-    var targetCluster = clazz.getClusterIds(session)[0];
-    var targetClusterName = session.getClusterNameById(targetCluster);
+    schema.createClass(className);
 
     for (var i = 0; i < 10; i++) {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("val", i);
-      doc.save(targetClusterName);
       session.commit();
     }
     var result = session.query(
-        "select from cluster:" + targetClusterName + " order by @rid asc");
+        "select from " + className + " order by @rid asc");
     printExecutionPlan(result);
-    var sum = 0;
+
+    RID lastRid = null;
     for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
-      Integer val = item.getProperty("val");
-      Assert.assertEquals((Object) i, val);
-    }
-
-    Assert.assertFalse(result.hasNext());
-    result.close();
-  }
-
-  @Test
-  public void testFetchFromClustersNumberOrderByRidAsc() {
-    var className = "testFetchFromClustersNumberOrderByRidAsc";
-    Schema schema = session.getMetadata().getSchema();
-    var clazz = schema.createClass(className);
-    if (clazz.getClusterIds(session).length < 2) {
-      clazz.addCluster(session, "testFetchFromClustersNumberOrderByRidAsc_2");
-    }
-    var targetCluster = clazz.getClusterIds(session)[0];
-    var targetClusterName = session.getClusterNameById(targetCluster);
-
-    var targetCluster2 = clazz.getClusterIds(session)[1];
-    var targetClusterName2 = session.getClusterNameById(targetCluster2);
-
-    for (var i = 0; i < 10; i++) {
-      session.begin();
-      var doc = session.newInstance(className);
-      doc.setProperty("val", i);
-      doc.save(targetClusterName);
-      session.commit();
-    }
-
-    for (var i = 0; i < 10; i++) {
-      session.begin();
-      var doc = session.newInstance(className);
-      doc.setProperty("val", i);
-      doc.save(targetClusterName2);
-      session.commit();
-    }
-
-    var result =
-        session.query(
-            "select from cluster:["
-                + targetClusterName
-                + ", "
-                + targetClusterName2
-                + "] order by @rid asc");
-    printExecutionPlan(result);
-
-    for (var i = 0; i < 20; i++) {
-      Assert.assertTrue(result.hasNext());
-      var item = result.next();
-      Integer val = item.getProperty("val");
-      Assert.assertEquals((Object) (i % 10), val);
+      if (lastRid == null) {
+        lastRid = item.getIdentity();
+      } else {
+        Assert.assertTrue(lastRid.compareTo(item.getIdentity()) < 0);
+        lastRid = item.getIdentity();
+      }
     }
 
     Assert.assertFalse(result.hasNext());
@@ -996,7 +946,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1116,15 +1066,21 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testFetchFromSingleRid3() {
     session.begin();
     var document = (EntityImpl) session.newEntity();
-    document.save();
+
     session.commit();
 
     var result = session.query("select from [#0:1, #0:2]");
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
-    Assert.assertTrue(result.hasNext());
-    Assert.assertNotNull(result.next());
+
+    Assert.assertFalse(result.hasNext());
+    try {
+      Assert.assertNotNull(result.next());
+      Assert.fail();
+    } catch (IllegalStateException e) {
+      //expected
+    }
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1133,15 +1089,22 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testFetchFromSingleRid4() {
     session.begin();
     var document = (EntityImpl) session.newEntity();
-    document.save();
+
     session.commit();
 
     var result = session.query("select from [#0:1, #0:2, #0:100000]");
     printExecutionPlan(result);
+
     Assert.assertTrue(result.hasNext());
     Assert.assertNotNull(result.next());
-    Assert.assertTrue(result.hasNext());
-    Assert.assertNotNull(result.next());
+    Assert.assertFalse(result.hasNext());
+    try {
+      Assert.assertNotNull(result.next());
+      Assert.fail();
+    } catch (IllegalStateException e) {
+      //expected
+    }
+
     Assert.assertFalse(result.hasNext());
     result.close();
   }
@@ -1157,7 +1120,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1194,7 +1157,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1232,7 +1195,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1240,7 +1203,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(classNameExt);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1279,7 +1242,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1323,7 +1286,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1353,7 +1316,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1392,7 +1355,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1433,7 +1396,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1469,7 +1432,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1498,7 +1461,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1531,7 +1494,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1560,7 +1523,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1593,7 +1556,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1624,7 +1587,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1654,7 +1617,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1684,7 +1647,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1714,7 +1677,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1748,7 +1711,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1782,7 +1745,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1819,7 +1782,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
+
       session.commit();
     }
 
@@ -1854,11 +1817,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
-      doc.save();
 
       var parent = (EntityImpl) session.newEntity(parentClassName);
       parent.setProperty("linked", doc);
-      parent.save();
+
       session.commit();
     }
 
@@ -1878,24 +1840,24 @@ public class SelectStatementExecutionTest extends DbTestBase {
   public void testExpand2() {
     var childClassName = "testExpand2_child";
     var parentClassName = "testExpand2_parent";
-    var childClass = session.getMetadata().getSchema().createClass(childClassName);
-    var parentClass = session.getMetadata().getSchema().createClass(parentClassName);
+    session.getMetadata().getSchema().createClass(childClassName);
+    session.getMetadata().getSchema().createClass(parentClassName);
 
     session.begin();
     var count = 10;
     var collSize = 11;
     for (var i = 0; i < count; i++) {
-      List coll = new ArrayList<>();
+      var coll = session.newLinkList();
       for (var j = 0; j < collSize; j++) {
         var doc = session.newInstance(childClassName);
         doc.setProperty("name", "name" + i);
-        doc.save();
+
         coll.add(doc);
       }
 
       var parent = (EntityImpl) session.newEntity(parentClassName);
       parent.setProperty("linked", coll);
-      parent.save();
+
     }
     session.commit();
 
@@ -1926,13 +1888,13 @@ public class SelectStatementExecutionTest extends DbTestBase {
       for (var j = 0; j < collSize; j++) {
         var doc = session.newInstance(childClassName);
         doc.setProperty("name", "name" + j);
-        doc.save();
+
         coll.add(doc);
       }
 
       var parent = (EntityImpl) session.newEntity(parentClassName);
       parent.setProperty("linked", coll);
-      parent.save();
+
     }
     session.commit();
 
@@ -1966,7 +1928,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
-      doc.save();
+
       session.commit();
     }
 
@@ -1994,7 +1956,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
-      doc.save();
+
       session.commit();
     }
 
@@ -2072,7 +2034,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
       session.commit();
     }
 
@@ -2082,10 +2043,12 @@ public class SelectStatementExecutionTest extends DbTestBase {
                 + className
                 + " let $nameAndSurname = name + ' ' + surname");
     printExecutionPlan(result);
+
     for (var i = 0; i < 10; i++) {
       Assert.assertTrue(result.hasNext());
       var item = result.next();
       Assert.assertNotNull(item);
+
       Assert.assertEquals(
           item.getProperty("fullname"),
           item.getProperty("name") + " " + item.getProperty("surname"));
@@ -2104,7 +2067,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2136,7 +2099,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2169,7 +2132,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2204,11 +2167,9 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var doc1 = session.newVertex(vertexClass);
     doc1.setProperty("name", "A");
-    doc1.save();
 
     var doc2 = session.newVertex(vertexClass);
     doc2.setProperty("name", "B");
-    doc2.save();
     session.commit();
 
     var doc2Id = doc2.getIdentity();
@@ -2251,7 +2212,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
-      doc.save();
+
       session.commit();
     }
 
@@ -2290,7 +2251,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
-      doc.save();
+
       session.commit();
     }
 
@@ -2324,7 +2285,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       iSeq.add(i * 2);
       iSeq.add(i * 4);
       doc.setProperty("iSeq", iSeq);
-      doc.save();
+
       session.commit();
     }
 
@@ -2361,7 +2322,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(child1);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2369,7 +2330,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(child2);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2404,7 +2365,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2413,7 +2374,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2448,7 +2409,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2457,7 +2418,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2492,7 +2453,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var parentdoc = session.newInstance(parent);
     parentdoc.setProperty("name", "foo");
-    parentdoc.save();
+
     session.commit();
 
     for (var i = 0; i < 10; i++) {
@@ -2500,7 +2461,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2509,7 +2470,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2555,7 +2516,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2564,7 +2525,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child2_1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2573,7 +2534,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child2_2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2613,7 +2574,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2622,7 +2583,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2631,7 +2592,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(child12);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2668,7 +2629,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2716,7 +2677,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2764,7 +2725,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2813,7 +2774,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2863,7 +2824,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2911,7 +2872,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -2959,7 +2920,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3004,7 +2965,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3050,7 +3011,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3094,7 +3055,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3138,7 +3099,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3182,7 +3143,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3221,7 +3182,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select from ?", className);
@@ -3245,7 +3206,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
     Map<Object, Object> params = new HashMap<>();
@@ -3272,7 +3233,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -3297,7 +3258,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var doc = session.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
-    doc.save();
+
     session.commit();
 
     var result = session.query("select name[0..3] as names from " + className);
@@ -3335,7 +3296,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var doc = session.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
-    doc.save();
+
     session.commit();
 
     var result = session.query("select name[?..?] as names from " + className, 0, 3);
@@ -3373,7 +3334,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var doc = session.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
-    doc.save();
+
     session.commit();
 
     Map<String, Object> params = new HashMap<>();
@@ -3414,7 +3375,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var doc = session.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
-    doc.save();
+
     session.commit();
 
     var result = session.query("select name[0...2] as names from " + className);
@@ -3469,23 +3430,19 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var elem1 = session.newEntity(className);
     elem1.setProperty("name", "a");
-    elem1.save();
 
     var elem2 = session.newEntity(className);
     elem2.setProperty("name", "b");
     elem2.setProperty("surname", "lkj");
-    elem2.save();
 
     var elem3 = session.newEntity(className);
     elem3.setProperty("name", "c");
-    elem3.save();
 
     var elem4 = session.newEntity(className);
     elem4.setProperty("name", "d");
     elem4.setProperty("elem1", elem1);
     elem4.setProperty("elem2", elem2);
     elem4.setProperty("elem3", elem3);
-    elem4.save();
 
     session.commit();
 
@@ -3515,7 +3472,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
     coll.add("bar");
     coll.add("baz");
     elem1.setProperty("coll", coll);
-    elem1.save();
     session.commit();
 
     var result = session.query("select coll[='foo'] as filtered from " + className);
@@ -3561,7 +3517,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
     coll.add(3L);
     coll.add(5L);
     elem1.setProperty("coll", coll);
-    elem1.save();
 
     var elem2 = session.newEntity(className);
     coll = new ArrayList<>();
@@ -3569,7 +3524,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
     coll.add(4L);
     coll.add(6L);
     elem2.setProperty("coll", coll);
-    elem2.save();
     session.commit();
 
     var result = session.query("select from " + className + " where coll contains 1");
@@ -3986,20 +3940,16 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var elem3 = session.newEntity(className3);
     elem3.setProperty("name", "John");
-    elem3.save();
 
     var elem2 = session.newEntity(className2);
     elem2.setProperty("next", elem3);
-    elem2.save();
 
     var elem1 = session.newEntity(className1);
     elem1.setProperty("next", elem2);
     elem1.setProperty("name", "right");
-    elem1.save();
 
     elem1 = session.newEntity(className1);
     elem1.setProperty("name", "wrong");
-    elem1.save();
     session.commit();
 
     try (var result =
@@ -4035,29 +3985,27 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var elem3 = session.newEntity(className3);
     elem3.setProperty("name", "John");
-    elem3.save();
 
     var elemFoo = session.newEntity(className3);
     elemFoo.setProperty("foo", "bar");
-    elemFoo.save();
 
     var elem2 = session.newEntity(className2);
-    List<Entity> elems3 = new ArrayList<>();
+    var elems3 = session.newLinkList();
+
     elems3.add(elem3);
     elems3.add(elemFoo);
     elem2.setProperty("next", elems3);
-    elem2.save();
 
     var elem1 = session.newEntity(className1);
-    List<Entity> elems2 = new ArrayList<>();
+    var elems2 = session.newLinkList();
     elems2.add(elem2);
+
     elem1.setProperty("next", elems2);
     elem1.setProperty("name", "right");
-    elem1.save();
 
     elem1 = session.newEntity(className1);
     elem1.setProperty("name", "wrong");
-    elem1.save();
+
     session.commit();
 
     try (var result =
@@ -4077,18 +4025,19 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var className = "testMapByKeyIndex";
 
     var clazz1 = session.createClassIfNotExist(className);
-    var prop = clazz1.createProperty(session, "themap", PropertyType.EMBEDDEDMAP);
+    clazz1.createProperty(session, "themap", PropertyType.EMBEDDEDMAP);
 
     session.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by key) NOTUNIQUE");
 
     for (var i = 0; i < 100; i++) {
       session.begin();
-      Map<String, Object> theMap = new HashMap<>();
+      var theMap = session.newEmbeddedMap();
       theMap.put("key" + i, "val" + i);
+
       var elem1 = session.newEntity(className);
       elem1.setProperty("themap", theMap);
-      elem1.save();
+
       session.commit();
     }
 
@@ -4107,7 +4056,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   @Test
   public void testMapByKeyIndexMultiple() {
-    var className = "testMapByKeyIndexMultiple";
+    var className = "testMapBjyKeyIndexMultiple";
 
     var clazz1 = session.createClassIfNotExist(className);
     clazz1.createProperty(session, "themap", PropertyType.EMBEDDEDMAP);
@@ -4122,12 +4071,14 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
     for (var i = 0; i < 100; i++) {
       session.begin();
-      Map<String, Object> theMap = new HashMap<>();
+      var theMap = session.newEmbeddedMap();
+
       theMap.put("key" + i, "val" + i);
+
       var elem1 = session.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.setProperty("thestring", "thestring" + i);
-      elem1.save();
+
       session.commit();
     }
 
@@ -4164,7 +4115,6 @@ public class SelectStatementExecutionTest extends DbTestBase {
       theMap.put("key" + i, "val" + i);
       var elem1 = session.newEntity(className);
       elem1.setProperty("themap", theMap);
-      elem1.save();
       session.commit();
     }
 
@@ -4400,7 +4350,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
-      doc.save();
+
       session.commit();
     }
     var result = session.query("select count(val) as count from " + className + " limit 3");
@@ -4486,7 +4436,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       var doc = session.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
-      doc.save();
+
     }
     try (var result =
         session.query("select " + funcitonName + "(), * from " + className + " timeout 1")) {
@@ -4519,7 +4469,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       final var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
     final var result = session.query("select from " + className + " WHERE name >= 'name5'");
@@ -4544,7 +4494,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       final var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
     final var result = session.query("select from " + className + " WHERE name <= 'name5'");
@@ -4570,7 +4520,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
       session.begin();
       final var doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -4611,20 +4561,16 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var dDoc = session.newEntity(d.getName(session));
     dDoc.setProperty("name", "foo");
-    dDoc.save();
 
     var cDoc = session.newEntity(c.getName(session));
     cDoc.setProperty("name", "foo");
     cDoc.setProperty("d", dDoc);
-    cDoc.save();
 
     var bDoc = session.newEntity(b.getName(session));
     bDoc.setProperty("c", cDoc);
-    bDoc.save();
 
     var aDoc = session.newEntity(a.getName(session));
     aDoc.setProperty("b", bDoc);
-    aDoc.save();
 
     session.commit();
 
@@ -4742,7 +4688,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
     var doc = session.newInstance(className);
     doc.setProperty("name", "foo");
     doc.setProperty("surname", "bar");
-    doc.save();
+
     session.commit();
 
     var result = session.query("select *, !surname from " + className);
@@ -4764,11 +4710,10 @@ public class SelectStatementExecutionTest extends DbTestBase {
     session.begin();
     var doc = session.newInstance(className);
     doc.setProperty("name", "abbb");
-    doc.save();
 
     doc = session.newInstance(className);
     doc.setProperty("name", "baaa");
-    doc.save();
+
     session.commit();
 
     try (var result =
@@ -4865,31 +4810,26 @@ public class SelectStatementExecutionTest extends DbTestBase {
     coupe1.setProperty("name", "car1");
     coupe1.addEdge(gasoline, eng);
     coupe1.addEdge(coupe, bt);
-    coupe1.save();
 
     var coupe2 = session.newVertex(car);
     coupe2.setProperty("name", "car2");
     coupe2.addEdge(diesel, eng);
     coupe2.addEdge(coupe, bt);
-    coupe2.save();
 
     var mw1 = session.newVertex(car);
     mw1.setProperty("name", "microwave1");
     mw1.addEdge(microwave, eng);
     mw1.addEdge(suv, bt);
-    mw1.save();
 
     var mw2 = session.newVertex(car);
     mw2.setProperty("name", "microwave2");
     mw2.addEdge(microwave, eng);
     mw2.addEdge(suv, bt);
-    mw2.save();
 
     var hatch1 = session.newVertex(car);
     hatch1.setProperty("name", "hatch1");
     hatch1.addEdge(diesel, eng);
     hatch1.addEdge(suv, bt);
-    hatch1.save();
     session.commit();
 
     gasoline = session.bindToSession(gasoline);

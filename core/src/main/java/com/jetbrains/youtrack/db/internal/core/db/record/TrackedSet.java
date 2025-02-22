@@ -22,71 +22,76 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * Implementation of Set bound to a source Record object to keep track of changes. This avoid to
  * call the makeDirty() by hand when the set is changed.
  */
-public class TrackedSet<T> extends LinkedHashSet<T>
+public class TrackedSet<T> extends AbstractSet<T>
     implements RecordElement, TrackedMultiValue<T, T>, Serializable {
 
-  protected RecordElement sourceRecord;
+  protected WeakReference<RecordElement> sourceRecord;
   private final boolean embeddedCollection;
   protected Class<?> genericClass;
   private boolean dirty = false;
   private boolean transactionDirty = false;
+  @Nonnull
+  private final HashSet<T> set;
 
   private final SimpleMultiValueTracker<T, T> tracker = new SimpleMultiValueTracker<>(this);
 
-  public TrackedSet(
-      final RecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {
-    this(iRecord);
-
-    genericClass = cls;
-    if (iOrigin != null && !iOrigin.isEmpty()) {
-      addAll(iOrigin);
-    }
-  }
-
   public TrackedSet(final RecordElement iSourceRecord) {
-    this.sourceRecord = iSourceRecord;
+    this.set = new HashSet<>();
+    this.sourceRecord = new WeakReference<>(iSourceRecord);
     embeddedCollection = this.getClass().equals(TrackedSet.class);
   }
 
   public TrackedSet() {
+    this.set = new HashSet<>();
     embeddedCollection = this.getClass().equals(TrackedSet.class);
+    tracker.enable();
   }
 
   public TrackedSet(int size) {
-    super(size);
+    this.set = new HashSet<>(size);
     embeddedCollection = this.getClass().equals(TrackedSet.class);
+    tracker.enable();
   }
 
   @Override
   public void setOwner(RecordElement owner) {
-    sourceRecord = owner;
+    sourceRecord = new WeakReference<>(owner);
   }
 
   @Override
   public RecordElement getOwner() {
-    return sourceRecord;
+    if (sourceRecord == null) {
+      return null;
+    }
+    return sourceRecord.get();
   }
 
+  @Nonnull
   @Override
   public Iterator<T> iterator() {
     return new Iterator<T>() {
       private T current;
-      private final Iterator<T> underlying = TrackedSet.super.iterator();
+      private final Iterator<T> underlying = set.iterator();
 
       @Override
       public boolean hasNext() {
@@ -108,26 +113,18 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   @Override
+  public int size() {
+    return set.size();
+  }
+
+  @Override
   public boolean isEmbeddedContainer() {
     return embeddedCollection;
   }
 
-  @Override
-  public boolean addAll(Collection<? extends T> c) {
-
-    var modified = false;
-    for (var o : c) {
-      if (add(o)) {
-        modified = true;
-      }
-    }
-
-    return modified;
-  }
-
   public boolean add(@Nullable final T e) {
     checkValue(e);
-    if (super.add(e)) {
+    if (set.add(e)) {
       addEvent(e);
       return true;
     }
@@ -136,7 +133,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
 
   public boolean addInternal(final T e) {
     checkValue(e);
-    if (super.add(e)) {
+    if (set.add(e)) {
       addOwner(e);
       return true;
     }
@@ -146,7 +143,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   @SuppressWarnings("unchecked")
   @Override
   public boolean remove(final Object o) {
-    if (super.remove(o)) {
+    if (set.remove(o)) {
       removeEvent((T) o);
       return true;
     }
@@ -158,7 +155,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
     for (final var item : this) {
       removeEvent(item);
     }
-    super.clear();
+    set.clear();
   }
 
   protected void addEvent(T added) {
@@ -185,6 +182,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
     this.dirty = true;
     this.transactionDirty = true;
 
+    var sourceRecord = getOwner();
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof RecordAbstract)
           || !((RecordAbstract) sourceRecord).isDirty()) {
@@ -195,6 +193,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
 
   @Override
   public void setDirtyNoChanged() {
+    var sourceRecord = getOwner();
     if (sourceRecord != null) {
       sourceRecord.setDirtyNoChanged();
     }
@@ -229,56 +228,28 @@ public class TrackedSet<T> extends LinkedHashSet<T>
     return genericClass;
   }
 
-  private void addOwner(T e) {
-    if (embeddedCollection) {
-      if (e instanceof EntityImpl entity) {
-        var rid = entity.getIdentity();
-
-        if (!rid.isValid() || rid.isNew()) {
-          ((EntityImpl) e).addOwner(this);
-        }
-      }
-    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
-      trackedMultiValue.setOwner(this);
-    }
-  }
-
-  private void removeOwner(T oldValue) {
-    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
-      trackedMultiValue.setOwner(null);
-    } else if (oldValue instanceof EntityImpl entity) {
-      entity.removeOwner(this);
-    }
-  }
-
-
-  private Object writeReplace() {
-    return new HashSet<T>(this);
-  }
-
-  @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    super.remove(event.getKey());
-    super.add((T) newValue);
-  }
-
   public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       this.tracker.enable();
       TrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
 
-    this.sourceRecord = parent;
+    if (getOwner() != parent) {
+      this.sourceRecord = new WeakReference<>(parent);
+    }
   }
 
-  public void disableTracking(RecordElement entity) {
+  public void disableTracking(RecordElement parent) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       TrackedMultiValue.nestedDisable(this.iterator(), this);
     }
 
     this.dirty = false;
-    this.sourceRecord = entity;
+
+    if (getOwner() != parent) {
+      this.sourceRecord = new WeakReference<>(parent);
+    }
   }
 
   @Override
@@ -305,5 +276,82 @@ public class TrackedSet<T> extends LinkedHashSet<T>
 
   public MultiValueChangeTimeLine<T, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
+  }
+
+  @Override
+  public <T1> T1[] toArray(@Nonnull IntFunction<T1[]> generator) {
+    return set.toArray(generator);
+  }
+
+
+  @Nonnull
+  @Override
+  public Stream<T> stream() {
+    return set.stream();
+  }
+
+  @Nonnull
+  @Override
+  public Stream<T> parallelStream() {
+    return set.parallelStream();
+  }
+
+  @Nonnull
+  @Override
+  public Spliterator<T> spliterator() {
+    return set.spliterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super T> action) {
+    set.forEach(action);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof Set)) {
+      return false;
+    }
+    return set.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return set.hashCode();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return set.isEmpty();
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return set.contains(o);
+  }
+
+  @Nonnull
+  @Override
+  public Object[] toArray() {
+    return set.toArray();
+  }
+
+  @Nonnull
+  @Override
+  public <T1> T1[] toArray(@Nonnull T1[] a) {
+    return set.toArray(a);
+  }
+
+  @Override
+  public boolean containsAll(@Nonnull Collection<?> c) {
+    return set.containsAll(c);
+  }
+
+  @Override
+  public String toString() {
+    return set.toString();
   }
 }

@@ -55,13 +55,11 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
         elem = filteredSession.newEntity("Person");
         elem.setProperty("name", "bar");
-        filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
       } catch (SecurityException ex) {
@@ -100,11 +98,9 @@ public class RemoteSecurityTests {
     db.begin();
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
     db.commit();
 
     db.close();
@@ -129,11 +125,9 @@ public class RemoteSecurityTests {
     db.begin();
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
     db.commit();
 
     try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
@@ -157,12 +151,10 @@ public class RemoteSecurityTests {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "bar");
-    db.save(elem);
     db.commit();
 
     try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
@@ -186,13 +178,11 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
         elem = filteredSession.bindToSession(elem);
         elem.setProperty("name", "baz");
-        filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
       } catch (SecurityException ex) {
@@ -212,7 +202,6 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
@@ -237,13 +226,11 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
         elem = filteredSession.bindToSession(elem);
         elem.setProperty("name", "bar");
-        filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
       } catch (SecurityException ex) {
@@ -264,7 +251,6 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
@@ -290,7 +276,6 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "bar");
-      filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
@@ -304,7 +289,6 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
       filteredSession.delete(elem);
       filteredSession.commit();
     }
@@ -321,11 +305,9 @@ public class RemoteSecurityTests {
       filteredSession.begin();
       var elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
-      filteredSession.save(elem);
 
       elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "bar");
-      filteredSession.save(elem);
       filteredSession.commit();
 
       filteredSession.begin();
@@ -357,11 +339,9 @@ public class RemoteSecurityTests {
     db.begin();
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
     db.commit();
 
     try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
@@ -383,11 +363,9 @@ public class RemoteSecurityTests {
     db.begin();
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
     db.commit();
 
     db.close();
@@ -416,11 +394,9 @@ public class RemoteSecurityTests {
     db.begin();
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
     db.commit();
 
     try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
@@ -448,11 +424,9 @@ public class RemoteSecurityTests {
     db.begin();
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
     db.commit();
 
     try (var filteredSession = youTrackDB.open(DB_NAME, "reader", "reader")) {
@@ -479,7 +453,6 @@ public class RemoteSecurityTests {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
     db.commit();
 
     db.close();
@@ -502,7 +475,6 @@ public class RemoteSecurityTests {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
     db.commit();
 
     db.close();
@@ -515,7 +487,6 @@ public class RemoteSecurityTests {
         var doc = item.castToEntity();
         doc.setProperty("name", "bar");
 
-        doc.save();
         db.commit();
         Assert.fail();
       } catch (Exception e) {

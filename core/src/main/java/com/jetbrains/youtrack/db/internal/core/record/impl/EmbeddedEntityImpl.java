@@ -22,7 +22,7 @@ public class EmbeddedEntityImpl extends EntityImpl {
 
 
   @Override
-  public void addOwner(RecordElement iOwner) {
+  public void setOwner(RecordElement iOwner) {
     checkForBinding();
 
     if (iOwner == null) {
@@ -30,11 +30,6 @@ public class EmbeddedEntityImpl extends EntityImpl {
     }
 
     this.owner = new WeakReference<>(iOwner);
-  }
-
-  @Override
-  public void save() {
-    throw new UnsupportedOperationException("Cannot save embedded entity");
   }
 
   @Override

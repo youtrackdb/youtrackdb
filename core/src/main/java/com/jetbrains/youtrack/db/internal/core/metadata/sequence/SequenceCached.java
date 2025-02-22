@@ -64,7 +64,7 @@ public class SequenceCached extends DBSequence {
               currentParams.cacheSize,
               getOrderType(entity),
               getLimitValue(entity));
-          entity.save();
+
         });
   }
 

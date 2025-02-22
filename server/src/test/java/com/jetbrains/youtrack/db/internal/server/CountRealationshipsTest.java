@@ -43,9 +43,7 @@ public class CountRealationshipsTest {
         youTrackDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     g.begin();
     var vertex1 = g.newVertex("V");
-    vertex1.save();
     var vertex2 = g.newVertex("V");
-    vertex2.save();
     g.commit();
 
     vertex1 = g.load(vertex1.getIdentity());
@@ -67,7 +65,6 @@ public class CountRealationshipsTest {
     vertex1 = g.load(vertex1.getIdentity());
 
     vertex1.addStateFulEdge(vertex2);
-    vertex1.save();
 
     version = vertex1.getProperty("@version");
     assertEquals(1, countEdges(vertex1, Direction.OUT));

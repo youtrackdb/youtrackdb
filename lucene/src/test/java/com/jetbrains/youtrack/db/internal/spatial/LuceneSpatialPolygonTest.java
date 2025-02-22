@@ -78,7 +78,6 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
     germany.field("location", location);
 
     session.begin();
-    session.save(germany);
     session.commit();
 
     var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Place.location");

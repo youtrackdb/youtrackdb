@@ -22,7 +22,6 @@ public class DeepLinkedDocumentSaveTest extends DbTestBase {
     for (var i = 0; i < 3000; i++) {
       docs.add(doc = ((EntityImpl) session.newEntity("Test")).field("linked", doc));
     }
-    session.save(doc);
     session.commit();
 
     assertEquals(3001, session.countClass("Test"));

@@ -150,7 +150,6 @@ public interface SchemaProperty {
   String getDefaultValue(DatabaseSession session);
 
   /**
-   * @param session
    * @param defaultValue can be null
    * @return this property
    * @see SchemaProperty#getDefaultValue(DatabaseSession)

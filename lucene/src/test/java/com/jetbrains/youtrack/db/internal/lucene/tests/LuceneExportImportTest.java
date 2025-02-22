@@ -21,12 +21,12 @@ package com.jetbrains.youtrack.db.internal.lucene.tests;
 import static com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE.FULLTEXT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.lucene.LuceneIndexFactory;
-import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
@@ -52,7 +52,6 @@ public class LuceneExportImportTest extends LuceneBaseTest {
     doc.field("name", "Rome");
 
     session.begin();
-    session.save(doc);
     session.commit();
   }
 

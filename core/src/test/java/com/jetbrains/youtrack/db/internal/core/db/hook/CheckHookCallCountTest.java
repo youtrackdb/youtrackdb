@@ -34,7 +34,6 @@ public class CheckHookCallCountTest extends DbTestBase {
     var first = (EntityImpl) session.newEntity(CLASS_NAME);
     first.field(FIELD_ID, id);
     first.field(FIELD_STATUS, STATUS);
-    session.save(first);
     session.commit();
 
     session
@@ -60,7 +59,7 @@ public class CheckHookCallCountTest extends DbTestBase {
     var doc = (EntityImpl) session.newEntity(oClass);
     doc.field("a", 2);
     doc.field("b", 2);
-    doc.save();
+
     session.commit();
 
     session.begin();
@@ -87,7 +86,7 @@ public class CheckHookCallCountTest extends DbTestBase {
             var script = "select sum(a, b) as value from " + entity.getIdentity();
             try (var calculated = session.query(script)) {
               if (calculated.hasNext()) {
-                entity.field("c", calculated.next().<Object>getProperty("value"));
+                entity.field("c", calculated.next().getProperty("value"));
               }
             }
           }
@@ -105,7 +104,7 @@ public class CheckHookCallCountTest extends DbTestBase {
     doc = (EntityImpl) session.newEntity(oClass);
     doc.field("a", 3);
     doc.field("b", 3);
-    doc.save();
+
     session.commit();
 
     session.begin();

@@ -70,10 +70,8 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -81,7 +79,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     var index = getIndex("linkSetIndex");
@@ -106,10 +104,9 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
+
     session.commit();
 
     try {
@@ -120,7 +117,7 @@ public class LinkSetIndexTest extends BaseDBTest {
       linkSet.add(session.bindToSession(docTwo));
 
       document.field("linkSet", linkSet);
-      document.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -149,13 +146,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSetOne = new HashSet<>();
@@ -163,14 +157,13 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSetOne.add(docTwo);
 
     document.field("linkSet", linkSetOne);
-    document.save();
 
     final Set<Identifiable> linkSetTwo = new HashSet<>();
     linkSetTwo.add(docOne);
     linkSetTwo.add(docThree);
 
     document.field("linkSet", linkSetTwo);
-    document.save();
+
     session.commit();
 
     var index = getIndex("linkSetIndex");
@@ -195,13 +188,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSetOne = new HashSet<>();
@@ -209,7 +199,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSetOne.add(docTwo);
 
     document.field("linkSet", linkSetOne);
-    document.save();
+
     session.commit();
 
     try {
@@ -221,7 +211,7 @@ public class LinkSetIndexTest extends BaseDBTest {
       linkSetTwo.add(session.bindToSession(docThree));
 
       document.field("linkSet", linkSetTwo);
-      document.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -250,13 +240,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final Set<Identifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
@@ -264,7 +251,7 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     document.field("linkSet", linkSetOne);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -275,7 +262,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSetTwo.add(session.bindToSession(docThree));
 
     document.field("linkSet", linkSetTwo);
-    document.save();
+
     session.rollback();
 
     var index = getIndex("linkSetIndex");
@@ -300,13 +287,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -314,7 +298,6 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
 
-    document.save();
     session.commit();
 
     session.begin();
@@ -350,13 +333,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -364,14 +344,14 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Set<Identifiable>>field("linkSet").add(session.bindToSession(docThree));
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -401,13 +381,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -415,13 +392,13 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     session.begin();
     EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Set<Identifiable>>field("linkSet").add(session.bindToSession(docThree));
-    loadedDocument.save();
+
     session.rollback();
 
     var index = getIndex("linkSetIndex");
@@ -446,24 +423,22 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Set<Identifiable>>field("linkSet").remove(docTwo);
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -491,23 +466,21 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     session.begin();
     EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Set<Identifiable>>field("linkSet").remove(docTwo);
-    loadedDocument.save();
+
     session.rollback();
 
     var index = getIndex("linkSetIndex");
@@ -532,10 +505,8 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -543,7 +514,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -573,10 +544,8 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
 
@@ -585,7 +554,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -601,10 +570,8 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
 
@@ -613,7 +580,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     try {
@@ -634,10 +601,8 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -646,7 +611,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -675,13 +640,10 @@ public class LinkSetIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     var document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSetOne = new HashSet<>();
@@ -689,7 +651,6 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSetOne.add(docTwo);
 
     document.field("linkSet", linkSetOne);
-    document.save();
 
     document = ((EntityImpl) session.newEntity("LinkSetIndexTestClass"));
     final Set<Identifiable> linkSet = new HashSet<>();
@@ -697,7 +658,7 @@ public class LinkSetIndexTest extends BaseDBTest {
     linkSet.add(docTwo);
 
     document.field("linkSet", linkSet);
-    document.save();
+
     session.commit();
 
     var result =

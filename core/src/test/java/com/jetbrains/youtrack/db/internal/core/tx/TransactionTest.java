@@ -1,10 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.tx;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,13 +30,11 @@ public class TransactionTest {
     db.begin();
     var v = db.newVertex("V");
     v.setProperty("name", "Foo");
-    db.save(v);
     db.commit();
 
     db.begin();
     v = db.bindToSession(v);
     v.setProperty("name", "Bar");
-    db.save(v);
     db.rollback();
 
     v = db.bindToSession(v);

@@ -34,7 +34,6 @@ public class DBRecordMetadataTest extends BaseDBTest {
       }
 
       doc.field("field", i);
-      session.save(doc);
       session.commit();
 
       final var metadata = session.getRecordMetadata(doc.getIdentity());

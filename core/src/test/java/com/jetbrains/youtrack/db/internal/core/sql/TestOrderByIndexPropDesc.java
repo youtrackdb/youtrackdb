@@ -35,7 +35,6 @@ public class TestOrderByIndexPropDesc extends DbTestBase {
       session.begin();
       doc = session.newInstance(DOCUMENT_CLASS_NAME);
       doc.field(PROP_INDEXED_STRING, i);
-      session.save(doc);
       session.commit();
     }
 

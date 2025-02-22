@@ -28,12 +28,11 @@ public class LuceneReuseTest extends BaseLuceneTest {
 
     for (var i = 0; i < 10; i++) {
       session.begin();
-      session.save(
-          ((EntityImpl) session.newEntity("Reuse"))
-              .field("name", "John")
-              .field("date", new Date())
-              .field("surname", "Reese")
-              .field("age", i));
+      ((EntityImpl) session.newEntity("Reuse"))
+          .field("name", "John")
+          .field("date", new Date())
+          .field("surname", "Reese")
+          .field("age", i);
       session.commit();
     }
     var results =
@@ -66,23 +65,21 @@ public class LuceneReuseTest extends BaseLuceneTest {
 
     for (var i = 0; i < 10; i++) {
       session.begin();
-      session.save(
-          ((EntityImpl) session.newEntity("Reuse"))
-              .field("name", "John")
-              .field("date", new Date())
-              .field("surname", "Reese")
-              .field("age", i));
+      ((EntityImpl) session.newEntity("Reuse"))
+          .field("name", "John")
+          .field("date", new Date())
+          .field("surname", "Reese")
+          .field("age", i);
       session.commit();
     }
 
     // additional record
     session.begin();
-    session.save(
-        ((EntityImpl) session.newEntity("Reuse"))
-            .field("name", "John")
-            .field("date", new Date())
-            .field("surname", "Franklin")
-            .field("age", 11));
+    ((EntityImpl) session.newEntity("Reuse"))
+        .field("name", "John")
+        .field("date", new Date())
+        .field("surname", "Franklin")
+        .field("age", 11);
     session.commit();
     var results =
         session.command("SELECT FROM Reuse WHERE name='John' and [name,surname] LUCENE 'Reese'");

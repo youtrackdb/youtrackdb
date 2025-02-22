@@ -53,7 +53,6 @@ public class ByteArrayKeyTest extends BaseDBTest {
     session.begin();
     var doc1 = ((EntityImpl) session.newEntity("ByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
-    doc1.save();
 
     var key2 =
         new byte[]{
@@ -63,7 +62,7 @@ public class ByteArrayKeyTest extends BaseDBTest {
         };
     var doc2 = ((EntityImpl) session.newEntity("ByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
-    doc2.save();
+
     session.commit();
 
     var index =
@@ -86,12 +85,11 @@ public class ByteArrayKeyTest extends BaseDBTest {
     var doc1 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
-    doc1.save();
 
     var doc2 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
-    doc2.save();
+
     session.commit();
 
     var index =
@@ -117,12 +115,11 @@ public class ByteArrayKeyTest extends BaseDBTest {
     var doc1 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
-    doc1.save();
 
     var doc2 = ((EntityImpl) session.newEntity("CompositeByteArrayKeyTest"));
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
-    doc2.save();
+
     session.commit();
 
     var index =

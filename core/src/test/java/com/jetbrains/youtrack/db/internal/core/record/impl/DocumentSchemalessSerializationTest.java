@@ -13,9 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,37 +42,33 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testSimpleSerialization() {
     session.begin();
-    var document = (EntityImpl) session.newEntity();
+    var entity = session.newEntity();
 
-    document.field("name", "name");
-    document.field("age", 20);
-    document.field("youngAge", (short) 20);
-    document.field("oldAge", (long) 20);
-    document.field("heigth", 12.5f);
-    document.field("bitHeigth", 12.5d);
-    document.field("class", (byte) 'C');
-    document.field("character", 'C');
-    document.field("alive", true);
-    document.field("date", new Date());
-    document.field("recordId", new RecordId(10, 10));
+    entity.setString("name", "name");
+    entity.setInt("age", 20);
+    entity.setShort("youngAge", (short) 20);
+    entity.setLong("oldAge", (long) 20);
+    entity.setFloat("heigth", 12.5f);
+    entity.setDouble("bitHeigth", 12.5d);
+    entity.setByte("class", (byte) 'C');
+    entity.setBoolean("alive", true);
+    entity.setDateTime("date", new Date());
+    entity.setLink("recordId", new RecordId(10, 10));
 
-    var res = serializer.toStream(session, document);
-    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
+    var res = serializer.toStream(session, (EntityImpl) entity);
+    var extr = (Entity) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
-    assertEquals(extr.fields(), document.fields());
-    assertEquals(extr.<String>field("name"), document.field("name"));
-    assertEquals(extr.<String>field("age"), document.field("age"));
-    assertEquals(extr.<String>field("youngAge"), document.field("youngAge"));
-    assertEquals(extr.<String>field("oldAge"), document.field("oldAge"));
-    assertEquals(extr.<String>field("heigth"), document.field("heigth"));
-    assertEquals(extr.<String>field("bitHeigth"), document.field("bitHeigth"));
-    assertEquals(extr.<String>field("class"), document.field("class"));
-    // TODO fix char management issue:#2427
-    // assertEquals(document.field("character"), extr.field("character"));
-    assertEquals(extr.<String>field("alive"), document.field("alive"));
-    assertEquals(extr.<String>field("date"), document.field("date"));
-    // assertEquals(extr.field("recordId"), document.field("recordId"));
+    assertEquals(extr.getPropertyNames(), entity.getPropertyNames());
+    assertEquals(extr.getString("name"), entity.getString("name"));
+    assertEquals(extr.getInt("age"), entity.getInt("age"));
+    assertEquals(extr.getShort("youngAge"), entity.getShort("youngAge"));
+    assertEquals(extr.getLong("oldAge"), entity.getLong("oldAge"));
+    assertEquals(extr.getFloat("heigth"), entity.getFloat("heigth"));
+    assertEquals(extr.getDouble("bitHeigth"), entity.getDouble("bitHeigth"));
+    assertEquals(extr.getByte("class"), entity.getByte("class"));
+    assertEquals(extr.getBoolean("alive"), entity.getBoolean("alive"));
+    assertEquals(extr.getDateTime("date"), entity.getDateTime("date"));
 
     session.rollback();
   }
@@ -83,69 +77,62 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
   @Test
   public void testSimpleLiteralList() {
     session.begin();
-    var document = (EntityImpl) session.newEntity();
-    List<String> strings = new ArrayList<String>();
+    var entity = session.newEntity();
+    List<String> strings = session.newEmbeddedList();
     strings.add("a");
     strings.add("b");
     strings.add("c");
-    document.field("listStrings", strings);
+    entity.setEmbeddedList("listStrings", strings);
 
-    List<Short> shorts = new ArrayList<Short>();
+    List<Short> shorts = session.newEmbeddedList();
     shorts.add((short) 1);
     shorts.add((short) 2);
     shorts.add((short) 3);
-    document.field("shorts", shorts);
+    entity.setEmbeddedList("shorts", shorts);
 
-    List<Long> longs = new ArrayList<Long>();
+    List<Long> longs = session.newEmbeddedList();
     longs.add((long) 1);
     longs.add((long) 2);
     longs.add((long) 3);
-    document.field("longs", longs);
+    entity.setEmbeddedList("longs", longs);
 
-    List<Integer> ints = new ArrayList<Integer>();
+    List<Integer> ints = session.newEmbeddedList();
     ints.add(1);
     ints.add(2);
     ints.add(3);
-    document.field("integers", ints);
+    entity.setEmbeddedList("integers", ints);
 
-    List<Float> floats = new ArrayList<Float>();
+    List<Float> floats = session.newEmbeddedList();
     floats.add(1.1f);
     floats.add(2.2f);
     floats.add(3.3f);
-    document.field("floats", floats);
+    entity.setEmbeddedList("floats", floats);
 
-    List<Double> doubles = new ArrayList<Double>();
+    List<Double> doubles = session.newEmbeddedList();
     doubles.add(1.1);
     doubles.add(2.2);
     doubles.add(3.3);
-    document.field("doubles", doubles);
+    entity.setEmbeddedList("doubles", doubles);
 
-    List<Date> dates = new ArrayList<Date>();
+    List<Date> dates = session.newEmbeddedList();
     dates.add(new Date());
     dates.add(new Date());
     dates.add(new Date());
-    document.field("dates", dates);
+    entity.setEmbeddedList("dates", dates);
 
-    List<Byte> bytes = new ArrayList<Byte>();
+    List<Byte> bytes = session.newEmbeddedList();
     bytes.add((byte) 0);
     bytes.add((byte) 1);
     bytes.add((byte) 3);
-    document.field("bytes", bytes);
+    entity.setEmbeddedList("bytes", bytes);
 
-    // TODO: char not currently supported
-    List<Character> chars = new ArrayList<Character>();
-    chars.add('A');
-    chars.add('B');
-    chars.add('C');
-    // document.field("chars", chars);
-
-    List<Boolean> booleans = new ArrayList<Boolean>();
+    List<Boolean> booleans = session.newEmbeddedList();
     booleans.add(true);
     booleans.add(false);
     booleans.add(false);
-    document.field("booleans", booleans);
+    entity.setEmbeddedList("booleans", booleans);
 
-    List listMixed = new ArrayList();
+    List listMixed = session.newEmbeddedList();
     listMixed.add(true);
     listMixed.add(1);
     listMixed.add((long) 5);
@@ -155,78 +142,79 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     listMixed.add("hello");
     listMixed.add(new Date());
     listMixed.add((byte) 10);
-    document.field("listMixed", listMixed);
+    entity.setEmbeddedList("listMixed", listMixed);
 
-    var res = serializer.toStream(session, document);
-    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
+    var res = serializer.toStream(session, (EntityImpl) entity);
+    var extr = (Entity) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
 
-    assertEquals(extr.fields(), document.fields());
-    assertEquals(extr.<String>field("listStrings"), document.field("listStrings"));
-    assertEquals(extr.<String>field("integers"), document.field("integers"));
-    assertEquals(extr.<String>field("doubles"), document.field("doubles"));
-    assertEquals(extr.<String>field("dates"), document.field("dates"));
-    assertEquals(extr.<String>field("bytes"), document.field("bytes"));
-    assertEquals(extr.<String>field("booleans"), document.field("booleans"));
-    assertEquals(extr.<String>field("listMixed"), document.field("listMixed"));
+    assertEquals(extr.getPropertyNames(), entity.getPropertyNames());
+    assertEquals(extr.getEmbeddedList("listStrings"), entity.getEmbeddedList("listStrings"));
+    assertEquals(extr.getEmbeddedList("integers"), entity.getEmbeddedList("integers"));
+    assertEquals(extr.getEmbeddedList("doubles"), entity.getEmbeddedList("doubles"));
+    assertEquals(extr.getEmbeddedList("dates"), entity.getEmbeddedList("dates"));
+    assertEquals(extr.getEmbeddedList("bytes"), entity.getEmbeddedList("bytes"));
+    assertEquals(extr.getEmbeddedList("booleans"), entity.getEmbeddedList("booleans"));
+    assertEquals(extr.getEmbeddedList("listMixed"), entity.getEmbeddedList("listMixed"));
+
     session.rollback();
   }
 
   @Test
   public void testSimpleMapStringLiteral() {
     session.begin();
-    var document = (EntityImpl) session.newEntity();
+    var entity = session.newEntity();
 
-    Map<String, String> mapString = new HashMap<String, String>();
+    Map<String, String> mapString = session.newEmbeddedMap();
     mapString.put("key", "value");
     mapString.put("key1", "value1");
-    document.field("mapString", mapString);
+    entity.setEmbeddedMap("mapString", mapString);
 
-    Map<String, Integer> mapInt = new HashMap<String, Integer>();
+    Map<String, Integer> mapInt = session.newEmbeddedMap();
     mapInt.put("key", 2);
     mapInt.put("key1", 3);
-    document.field("mapInt", mapInt);
+    entity.setEmbeddedMap("mapInt", mapInt);
 
-    Map<String, Long> mapLong = new HashMap<String, Long>();
+    Map<String, Long> mapLong = session.newEmbeddedMap();
     mapLong.put("key", 2L);
     mapLong.put("key1", 3L);
-    document.field("mapLong", mapLong);
+    entity.setEmbeddedMap("mapLong", mapLong);
 
-    Map<String, Short> shortMap = new HashMap<String, Short>();
+    Map<String, Short> shortMap = session.newEmbeddedMap();
     shortMap.put("key", (short) 2);
     shortMap.put("key1", (short) 3);
-    document.field("shortMap", shortMap);
+    entity.setEmbeddedMap("shortMap", shortMap);
 
-    Map<String, Date> dateMap = new HashMap<String, Date>();
+    Map<String, Date> dateMap = session.newEmbeddedMap();
     dateMap.put("key", new Date());
     dateMap.put("key1", new Date());
-    document.field("dateMap", dateMap);
+    entity.setEmbeddedMap("dateMap", dateMap);
 
-    Map<String, Float> floatMap = new HashMap<String, Float>();
+    Map<String, Float> floatMap = session.newEmbeddedMap();
     floatMap.put("key", 10f);
     floatMap.put("key1", 11f);
-    document.field("floatMap", floatMap);
+    entity.setEmbeddedMap("floatMap", floatMap);
 
-    Map<String, Double> doubleMap = new HashMap<String, Double>();
+    Map<String, Double> doubleMap = session.newEmbeddedMap();
     doubleMap.put("key", 10d);
     doubleMap.put("key1", 11d);
-    document.field("doubleMap", doubleMap);
+    entity.setEmbeddedMap("doubleMap", doubleMap);
 
-    Map<String, Byte> bytesMap = new HashMap<String, Byte>();
+    Map<String, Byte> bytesMap = session.newEmbeddedMap();
     bytesMap.put("key", (byte) 10);
     bytesMap.put("key1", (byte) 11);
-    document.field("bytesMap", bytesMap);
+    entity.setEmbeddedMap("bytesMap", bytesMap);
 
-    var res = serializer.toStream(session, document);
-    var extr = (EntityImpl) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
+    var res = serializer.toStream(session, (EntityImpl) entity);
+    var extr = (Entity) serializer.fromStream(session, res, (EntityImpl) session.newEntity(),
         new String[]{});
-    assertEquals(extr.fields(), document.fields());
-    assertEquals(extr.<String>field("mapString"), document.field("mapString"));
-    assertEquals(extr.<String>field("mapLong"), document.field("mapLong"));
-    assertEquals(extr.<String>field("shortMap"), document.field("shortMap"));
-    assertEquals(extr.<String>field("dateMap"), document.field("dateMap"));
-    assertEquals(extr.<String>field("doubleMap"), document.field("doubleMap"));
-    assertEquals(extr.<String>field("bytesMap"), document.field("bytesMap"));
+    assertEquals(extr.getPropertyNames(), entity.getPropertyNames());
+    assertEquals(extr.getEmbeddedMap("mapString"), entity.getEmbeddedMap("mapString"));
+    assertEquals(extr.getEmbeddedMap("mapLong"), entity.getEmbeddedMap("mapLong"));
+    assertEquals(extr.getEmbeddedMap("shortMap"), entity.getEmbeddedMap("shortMap"));
+    assertEquals(extr.getEmbeddedMap("dateMap"), entity.getEmbeddedMap("dateMap"));
+    assertEquals(extr.getEmbeddedMap("doubleMap"), entity.getEmbeddedMap("doubleMap"));
+    assertEquals(extr.getEmbeddedMap("bytesMap"), entity.getEmbeddedMap("bytesMap"));
 
     session.rollback();
   }

@@ -106,7 +106,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
           "This is the second version".getBytes(),
           true);
       session2.begin();
-      record2.save();
       session2.commit();
 
       RecordInternal.fill(
@@ -115,7 +114,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
           record1.getVersion(),
           "This is the third version".getBytes(),
           true);
-      record1.save();
 
       session.commit();
 
@@ -141,7 +139,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     var record = session.newBlob("This is the first version".getBytes());
     session.begin();
-    record.save();
     session.commit();
 
     try {
@@ -152,7 +149,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       var v1 = record.getVersion();
       RecordInternal.fill(
           record, record.getIdentity(), v1, "This is the second version".getBytes(), true);
-      record.save();
       session.commit();
 
       record = session.bindToSession(record);
@@ -172,7 +168,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
     var db2 = acquireSession();
     db2.begin();
     var record1 = db2.newBlob("This is the first version".getBytes());
-    record1.save();
     db2.commit();
     try {
       session.begin();
@@ -182,7 +177,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       var v1 = record1.getVersion();
       RecordInternal.fill(
           record1, record1.getIdentity(), v1, "This is the second version".getBytes(), true);
-      record1.save();
 
       session.commit();
 
@@ -221,7 +215,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       doc.updateFromJSON(json);
       doc.field("nr", g);
 
-      doc.save();
     }
     session.commit();
 
@@ -255,8 +248,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
     ((HashSet<EntityImpl>) teri.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(jack);
-
-    jack.save();
 
     session.commit();
 
@@ -314,7 +305,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     final var externalDocOne = ((EntityImpl) session.newEntity("NestedTxClass"));
     externalDocOne.field("v", "val1");
-    externalDocOne.save();
 
     Future assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
@@ -323,7 +313,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     final var externalDocTwo = ((EntityImpl) session.newEntity("NestedTxClass"));
     externalDocTwo.field("v", "val2");
-    externalDocTwo.save();
 
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
@@ -335,7 +324,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     final var externalDocThree = ((EntityImpl) session.newEntity("NestedTxClass"));
     externalDocThree.field("v", "val3");
-    externalDocThree.save();
 
     session.commit();
 
@@ -368,14 +356,13 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
 
     var brokenDocOne = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
     session.begin();
-    brokenDocOne.save();
+
     session.commit();
     try {
       session.begin();
 
       final var externalDocOne = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
       externalDocOne.field("v", "val1");
-      externalDocOne.save();
 
       Future assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
@@ -383,14 +370,12 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       session.begin();
       var externalDocTwo = ((EntityImpl) session.newEntity("NestedTxRollbackOne"));
       externalDocTwo.field("v", "val2");
-      externalDocTwo.save();
 
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
       brokenDocOne = session.bindToSession(brokenDocOne);
       brokenDocOne.setDirty();
-      brokenDocOne.save();
 
       session.commit();
 
@@ -401,7 +386,7 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
       externalDocThree.field("v", "val3");
 
       session.begin();
-      externalDocThree.save();
+
       session.commit();
 
       var brokenRid = brokenDocOne.getIdentity();
@@ -413,7 +398,6 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
                     EntityImpl brokenDocTwo = db.load(brokenRid);
                     brokenDocTwo.field("v", "vstr");
 
-                    brokenDocTwo.save();
                   });
                 }
               }).get();
@@ -438,13 +422,11 @@ public class FrontendTransactionOptimisticTest extends BaseDBTest {
     try {
       final var externalDocOne = ((EntityImpl) session.newEntity("NestedTxRollbackTwo"));
       externalDocOne.field("v", "val1");
-      externalDocOne.save();
 
       session.begin();
 
       final var externalDocTwo = ((EntityImpl) session.newEntity("NestedTxRollbackTwo"));
       externalDocTwo.field("v", "val2");
-      externalDocTwo.save();
 
       session.rollback();
 

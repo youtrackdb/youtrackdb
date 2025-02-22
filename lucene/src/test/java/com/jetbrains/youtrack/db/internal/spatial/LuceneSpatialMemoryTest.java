@@ -48,7 +48,6 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
     document.field("longitude", -83.7605452);
 
     session.begin();
-    session.save(document);
     session.commit();
 
     var query =
@@ -77,7 +76,6 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
     document.field("longitude", -83.7605452);
 
     session.begin();
-    session.save(document);
     session.commit();
 
     var query =
@@ -146,8 +144,6 @@ public class LuceneSpatialMemoryTest extends LuceneBaseTest {
 
     document.field("latitude", 42.2814837);
     document.field("longitude", -83.7605452);
-
-    session.save(document);
 
     session.commit();
 

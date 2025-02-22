@@ -31,7 +31,6 @@ public class TestGraphOperations extends DbTestBase {
     var edge = vertex.addStateFulEdge(vertex1, "TestLabel");
 
     edge.setProperty("key", "unique");
-    session.save(vertex);
     session.commit();
 
     try {
@@ -39,7 +38,6 @@ public class TestGraphOperations extends DbTestBase {
       edge = session.bindToSession(vertex)
           .addStateFulEdge(session.bindToSession(vertex1), "TestLabel");
       edge.setProperty("key", "unique");
-      session.save(edge);
       session.commit();
       Assert.fail("It should not be inserted  a duplicated edge");
     } catch (RecordDuplicatedException e) {
@@ -50,7 +48,6 @@ public class TestGraphOperations extends DbTestBase {
     edge = session.bindToSession(vertex)
         .addStateFulEdge(session.bindToSession(vertex1), "TestLabel");
     edge.setProperty("key", "notunique");
-    session.save(edge);
     session.commit();
   }
 }

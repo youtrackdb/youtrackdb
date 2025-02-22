@@ -412,7 +412,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     if (clusterName != null) {
       rec.save(clusterName);
     } else {
-      rec.save();
+
     }
     saved.incrementAndGet();
   }

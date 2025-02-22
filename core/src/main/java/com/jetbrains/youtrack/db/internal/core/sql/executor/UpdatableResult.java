@@ -42,7 +42,7 @@ public class UpdatableResult extends ResultInternal {
   @Override
   public void setProperty(String name, Object value) {
     assert session == null || session.assertIfNotActive();
-    ((EntityInternal) identifiable).setPropertyInternal(name, value);
+    ((EntityInternal) identifiable).setProperty(name, value);
   }
 
   public void removeProperty(String name) {

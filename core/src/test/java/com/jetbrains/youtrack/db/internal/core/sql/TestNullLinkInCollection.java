@@ -31,7 +31,6 @@ public class TestNullLinkInCollection extends DbTestBase {
     List<RecordId> docs = new ArrayList<>();
     docs.add(new RecordId(10, 20));
     doc.field("items", docs, PropertyType.LINKLIST);
-    session.save(doc);
     session.commit();
 
     try (var res = session.query("select items from Test")) {
@@ -46,7 +45,6 @@ public class TestNullLinkInCollection extends DbTestBase {
     Set<RecordId> docs = new HashSet<>();
     docs.add(new RecordId(10, 20));
     doc.field("items", docs, PropertyType.LINKSET);
-    session.save(doc);
     session.commit();
 
     try (var res = session.query("select items from Test")) {

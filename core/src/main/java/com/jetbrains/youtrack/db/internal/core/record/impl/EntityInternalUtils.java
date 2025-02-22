@@ -33,11 +33,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class EntityInternalUtils {
-
-  public static void convertAllMultiValuesToTrackedVersions(EntityImpl entity) {
-    entity.convertAllMultiValuesToTrackedVersions();
-  }
-
   public static void rawField(
       final EntityImpl entity,
       final String iFieldName,

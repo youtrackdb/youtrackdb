@@ -39,7 +39,6 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     var doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", new String[]{"abc"});
     session.begin();
-    session.save(doc);
 
     var query = "select from C1 where p1 lucene \"abc\" ";
     var vertices = session.query(query);
@@ -67,8 +66,6 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     doc.field("p1", new String[]{"abc"});
 
     var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "C1.p1");
-
-    session.save(doc);
 
     var query = "select from C1 where p1 lucene \"abc\" ";
     var vertices = session.query(query);
@@ -128,8 +125,6 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     var doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", new String[]{"update removed", "update fixed"});
 
-    session.save(doc);
-
     var query = "select from C1 where p1 lucene \"update\" ";
     var vertices = session.query(query);
 
@@ -158,7 +153,6 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     var record = session.bindToSession(resultRecord.castToEntity());
     Collection p1 = record.getProperty("p1");
     p1.remove("update removed");
-    session.save(record);
 
     query = "select from C1 where p1 lucene \"update\" ";
     vertices = session.query(query);
@@ -214,16 +208,12 @@ public class LuceneTransactionEmbeddedQueryTest extends LuceneBaseTest {
     var doc1 = ((EntityImpl) session.newEntity("c1"));
     doc1.field("p1", new String[]{"abc"});
 
-    session.save(doc1);
-    session.save(doc);
-
     session.commit();
 
     session.begin();
 
     doc = session.bindToSession(doc);
     doc.field("p1", new String[]{"removed"});
-    session.save(doc);
 
     var query = "select from C1 where p1 lucene \"abc\"";
     var vertices = session.query(query);

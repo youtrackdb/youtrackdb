@@ -56,14 +56,11 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
 
     // saved persons will have null name
     final EntityImpl person1 = session.newInstance("Person");
-    session.save(person1);
     final EntityImpl person2 = session.newInstance("Person");
-    session.save(person2);
     final EntityImpl person3 = session.newInstance("Person");
-    session.save(person3);
 
     // change some names
-    person3.field("name", "Name3").save();
+    person3.field("name", "Name3");
 
     session.commit();
 
@@ -77,13 +74,10 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     session.begin();
     EntityImpl person1 = session.newInstance("Person");
     person1.field("name", "Name1");
-    session.save(person1);
     EntityImpl person2 = session.newInstance("Person");
     person2.field("name", "Name2");
-    session.save(person2);
     EntityImpl person3 = session.newInstance("Person");
     person3.field("name", "Name3");
-    session.save(person3);
     session.commit();
 
     // verify index state
@@ -99,18 +93,23 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     person3 = session.bindToSession(person3);
 
     // saved persons will have null name
-    person1.field("name", (Object) null).save();
-    person2.field("name", (Object) null).save();
-    person3.field("name", (Object) null).save();
+    person1.field("name", null);
+
+    person2.field("name", null);
+
+    person3.field("name", null);
 
     // change names
-    person1.field("name", "Name2").save();
-    person2.field("name", "Name1").save();
-    person3.field("name", "Name2").save();
+    person1.field("name", "Name2");
+
+    person2.field("name", "Name1");
+
+    person3.field("name", "Name2");
 
     // and again
-    person1.field("name", "Name1").save();
-    person2.field("name", "Name2").save();
+    person1.field("name", "Name1");
+
+    person2.field("name", "Name2");
 
     session.commit();
 
@@ -132,18 +131,17 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     // saved persons will have same name
     final EntityImpl person1 = session.newInstance("Person");
     person1.field("name", "same");
-    session.save(person1);
     final EntityImpl person2 = session.newInstance("Person");
     person2.field("name", "same");
-    session.save(person2);
     final EntityImpl person3 = session.newInstance("Person");
     person3.field("name", "same");
-    session.save(person3);
 
     // change some names
-    person2.field("name", "Name1").save();
-    person2.field("name", "Name2").save();
-    person3.field("name", "Name2").save();
+    person2.field("name", "Name1");
+
+    person2.field("name", "Name2");
+
+    person3.field("name", "Name2");
 
     session.commit();
 
@@ -158,13 +156,10 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     session.begin();
     EntityImpl person1 = session.newInstance("Person");
     person1.field("name", "Name1");
-    session.save(person1);
     EntityImpl person2 = session.newInstance("Person");
     person2.field("name", "Name2");
-    session.save(person2);
     EntityImpl person3 = session.newInstance("Person");
     person3.field("name", "Name3");
-    session.save(person3);
     session.commit();
 
     // verify index state
@@ -180,14 +175,18 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     person3 = session.bindToSession(person3);
 
     // saved persons will have same name
-    person1.field("name", "same").save();
-    person2.field("name", "same").save();
-    person3.field("name", "same").save();
+    person1.field("name", "same");
+
+    person2.field("name", "same");
+
+    person3.field("name", "same");
 
     // change names back to unique in reverse order
-    person3.field("name", "Name3").save();
-    person2.field("name", "Name2").save();
-    person1.field("name", "Name1").save();
+    person3.field("name", "Name3");
+
+    person2.field("name", "Name2");
+
+    person1.field("name", "Name1");
 
     session.commit();
 
@@ -209,21 +208,18 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     // saved persons will have same name
     final EntityImpl person1 = session.newInstance("Person");
     person1.field("name", "same");
-    session.save(person1);
     final EntityImpl person2 = session.newInstance("Person");
     person2.field("name", "same");
-    session.save(person2);
     final EntityImpl person3 = session.newInstance("Person");
     person3.field("name", "same");
-    session.save(person3);
     final EntityImpl person4 = session.newInstance("Person");
     person4.field("name", "same");
-    session.save(person4);
 
     person1.delete();
-    person2.field("name", "Name2").save();
+    person2.field("name", "Name2");
+
     person3.delete();
-    person4.field("name", "Name2").save();
+    person4.field("name", "Name2");
 
     session.commit();
 
@@ -239,17 +235,13 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     session.begin();
     EntityImpl person1 = session.newInstance("Person");
     person1.field("name", "Name1");
-    session.save(person1);
     EntityImpl person2 = session.newInstance("Person");
     person2.field("name", "Name2");
-    session.save(person2);
     EntityImpl person3 = session.newInstance("Person");
     person3.field("name", "Name3");
-    session.save(person3);
 
     EntityImpl person4 = session.newInstance("Person");
     person4.field("name", "Name4");
-    session.save(person4);
     session.commit();
 
     // verify index state
@@ -266,11 +258,14 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
     person4 = session.bindToSession(person4);
 
     person1.delete();
-    person2.field("name", "same").save();
+    person2.field("name", "same");
+
     person3.delete();
-    person4.field("name", "same").save();
-    person2.field("name", "Name2").save();
-    person4.field("name", "Name2").save();
+    person4.field("name", "same");
+
+    person2.field("name", "Name2");
+
+    person4.field("name", "Name2");
 
     session.commit();
 
@@ -306,7 +301,6 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
       EntityImpl pers = session.newInstance("Person");
       pers.field("name", "Name");
       pers.field("serial", i);
-      session.save(pers);
       unseen.add(i);
     }
     session.commit();

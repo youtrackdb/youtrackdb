@@ -22,6 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.exception.SchemaNotCreatedException;
+import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
@@ -604,20 +605,20 @@ public abstract class SchemaShared implements CloseableInStorage {
         realClases.add(((SchemaClassImpl) c));
       }
 
-      Set<EntityImpl> classesEntities = new HashSet<>();
+      Set<Entity> classesEntities = session.newEmbeddedSet();
       for (var c : realClases) {
         classesEntities.add(c.toStream(session));
       }
       entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
 
-      List<EntityImpl> globalProperties = new ArrayList<>();
+      List<Entity> globalProperties = session.newEmbeddedList();
       for (var globalProperty : properties) {
         if (globalProperty != null) {
           globalProperties.add(((GlobalPropertyImpl) globalProperty).toEntity(session));
         }
       }
       entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
-      entity.field("blobClusters", blobClusters, PropertyType.EMBEDDEDSET);
+      entity.field("blobClusters", session.newEmbeddedSet(blobClusters), PropertyType.EMBEDDEDSET);
       return entity;
     } finally {
       lock.readLock().unlock();

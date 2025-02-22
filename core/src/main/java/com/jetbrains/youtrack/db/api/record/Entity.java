@@ -22,6 +22,8 @@ package com.jetbrains.youtrack.db.api.record;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +36,9 @@ import javax.annotation.Nullable;
  * It's schema aware.
  */
 public interface Entity extends DBRecord, Result {
+
   String DEFAULT_CLASS_NAME = "O";
+
   /**
    * Gets a property value on time of transaction start. This will work for scalar values, and
    * collections of scalar values. Will throw exception in case of called with name starting with
@@ -59,12 +63,95 @@ public interface Entity extends DBRecord, Result {
   /**
    * Sets a property value
    *
-   * @param name         the property name
+   * @param propertyName the property name
    * @param value        the property value
    * @param propertyType Forced type (not auto-determined)
    */
-  void setProperty(@Nonnull String name, @Nullable Object value,
+  void setProperty(@Nonnull String propertyName, @Nullable Object value,
       @Nonnull PropertyType propertyType);
+
+  default void setBoolean(@Nonnull String name, @Nullable Boolean value) {
+    setProperty(name, value, PropertyType.BOOLEAN);
+  }
+
+  default void setByte(@Nonnull String name, @Nullable Byte value) {
+    setProperty(name, value, PropertyType.BYTE);
+  }
+
+  default void setInt(@Nonnull String name, @Nullable Integer value) {
+    setProperty(name, value, PropertyType.INTEGER);
+  }
+
+  default void setShort(@Nonnull String name, @Nullable Short value) {
+    setProperty(name, value, PropertyType.SHORT);
+  }
+
+  default void setLong(@Nonnull String name, @Nullable Long value) {
+    setProperty(name, value, PropertyType.LONG);
+  }
+
+  default void setFloat(@Nonnull String name, @Nullable Float value) {
+    setProperty(name, value, PropertyType.FLOAT);
+  }
+
+  default void setDouble(@Nonnull String name, @Nullable Double value) {
+    setProperty(name, value, PropertyType.DOUBLE);
+  }
+
+  default void setString(@Nonnull String name, @Nullable String value) {
+    setProperty(name, value, PropertyType.STRING);
+  }
+
+  default void setDate(@Nonnull String name, @Nullable Date value) {
+    setProperty(name, value, PropertyType.DATE);
+  }
+
+  default void setDateTime(@Nonnull String name, @Nullable Date value) {
+    setProperty(name, value, PropertyType.DATETIME);
+  }
+
+  default void setBinary(@Nonnull String name, @Nullable byte[] value) {
+    setProperty(name, value, PropertyType.BINARY);
+  }
+
+  default void setLink(@Nonnull String name, @Nullable Identifiable value) {
+    setProperty(name, value, PropertyType.LINK);
+  }
+
+  default void setEmbeddedEntity(@Nonnull String name, @Nullable Entity value) {
+    if (value != null && !value.isEmbedded()) {
+      throw new IllegalArgumentException("Entity is not embedded");
+    }
+    setProperty(name, value, PropertyType.EMBEDDED);
+  }
+
+  default void setDecimal(@Nonnull String name, @Nullable BigDecimal value) {
+    setProperty(name, value, PropertyType.DECIMAL);
+  }
+
+  default <T> void setEmbeddedList(@Nonnull String name, @Nullable List<T> value) {
+    setProperty(name, value, PropertyType.EMBEDDEDLIST);
+  }
+
+  default <T> void setEmbeddedSet(@Nonnull String name, @Nullable Set<T> value) {
+    setProperty(name, value, PropertyType.EMBEDDEDSET);
+  }
+
+  default <T> void setEmbeddedMap(@Nonnull String name, @Nullable Map<String, T> value) {
+    setProperty(name, value, PropertyType.EMBEDDEDMAP);
+  }
+
+  default void setLinkList(@Nonnull String name, @Nullable List<Identifiable> value) {
+    setProperty(name, value, PropertyType.LINKLIST);
+  }
+
+  default void setLinkSet(@Nonnull String name, @Nullable Set<Identifiable> value) {
+    setProperty(name, value, PropertyType.LINKSET);
+  }
+
+  default void setLinkMap(@Nonnull String name, @Nullable Map<String, Identifiable> value) {
+    setProperty(name, value, PropertyType.LINKMAP);
+  }
 
   @Nonnull
   <T> List<T> newEmbeddedList(@Nonnull String name);
@@ -138,6 +225,8 @@ public interface Entity extends DBRecord, Result {
    * property names and the values are the property values.
    */
   void updateFromMap(@Nonnull final Map<String, ?> map);
+
+  void updateFromResult(@Nonnull final Result result);
 
   /**
    * Returns the entity as <code>Map</code>. If specified includes entity metadata:

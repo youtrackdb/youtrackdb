@@ -83,7 +83,7 @@ public abstract class RecordSerializerStringAbstract {
         final var embeddedObject =
             StringSerializerEmbedded.INSTANCE.fromStream(session, (String) iValue);
         if (embeddedObject instanceof EntityImpl) {
-          ((EntityImpl) embeddedObject).addOwner(entity);
+          ((EntityImpl) embeddedObject).setOwner(entity);
         }
 
         // EMBEDDED OBJECT

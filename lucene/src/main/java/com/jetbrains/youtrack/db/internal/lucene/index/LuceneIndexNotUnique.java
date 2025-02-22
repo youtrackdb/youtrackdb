@@ -17,14 +17,12 @@
 package com.jetbrains.youtrack.db.internal.lucene.index;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
@@ -308,15 +306,6 @@ public class LuceneIndexNotUnique extends IndexAbstract implements OLuceneIndex 
       final Identifiable value) {
     final var rid = value.getIdentity();
 
-    if (!((RecordId) rid).isValid()) {
-      if (value instanceof DBRecord) {
-        // EARLY SAVE IT
-        ((DBRecord) value).save();
-      } else {
-        throw new IllegalArgumentException(
-            "Cannot store non persistent RID as index value for key '" + key + "'");
-      }
-    }
     if (key != null) {
       var transaction = db.getTransaction();
       var transactionChanges = getTransactionChanges(transaction);

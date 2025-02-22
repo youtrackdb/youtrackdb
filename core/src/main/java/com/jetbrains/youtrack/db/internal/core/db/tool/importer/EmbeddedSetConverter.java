@@ -1,21 +1,21 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool.importer;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
-public final class ListConverter extends AbstractCollectionConverter<List> {
+public final class EmbeddedSetConverter extends AbstractCollectionConverter<Set<Object>> {
 
-  public ListConverter(ConverterData converterData) {
+  public EmbeddedSetConverter(ConverterData converterData) {
     super(converterData);
   }
 
   @Override
-  public List convert(DatabaseSessionInternal db, List value) {
-    final List result = new ArrayList();
+  public Set<Object> convert(DatabaseSessionInternal session, Set<Object> value) {
+    var updated = false;
+    final var result = session.newEmbeddedSet();
 
     final var callback =
         new ResultCallback() {
@@ -24,10 +24,9 @@ public final class ListConverter extends AbstractCollectionConverter<List> {
             result.add(item);
           }
         };
-    var updated = false;
 
     for (var item : value) {
-      updated = convertSingleValue(db, item, callback, updated);
+      updated = convertSingleValue(session, item, callback, updated);
     }
 
     if (updated) {

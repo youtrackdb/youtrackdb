@@ -258,7 +258,7 @@ public class ConnectionExecutorTransactionTest {
   public void testBeginChangeFetchTransaction() {
 
     db.begin();
-    db.save(db.newEntity("test"));
+    db.newEntity("test");
     db.commit();
 
     var executor = new ConnectionBinaryExecutor(connection, server);

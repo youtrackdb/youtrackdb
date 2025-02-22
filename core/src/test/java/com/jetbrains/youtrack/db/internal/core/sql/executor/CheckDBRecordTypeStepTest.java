@@ -21,6 +21,8 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
     CommandContext context = new BasicCommandContext();
     context.setDatabaseSession(session);
     var className = createClassInstance().getName(session);
+
+    session.begin();
     var step = new CheckRecordTypeStep(context, className, false);
     var previous =
         new AbstractExecutionStep(context, false) {
@@ -44,6 +46,7 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
     var result = step.start(context);
     Assert.assertEquals(10, result.stream(context).count());
     Assert.assertFalse(result.hasNext(context));
+    session.commit();
   }
 
   @Test
@@ -52,6 +55,8 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
     context.setDatabaseSession(session);
     var parentClass = createClassInstance();
     var childClass = createChildClassInstance(parentClass);
+
+    session.begin();
     var step = new CheckRecordTypeStep(context, parentClass.getName(session), false);
     var previous =
         new AbstractExecutionStep(context, false) {
@@ -76,38 +81,43 @@ public class CheckDBRecordTypeStepTest extends TestUtilsFixture {
     var result = step.start(context);
     Assert.assertEquals(10, result.stream(context).count());
     Assert.assertFalse(result.hasNext(context));
+    session.commit();
   }
 
   @Test(expected = CommandExecutionException.class)
   public void shouldThrowExceptionWhenTypeIsDifferent() {
+
     CommandContext context = new BasicCommandContext();
     context.setDatabaseSession(session);
     var firstClassName = createClassInstance().getName(session);
     var secondClassName = createClassInstance().getName(session);
-    var step = new CheckRecordTypeStep(context, firstClassName, false);
-    var previous =
-        new AbstractExecutionStep(context, false) {
-          boolean done = false;
 
-          @Override
-          public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
-            List<Result> result = new ArrayList<>();
-            if (!done) {
-              for (var i = 0; i < 10; i++) {
-                result.add(
-                    new ResultInternal(ctx.getDatabaseSession(),
-                        session.newEntity(i % 2 == 0 ? firstClassName : secondClassName)));
+    session.executeInTx(() -> {
+      var step = new CheckRecordTypeStep(context, firstClassName, false);
+      var previous =
+          new AbstractExecutionStep(context, false) {
+            boolean done = false;
+
+            @Override
+            public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+              List<Result> result = new ArrayList<>();
+              if (!done) {
+                for (var i = 0; i < 10; i++) {
+                  result.add(
+                      new ResultInternal(ctx.getDatabaseSession(),
+                          session.newEntity(i % 2 == 0 ? firstClassName : secondClassName)));
+                }
+                done = true;
               }
-              done = true;
+              return ExecutionStream.resultIterator(result.iterator());
             }
-            return ExecutionStream.resultIterator(result.iterator());
-          }
-        };
+          };
 
-    step.setPrevious(previous);
-    var result = step.start(context);
-    while (result.hasNext(context)) {
-      result.next(context);
-    }
+      step.setPrevious(previous);
+      var result = step.start(context);
+      while (result.hasNext(context)) {
+        result.next(context);
+      }
+    });
   }
 }

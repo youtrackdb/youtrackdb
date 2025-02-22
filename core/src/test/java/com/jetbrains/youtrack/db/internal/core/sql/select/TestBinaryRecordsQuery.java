@@ -71,7 +71,6 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("RecordPointer");
     doc.field("ref", session.bindToSession(rec));
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -101,13 +100,11 @@ public class TestBinaryRecordsQuery extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("RecordPointer");
     doc.field("ref", session.bindToSession(rec));
-    session.save(doc);
     session.commit();
 
     session.begin();
     var doc1 = (EntityImpl) session.newEntity("RecordPointer");
     doc1.field("ref", session.bindToSession(rec1));
-    session.save(doc1);
     session.commit();
 
     session.begin();

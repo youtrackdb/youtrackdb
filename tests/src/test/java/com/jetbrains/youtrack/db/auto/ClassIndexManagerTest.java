@@ -166,14 +166,14 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docOne.field("prop1", "a");
     session.begin();
-    docOne.save();
+
     session.commit();
 
     var exceptionThrown = false;
     try {
       docTwo.field("prop1", "a");
       session.begin();
-      docTwo.save();
+
       session.commit();
 
     } catch (RecordDuplicatedException e) {
@@ -188,12 +188,12 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docOne.field("prop1", "a");
     session.begin();
-    docOne.save();
+
     session.commit();
 
-    docTwo.field("prop1", (String) null);
+    docTwo.field("prop1", null);
     session.begin();
-    docTwo.save();
+
     session.commit();
   }
 
@@ -203,10 +203,9 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     session.begin();
     docOne.field("prop1", "a");
-    docOne.save();
 
-    docTwo.field("prop1", (String) null);
-    docTwo.save();
+    docTwo.field("prop1", null);
+
     session.commit();
   }
 
@@ -216,14 +215,14 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docOne.field("prop0", "a");
     session.begin();
-    docOne.save();
+
     session.commit();
 
     var exceptionThrown = false;
     try {
       docTwo.field("prop0", "a");
       session.begin();
-      docTwo.save();
+
       session.commit();
     } catch (RecordDuplicatedException e) {
       exceptionThrown = true;
@@ -239,13 +238,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     var exceptionThrown = false;
     docOne.field("prop1", "a");
 
-    docOne.save();
     session.commit();
 
     session.begin();
     docTwo.field("prop1", "b");
 
-    docTwo.save();
     session.commit();
 
     try {
@@ -253,7 +250,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
       docTwo = session.bindToSession(docTwo);
       docTwo.field("prop1", "a");
 
-      docTwo.save();
       session.commit();
     } catch (RecordDuplicatedException e) {
       exceptionThrown = true;
@@ -268,20 +264,17 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docOne.field("prop1", "a");
 
-    docOne.save();
     session.commit();
 
     session.begin();
     docTwo.field("prop1", "b");
 
-    docTwo.save();
     session.commit();
 
     session.begin();
     docTwo = session.bindToSession(docTwo);
-    docTwo.field("prop1", (String) null);
+    docTwo.field("prop1", null);
 
-    docTwo.save();
     session.commit();
   }
 
@@ -291,13 +284,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     session.begin();
     docOne.field("prop1", "a");
-    docOne.save();
 
     docTwo.field("prop1", "b");
-    docTwo.save();
 
-    docTwo.field("prop1", (String) null);
-    docTwo.save();
+    docTwo.field("prop1", null);
+
     session.commit();
   }
 
@@ -305,25 +296,25 @@ public class ClassIndexManagerTest extends BaseDBTest {
     final var docOne = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     docOne.field("prop2", 1);
     session.begin();
-    docOne.save();
+
     session.commit();
 
     final var docTwo = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     docTwo.field("prop2", 1);
     session.begin();
-    docTwo.save();
+
     session.commit();
   }
 
   public void testPropertiesCheckUniqueNullKeys() {
     final var docOne = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     session.begin();
-    docOne.save();
+
     session.commit();
 
     final var docTwo = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     session.begin();
-    docTwo.save();
+
     session.commit();
   }
 
@@ -341,11 +332,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
     docOne.field("prop1", "a");
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.field("prop1", "a");
-    docTwo.save();
+
     session.commit();
 
     final var afterIndexes =
@@ -370,14 +360,12 @@ public class ClassIndexManagerTest extends BaseDBTest {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
     docOne.field("prop1", "a");
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
     docTwo.field("prop1", "b");
-    docTwo.save();
 
     docOne.field("prop1", "a");
-    docOne.save();
+
     session.commit();
 
     final var afterIndexes =
@@ -393,7 +381,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.field("prop1", "a");
 
     session.begin();
-    docOne.save();
+
     session.commit();
 
     session.begin();
@@ -406,7 +394,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.field("prop1", "a");
 
     session.begin();
-    docOne.save();
+
     session.commit();
 
     session.begin();
@@ -421,13 +409,12 @@ public class ClassIndexManagerTest extends BaseDBTest {
     var docOne = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     docOne.field("prop1", "a");
 
-    docOne.save();
     session.commit();
 
     session.begin();
     docOne = session.bindToSession(docOne);
     docOne.setDirty();
-    docOne.save();
+
     session.commit();
   }
 
@@ -440,7 +427,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop2", 1);
 
     session.begin();
-    doc.save();
+
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();
@@ -483,7 +470,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    doc.save();
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();
@@ -506,7 +492,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.removeField("prop2");
     doc.removeField("prop0");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propOneIndex.getInternal().size(session), 1);
@@ -524,7 +509,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    doc.save();
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();
@@ -544,9 +528,9 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     session.begin();
     doc = session.bindToSession(doc);
-    doc.field("prop2", (Object) null);
-    doc.field("prop0", (Object) null);
-    doc.save();
+    doc.field("prop2", null);
+    doc.field("prop0", null);
+
     session.commit();
 
     Assert.assertEquals(propOneIndex.getInternal().size(session), 1);
@@ -563,7 +547,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    doc.save();
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();
@@ -586,7 +569,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc = session.bindToSession(doc);
     doc.field("prop2", 2);
     doc.field("prop0", "y");
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propOneIndex.getInternal().size(session), 1);
@@ -613,9 +596,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     session.begin();
     var doc = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
-    doc.field("prop2", (Object) null);
+    doc.field("prop2", null);
 
-    doc.save();
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();
@@ -633,7 +615,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     session.begin();
     doc = session.bindToSession(doc);
     doc.field("prop2", 2);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propOneIndex.getInternal().size(session), 1);
@@ -669,7 +651,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     listProperty.add("value2");
 
     doc.field("prop4", listProperty);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(session), 2);
@@ -692,7 +674,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedList.remove("value2");
     trackedList.add("value5");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(session), 3);
@@ -728,7 +709,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     mapProperty.put("key2", "value2");
 
     doc.field("prop5", mapProperty);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(session), 2);
@@ -754,7 +735,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     trackedMap.remove("key8");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(session), 5);
@@ -805,7 +785,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     setProperty.add("value2");
 
     doc.field("prop6", setProperty);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(session), 2);
@@ -830,7 +810,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedSet.remove("value2");
     trackedSet.add("value5");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(session), 2);
@@ -858,7 +837,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     listProperty.add("value2");
 
     doc.field("prop4", listProperty);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(session), 2);
@@ -881,7 +860,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedList.remove("value2");
     trackedList.add("value5");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propFourIndex.getInternal().size(session), 3);
@@ -928,7 +906,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     mapProperty.put("key2", "value2");
 
     doc.field("prop5", mapProperty);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(session), 2);
@@ -954,7 +932,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     trackedMap.remove("key8");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(session), 5);
@@ -1020,7 +997,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     setProperty.add("value2");
 
     doc.field("prop6", setProperty);
-    doc.save();
+
     session.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(session), 2);
@@ -1045,7 +1022,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     trackedSet.remove("value2");
     trackedSet.add("value5");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(propSixIndex.getInternal().size(session), 2);
@@ -1077,7 +1053,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop2", 1);
 
     session.begin();
-    doc.save();
+
     session.commit();
 
     final var propZeroIndex = session.getMetadata().getIndexManagerInternal().getIndex(session,
@@ -1109,7 +1085,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    doc.save();
     session.commit();
 
     final var propOneIndex = session.getMetadata().getIndexManagerInternal()
@@ -1142,9 +1117,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     session.begin();
     final var doc = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
-    doc.field("prop2", (Object) null);
+    doc.field("prop2", null);
 
-    doc.save();
     session.commit();
 
     final var propOneIndex = session.getMetadata().getIndexManagerInternal()
@@ -1169,9 +1143,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     session.begin();
     var doc = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
     doc.field("prop1", "a");
-    doc.field("prop2", (Object) null);
+    doc.field("prop2", null);
 
-    doc.save();
     session.commit();
 
     final var propOneIndex = session.getMetadata().getIndexManagerInternal()
@@ -1200,13 +1173,11 @@ public class ClassIndexManagerTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity("classIndexManagerTestClassTwo"));
     doc.field("prop1", "a");
 
-    doc.save();
     session.commit();
     session.begin();
     doc = session.bindToSession(doc);
     doc.field("prop1", "b");
 
-    doc.save();
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();
@@ -1224,7 +1195,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity("classIndexManagerTestClassTwo"));
     doc.field("prop1", "a");
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1242,7 +1212,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop2", Arrays.asList(1, 2));
 
     session.begin();
-    doc.save();
+
     session.commit();
 
     final var index =
@@ -1275,10 +1245,9 @@ public class ClassIndexManagerTest extends BaseDBTest {
     final var doc = ((EntityImpl) session.newEntity(
         "classIndexManagerTestCompositeCollectionClass"));
 
-    doc.field("prop1", (Object) null);
+    doc.field("prop1", null);
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     final var index =
@@ -1300,10 +1269,10 @@ public class ClassIndexManagerTest extends BaseDBTest {
         "classIndexManagerTestCompositeCollectionClass"));
 
     doc.field("prop1", "test1");
-    doc.field("prop2", (Object) null);
+    doc.field("prop2", null);
 
     session.begin();
-    doc.save();
+
     session.commit();
 
     final var index =
@@ -1327,7 +1296,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1341,7 +1309,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc = session.bindToSession(doc);
     doc.field("prop1", "test2");
 
-    doc.save();
     session.commit();
 
     try (var stream = index.getInternal()
@@ -1371,7 +1338,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1385,7 +1351,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc = session.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
 
-    doc.save();
     session.commit();
 
     try (var stream = index.getInternal()
@@ -1415,7 +1380,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1434,7 +1398,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docList.remove(0);
 
-    doc.save();
     session.commit();
 
     try (var stream = index.getInternal()
@@ -1472,7 +1435,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1493,7 +1455,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     doc.field("prop1", "test2");
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(index.getInternal().size(session), 4);
@@ -1531,7 +1492,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1543,9 +1503,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(session), 2);
 
     doc = session.bindToSession(doc);
-    doc.field("prop1", (Object) null);
+    doc.field("prop1", null);
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(index.getInternal().size(session), 0);
@@ -1566,7 +1525,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1578,9 +1536,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(session), 2);
 
     doc = session.bindToSession(doc);
-    doc.field("prop2", (Object) null);
+    doc.field("prop2", null);
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(index.getInternal().size(session), 0);
@@ -1601,7 +1558,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1613,10 +1569,9 @@ public class ClassIndexManagerTest extends BaseDBTest {
             .getIndex(session, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(session), 2);
 
-    doc.field("prop2", (Object) null);
-    doc.field("prop1", (Object) null);
+    doc.field("prop2", null);
+    doc.field("prop1", null);
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(index.getInternal().size(session), 0);
@@ -1637,7 +1592,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1656,9 +1610,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docList.remove(0);
 
-    doc.field("prop1", (Object) null);
+    doc.field("prop1", null);
 
-    doc.save();
     session.commit();
 
     Assert.assertEquals(index.getInternal().size(session), 0);
@@ -1679,7 +1632,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1708,7 +1660,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1737,7 +1688,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1770,7 +1720,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1805,7 +1754,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1835,7 +1783,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1847,7 +1794,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
             .getIndex(session, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(session), 2);
 
-    doc.field("prop1", (Object) null);
+    doc.field("prop1", null);
 
     doc.delete();
     session.commit();
@@ -1864,7 +1811,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1876,7 +1822,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     Assert.assertEquals(index.getInternal().size(session), 2);
 
     doc = session.bindToSession(doc);
-    doc.field("prop2", (Object) null);
+    doc.field("prop2", null);
 
     doc.delete();
     session.commit();
@@ -1893,7 +1839,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1905,8 +1850,8 @@ public class ClassIndexManagerTest extends BaseDBTest {
             .getIndex(session, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(session), 2);
 
-    doc.field("prop2", (Object) null);
-    doc.field("prop1", (Object) null);
+    doc.field("prop2", null);
+    doc.field("prop1", null);
 
     doc.delete();
     session.commit();
@@ -1923,7 +1868,6 @@ public class ClassIndexManagerTest extends BaseDBTest {
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -1941,7 +1885,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
 
     docList.remove(1);
 
-    doc.field("prop1", (Object) null);
+    doc.field("prop1", null);
 
     doc.delete();
     session.commit();
@@ -1957,7 +1901,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docOne.field("prop1", "doc1-prop1");
 
     session.begin();
-    docOne.save();
+
     session.commit();
 
     final var docTwo = ((EntityImpl) session.newEntity("classIndexManagerTestClass"));
@@ -1965,7 +1909,7 @@ public class ClassIndexManagerTest extends BaseDBTest {
     docTwo.field("prop1", "doc2-prop1");
 
     session.begin();
-    docTwo.save();
+
     session.commit();
 
     final Schema schema = session.getMetadata().getSchema();

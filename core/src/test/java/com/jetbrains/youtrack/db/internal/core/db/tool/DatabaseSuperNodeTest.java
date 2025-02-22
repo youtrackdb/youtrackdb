@@ -74,13 +74,10 @@ public class DatabaseSuperNodeTest {
 
       // session.begin();
       final var fromNode = session.newVertex("SuperNodeClass");
-      fromNode.save();
       final var toNode = session.newVertex("SuperNodeClass");
-      toNode.save();
 
       for (var i = 0; i < edgeNumber; i++) {
         final var edge = session.newStatefulEdge(fromNode, toNode, "NonSuperEdgeClass");
-        edge.save();
       }
       session.commit();
 

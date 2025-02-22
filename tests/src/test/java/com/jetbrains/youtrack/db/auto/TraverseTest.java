@@ -60,68 +60,56 @@ public class TraverseTest extends BaseDBTest {
     session.begin();
     tomCruise = session.newVertex("Actor");
     tomCruise.setProperty("name", "Tom Cruise");
-    tomCruise.save();
 
     totalElements++;
 
     var megRyan = session.newVertex("Actor");
     megRyan.setProperty("name", "Meg Ryan");
-    megRyan.save();
 
     totalElements++;
     nicoleKidman = session.newVertex("Actor");
     nicoleKidman.setProperty("name", "Nicole Kidman");
     nicoleKidman.setProperty("attributeWithDotValue", "a.b");
-    nicoleKidman.save();
 
     totalElements++;
 
     var topGun = session.newVertex("Movie");
     topGun.setProperty("name", "Top Gun");
     topGun.setProperty("year", 1986);
-    topGun.save();
 
     totalElements++;
     var missionImpossible = session.newVertex("Movie");
     missionImpossible.setProperty("name", "Mission: Impossible");
     missionImpossible.setProperty("year", 1996);
-    missionImpossible.save();
 
     totalElements++;
     var youHaveGotMail = session.newVertex("Movie");
     youHaveGotMail.setProperty("name", "You've Got Mail");
     youHaveGotMail.setProperty("year", 1998);
-    youHaveGotMail.save();
 
     totalElements++;
 
     var e = session.newStatefulEdge(tomCruise, topGun, "actorIn");
-    e.save();
 
     totalElements++;
 
     e = session.newStatefulEdge(megRyan, topGun, "actorIn");
-    e.save();
 
     totalElements++;
 
     e = session.newStatefulEdge(tomCruise, missionImpossible, "actorIn");
-    e.save();
 
     totalElements++;
 
     e = session.newStatefulEdge(megRyan, youHaveGotMail, "actorIn");
-    e.save();
 
     totalElements++;
 
     e = session.newStatefulEdge(tomCruise, megRyan, "friend");
-    e.save();
 
     totalElements++;
     e = session.newStatefulEdge(tomCruise, nicoleKidman, "married");
     e.setProperty("year", 1990);
-    e.save();
 
     totalElements++;
     session.commit();

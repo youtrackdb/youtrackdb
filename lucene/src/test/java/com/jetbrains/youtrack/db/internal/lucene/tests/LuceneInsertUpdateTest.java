@@ -54,7 +54,6 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
     doc.field("name", "Rome");
 
     session.begin();
-    session.save(doc);
     session.commit();
     session.begin();
     var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
@@ -70,7 +69,6 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
 
     doc.field("name", "London");
 
-    session.save(doc);
     session.commit();
     session.begin();
     try (var stream = idx.getInternal().getRids(session, "Rome")) {
@@ -88,7 +86,6 @@ public class LuceneInsertUpdateTest extends LuceneBaseTest {
 
     doc.field("name", "Berlin");
 
-    session.save(doc);
     session.commit();
 
     try (var stream = idx.getInternal().getRids(session, "Rome")) {

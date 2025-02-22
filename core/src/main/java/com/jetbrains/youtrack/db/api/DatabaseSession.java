@@ -62,6 +62,7 @@ import javax.annotation.Nullable;
  * Session for database operations with a specific user.
  */
 public interface DatabaseSession extends AutoCloseable {
+
   enum STATUS {
     OPEN,
     CLOSED,
@@ -798,15 +799,6 @@ public interface DatabaseSession extends AutoCloseable {
   boolean exists(RID rid);
 
   /**
-   * Saves an entity in synchronous mode. If the entity is not dirty, then the operation will be
-   * ignored. For custom entity implementations assure to set the entity as dirty.
-   *
-   * @param record The entity to save
-   * @return The saved entity.
-   */
-  <RET extends DBRecord> RET save(DBRecord record);
-
-  /**
    * Deletes an entity from the database in synchronous mode.
    *
    * @param record The entity to delete.
@@ -888,7 +880,7 @@ public interface DatabaseSession extends AutoCloseable {
    * ResultSet rs = db.command("INSERT INTO Person SET name = ?", "John"); ... rs.close();
    * </code>
    *
-   * @param args  query arguments
+   * @param args query arguments
    * @return the query result set
    */
   default ResultSet command(String query, Object... args)

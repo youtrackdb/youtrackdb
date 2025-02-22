@@ -161,7 +161,6 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         document.field("fEmbeddedSet", embeddedSet);
         document.field("fEmbeddedSetTwo", embeddedSet);
 
-        document.save();
         session.commit();
       }
     }
@@ -2899,14 +2898,14 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final var docOne = ((EntityImpl) session.newEntity("sqlSelectIndexReuseTestChildClass"));
     docOne.field("prop0", 0);
     docOne.field("prop1", 1);
-    docOne.save();
+
     session.commit();
 
     session.begin();
     final var docTwo = ((EntityImpl) session.newEntity("sqlSelectIndexReuseTestChildClass"));
     docTwo.field("prop0", 2);
     docTwo.field("prop1", 3);
-    docTwo.save();
+
     session.commit();
 
     final List<EntityImpl> result =
@@ -2939,23 +2938,23 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     session
         .newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
-        .field("b", "b")
-        .save();
+        .field("b", "b");
+
     session
         .newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
-        .field("b", "b")
-        .save();
+        .field("b", "b");
+
     session
         .newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
-        .field("b", "e")
-        .save();
+        .field("b", "e");
+
     session
         .newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "c")
-        .field("b", "c")
-        .save();
+        .field("b", "c");
+
     session.commit();
 
     try (var rs = session.query(
@@ -2981,24 +2980,24 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     session
         .newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
-        .field("b", "c")
-        .save();
+        .field("b", "c");
+
     session
         .newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
-        .field("b", "c")
-        .save();
+        .field("b", "c");
+
     session
         .newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
-        .field("b", "e")
-        .save();
+        .field("b", "e");
+
     var doc =
         session
             .newInstance("CountFunctionWithUniqueIndexTest")
             .field("a", "a")
             .field("b", "b");
-    doc.save();
+
     session.commit();
 
     try (var rs = session.query(

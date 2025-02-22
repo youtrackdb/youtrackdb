@@ -143,7 +143,8 @@ public class ClassIndexManager {
                   iRecord.getOriginalValue(multiValueField));
             } else {
               origValues.add(
-                  indexDefinition.getMultiValueDefinitionIndex(), iRecord.field(multiValueField));
+                  indexDefinition.getMultiValueDefinitionIndex(),
+                  iRecord.getPropertyInternal(multiValueField));
             }
 
             final var origValue = indexDefinition.createValue(session, origValues);

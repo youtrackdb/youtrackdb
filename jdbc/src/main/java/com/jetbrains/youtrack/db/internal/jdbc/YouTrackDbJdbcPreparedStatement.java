@@ -348,7 +348,6 @@ public class YouTrackDbJdbcPreparedStatement extends YouTrackDbJdbcStatement imp
         throw DatabaseException.wrapException(
             new DatabaseException(session, "Error during creation of BLOB"), e, session);
       }
-      record.save();
       params.put(parameterIndex, record);
     } catch (DatabaseException e) {
       throw new SQLException("unable to store inputStream", e);

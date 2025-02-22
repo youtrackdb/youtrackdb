@@ -49,7 +49,7 @@ public class CollateTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -85,14 +85,14 @@ public class CollateTest extends BaseDBTest {
     document.field("bar", "baz");
 
     session.begin();
-    document.save();
+
     session.commit();
 
     document = ((EntityImpl) session.newEntity("collateTestNotNull"));
     document.field("nobar", true);
 
     session.begin();
-    document.save();
+
     session.commit();
 
     @SuppressWarnings("deprecation")
@@ -134,7 +134,7 @@ public class CollateTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -184,7 +184,7 @@ public class CollateTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -245,7 +245,7 @@ public class CollateTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -320,7 +320,7 @@ public class CollateTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 
@@ -387,7 +387,7 @@ public class CollateTest extends BaseDBTest {
       }
 
       session.begin();
-      document.save();
+
       session.commit();
     }
 

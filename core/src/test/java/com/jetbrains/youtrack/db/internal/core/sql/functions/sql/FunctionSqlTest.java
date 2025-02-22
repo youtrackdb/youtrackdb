@@ -21,10 +21,8 @@ public class FunctionSqlTest extends DbTestBase {
     session.begin();
     var doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Enrico");
-    session.save(doc1);
     doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Luca");
-    session.save(doc1);
     session.commit();
 
     session.begin();
@@ -55,10 +53,8 @@ public class FunctionSqlTest extends DbTestBase {
     session.begin();
     var doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Enrico");
-    session.save(doc1);
     doc1 = ((EntityImpl) session.newEntity("Test"));
     doc1.field("name", "Luca");
-    session.save(doc1);
     session.commit();
 
     session.begin();

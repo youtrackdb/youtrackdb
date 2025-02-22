@@ -38,7 +38,7 @@ import java.util.Map;
  * @param <K> Value that indicates position of item inside collection.
  * @param <V> Value that is hold by collection.
  */
-public interface TrackedMultiValue<K, V> {
+public interface TrackedMultiValue<K, V> extends RecordElement {
 
   /**
    * Reverts all operations that were performed on collection and return original collection state.
@@ -50,8 +50,6 @@ public interface TrackedMultiValue<K, V> {
       List<MultiValueChangeEvent<K, V>> changeEvents);
 
   Class<?> getGenericClass();
-
-  void replace(MultiValueChangeEvent<Object, Object> event, Object newValue);
 
   void enableTracking(RecordElement parent);
 
@@ -127,5 +125,25 @@ public interface TrackedMultiValue<K, V> {
 
   MultiValueChangeTimeLine<K, V> getTransactionTimeLine();
 
-  void setOwner(RecordElement owner);
+  default void addOwner(V e) {
+    if (isEmbeddedContainer()) {
+      if (e instanceof EntityImpl entity) {
+        var rid = entity.getIdentity();
+
+        if (!rid.isValid() || rid.isNew()) {
+          ((EntityImpl) e).setOwner(this);
+        }
+      }
+    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(this);
+    }
+  }
+
+  default void removeOwner(V oldValue) {
+    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
+      trackedMultiValue.setOwner(null);
+    } else if (oldValue instanceof EntityImpl entity) {
+      entity.removeOwner(this);
+    }
+  }
 }

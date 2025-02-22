@@ -27,7 +27,6 @@ import com.jetbrains.youtrack.db.api.DatabaseType;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -101,8 +100,7 @@ public class FreezeAndDBRecordInsertAtomicityTest extends DbTestBase {
                         db.executeInTx(
                             () ->
                                 db.newInstance("Person")
-                                    .field("name", "name-" + thread + "-" + val)
-                                    .save());
+                                    .field("name", "name-" + thread + "-" + val));
                         break;
 
                       case 1:

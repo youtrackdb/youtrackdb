@@ -24,6 +24,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldConvertUpdatableResult() {
+    session.begin();
     CommandContext context = new BasicCommandContext();
     context.setDatabaseSession(session);
     var step = new ConvertToResultInternalStep(context, false);
@@ -72,5 +73,6 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
       }
       counter++;
     }
+    session.commit();
   }
 }

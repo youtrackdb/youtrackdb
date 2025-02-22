@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.server.network;
 
 import static org.junit.Assert.assertNotEquals;
 
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.BaseServerMemoryDatabase;
 import org.junit.Test;
@@ -34,10 +33,8 @@ public class RemoteDBSequenceTest extends BaseServerMemoryDatabase {
     database.begin();
     var doc = ((EntityImpl) db.newEntity("CV1"));
     doc.field("testID", 1);
-    database.save(doc);
     var doc1 = ((EntityImpl) db.newEntity("CV1"));
     doc1.field("testID", 1);
-    database.save(doc1);
     assertNotEquals(doc1.field("uniqueID"), doc.field("uniqueID"));
   }
 }

@@ -57,7 +57,6 @@ public class LuceneInsertDeleteTest extends LuceneBaseTest {
     doc.field("name", "Rome");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");

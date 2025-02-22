@@ -25,7 +25,6 @@ public class ChainIndexFetchTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity(linkedClass);
     doc.field("id", "referred");
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -34,7 +33,6 @@ public class ChainIndexFetchTest extends DbTestBase {
     var doc1 = (EntityImpl) session.newEntity(baseClass);
     doc1.field("ref", doc);
 
-    session.save(doc1);
     session.commit();
 
     var res = session.query(" select from BaseClass where ref.id ='wrong_referred' ");

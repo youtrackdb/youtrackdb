@@ -171,7 +171,6 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
       }
 
       // SAVE CHANGES
-      newVertexDoc.save();
 
       // PUT THE MOVE INTO THE RESULT
       result.add(

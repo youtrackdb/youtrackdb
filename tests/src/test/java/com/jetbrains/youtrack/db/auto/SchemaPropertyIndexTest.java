@@ -192,11 +192,12 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
     var doc =
         ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop1",
             "testComposite3");
-    doc.save();
+
     ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop0", doc, "prop1",
-            "testComposite1")
-        .save();
-    ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop0", doc).save();
+        "testComposite1");
+
+    ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop0", doc);
+
     session.commit();
 
     Assert.assertEquals(
@@ -239,11 +240,11 @@ public class SchemaPropertyIndexTest extends BaseDBTest {
     var doc =
         ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop1",
             "testComposite34");
-    doc.save();
+
     ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop0", doc, "prop1",
-            "testComposite33")
-        .save();
-    ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop0", doc).save();
+        "testComposite33");
+
+    ((EntityImpl) session.newEntity("PropertyIndexTestClass")).fields("prop0", doc);
 
     session.commit();
 

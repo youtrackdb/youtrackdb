@@ -45,7 +45,6 @@ public class LuceneInheritanceQueryTest extends LuceneBaseTest {
     doc.field("name", "abc");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     var resultSet = session.query("select from C1 where search_class(\"abc\")=true ");

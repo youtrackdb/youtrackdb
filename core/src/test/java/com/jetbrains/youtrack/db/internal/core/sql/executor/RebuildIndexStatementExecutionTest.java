@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class RebuildIndexStatementExecutionTest extends DbTestBase {
+
   @Test
   public void indexAfterRebuildShouldIncludeAllClusters() {
     // given
@@ -22,21 +23,18 @@ public class RebuildIndexStatementExecutionTest extends DbTestBase {
     oclass.createIndex(session, className + "index1", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     session.begin();
-    var ele = session.newInstance(className);
+    var ele = session.newEntity(className);
     ele.setProperty("key", "a");
     ele.setProperty("value", 1);
-    session.save(ele);
     session.commit();
-
-    var clId = session.addCluster(className + "secondCluster");
-    oclass.addClusterId(session, clId);
 
     session.begin();
-    var ele1 = session.newInstance(className);
+    var ele1 = session.newEntity(className);
     ele1.setProperty("key", "a");
     ele1.setProperty("value", 2);
-    session.save(ele1, className + "secondCluster");
     session.commit();
+
+    Assert.assertNotEquals(ele1.getIdentity().getClusterId(), ele.getIdentity().getClusterId());
 
     // when
     var result = session.command("rebuild index " + className + "index1");
@@ -45,6 +43,6 @@ public class RebuildIndexStatementExecutionTest extends DbTestBase {
     Assert.assertEquals(2L, resultRecord.<Object>getProperty("totalIndexed"));
     Assert.assertFalse(result.hasNext());
     assertEquals(
-        session.query("select from " + className + " where key = 'a'").stream().toList().size(), 2);
+        2, session.query("select from " + className + " where key = 'a'").stream().toList().size());
   }
 }

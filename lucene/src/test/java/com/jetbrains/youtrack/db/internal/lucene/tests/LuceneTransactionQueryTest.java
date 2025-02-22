@@ -50,7 +50,6 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     var doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", "abc");
     session.begin();
-    session.save(doc);
 
     var query = "select from C1 where search_fields(['p1'], 'abc' )=true ";
 
@@ -73,8 +72,6 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     doc.field("p1", "abc");
 
     var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "C1.p1");
-
-    session.save(doc);
 
     var query = "select from C1 where search_fields(['p1'], 'abc' )=true ";
 
@@ -140,8 +137,6 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     var doc = ((EntityImpl) session.newEntity("c1"));
     doc.field("p1", "update");
 
-    session.save(doc);
-
     var query = "select from C1 where search_fields(['p1'], \"update\")=true ";
     try (var vertices = session.command(query)) {
       assertThat(vertices).hasSize(1);
@@ -172,7 +167,6 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     var element = session.bindToSession(record.castToEntity());
     element.setProperty("p1", "removed");
-    session.save(element);
 
     try (var vertices = session.command(query)) {
       assertThat(vertices).hasSize(0);
@@ -219,16 +213,12 @@ public class LuceneTransactionQueryTest extends LuceneBaseTest {
     var doc1 = ((EntityImpl) session.newEntity("c1"));
     doc1.field("p1", "abc");
 
-    session.save(doc1);
-    session.save(doc);
-
     session.commit();
 
     session.begin();
 
     doc = session.bindToSession(doc);
     doc.field("p1", "removed");
-    session.save(doc);
 
     var query = "select from C1 where search_fields(['p1'], \"abc\")=true ";
     Collection coll;

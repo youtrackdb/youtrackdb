@@ -121,7 +121,6 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     var rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
-    db.save(rome);
     db.commit();
   }
 

@@ -12,12 +12,7 @@ import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import org.junit.Test;
@@ -79,7 +74,6 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
         () -> {
           var document = (EntityImpl) session.newEntity("Test3");
           document.field("some", "String");
-          session.save(document);
         });
 
     oClass.createProperty(session, "some", PropertyType.INTEGER);
@@ -92,11 +86,10 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     session.executeInTx(
         () -> {
-          var document = (EntityImpl) session.newEntity("Test4");
-          var list = new ArrayList<EntityImpl>();
-          list.add((EntityImpl) session.newEntity("Test4"));
-          document.field("some", list);
-          session.save(document);
+          var entity = session.newEntity("Test4");
+          var list = session.newLinkList();
+          list.add(session.newEntity("Test4"));
+          entity.setLinkList("some", list);
         });
 
     oClass.createProperty(session, "some", PropertyType.EMBEDDEDLIST);
@@ -109,11 +102,10 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     session.executeInTx(
         () -> {
-          var document = (EntityImpl) session.newEntity("Test5");
-          Set<EntityImpl> set = new HashSet<EntityImpl>();
-          set.add((EntityImpl) session.newEntity("Test5"));
-          document.field("somelinkset", set);
-          session.save(document);
+          var entity = session.newEntity("Test5");
+          var set = session.newLinkSet();
+          set.add(session.newEntity("Test5"));
+          entity.setLinkSet("somelinkset", set);
         });
 
     oClass.createProperty(session, "somelinkset", PropertyType.EMBEDDEDSET);
@@ -126,11 +118,10 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     session.executeInTx(
         () -> {
-          var document = (EntityImpl) session.newEntity("Test6");
-          Set<EntityImpl> list = new HashSet<EntityImpl>();
-          list.add((EntityImpl) session.newEntity("Test6"));
-          document.field("someembededset", list, PropertyType.EMBEDDEDSET);
-          session.save(document);
+          var entity = session.newEntity("Test6");
+          var list = session.newEmbeddedSet();
+          list.add(session.newEmbededEntity("Test6"));
+          entity.setEmbeddedSet("someembededset", list);
         });
 
     oClass.createProperty(session, "someembededset", PropertyType.LINKSET);
@@ -143,11 +134,10 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     session.executeInTx(
         () -> {
-          var document = (EntityImpl) session.newEntity("Test7");
-          List<EntityImpl> list = new ArrayList<EntityImpl>();
-          list.add((EntityImpl) session.newEntity("Test7"));
-          document.field("someembeddedlist", list, PropertyType.EMBEDDEDLIST);
-          session.save(document);
+          var entity = session.newEntity("Test7");
+          var list = session.newEmbeddedList();
+          list.add(session.newEntity("Test7"));
+          entity.setEmbeddedList("someembeddedlist", list);
         });
 
     oClass.createProperty(session, "someembeddedlist", PropertyType.LINKLIST);
@@ -160,11 +150,10 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     session.executeInTx(
         () -> {
-          var document = (EntityImpl) session.newEntity("Test8");
-          Map<String, EntityImpl> map = new HashMap<>();
-          map.put("test", (EntityImpl) session.newEntity("Test8"));
-          document.field("someembededmap", map, PropertyType.EMBEDDEDMAP);
-          session.save(document);
+          var entity = session.newEntity("Test8");
+          Map<String, EntityImpl> map = session.newEmbeddedMap();
+          map.put("test", (EntityImpl) session.newEmbededEntity("Test8"));
+          entity.setEmbeddedMap("someembededmap", map);
         });
 
     oClass.createProperty(session, "someembededmap", PropertyType.LINKMAP);
@@ -178,11 +167,10 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
 
     session.executeInTx(
         () -> {
-          var document = (EntityImpl) session.newEntity("Test9");
-          Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
-          map.put("test", (EntityImpl) session.newEntity("Test8"));
-          document.field("somelinkmap", map, PropertyType.LINKMAP);
-          session.save(document);
+          var entity = session.newEntity("Test9");
+          var map = session.newLinkMap();
+          map.put("test", session.newEntity("Test8"));
+          entity.setLinkMap("somelinkmap", map);
         });
 
     oClass.createProperty(session, "somelinkmap", PropertyType.EMBEDDEDMAP);
@@ -204,7 +192,6 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", 3.0f);
               document.field("test5", 3.0D);
               document.field("test6", 4);
-              session.save(document);
               return document.getIdentity();
             });
 
@@ -238,15 +225,14 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         session.computeInTx(
             () -> {
-              var document = (EntityImpl) session.newEntity("Test11");
-              document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
-              document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
-              document.field("test3", new HashSet<EntityImpl>(), PropertyType.EMBEDDEDSET);
-              document.field("test4", new HashSet<EntityImpl>(), PropertyType.LINKSET);
-              document.field("test5", new HashMap<String, EntityImpl>(), PropertyType.EMBEDDEDMAP);
-              document.field("test6", new HashMap<String, EntityImpl>(), PropertyType.LINKMAP);
-              session.save(document);
-              return document.getIdentity();
+              var entity = session.newEntity("Test11");
+              entity.newEmbeddedList("test1");
+              entity.newLinkList("test2");
+              entity.newEmbeddedSet("test3");
+              entity.newLinkSet("test4");
+              entity.newEmbeddedMap("test5");
+              entity.newLinkMap("test6");
+              return entity.getIdentity();
             });
 
     oClass.createProperty(session, "test1", PropertyType.LINKLIST);
@@ -365,7 +351,6 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", 3.0f);
               document.field("test5", 3.0D);
               document.field("test6", 4);
-              session.save(document);
               return document.getIdentity();
             });
 
@@ -414,7 +399,6 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
               document.field("test4", 3.0f);
               document.field("test5", 3.0D);
               document.field("test6", 4);
-              session.save(document);
               return document.getIdentity();
             });
 
@@ -448,18 +432,17 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         session.computeInTx(
             () -> {
-              final var document = (EntityImpl) session.newEntity("Test11bis");
-              document.field("test1", new ArrayList<EntityImpl>(), PropertyType.EMBEDDEDLIST);
-              document.field("test2", new ArrayList<EntityImpl>(), PropertyType.LINKLIST);
+              final var entity = session.newEntity("Test11bis");
+              entity.newEmbeddedList("test1");
+              entity.newLinkList("test2");
 
-              document.field("test3", new HashSet<EntityImpl>(), PropertyType.EMBEDDEDSET);
-              document.field("test4", new HashSet<EntityImpl>(), PropertyType.LINKSET);
-              document.field("test5", new HashMap<String, EntityImpl>(), PropertyType.EMBEDDEDMAP);
-              document.field("test6", new HashMap<String, EntityImpl>(), PropertyType.LINKMAP);
-              session.save(document);
-
-              return document.getIdentity();
+              entity.newEmbeddedSet("test3");
+              entity.newLinkSet("test4");
+              entity.newEmbeddedMap("test5");
+              entity.newLinkMap("test6");
+              return entity.getIdentity();
             });
+
     oClass.createProperty(session, "test1", PropertyType.LINKLIST);
     oClass.createProperty(session, "test2", PropertyType.EMBEDDEDLIST);
     oClass.createProperty(session, "test3", PropertyType.LINKSET);
@@ -537,7 +520,7 @@ public class SchemaClassImplTest extends BaseMemoryInternalDatabase {
         () -> {
           EntityImpl record = session.newInstance(className);
           record.field("name", "foo");
-          record.save();
+
         });
 
     oClass.createProperty(session, "name", PropertyType.ANY);

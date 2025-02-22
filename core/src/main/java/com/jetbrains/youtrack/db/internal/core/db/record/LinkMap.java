@@ -19,39 +19,48 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.Collection;
+import java.lang.ref.WeakReference;
+import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Lazy implementation of LinkedHashMap. It's bound to a source Record object to keep track of
  * changes. This avoid to call the makeDirty() by hand when the map is changed.
  */
-public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
+public class LinkMap extends TrackedMap<Identifiable> implements Sizeable,
+    LinkTrackedMultiValue<String> {
 
-  private RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
-      MULTIVALUE_CONTENT_TYPE.EMPTY;
+  @Nonnull
+  private final WeakReference<DatabaseSessionInternal> session;
 
-  public LinkMap() {
+  public LinkMap(DatabaseSessionInternal session) {
     super();
+    this.session = new WeakReference<>(session);
   }
 
-  public LinkMap(int size) {
+  public LinkMap(int size, DatabaseSessionInternal session) {
     super(size);
+    this.session = new WeakReference<>(session);
   }
 
   public LinkMap(final RecordElement iSourceRecord) {
     super(iSourceRecord);
+    this.session = new WeakReference<>(iSourceRecord.getSession());
   }
 
   public LinkMap(final EntityImpl iSourceRecord) {
     super(iSourceRecord);
+    this.session = new WeakReference<>(iSourceRecord.getSession());
   }
 
   public LinkMap(final EntityImpl iSourceRecord, final Map<String, Identifiable> iOrigin) {
@@ -60,12 +69,6 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
     if (iOrigin != null && !iOrigin.isEmpty()) {
       putAll(iOrigin);
     }
-  }
-
-
-  @Override
-  public boolean containsValue(final Object o) {
-    return super.containsValue(o);
   }
 
   @Override
@@ -80,51 +83,175 @@ public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
 
   @Override
   public Identifiable put(final String key, Identifiable value) {
-    if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS
-        && value instanceof DBRecord
-        && !value.getIdentity().isNew())
-    // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
-    {
-      value = value.getIdentity();
-    } else {
-      multiValueStatus = RecordMultiValueHelper.updateContentType(multiValueStatus, value);
-    }
-
+    value = convertToRid(value);
     return super.put(key, value);
   }
 
+  @Nullable
   @Override
-  @Nonnull
-  public Collection<Identifiable> values() {
-    return super.values();
+  public Identifiable putIfAbsent(String key, Identifiable value) {
+    return super.putIfAbsent(key, convertToRid(value));
   }
 
   @Override
-  public Identifiable remove(Object o) {
-    final var result = super.remove(o);
-    if (size() == 0) {
-      multiValueStatus = MULTIVALUE_CONTENT_TYPE.EMPTY;
+  public Identifiable computeIfAbsent(String key,
+      @Nonnull Function<? super String, ? extends Identifiable> mappingFunction) {
+    return super.computeIfAbsent(key, k -> convertToRid(mappingFunction.apply(k)));
+  }
+
+  @Override
+  public Identifiable computeIfPresent(String key,
+      @Nonnull BiFunction<? super String, ? super Identifiable, ? extends Identifiable> remappingFunction) {
+    return super.computeIfPresent(key, (k, v) -> convertToRid(remappingFunction.apply(k, v)));
+  }
+
+  @Override
+  public Identifiable compute(String key,
+      @Nonnull BiFunction<? super String, ? super Identifiable, ? extends Identifiable> remappingFunction) {
+    return super.compute(key, (k, v) -> convertToRid(remappingFunction.apply(k, v)));
+  }
+
+  @Override
+  public void replaceAll(
+      BiFunction<? super String, ? super Identifiable, ? extends Identifiable> function) {
+    super.replaceAll((k, v) -> convertToRid(function.apply(k, v)));
+  }
+
+  @Override
+  public boolean replace(String key, Identifiable oldValue, Identifiable newValue) {
+    return super.replace(key, oldValue, convertToRid(newValue));
+  }
+
+  @Override
+  public Identifiable merge(String key, @Nonnull Identifiable value,
+      @Nonnull BiFunction<? super Identifiable, ? super Identifiable, ? extends Identifiable> remappingFunction) {
+    return super.merge(key, value, (k, v) -> convertToRid(remappingFunction.apply(k, v)));
+  }
+
+  @Override
+  public boolean addInternal(Identifiable e) {
+    return super.addInternal(convertToRid(e));
+  }
+
+  @Nullable
+  @Override
+  public Identifiable replace(String key, Identifiable value) {
+    return super.replace(key, convertToRid(value));
+  }
+
+  @Override
+  public void putAll(Map<? extends String, ? extends Identifiable> m) {
+    for (var entry : m.entrySet()) {
+      put(entry.getKey(), convertToRid(entry.getValue()));
     }
-    return result;
   }
 
   @Override
-  public void clear() {
-    super.clear();
-    multiValueStatus = MULTIVALUE_CONTENT_TYPE.EMPTY;
+  public void putInternal(String key, Identifiable value) {
+    super.putInternal(key, convertToRid(value));
   }
 
+  @Nonnull
   @Override
-  public String toString() {
-    return RecordMultiValueHelper.toString(this);
+  public Set<Entry<String, Identifiable>> entrySet() {
+    return new LinkEntrySet(super.entrySet());
   }
 
-  public Iterator<Identifiable> rawIterator() {
-    return super.values().iterator();
-  }
-
+  @Nullable
   @Override
-  public int size() {
-    return super.size();
+  public DatabaseSessionInternal getSession() {
+    return session.get();
+  }
+
+  private final class LinkEntrySet extends AbstractSet<Entry<String, Identifiable>> {
+
+    @Nonnull
+    private final Set<Entry<String, Identifiable>> entrySet;
+
+    private LinkEntrySet(@Nonnull Set<Entry<String, Identifiable>> entrySet) {
+      this.entrySet = entrySet;
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<Entry<String, Identifiable>> iterator() {
+      return new LinkEntryIterator(entrySet.iterator());
+    }
+
+    @Override
+    public int size() {
+      return entrySet.size();
+    }
+
+    @Override
+    public void clear() {
+      entrySet.clear();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+      return entrySet.remove(o);
+    }
+  }
+
+  private final class LinkEntryIterator implements Iterator<Entry<String, Identifiable>> {
+
+    @Nonnull
+    private final Iterator<Entry<String, Identifiable>> iterator;
+    @Nullable
+    private LinkEntry lastEntry;
+
+    private LinkEntryIterator(@Nonnull Iterator<Entry<String, Identifiable>> iterator) {
+      this.iterator = iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public Entry<String, Identifiable> next() {
+      lastEntry = new LinkEntry(iterator.next());
+      return lastEntry;
+    }
+
+    @Override
+    public void remove() {
+      if (lastEntry == null) {
+        throw new IllegalStateException();
+      }
+
+      final var key = lastEntry.getKey();
+      final var value = lastEntry.getValue();
+
+      LinkMap.this.remove(key, value);
+      lastEntry = null;
+    }
+  }
+
+  private final class LinkEntry implements Entry<String, Identifiable> {
+
+    @Nonnull
+    private final Entry<String, Identifiable> entry;
+
+    private LinkEntry(@Nonnull Entry<String, Identifiable> entry) {
+      this.entry = entry;
+    }
+
+    @Override
+    public String getKey() {
+      return entry.getKey();
+    }
+
+    @Override
+    public Identifiable getValue() {
+      return entry.getValue();
+    }
+
+    @Override
+    public Identifiable setValue(Identifiable value) {
+      return entry.setValue(convertToRid(value));
+    }
   }
 }

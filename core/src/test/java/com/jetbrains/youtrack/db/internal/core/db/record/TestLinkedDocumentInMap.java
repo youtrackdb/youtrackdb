@@ -17,7 +17,7 @@ public class TestLinkedDocumentInMap extends DbTestBase {
     session.begin();
     var jaimeDoc = (EntityImpl) session.newEntity("PersonTest");
     jaimeDoc.field("name", "jaime");
-    jaimeDoc.save();
+
     session.commit();
 
     session.begin();
@@ -27,7 +27,7 @@ public class TestLinkedDocumentInMap extends DbTestBase {
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"@embedded\":true,\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}]}");
-    tyrionDoc.save();
+
     session.commit();
 
     tyrionDoc = session.bindToSession(tyrionDoc);

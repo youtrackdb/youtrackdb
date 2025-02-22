@@ -213,13 +213,12 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
 
                 target.setProperty(linkName, value);
               }
-              target.save();
 
             } else {
 
               // SET THE REFERENCE
               entity.setProperty(linkName, value);
-              entity.save();
+
             }
 
             total[0]++;

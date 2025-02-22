@@ -80,7 +80,7 @@ public class SystemDatabase {
       if (clusterName != null) {
         return session.save(entity, clusterName);
       } else {
-        return session.save(entity);
+        return entity;
       }
     }
 
@@ -129,7 +129,6 @@ public class SystemDatabase {
             if (this.serverId == null) {
               this.serverId = UUID.randomUUID().toString();
               info.setProperty(SERVER_ID_PROPERTY, serverId);
-              info.save();
             }
           });
     }

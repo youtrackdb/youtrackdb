@@ -57,7 +57,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("val", 1);
 
     session.begin();
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -95,7 +95,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("val", 1);
 
     session.begin();
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -133,7 +133,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     document.field("val", 1);
 
     session.begin();
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -164,10 +164,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkSetTrackingAfterSave() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity());
 
@@ -176,7 +174,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -199,10 +197,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkListTrackingAfterSave() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity());
 
@@ -211,7 +207,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -235,10 +231,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkMapTrackingAfterSave() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity());
 
@@ -247,7 +241,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -275,7 +269,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -312,7 +306,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -349,7 +343,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -380,10 +374,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity());
 
@@ -392,7 +384,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -415,10 +407,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity());
 
@@ -427,7 +417,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -450,10 +440,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity());
 
@@ -462,7 +450,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -489,7 +477,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -527,7 +515,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedmap", map);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -564,7 +552,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedset", set);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -595,10 +583,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkSetTrackingAfterSaveWithClass() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
@@ -607,7 +593,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linkset", set);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -628,10 +614,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkListTrackingAfterSaveWithClass() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
@@ -640,7 +624,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linklist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -663,10 +647,8 @@ public class DocumentTrackingTest extends BaseDBTest {
   public void testDocumentLinkMapTrackingAfterSaveWithClass() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity("DocumentTrackingTestClass"));
 
@@ -675,7 +657,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("linkmap", map);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -703,7 +685,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("embeddedlist", set);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -726,7 +708,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     document.field("embeddedset", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -748,7 +730,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -781,7 +763,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedmap", map);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -814,7 +796,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedset", set);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -847,7 +829,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -875,7 +857,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -903,7 +885,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -942,7 +924,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -970,7 +952,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -998,7 +980,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -1025,7 +1007,7 @@ public class DocumentTrackingTest extends BaseDBTest {
     session.begin();
     document.field("embeddedlist", list);
     document.field("val", 1);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -1050,7 +1032,7 @@ public class DocumentTrackingTest extends BaseDBTest {
 
     session.begin();
     document.field("embeddedlist", list);
-    document.save();
+
     session.commit();
 
     session.begin();

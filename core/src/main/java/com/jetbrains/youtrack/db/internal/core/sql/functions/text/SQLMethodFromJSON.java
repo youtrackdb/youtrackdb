@@ -52,7 +52,7 @@ public class SQLMethodFromJSON extends AbstractSQLMethod {
           final var entity = new EntityImpl(db).updateFromJSON(iThis.toString(),
               iParams[0].toString());
           if (iParams[0].toString().contains("embedded")) {
-            entity.addOwner(iCurrentRecord.getRecord(db));
+            entity.setOwner(iCurrentRecord.getRecord(db));
           }
 
           return entity;

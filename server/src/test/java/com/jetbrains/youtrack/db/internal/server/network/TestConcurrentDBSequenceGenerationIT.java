@@ -68,7 +68,6 @@ public class TestConcurrentDBSequenceGenerationIT {
                       db.executeInTx(() -> {
                         var vert = db.newVertex("TestSequence");
                         assertNotNull(vert.getProperty("id"));
-                        db.save(vert);
                       });
                     }
                   }

@@ -110,12 +110,12 @@ public interface Vertex extends Entity {
    * {@link #DIRECTION_OUT_PREFIX} update of such property is aborted. Those names are used to
    * manage edges.
    *
-   * @param name      the property name
-   * @param value     the property value
-   * @param fieldType Forced type (not auto-determined)
+   * @param propertyName the property name
+   * @param value        the property value
+   * @param fieldType    Forced type (not auto-determined)
    * @throws IllegalArgumentException if booked property name is used.
    */
-  void setProperty(@Nonnull String name, Object value, @Nonnull PropertyType fieldType);
+  void setProperty(@Nonnull String propertyName, Object value, @Nonnull PropertyType fieldType);
 
   /**
    * Remove a property, if the property name starts with {@link #DIRECTION_IN_PREFIX} or

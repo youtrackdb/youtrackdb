@@ -151,14 +151,12 @@ public class LuceneMiscTest extends LuceneBaseTest {
     authorVertex.setProperty("name", "Bob Dylan");
 
     session.begin();
-    session.save(authorVertex);
     session.commit();
 
     var songVertex = session.newVertex("Song");
     songVertex.setProperty("title", "hurricane");
 
     session.begin();
-    session.save(songVertex);
     session.commit();
 
     session.begin();

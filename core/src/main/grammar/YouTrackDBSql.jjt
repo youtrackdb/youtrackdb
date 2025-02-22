@@ -2543,10 +2543,6 @@ SQLFromItem FromItem():
             )* <RBRACKET>
         )
     	|
-    	jjtThis.cluster = Cluster()
-    	|
-    	jjtThis.clusterList = ClusterList()
-    	|
     	LOOKAHEAD(IndexIdentifier())
     	jjtThis.index = IndexIdentifier()
     	|

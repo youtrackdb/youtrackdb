@@ -242,7 +242,6 @@ public abstract class DBSequence {
 
               initSequence(entity, currentParams);
               setName(entity, name);
-              entity.save();
 
               return entity.getIdentity();
             });
@@ -267,7 +266,7 @@ public abstract class DBSequence {
       throws DatabaseException {
     var entity = db.<EntityImpl>load(entityRid);
     var result = updateParams(entity, params, false);
-    entity.save();
+
     return result;
   }
 
@@ -474,7 +473,7 @@ public abstract class DBSequence {
                         () -> {
                           var entity = entityRid.<EntityImpl>getRecord(dbCopy);
                           var result = callable.call(dbCopy, entity);
-                          entity.save();
+
                           return result;
                         });
                   } catch (ConcurrentModificationException ignore) {
@@ -526,7 +525,7 @@ public abstract class DBSequence {
                       () -> {
                         var entity = entityRid.<EntityImpl>getRecord(dbCopy);
                         var result = callable.call(dbCopy, entity);
-                        entity.save();
+
                         return result;
                       });
                 } catch (Exception e) {

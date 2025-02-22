@@ -24,11 +24,9 @@ public class CastToEdgeStep extends AbstractExecutionStep {
   }
 
   private static Result mapResult(Result result, CommandContext ctx) {
-    if (!result.isStatefulEdge()) {
-      return result;
-    }
+
     var db = ctx.getDatabaseSession();
-    if (result.isEdge()) {
+    if (result.isStatefulEdge()) {
       if (result.isStatefulEdge()) {
         ((ResultInternal) result).setIdentifiable(result.castToStatefulEdge());
       } else {
@@ -36,7 +34,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
       }
     } else {
       throw new CommandExecutionException(ctx.getDatabaseSession(),
-          "Current entity is not a vertex: " + result);
+          "Current entity is not a stateful edge : " + result);
     }
 
     return result;

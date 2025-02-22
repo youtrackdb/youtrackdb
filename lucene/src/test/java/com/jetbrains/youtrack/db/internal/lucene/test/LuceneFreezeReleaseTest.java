@@ -25,7 +25,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     session.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     var results = session.query("select from Person where name lucene 'John'");
@@ -38,7 +38,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     session.release();
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     results = session.query("select from Person where name lucene 'John'");
@@ -60,7 +60,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     session.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     var results = session.query("select from Person where name lucene 'John'");
@@ -77,7 +77,7 @@ public class LuceneFreezeReleaseTest extends BaseLuceneTest {
     session.release();
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     results = session.query("select from Person where name lucene 'John'");

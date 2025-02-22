@@ -49,16 +49,12 @@ public class DeleteStatementTest extends DbTestBase {
     final var doc2 = ((EntityImpl) session.newEntity("Foo")).field("k", "key2");
     final var doc3 = ((EntityImpl) session.newEntity("Foo")).field("k", "key3");
 
-    doc1.save();
-    doc2.save();
-    doc3.save();
-
     List<EntityImpl> list = new ArrayList<EntityImpl>();
     list.add(doc1);
     list.add(doc2);
     list.add(doc3);
     final var bar = ((EntityImpl) session.newEntity("Bar")).field("arr", list);
-    bar.save();
+
     session.commit();
 
     session.begin();

@@ -78,7 +78,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
         });
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     var tagsIndex = session.getClassInternal("City").getClassIndex(session, "City.tags");
@@ -105,7 +104,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
           }
         });
     session.begin();
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -120,7 +118,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     tags.remove("Sunny");
     tags.add("Rainy");
 
-    session.save(doc);
     session.commit();
 
     try (var stream = tagsIndex.getInternal().getRids(session, "Rainy")) {
@@ -157,7 +154,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
         });
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     var idx = session.getClassInternal("Person").getClassIndex(session, "Person.name_tags");
@@ -180,7 +176,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
         });
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -196,7 +191,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     tags.remove("Funny");
     tags.add("Geek");
 
-    session.save(doc);
     session.commit();
 
     try (var stream = idx.getInternal().getRids(session, "Funny")) {
@@ -248,7 +242,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     final var vertex = session.newVertex("C1");
     vertex.setProperty("p1", "testing");
 
-    session.save(vertex);
     session.commit();
 
     var search = session.query("SELECT from C1 WHERE p1 LUCENE \"tested\"");

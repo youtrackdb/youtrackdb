@@ -204,7 +204,7 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
       var json = String.format(rowModel, l, i);
       EntityImpl doc = session.newInstance("alphabet");
       doc.updateFromJSON(json);
-      doc.save();
+
       session.commit();
     }
 
@@ -226,11 +226,10 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
     db.begin();
     var doc = (EntityImpl) db.newEntity("CollateOnLinked");
     doc.field("name", "foo");
-    doc.save();
 
     var doc2 = (EntityImpl) db.newEntity("CollateOnLinked2");
     doc2.field("linked", doc.getIdentity());
-    doc2.save();
+
     db.commit();
   }
 
@@ -364,7 +363,6 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
       doc.field("dfgd", fieldValue);
       doc.field("dgd", fieldValue);
 
-      doc.save();
       db.commit();
     }
   }
@@ -376,12 +374,12 @@ public class CommandExecutorSQLSelectTest extends DbTestBase {
       db.begin();
       var doc = (EntityImpl) db.newEntity("ExpandSkipLimit");
       doc.field("nnum", i);
-      doc.save();
+
       var parent = (EntityImpl) db.newEntity("ExpandSkipLimit");
       parent.field("parent", true);
       parent.field("num", i);
       parent.field("linked", doc);
-      parent.save();
+
       db.commit();
     }
   }

@@ -30,9 +30,6 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
   @Test
   public void testCreateEdgeDefaultClass() {
-    var vclusterId = session.addCluster("vdefault");
-    var eclusterId = session.addCluster("edefault");
-
     session.command("create class V1 extends V").close();
     session.command("alter class V1 add_cluster vdefault").close();
 
@@ -73,12 +70,11 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     Assert.assertEquals("wow", v4.getProperty("name"));
 
     session.begin();
-    var v5 = session.command("create vertex V1 cluster vdefault").next().castToVertex();
+    var v5 = session.command("create vertex V1").next().castToVertex();
     session.commit();
 
     v5 = session.bindToSession(v5);
     Assert.assertEquals("V1", v5.getSchemaClassName());
-    Assert.assertEquals(v5.getIdentity().getClusterId(), vclusterId);
 
     // EDGES
     session.begin();
@@ -122,7 +118,7 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     session.begin();
     edges =
         session.command(
-            "create edge e1 cluster edefault from "
+            "create edge e1 from "
                 + v3.getIdentity()
                 + " to "
                 + v5.getIdentity()
@@ -130,7 +126,6 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
     session.commit();
     EntityImpl e5 = edges.next().getIdentity().getRecord(session);
     Assert.assertEquals("E1", e5.getSchemaClassName());
-    Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }
 
   /**
@@ -138,31 +133,20 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
    */
   @Test
   public void testSqlScriptThatCreatesEdge() {
-    var start = System.currentTimeMillis();
+    var cmd = "begin;\n";
+    cmd += "let a = create vertex set script = true;\n";
+    cmd += "let b = select from v limit 1;\n";
+    cmd += "let e = create edge from $a to $b;\n";
+    cmd += "commit retry 100;\n";
+    cmd += "return $e";
 
-    try {
-      var cmd = "begin\n";
-      cmd += "let a = create vertex set script = true\n";
-      cmd += "let b = select from v limit 1\n";
-      cmd += "let e = create edge from $a to $b\n";
-      cmd += "commit retry 100\n";
-      cmd += "return $e";
+    var result = session.query("select from V");
+    var before = result.stream().count();
 
-      var result = session.query("select from V");
+    session.execute("sql", cmd).close();
 
-      var before = result.stream().count();
-
-      session.execute("sql", cmd).close();
-
-      result = session.query("select from V");
-
-      Assert.assertEquals(result.stream().count(), before + 1);
-    } catch (Exception ex) {
-      System.err.println("commit exception! " + ex);
-      ex.printStackTrace(System.err);
-    }
-
-    System.out.println("done in " + (System.currentTimeMillis() - start) + "ms");
+    result = session.query("select from V");
+    Assert.assertEquals(result.stream().count(), before + 1);
   }
 
   @Test
@@ -208,8 +192,7 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
   @Test
   public void testSqlScriptThatDeletesEdge() {
-    var start = System.currentTimeMillis();
-
+    session.begin();
     session.command("create vertex V set name = 'testSqlScriptThatDeletesEdge1'").close();
     session.command("create vertex V set name = 'testSqlScriptThatDeletesEdge2'").close();
     session.command(
@@ -217,24 +200,18 @@ public class SQLCreateVertexAndEdgeTest extends DbTestBase {
                 + " (select from V where name = 'testSqlScriptThatDeletesEdge2') set name ="
                 + " 'testSqlScriptThatDeletesEdge'")
         .close();
+    session.commit();
 
-    try {
-      var cmd = "BEGIN\n";
-      cmd += "LET $groupVertices = SELECT FROM V WHERE name = 'testSqlScriptThatDeletesEdge1'\n";
-      cmd += "LET $removeRoleEdge = DELETE edge E WHERE out IN $groupVertices\n";
-      cmd += "COMMIT\n";
-      cmd += "RETURN $groupVertices\n";
+    var cmd = "BEGIN;\n";
+    cmd += "LET $groupVertices = SELECT FROM V WHERE name = 'testSqlScriptThatDeletesEdge1';\n";
+    cmd += "LET $removeRoleEdge = DELETE edge E WHERE out IN $groupVertices\n;";
+    cmd += "COMMIT;\n";
+    cmd += "RETURN $groupVertices;\n";
 
-      session.execute("sql", cmd);
+    session.execute("sql", cmd);
 
-      var edges = session.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
+    var edges = session.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
 
-      Assert.assertEquals(0, edges.stream().count());
-    } catch (Exception ex) {
-      System.err.println("commit exception! " + ex);
-      ex.printStackTrace(System.err);
-    }
-
-    System.out.println("done in " + (System.currentTimeMillis() - start) + "ms");
+    Assert.assertEquals(0, edges.stream().count());
   }
 }

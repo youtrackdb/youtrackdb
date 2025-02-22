@@ -148,22 +148,18 @@ public class SQLFindReferencesTest extends BaseDBTest {
     johnDoe.field("name", "John");
     johnDoe.field("surname", "Doe");
     johnDoe.field("car", car);
-    johnDoe.save();
 
     var janeDoe = ((EntityImpl) session.newEntity(WORKER));
     janeDoe.field("name", "Jane");
     janeDoe.field("surname", "Doe");
-    janeDoe.save();
 
     var chuckNorris = ((EntityImpl) session.newEntity(WORKER));
     chuckNorris.field("name", "Chuck");
     chuckNorris.field("surname", "Norris");
-    chuckNorris.save();
 
     var jackBauer = ((EntityImpl) session.newEntity(WORKER));
     jackBauer.field("name", "Jack");
     jackBauer.field("surname", "Bauer");
-    jackBauer.save();
 
     var ctu = ((EntityImpl) session.newEntity(WORKPLACE));
     ctu.field("name", "CTU");
@@ -172,7 +168,6 @@ public class SQLFindReferencesTest extends BaseDBTest {
     workplace1Workers.add(chuckNorris);
     workplace1Workers.add(janeDoe);
     ctu.field("workers", workplace1Workers);
-    ctu.save();
 
     var fbi = ((EntityImpl) session.newEntity(WORKPLACE));
     fbi.field("name", "FBI");
@@ -181,10 +176,9 @@ public class SQLFindReferencesTest extends BaseDBTest {
     workplace2Workers.add(chuckNorris);
     workplace2Workers.add(jackBauer);
     fbi.field("workers", workplace2Workers);
-    fbi.save();
 
     car.field("owner", jackBauer);
-    car.save();
+
     session.commit();
 
     chuckNorrisID = chuckNorris.getIdentity().copy();

@@ -22,19 +22,23 @@ import org.junit.Test;
  */
 public class SchemaPropertyMapIndexDefinitionTest extends DbTestBase {
 
-  private final Map<String, Integer> mapToTest = new HashMap<String, Integer>();
+  private Map<String, Integer> mapToTest;
   private PropertyMapIndexDefinition propertyIndexByKey;
   private PropertyMapIndexDefinition propertyIndexByValue;
   private PropertyMapIndexDefinition propertyIndexByIntegerKey;
 
   @Before
   public void beforeClass() {
-    mapToTest.put("st1", 1);
-    mapToTest.put("st2", 2);
+
   }
 
   @Before
   public void beforeMethod() {
+    mapToTest = session.newEmbeddedMap();
+
+    mapToTest.put("st1", 1);
+    mapToTest.put("st2", 2);
+
     propertyIndexByKey =
         new PropertyMapIndexDefinition(
             "testClass", "fOne", PropertyType.STRING, PropertyMapIndexDefinition.INDEX_BY.KEY);

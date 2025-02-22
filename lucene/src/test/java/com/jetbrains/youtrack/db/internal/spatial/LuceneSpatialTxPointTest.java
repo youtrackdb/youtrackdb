@@ -79,8 +79,6 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     session.begin();
 
-    session.save(rome);
-
     var query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
@@ -104,15 +102,13 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     var rome = newCity("Rome", -0.1275, 51.507222);
 
     session.begin();
-    rome = session.save(rome);
+    rome = rome;
     session.commit();
 
     session.begin();
 
     rome = session.bindToSession(rome);
     rome.field("location", newPoint(12.5, 41.9));
-
-    session.save(rome);
 
     session.commit();
 
@@ -137,8 +133,8 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     var london = newCity("London", -0.1275, 51.507222);
 
     session.begin();
-    rome = session.save(rome);
-    london = session.save(london);
+    rome = rome;
+    london = london;
     session.commit();
 
     session.begin();
@@ -150,9 +146,6 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     london.field("location", newPoint(-0.1275, 51.507222));
     london.field("location", newPoint(-0.1275, 51.507222));
     london.field("location", newPoint(12.5, 41.9));
-
-    session.save(rome);
-    session.save(london);
 
     session.commit();
 

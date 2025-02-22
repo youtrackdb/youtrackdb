@@ -125,7 +125,8 @@ public class DbListenerTest extends BaseDBTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     session
-        .newInstance().save();
+        .newInstance();
+
     session.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
@@ -133,7 +134,8 @@ public class DbListenerTest extends BaseDBTest {
     session.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    session.newInstance().save();
+    session.newInstance();
+
     session.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
@@ -155,8 +157,8 @@ public class DbListenerTest extends BaseDBTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     session
-        .newInstance()
-        .save();
+        .newInstance();
+
     var baseOnBeforeTxCommit = onBeforeTxCommit;
     var baseOnAfterTxCommit = onAfterTxCommit;
     session.commit();
@@ -167,8 +169,8 @@ public class DbListenerTest extends BaseDBTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
     session
-        .newInstance()
-        .save();
+        .newInstance();
+
     var baseOnBeforeTxRollback = onBeforeTxRollback;
     var baseOnAfterTxRollback = onAfterTxRollback;
     session.rollback();
@@ -192,14 +194,15 @@ public class DbListenerTest extends BaseDBTest {
         session
             .newInstance()
             .field("name", "Jay");
-    rec.save();
+
     session.commit();
 
     final var cl = new DocumentChangeListener(session);
 
     session.begin();
     rec = session.bindToSession(rec);
-    rec.field("surname", "Miner").save();
+    rec.field("surname", "Miner");
+
     session.commit();
 
     Assert.assertEquals(cl.getChanges().size(), 1);
@@ -219,7 +222,6 @@ public class DbListenerTest extends BaseDBTest {
     session.begin();
     var v = session.newVertex();
     v.setProperty("name", "Jay");
-    v.save();
 
     session.commit();
     session.begin();
@@ -227,7 +229,6 @@ public class DbListenerTest extends BaseDBTest {
 
     v = session.bindToSession(v);
     v.setProperty("surname", "Miner");
-    v.save();
     session.commit();
     session.close();
 

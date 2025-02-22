@@ -78,7 +78,6 @@ public class RemoteTransactionHookTest extends DbTestBase {
     session.begin();
     var doc = ((EntityImpl) session.newEntity("SomeTx"));
     doc.setProperty("name", "some");
-    session.save(doc);
     session.command("insert into SomeTx set name='aa' ").close();
     var res = session.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
@@ -102,7 +101,6 @@ public class RemoteTransactionHookTest extends DbTestBase {
     database.begin();
     var doc = ((EntityImpl) database.newEntity("SomeTx"));
     doc.setProperty("name", "some");
-    database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
     var res = database.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
@@ -128,7 +126,6 @@ public class RemoteTransactionHookTest extends DbTestBase {
     var calls = CountCallHookServer.instance;
     var doc = ((EntityImpl) session.newEntity("SomeTx"));
     doc.setProperty("name", "some");
-    session.save(doc);
     session.command("insert into SomeTx set name='aa' ").close();
     var res = session.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));

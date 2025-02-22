@@ -112,7 +112,6 @@ public class YouTrackDbCreationHelper {
         articles.add(article);
       }
 
-      author.save();
     }
   }
 
@@ -132,7 +131,6 @@ public class YouTrackDbCreationHelper {
       article.field("attachment", loadFile(db, "./src/test/resources/file.pdf", 256));
     }
     db.begin();
-    db.save(article);
     db.commit();
     return article;
   }
@@ -224,7 +222,6 @@ public class YouTrackDbCreationHelper {
 
             var recordChunk = database.newBlob();
 
-            database.save(recordChunk);
             binaryChuncks.add(recordChunk.getIdentity());
           });
     }

@@ -319,10 +319,6 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     return session;
   }
 
-  public void save() {
-    getSession().save(this, null);
-  }
-
   public void save(final String iClusterName) {
     getSession().save(this, iClusterName);
   }
@@ -331,7 +327,7 @@ public abstract class RecordAbstract implements DBRecord, RecordElement, Seriali
     checkForBinding();
 
     dirty++;
-    getSession().deleteInternal(this);
+    session.deleteInternal(this);
 
     source = null;
     status = STATUS.NOT_LOADED;

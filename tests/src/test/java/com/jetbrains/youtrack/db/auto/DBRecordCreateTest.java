@@ -34,7 +34,6 @@ public class DBRecordCreateTest extends BaseDBTest {
     session.begin();
     try {
       var element = session.newEntity();
-      element.save();
       Assert.assertTrue(element.exists());
     } finally {
       session.rollback();
@@ -46,7 +45,6 @@ public class DBRecordCreateTest extends BaseDBTest {
     session.begin();
     try {
       var element = session.newEntity();
-      element.save();
       element.delete();
       Assert.assertFalse(element.exists());
     } finally {
@@ -59,7 +57,6 @@ public class DBRecordCreateTest extends BaseDBTest {
     session.begin();
     try {
       var element = session.newEntity();
-      element.save();
       Assert.assertTrue(element.exists());
       element.delete();
       Assert.assertFalse(element.exists());
@@ -72,7 +69,6 @@ public class DBRecordCreateTest extends BaseDBTest {
   public void testLoadedRecordNoTx() {
     var element = session.newEntity();
     session.begin();
-    element.save();
     session.commit();
 
     var loadedElement = session.load(element.getIdentity());
@@ -84,7 +80,6 @@ public class DBRecordCreateTest extends BaseDBTest {
     session.begin();
     try {
       var element = session.newEntity();
-      element.save();
       var loadedElement = session.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
     } finally {
@@ -97,7 +92,6 @@ public class DBRecordCreateTest extends BaseDBTest {
     session.begin();
     try {
       var element = session.newEntity();
-      element.save();
       var loadedElement = session.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
       element.delete();

@@ -73,7 +73,6 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
       ridBag.add(ridToAdd);
       ridTree.add(ridToAdd);
     }
-    document.save();
 
     docContainerRid = document.getIdentity();
 
@@ -144,7 +143,7 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
             }
 
             try {
-              document.save();
+
             } catch (ConcurrentModificationException e) {
               continue;
             }
@@ -204,7 +203,7 @@ public class BTreeRidBagConcurrencySingleBasedRidBagTestIT {
             }
 
             try {
-              document.save();
+
             } catch (ConcurrentModificationException e) {
               continue;
             }

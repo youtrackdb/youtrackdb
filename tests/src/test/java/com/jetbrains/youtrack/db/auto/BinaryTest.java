@@ -40,7 +40,6 @@ public class BinaryTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity());
     doc.field("binary", "Binary data".getBytes());
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -54,7 +53,6 @@ public class BinaryTest extends BaseDBTest {
   public void testBasicCreateExternal() {
     session.begin();
     Blob record = new RecordBytes(session, "This is a test".getBytes());
-    record.save();
     session.commit();
 
     rid = record.getIdentity();
@@ -74,7 +72,6 @@ public class BinaryTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity());
     doc.field("binary", new RecordBytes(session, "Binary data".getBytes()));
 
-    doc.save();
     session.commit();
 
     rid = doc.getIdentity();

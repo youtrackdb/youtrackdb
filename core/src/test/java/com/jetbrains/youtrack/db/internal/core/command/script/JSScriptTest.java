@@ -7,10 +7,8 @@ import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.script.ScriptException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,16 +51,15 @@ public class JSScriptTest extends DbTestBase {
     var resultSet = session.execute("javascript", IOUtils.readStreamAsString(stream));
     Assert.assertTrue(resultSet.hasNext());
 
-    var results = resultSet.stream().collect(Collectors.toList());
+    var results = resultSet.stream().toList();
     Assert.assertEquals(1, results.size());
 
-    var value = results.getFirst().getProperty("value");
-    var values = (Collection<Result>) value;
-    values.stream()
-        .map(Result::castToEntity)
+    var linkList = results.getFirst().getLinkList("value");
+    linkList.stream()
+        .map(identifiable -> identifiable.getEntity(session))
         .forEach(
-            oElement -> {
-              Assert.assertEquals("OUser", oElement.getSchemaClassName());
+            entity -> {
+              Assert.assertEquals("OUser", entity.getSchemaClassName());
             });
 
   }

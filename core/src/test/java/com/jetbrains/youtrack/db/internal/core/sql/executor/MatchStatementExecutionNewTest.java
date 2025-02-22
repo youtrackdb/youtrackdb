@@ -70,7 +70,7 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
           for (var i = 0; i < nodes; i++) {
             var doc = (EntityImpl) session.newEntity("IndexedVertex");
             doc.field("uid", i);
-            doc.save();
+
           }
         });
 
@@ -2206,15 +2206,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         () -> {
           var v1 = session.newVertex(clazz);
           v1.setProperty("name", "a");
-          v1.save();
 
           var v2 = session.newVertex(clazz);
           v2.setProperty("name", "b");
-          v2.save();
 
           var v3 = session.newVertex(clazz);
           v3.setProperty("name", "c");
-          v3.save();
 
           v1.addStateFulEdge(v2);
           v2.addStateFulEdge(v3);
@@ -2241,15 +2238,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         () -> {
           var v1 = session.newVertex(clazz);
           v1.setProperty("name", "a");
-          v1.save();
 
           var v2 = session.newVertex(clazz);
           v2.setProperty("name", "b");
-          v2.save();
 
           var v3 = session.newVertex(clazz);
           v3.setProperty("name", "c");
-          v3.save();
 
           v1.addStateFulEdge(v2);
           v2.addStateFulEdge(v3);
@@ -2275,15 +2269,12 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         () -> {
           var v1 = session.newVertex(clazz);
           v1.setProperty("name", "a");
-          v1.save();
 
           var v2 = session.newVertex(clazz);
           v2.setProperty("name", "b");
-          v2.save();
 
           var v3 = session.newVertex(clazz);
           v3.setProperty("name", "c");
-          v3.save();
 
           v1.addStateFulEdge(v2);
           v2.addStateFulEdge(v3);
@@ -2311,21 +2302,16 @@ public class MatchStatementExecutionNewTest extends DbTestBase {
         () -> {
           var v1 = session.newVertex(clazz);
           v1.setProperty("name", "a");
-          v1.save();
 
           var v2 = session.newVertex(clazz);
           v2.setProperty("name", "b");
-          v2.save();
 
           var v3 = session.newVertex(clazz);
           v3.setProperty("name", "c");
-          v3.save();
 
           v1.setProperty("next", v2);
           v2.setProperty("next", v3);
 
-          v1.save();
-          v2.save();
         });
 
     var query = "MATCH { class:" + clazz + ", as:a}.next{as:b, where:(name ='b')}";

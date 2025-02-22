@@ -26,7 +26,7 @@ public class TrackedSetTest extends DbTestBase {
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.ADD, "value1", "value1", null);
     trackedSet.add("value1");
-    Assert.assertEquals(event, trackedSet.getTimeLine().getMultiValueChangeEvents().get(0));
+    Assert.assertEquals(event, trackedSet.getTimeLine().getMultiValueChangeEvents().getFirst());
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
     session.rollback();
@@ -105,7 +105,7 @@ public class TrackedSetTest extends DbTestBase {
     var event =
         new MultiValueChangeEvent<Object, Object>(
             ChangeType.REMOVE, "value2", null, "value2");
-    Assert.assertEquals(trackedSet.getTimeLine().getMultiValueChangeEvents().get(0), event);
+    Assert.assertEquals(trackedSet.getTimeLine().getMultiValueChangeEvents().getFirst(), event);
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
     session.rollback();
@@ -171,19 +171,20 @@ public class TrackedSetTest extends DbTestBase {
 
     final List<MultiValueChangeEvent<String, String>> firedEvents = new ArrayList<>();
     firedEvents.add(
-        new MultiValueChangeEvent<String, String>(
+        new MultiValueChangeEvent<>(
             ChangeType.REMOVE, "value1", null, "value1"));
     firedEvents.add(
-        new MultiValueChangeEvent<String, String>(
+        new MultiValueChangeEvent<>(
             ChangeType.REMOVE, "value2", null, "value2"));
     firedEvents.add(
-        new MultiValueChangeEvent<String, String>(
+        new MultiValueChangeEvent<>(
             ChangeType.REMOVE, "value3", null, "value3"));
 
     trackedSet.enableTracking(doc);
     trackedSet.clear();
 
-    Assert.assertEquals(firedEvents, trackedSet.getTimeLine().getMultiValueChangeEvents());
+    Assert.assertEquals(new HashSet<>(firedEvents),
+        new HashSet<>(trackedSet.getTimeLine().getMultiValueChangeEvents()));
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
     session.rollback();
@@ -196,7 +197,8 @@ public class TrackedSetTest extends DbTestBase {
     RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final var trackedSet = new TrackedSet<String>(doc);
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") final var trackedSet = new TrackedSet<String>(
+        doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -244,7 +246,8 @@ public class TrackedSetTest extends DbTestBase {
   public void testStackOverflowOnRecursion() {
     session.begin();
     final var entity = (EntityImpl) session.newEmbededEntity();
-    final var trackedSet = new TrackedSet<EntityImpl>(entity);
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") final var trackedSet = new TrackedSet<EntityImpl>(
+        entity);
     trackedSet.add(entity);
     session.rollback();
   }

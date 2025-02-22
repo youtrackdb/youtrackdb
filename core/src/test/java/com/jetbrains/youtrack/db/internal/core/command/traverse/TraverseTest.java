@@ -64,7 +64,6 @@ public class TraverseTest extends DbTestBase {
     c3.setProperty("c3b", c3b, PropertyType.LINK);
     rootDocument.getOrCreateLinkList("c").addAll(new ArrayList<>(Arrays.asList(c1, c2, c3)));
 
-    rootDocument.save();
     session.commit();
 
     session.begin();

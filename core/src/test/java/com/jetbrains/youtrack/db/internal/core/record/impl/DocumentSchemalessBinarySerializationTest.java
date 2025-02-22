@@ -420,14 +420,14 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
       try (var session = (DatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         session.begin();
         var document = (EntityImpl) session.newEntity();
-        Set<RecordId> linkSet = new HashSet<>();
+        var linkSet = session.newLinkSet();
         linkSet.add(new RecordId(10, 20));
         linkSet.add(new RecordId(10, 21));
         linkSet.add(new RecordId(10, 22));
         linkSet.add(new RecordId(11, 22));
         document.field("linkSet", linkSet, PropertyType.LINKSET);
 
-        List<RecordId> linkList = new ArrayList<>();
+        var linkList = session.newLinkList();
         linkList.add(new RecordId(10, 20));
         linkList.add(new RecordId(10, 21));
         linkList.add(new RecordId(10, 22));
@@ -439,10 +439,8 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
             new String[]{});
 
         assertEquals(extr.fields(), document.fields());
-        assertEquals(
-            ((Set<?>) extr.field("linkSet")).size(), ((Set<?>) document.field("linkSet")).size());
         assertTrue(extr.getLinkSet("linkSet").containsAll(document.getLinkSet("linkSet")));
-        assertEquals(extr.getLinkSet("linkList"), document.getLinkSet("linkList"));
+        assertEquals(extr.getLinkList("linkList"), document.getLinkList("linkList"));
         session.rollback();
       }
       ctx.drop("test");

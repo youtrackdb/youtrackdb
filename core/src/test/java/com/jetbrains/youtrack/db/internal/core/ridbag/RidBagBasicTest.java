@@ -28,7 +28,6 @@ public class RidBagBasicTest extends DbTestBase {
       List<Object> valueList = new ArrayList<>();
       valueList.add(new RidBag(session));
       record.setProperty("emb", valueList);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a list");
     } catch (DatabaseException ex) {
       // this is expected
@@ -39,7 +38,6 @@ public class RidBagBasicTest extends DbTestBase {
       Set<Object> valueSet = new HashSet<>();
       valueSet.add(new RidBag(session));
       record.setProperty("emb", valueSet);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
@@ -50,7 +48,6 @@ public class RidBagBasicTest extends DbTestBase {
       Map<String, Object> valueSet = new HashMap<>();
       valueSet.put("key", new RidBag(session));
       record.setProperty("emb", valueSet);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
@@ -63,7 +60,6 @@ public class RidBagBasicTest extends DbTestBase {
       nested.setProperty("bag", new RidBag(session));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
@@ -76,7 +72,6 @@ public class RidBagBasicTest extends DbTestBase {
       nested.setProperty("bag", new RidBag(session));
       valueList.add(nested);
       record.setProperty("emb", valueList);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a list");
     } catch (DatabaseException ex) {
       // this is expected
@@ -89,7 +84,6 @@ public class RidBagBasicTest extends DbTestBase {
       nested.setProperty("bag", new RidBag(session));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected
@@ -100,7 +94,6 @@ public class RidBagBasicTest extends DbTestBase {
       var nested = session.newEntity();
       nested.setProperty("bag", new RidBag(session));
       record.setProperty("emb", nested);
-      session.save(record);
       fail("Should not be possible to save a ridbag in a set");
     } catch (DatabaseException ex) {
       // this is expected

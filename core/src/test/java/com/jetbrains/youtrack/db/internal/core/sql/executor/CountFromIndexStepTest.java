@@ -52,7 +52,7 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
       session.begin();
       var document = (EntityImpl) session.newEntity(className);
       document.field(PROPERTY_NAME, PROPERTY_VALUE);
-      document.save();
+
       session.commit();
     }
   }

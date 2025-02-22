@@ -93,7 +93,6 @@ public class ServerCommandPatchDocument extends ServerCommandDocumentAbstract {
                 currentEntity.merge(entity, partialUpdateMode, false);
                 RecordInternal.setVersion(currentEntity, entity.getVersion());
 
-                currentEntity.save();
                 return new RawPair<>(true, recordId);
               });
 

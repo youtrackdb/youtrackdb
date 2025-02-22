@@ -63,10 +63,8 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -75,7 +73,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
@@ -116,10 +114,9 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
+
     session.commit();
 
     try {
@@ -131,7 +128,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
       final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
       document.field("linkMap", map);
-      document.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -176,13 +173,10 @@ public class LinkMapIndexTest extends BaseDBTest {
     session.begin();
 
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> mapOne = new HashMap<>();
 
@@ -191,14 +185,12 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", mapOne);
-    document.save();
 
     final Map<String, RID> mapTwo = new HashMap<>();
     mapTwo.put("key2", docOne.getIdentity());
     mapTwo.put("key3", docThree.getIdentity());
 
     document.field("linkMap", mapTwo);
-    document.save();
 
     session.commit();
 
@@ -239,10 +231,8 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     try {
       final Map<String, RID> mapTwo = new HashMap<>();
@@ -252,7 +242,6 @@ public class LinkMapIndexTest extends BaseDBTest {
 
       final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
       document.field("linkMap", mapTwo);
-      document.save();
 
       session.commit();
     } catch (Exception e) {
@@ -297,13 +286,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> mapOne = new HashMap<>();
 
@@ -312,7 +298,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", mapOne);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -323,7 +309,7 @@ public class LinkMapIndexTest extends BaseDBTest {
     mapTwo.put("key2", docThree.getIdentity());
 
     document.field("linkMap", mapTwo);
-    document.save();
+
     session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
@@ -363,13 +349,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -378,7 +361,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -426,13 +409,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -441,14 +421,14 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       final EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").put("key3", docThree.getIdentity());
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -494,13 +474,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -509,13 +486,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
     final EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").put("key3", docThree.getIdentity());
-    loadedDocument.save();
+
     session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
@@ -555,13 +532,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -570,7 +544,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -617,13 +591,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -632,14 +603,14 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       final EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").put("key2", docThree.getIdentity());
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -684,13 +655,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -699,13 +667,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
     final EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").put("key2", docThree.getIdentity());
-    loadedDocument.save();
+
     session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
@@ -745,13 +713,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -761,7 +726,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -805,13 +770,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -821,14 +783,14 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       final EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<Map<String, RID>>field("linkMap").remove("key2");
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -872,13 +834,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -888,13 +847,13 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
     final EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<Map<String, RID>>field("linkMap").remove("key2");
-    loadedDocument.save();
+
     session.rollback();
 
     final var keyIndexMap = getIndex("mapIndexTestKey");
@@ -935,13 +894,10 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -950,7 +906,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -969,10 +925,8 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -981,7 +935,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     try {
@@ -1005,10 +959,8 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -1017,7 +969,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     final var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -1060,10 +1012,8 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     Map<String, RID> map = new HashMap<>();
 
@@ -1072,7 +1022,7 @@ public class LinkMapIndexTest extends BaseDBTest {
 
     var document = ((EntityImpl) session.newEntity("LinkMapIndexTestClass"));
     document.field("linkMap", map);
-    document.save();
+
     session.commit();
 
     final List<EntityImpl> resultByKey =

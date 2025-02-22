@@ -21,7 +21,6 @@ public class TestSqlEmbeddedResult extends DbTestBase {
     docs.add(doc1);
     doc.setProperty("rel", docs);
     // doc
-    session.save(doc);
     session.commit();
 
     var res =

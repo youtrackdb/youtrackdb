@@ -240,7 +240,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
           final var embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(session, value);
           if (embeddedObject instanceof EntityImpl) {
-            ((EntityImpl) embeddedObject).addOwner(iSourceRecord);
+            ((EntityImpl) embeddedObject).setOwner(iSourceRecord);
           }
 
           // RECORD
@@ -327,7 +327,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             mapValueObject = fieldTypeFromStream(session, iSourceDocument, linkedType, mapValue);
 
             if (mapValueObject != null && mapValueObject instanceof EntityImpl) {
-              ((EntityImpl) mapValueObject).addOwner(iSourceDocument);
+              ((EntityImpl) mapValueObject).setOwner(iSourceDocument);
             }
           } else {
             mapValueObject = null;
@@ -433,11 +433,11 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           }
 
           iRecord.field(iName, coll);
-          it = coll.rawIterator();
+          it = coll.iterator();
         } else {
           // LAZY LIST
           coll = (LinkList) iValue;
-          it = coll.rawIterator();
+          it = coll.iterator();
         }
 
         if (it != null && it.hasNext()) {
@@ -453,10 +453,6 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             if (newRid != null) {
               ((LazyIterator<Identifiable>) it).update(newRid);
             }
-          }
-
-          if (coll != null) {
-            coll.convertRecords2Links();
           }
 
           iOutput.append(buffer.toString());
@@ -762,7 +758,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       if (objectToAdd != null
           && objectToAdd instanceof EntityImpl
           && coll instanceof RecordElement) {
-        ((EntityImpl) objectToAdd).addOwner((RecordElement) coll);
+        ((EntityImpl) objectToAdd).setOwner((RecordElement) coll);
       }
 
       ((Collection<Object>) coll).add(objectToAdd);
@@ -905,7 +901,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         } else {
           final var entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
-            ((EntityImpl) entity).addOwner(iSourceRecord);
+            ((EntityImpl) entity).setOwner(iSourceRecord);
           }
 
           coll.add(entity);
@@ -929,7 +925,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         } else {
           final var entity = fromString(db, item);
           if (entity instanceof EntityImpl) {
-            ((EntityImpl) entity).addOwner(iSourceRecord);
+            ((EntityImpl) entity).setOwner(iSourceRecord);
           }
 
           coll.add(entity);

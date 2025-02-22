@@ -128,8 +128,6 @@ public class CRUDInheritanceTest extends BaseDBTest {
     var b = session.newInstance("InheritanceTestClass");
 
     session.begin();
-    session.save(a);
-    session.save(b);
     session.commit();
 
     var resultSet = executeQuery("select from InheritanceTestBaseClass");

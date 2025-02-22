@@ -3,15 +3,11 @@ package com.jetbrains.youtrack.db.internal.core.db.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.record.Vertex;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +36,6 @@ public class LightWeightEdgesTest {
     v.addLightWeightEdge(v1, "Edge");
     v.setProperty("name", "aName");
     v1.setProperty("name", "bName");
-    session.save(v);
     session.commit();
 
     try (var res =
@@ -72,10 +67,8 @@ public class LightWeightEdgesTest {
     session.begin();
     var v = session.newVertex(vClass);
     v.setProperty("name", "a");
-    v.save();
     var v1 = session.newVertex(vClass);
     v1.setProperty("name", "b");
-    v1.save();
     session.commit();
 
     session.begin();

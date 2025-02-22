@@ -47,7 +47,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   public void openDb() {
     session.begin();
     account = ((EntityImpl) session.newEntity("Account"));
-    account.save();
+
     account.field("id", "1234567890");
     session.commit();
   }
@@ -58,7 +58,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     try {
       var entity = ((EntityImpl) session.newEntity("MyTestClass"));
       session.begin();
-      entity.save();
+
       session.commit();
       Assert.fail();
     } catch (ValidationException ignored) {
@@ -70,7 +70,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     try {
       var doc = ((EntityImpl) session.newEntity("MyTestClass"));
       session.begin();
-      doc.save();
+
       session.commit();
 
       session.begin();
@@ -90,7 +90,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     session.begin();
     record = session.newInstance("Whiz");
     record.clear();
-    record.save();
+
     session.commit();
   }
 
@@ -102,7 +102,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     record.field("account", account);
     record.field("id", 23723);
     record.field("text", "");
-    record.save();
+
     session.commit();
   }
 
@@ -120,7 +120,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
         "text",
         "clfdkkjsd hfsdkjhf fjdkghjkfdhgjdfh gfdgjfdkhgfd skdjaksdjf skdjf sdkjfsd jfkldjfkjsdf"
             + " kljdk fsdjf kldjgjdhjg khfdjgk hfjdg hjdfhgjkfhdgj kfhdjghrjg");
-    record.save();
+
     session.commit();
   }
 
@@ -135,7 +135,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     record.field("account", account);
     record.field("date", new SimpleDateFormat("dd/MM/yyyy").parse("01/33/1976"));
     record.field("text", "test");
-    record.save();
+
     session.commit();
   }
 
@@ -144,7 +144,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     session.begin();
     record = session.newInstance("Whiz");
     record.field("account", session.geCurrentUser());
-    record.save();
+
     session.commit();
   }
 
@@ -156,7 +156,7 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity("StrictTest"));
     doc.field("id", 122112);
     doc.field("antani", "122112");
-    doc.save();
+
     session.commit();
   }
 
@@ -211,7 +211,6 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
-    readDoc.save();
     session.commit();
   }
 
@@ -219,10 +218,10 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   public void validationMandatoryNullableCloseDb() {
     var doc = ((EntityImpl) session.newEntity("MyTestClass"));
     doc.field("keyField", "K2");
-    doc.field("dateTimeField", (Date) null);
-    doc.field("stringField", (String) null);
+    doc.field("dateTimeField", null);
+    doc.field("stringField", null);
     session.begin();
-    doc.save();
+
     session.commit();
 
     session.close();
@@ -235,7 +234,6 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
-    readDoc.save();
     session.commit();
   }
 
@@ -243,11 +241,11 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   public void validationMandatoryNullableNoCloseDb() {
     var doc = ((EntityImpl) session.newEntity("MyTestClass"));
     doc.field("keyField", "K3");
-    doc.field("dateTimeField", (Date) null);
-    doc.field("stringField", (String) null);
+    doc.field("dateTimeField", null);
+    doc.field("stringField", null);
 
     session.begin();
-    doc.save();
+
     session.commit();
 
     session.begin();
@@ -257,7 +255,6 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
     var readDoc = result.getFirst().asEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
-    readDoc.save();
     session.commit();
   }
 
@@ -270,8 +267,8 @@ public class CRUDDocumentValidationTest extends BaseDBTest {
   @Test
   public void testNullComparison() {
     // given
-    var doc1 = ((EntityImpl) session.newEntity()).field("testField", (Object) null);
-    var doc2 = ((EntityImpl) session.newEntity()).field("testField", (Object) null);
+    var doc1 = ((EntityImpl) session.newEntity()).field("testField", null);
+    var doc2 = ((EntityImpl) session.newEntity()).field("testField", null);
 
     var context = new BasicCommandContext();
     context.setDatabaseSession(session);

@@ -106,7 +106,8 @@ public class AutomaticBackupTest {
 
     db.createClass("TestBackup");
     db.begin();
-    ((EntityImpl) db.newEntity("TestBackup")).field("name", DBNAME).save();
+    ((EntityImpl) db.newEntity("TestBackup")).field("name", DBNAME);
+
     db.commit();
   }
 

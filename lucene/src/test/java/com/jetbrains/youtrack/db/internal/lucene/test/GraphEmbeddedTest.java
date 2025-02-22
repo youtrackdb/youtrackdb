@@ -50,11 +50,9 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     session.begin();
     var city = session.newVertex("City");
     city.setProperty("name", "London / a");
-    session.save(city);
 
     city = session.newVertex("City");
     city.setProperty("name", "Rome");
-    session.save(city);
     session.commit();
 
     session.begin();
@@ -81,13 +79,11 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     one.setProperty("name", "Same");
 
     session.begin();
-    session.save(one);
     session.commit();
 
     var two = session.newVertex(twoClass);
     two.setProperty("name", "Same");
     session.begin();
-    session.save(two);
     session.commit();
 
     var resultSet = session.query("SELECT from One where name = 'Same' ");

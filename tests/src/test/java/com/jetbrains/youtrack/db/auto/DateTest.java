@@ -44,12 +44,11 @@ public class DateTest extends BaseDBTest {
     var doc1 = ((EntityImpl) session.newEntity("Order"));
     doc1.field("context", "test");
     doc1.field("date", new Date());
-    doc1.save();
 
     var doc2 = ((EntityImpl) session.newEntity("Order"));
     doc2.field("context", "test");
     doc2.field("date", System.currentTimeMillis());
-    doc2.save();
+
     session.commit();
 
     session.begin();
@@ -74,7 +73,7 @@ public class DateTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity("Order"));
     doc.field("context", "testPrecision");
     doc.field("date", DateHelper.now(), PropertyType.DATETIME);
-    doc.save();
+
     session.commit();
 
     var result =

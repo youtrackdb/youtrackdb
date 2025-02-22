@@ -103,8 +103,8 @@ public class SecurityTest extends BaseDBTest {
               "lastAccessOn",
               new Date(),
               "registeredOn",
-              new Date())
-          .save();
+              new Date());
+
       session.commit();
     } catch (SecurityAccessException e) {
       Assert.assertTrue(true);

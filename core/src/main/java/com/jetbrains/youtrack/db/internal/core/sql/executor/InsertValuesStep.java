@@ -4,6 +4,7 @@ import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ResultMapper;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
@@ -61,10 +62,18 @@ public class InsertValuesStep extends AbstractExecutionStep {
             for (var i = 0; i < currentValues.size(); i++) {
               var identifier = identifiers.get(i);
               var value = currentValues.get(i).execute(result, ctx);
-              value =
-                  SQLUpdateItem.convertToPropertyType(
-                      (ResultInternal) result, identifier, value, ctx);
-              ((ResultInternal) result).setProperty(identifier.getStringValue(), value);
+              var propertyName = identifier.getStringValue();
+
+              if (result.isEntity()) {
+                var entity = (EntityImpl) result.castToEntity();
+                var session = ctx.getDatabaseSession();
+                var schema = entity.getImmutableSchemaClass(session);
+                var schemaProperty =
+                    schema != null ? schema.getProperty(session, propertyName) : null;
+                value = SQLUpdateItem.cleanValue(value, session, schemaProperty);
+              }
+
+              ((ResultInternal) result).setProperty(propertyName, value);
             }
             return result;
           }

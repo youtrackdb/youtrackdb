@@ -1582,7 +1582,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
       return;
     }
 
-    session.executeInTx(entity::save);
+    session.executeInTx(() -> {
+
+    });
   }
 
   protected static EntityImpl doRewriteLinksInDocument(

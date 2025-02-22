@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.testng.Assert;
@@ -70,7 +69,7 @@ public class MultipleDBTest extends BaseDBTest {
                 dummy.setProperty("name", "name" + j);
 
                 db.begin();
-                dummy = db.save(dummy);
+                dummy = dummy;
                 db.commit();
 
                 Assert.assertEquals(
@@ -148,7 +147,7 @@ public class MultipleDBTest extends BaseDBTest {
                 dummy.field("name", "name" + j);
 
                 db.begin();
-                dummy = db.save(dummy);
+                dummy = dummy;
                 db.commit();
 
                 Assert.assertEquals(

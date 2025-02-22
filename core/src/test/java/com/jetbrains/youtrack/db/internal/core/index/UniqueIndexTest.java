@@ -42,15 +42,11 @@ public class UniqueIndexTest extends DbTestBase {
     firstEntity.addLightWeightEdge(thirdEntity, linkClass);
     secondEntity.addLightWeightEdge(thirdEntity, linkClass);
 
-    firstEntity.save();
-    secondEntity.save();
-
     session.commit();
 
     session.begin();
     secondEntity = session.bindToSession(secondEntity);
     secondEntity.setProperty("type", "type1");
-    secondEntity.save();
     try {
       session.commit();
       Assert.fail();
@@ -84,8 +80,6 @@ public class UniqueIndexTest extends DbTestBase {
     firstEntity.addLightWeightEdge(thirdEntity, linkClass);
     secondEntity.addLightWeightEdge(thirdEntity, linkClass);
 
-    firstEntity.save();
-    secondEntity.save();
     session.commit();
   }
 
@@ -113,8 +107,6 @@ public class UniqueIndexTest extends DbTestBase {
 
     firstEntity.addLightWeightEdge(thirdEntity, linkClass);
 
-    firstEntity.save();
-    secondEntity.save();
     session.commit();
   }
 
@@ -128,22 +120,19 @@ public class UniqueIndexTest extends DbTestBase {
     session.begin();
     var john = (EntityImpl) session.newEntity("User");
     john.field("MailAddress", "john@doe.com");
-    session.save(john);
     session.commit();
 
     session.begin();
     var jane = (EntityImpl) session.newEntity("User");
     jane.field("MailAddress", "jane@doe.com");
     var id = jane;
-    jane.save();
-    session.save(jane);
+
     session.commit();
 
     try {
       session.begin();
       EntityImpl toUp = session.load(id.getIdentity());
       toUp.field("MailAddress", "john@doe.com");
-      session.save(toUp);
       session.commit();
       Assert.fail("Expected record duplicate exception");
     } catch (RecordDuplicatedException ex) {
@@ -163,7 +152,7 @@ public class UniqueIndexTest extends DbTestBase {
     session.begin();
     var jane = (EntityImpl) session.newEntity("User");
     jane.field("MailAddress", "jane@doe.com");
-    jane.save();
+
     session.commit();
 
     final RID rid = jane.getIdentity();
@@ -183,7 +172,6 @@ public class UniqueIndexTest extends DbTestBase {
       var toUp = (EntityImpl) session.newEntity("User");
       toUp.field("MailAddress", "john@doe.com");
 
-      session.save(toUp);
       session.commit();
 
       Assert.fail("Expected record duplicate exception");

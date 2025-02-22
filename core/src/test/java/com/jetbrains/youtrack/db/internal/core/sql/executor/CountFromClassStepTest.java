@@ -19,7 +19,7 @@ public class CountFromClassStepTest extends TestUtilsFixture {
     for (var i = 0; i < 20; i++) {
       session.begin();
       var document = (EntityImpl) session.newEntity(className);
-      document.save();
+
       session.commit();
     }
 

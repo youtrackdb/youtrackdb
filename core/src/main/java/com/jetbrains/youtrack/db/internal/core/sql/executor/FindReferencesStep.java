@@ -9,7 +9,6 @@ import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -179,15 +177,9 @@ public class FindReferencesStep extends AbstractExecutionStep {
       final Map<?, ?> values,
       final DBRecord iRootObject,
       String prefix) {
-    final Iterator<?> it;
-    if (values instanceof LinkMap) {
-      it = ((LinkMap) values).rawIterator();
-    } else {
-      it = values.values().iterator();
-    }
     List<String> result = new ArrayList<>();
-    while (it.hasNext()) {
-      result.addAll(checkObject(db, iSourceRIDs, it.next(), iRootObject, prefix));
+    for (var o : values.values()) {
+      result.addAll(checkObject(db, iSourceRIDs, o, iRootObject, prefix));
     }
     return result;
   }

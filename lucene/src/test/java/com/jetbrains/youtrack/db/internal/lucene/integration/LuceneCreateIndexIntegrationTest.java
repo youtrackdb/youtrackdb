@@ -38,7 +38,6 @@ public class LuceneCreateIndexIntegrationTest {
     doc.setProperty("name", "Jon");
     doc.setProperty("surname", "Snow");
     session.begin();
-    session.save(doc);
     session.commit();
     session.close();
   }

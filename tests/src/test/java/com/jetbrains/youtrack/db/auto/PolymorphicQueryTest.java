@@ -125,11 +125,10 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
       final var doc1 = ((EntityImpl) session.newEntity("IndexInSubclassesTestChild1"));
       doc1.field("name", "name" + i);
-      doc1.save();
 
       final var doc2 = ((EntityImpl) session.newEntity("IndexInSubclassesTestChild2"));
       doc2.field("name", "name" + i);
-      doc2.save();
+
       if (i % 100 == 0) {
         session.commit();
       }
@@ -192,15 +191,13 @@ public class PolymorphicQueryTest extends BaseDBTest {
     for (var i = 0; i < 10000; i++) {
       final var doc0 = ((EntityImpl) session.newEntity("IndexInSubclassesTestBase"));
       doc0.field("name", "name" + i);
-      doc0.save();
 
       final var doc1 = ((EntityImpl) session.newEntity("IndexInSubclassesTestChild1"));
       doc1.field("name", "name" + i);
-      doc1.save();
 
       final var doc2 = ((EntityImpl) session.newEntity("IndexInSubclassesTestChild2"));
       doc2.field("name", "name" + i);
-      doc2.save();
+
       if (i % 100 == 0) {
         session.commit();
       }
@@ -253,11 +250,10 @@ public class PolymorphicQueryTest extends BaseDBTest {
 
       final var doc1 = ((EntityImpl) session.newEntity("IndexInSubclassesTestChild1Fail"));
       doc1.field("name", "name" + i);
-      doc1.save();
 
       final var doc2 = ((EntityImpl) session.newEntity("IndexInSubclassesTestChild2Fail"));
       doc2.field("name", "name" + i);
-      doc2.save();
+
       if (i % 100 == 0) {
         session.commit();
       }
@@ -302,7 +298,7 @@ public class PolymorphicQueryTest extends BaseDBTest {
       final var doc1 = ((EntityImpl) session.newEntity("GenericCrash"));
       session.begin();
       doc1.field("name", "foo");
-      doc1.save();
+
     }
 
     // crashed with YTIOException, issue #3632

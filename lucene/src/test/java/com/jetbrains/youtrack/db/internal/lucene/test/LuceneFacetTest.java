@@ -50,7 +50,6 @@ public class LuceneFacetTest extends BaseLuceneTest {
     doc.field("category", "Electronic/HiFi");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     doc = ((EntityImpl) session.newEntity("Item"));
@@ -58,7 +57,6 @@ public class LuceneFacetTest extends BaseLuceneTest {
     doc.field("category", "Electronic/HiFi");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     doc = ((EntityImpl) session.newEntity("Item"));
@@ -66,7 +64,6 @@ public class LuceneFacetTest extends BaseLuceneTest {
     doc.field("category", "Electronic/HiFi");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     doc = ((EntityImpl) session.newEntity("Item"));
@@ -74,7 +71,6 @@ public class LuceneFacetTest extends BaseLuceneTest {
     doc.field("category", "Electronic/Computer");
 
     session.begin();
-    session.save(doc);
     session.commit();
   }
 

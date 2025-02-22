@@ -78,7 +78,7 @@ public class FunctionsTest extends BaseDBTest {
     session.begin();
     EntityImpl func = f.getRecord(session);
     func.field("code", "return 2;");
-    func.save();
+
     session.commit();
 
     try (var res2 = session.command("select testCache() as testCache")) {

@@ -8,23 +8,23 @@ import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class SQLUpdateItem extends SimpleNode {
 
@@ -45,6 +45,36 @@ public class SQLUpdateItem extends SimpleNode {
 
   public SQLUpdateItem(YouTrackDBSql p, int id) {
     super(p, id);
+  }
+
+  public static EntityImpl newEntityInstance(CommandContext ctx, String className,
+      DatabaseSessionInternal session) {
+    List<SchemaProperty> updatedPropertyStack = ctx.getSystemVariable(
+        CommandContext.SQL_UPDATED_PROPERTY_STACK_SYSTEM_VARIABLE);
+    var isEmbedded = false;
+
+    if (updatedPropertyStack != null && !updatedPropertyStack.isEmpty()) {
+      var currentPropertyType = updatedPropertyStack.getLast();
+      if (currentPropertyType != null) {
+        isEmbedded = currentPropertyType.getType(session).isEmbedded();
+      }
+    }
+
+    EntityImpl retDoc;
+    if (className != null) {
+      if (!isEmbedded) {
+        retDoc = (EntityImpl) session.newEntity(className);
+      } else {
+        retDoc = (EntityImpl) session.newEmbededEntity(className);
+      }
+    } else {
+      if (!isEmbedded) {
+        retDoc = (EntityImpl) session.newEntity();
+      } else {
+        retDoc = (EntityImpl) session.newEmbededEntity();
+      }
+    }
+    return retDoc;
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
@@ -138,20 +168,44 @@ public class SQLUpdateItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(ResultInternal entity, CommandContext ctx) {
+  public void applyUpdate(ResultInternal result, CommandContext ctx) {
     var session = ctx.getDatabaseSession();
-    var rightValue = right.execute(entity, ctx);
-    var linkedType = calculateLinkedTypeForThisItem(entity, session);
-    if (leftModifier == null) {
-      applyOperation(entity, left, rightValue, ctx);
+    var propertyName = left.getStringValue();
+
+    List<SchemaProperty> updatedPropertyStack = ctx.getSystemVariable(
+        CommandContext.SQL_UPDATED_PROPERTY_STACK_SYSTEM_VARIABLE);
+    if (updatedPropertyStack == null) {
+      updatedPropertyStack = new ArrayList<>();
+      ctx.setSystemVariable(CommandContext.SQL_UPDATED_PROPERTY_STACK_SYSTEM_VARIABLE,
+          updatedPropertyStack);
+    }
+
+    SchemaProperty schemaProperty = null;
+    if (result.isEntity()) {
+      var entity = (EntityInternal) result.castToEntity();
+      var cls = entity.getImmutableSchemaClass(session);
+      schemaProperty = cls != null ? cls.getProperty(session, propertyName) : null;
+      updatedPropertyStack.add(schemaProperty);
     } else {
-      var propertyName = left.getStringValue();
-      rightValue = convertToType(rightValue, null, linkedType, ctx);
-      var val = entity.getProperty(propertyName);
-      if (val == null) {
-        val = initSchemafullCollections(session, entity, propertyName);
+      updatedPropertyStack.add(null);
+    }
+
+    try {
+      if (leftModifier == null) {
+        var rightValue = right.execute(result, ctx);
+        applyOperation(result, left, rightValue, ctx, schemaProperty);
+      } else {
+        var rightValue = right.execute(result, ctx);
+        var linkedType = calculateLinkedTypeForThisItem(result, session);
+        rightValue = convertToType(rightValue, null, linkedType, ctx);
+        var val = result.getProperty(propertyName);
+        if (val == null) {
+          val = initSchemafullCollections(session, result, propertyName);
+        }
+        leftModifier.setValue(result, val, rightValue, ctx, schemaProperty);
       }
-      leftModifier.setValue(entity, val, rightValue, ctx);
+    } finally {
+      updatedPropertyStack.removeLast();
     }
   }
 
@@ -169,21 +223,21 @@ public class SQLUpdateItem extends SimpleNode {
     Object result = null;
     if (prop == null) {
       if (leftModifier.isArraySingleValue()) {
-        result = new HashMap<>();
+        result = session.newEmbeddedMap();
         entity.setProperty(propName, result);
       }
     } else {
       if (prop.getType(session) == PropertyType.EMBEDDEDMAP
           || prop.getType(session) == PropertyType.LINKMAP) {
-        result = new HashMap<>();
+        result = session.newLinkMap();
         entity.setProperty(propName, result);
       } else if (prop.getType(session) == PropertyType.EMBEDDEDLIST
           || prop.getType(session) == PropertyType.LINKLIST) {
-        result = new ArrayList<>();
+        result = session.newEmbeddedList();
         entity.setProperty(propName, result);
       } else if (prop.getType(session) == PropertyType.EMBEDDEDSET
           || prop.getType(session) == PropertyType.LINKSET) {
-        result = new HashSet<>();
+        result = session.newEmbeddedSet();
         entity.setProperty(propName, result);
       }
     }
@@ -201,14 +255,16 @@ public class SQLUpdateItem extends SimpleNode {
     return null;
   }
 
-  public void applyOperation(
-      ResultInternal entity, SQLIdentifier attrName, Object rightValue, CommandContext ctx) {
-
+  private void applyOperation(
+      ResultInternal entity, SQLIdentifier attrName, Object rightValue, CommandContext ctx,
+      @Nullable SchemaProperty schemaProperty) {
+    var session = ctx.getDatabaseSession();
     switch (operator) {
       case OPERATOR_EQ:
         var newValue = convertResultToDocument(rightValue);
         newValue = convertToPropertyType(entity, attrName, newValue, ctx);
-        entity.setProperty(attrName.getStringValue(), cleanValue(newValue));
+        entity.setProperty(attrName.getStringValue(),
+            cleanValue(newValue, session, schemaProperty));
         break;
       case OPERATOR_MINUSASSIGN:
         entity.setProperty(
@@ -233,16 +289,18 @@ public class SQLUpdateItem extends SimpleNode {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public static Object cleanValue(Object newValue) {
-    if (newValue instanceof Iterator) {
-      List<Object> value = new ArrayList<Object>();
-      while (((Iterator<Object>) newValue).hasNext()) {
-        value.add(((Iterator<Object>) newValue).next());
-      }
-      return value;
+  public static Object cleanValue(Object newValue, DatabaseSessionInternal session,
+      @Nullable SchemaProperty schemaProperty) {
+    var type = schemaProperty != null ? schemaProperty.getType(session) : null;
+    if (type == null) {
+      type = PropertyType.getTypeByValue(newValue);
     }
-    return newValue;
+
+    if (type != null) {
+      return PropertyType.convert(session, newValue, type.getDefaultJavaType());
+    }
+
+    throw new IllegalStateException("Unexpected value: " + newValue);
   }
 
   public static Object convertToPropertyType(
@@ -265,7 +323,6 @@ public class SQLUpdateItem extends SimpleNode {
     return convertToType(newValue, type, linkedClass, ctx);
   }
 
-  @SuppressWarnings("unchecked")
   private static Object convertToType(
       Object value, PropertyType type, SchemaClass linkedClass, CommandContext ctx) {
     if (type == null) {

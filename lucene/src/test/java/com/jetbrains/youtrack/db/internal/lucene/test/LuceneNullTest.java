@@ -20,13 +20,11 @@ public class LuceneNullTest extends BaseLuceneTest {
 
     session.begin();
     var doc = ((EntityImpl) session.newEntity("Test"));
-    session.save(doc);
     session.commit();
 
     session.begin();
     doc = session.bindToSession(doc);
     doc.field("names", new String[]{"foo"});
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -46,7 +44,6 @@ public class LuceneNullTest extends BaseLuceneTest {
 
     session.begin();
     doc.field("names", new String[]{"foo"});
-    session.save(doc);
     session.commit();
 
     session.begin();
@@ -54,7 +51,6 @@ public class LuceneNullTest extends BaseLuceneTest {
     doc = session.bindToSession(doc);
     doc.removeField("names");
 
-    session.save(doc);
     session.commit();
 
     session.begin();

@@ -14,14 +14,14 @@ public final class RidBagConverter extends AbstractCollectionConverter<RidBag> {
   }
 
   @Override
-  public RidBag convert(DatabaseSessionInternal db, RidBag value) {
-    final var result = new RidBag(db);
+  public RidBag convert(DatabaseSessionInternal session, RidBag value) {
+    final var result = new RidBag(session);
     var updated = false;
     final ResultCallback callback =
         item -> result.add(((Identifiable) item).getIdentity());
 
     for (Identifiable identifiable : value) {
-      updated = convertSingleValue(db, identifiable, callback, updated);
+      updated = convertSingleValue(session, identifiable, callback, updated);
     }
 
     if (updated) {

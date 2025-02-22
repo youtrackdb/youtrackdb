@@ -156,19 +156,20 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal, Stateful
   }
 
   @Override
-  public void setProperty(@Nonnull String fieldName, @Nullable Object propertyValue) {
+  public void setProperty(@Nonnull String propertyName, @Nullable Object propertyValue) {
     checkForBinding();
-    EdgeInternal.checkPropertyName(fieldName);
+    EdgeInternal.checkPropertyName(propertyName);
 
-    super.setProperty(fieldName, propertyValue);
+    super.setProperty(propertyName, propertyValue);
   }
 
   @Override
-  public void setProperty(@Nonnull String name, Object propertyValue, @Nonnull PropertyType type) {
+  public void setProperty(@Nonnull String propertyName, Object propertyValue,
+      @Nonnull PropertyType type) {
     checkForBinding();
-    EdgeInternal.checkPropertyName(name);
+    EdgeInternal.checkPropertyName(propertyName);
 
-    super.setProperty(name, propertyValue, type);
+    super.setProperty(propertyName, propertyValue, type);
   }
 
   @Override

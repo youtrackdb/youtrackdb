@@ -5,6 +5,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.api.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.api.query.Result;
 import com.jetbrains.youtrack.db.api.record.Identifiable;
+import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 public class SQLModifier extends SimpleNode {
 
@@ -311,21 +313,21 @@ public class SQLModifier extends SimpleNode {
   }
 
   protected void setValue(Result currentRecord, Object target, Object value,
-      CommandContext ctx) {
+      CommandContext ctx, @Nullable SchemaProperty schemaProperty) {
     if (next == null) {
-      doSetValue(currentRecord, target, value, ctx);
+      doSetValue(currentRecord, target, value, ctx, schemaProperty);
     } else {
       var newTarget = calculateLocal(currentRecord, target, ctx);
       if (newTarget != null) {
-        next.setValue(currentRecord, newTarget, value, ctx);
+        next.setValue(currentRecord, newTarget, value, ctx, schemaProperty);
       }
     }
   }
 
   private void doSetValue(Result currentRecord, Object target, Object value,
-      CommandContext ctx) {
+      CommandContext ctx, @Nullable SchemaProperty schemaProperty) {
     value = SQLUpdateItem.convertResultToDocument(value);
-    value = SQLUpdateItem.cleanValue(value);
+    value = SQLUpdateItem.cleanValue(value, ctx.getDatabaseSession(), schemaProperty);
     if (methodCall != null) {
       // do nothing
     } else if (suffix != null) {

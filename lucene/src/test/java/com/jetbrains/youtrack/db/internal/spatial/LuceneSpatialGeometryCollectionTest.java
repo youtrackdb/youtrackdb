@@ -55,7 +55,7 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
     test1.field("geometry", geometry);
 
     session.begin();
-    test1.save();
+
     session.commit();
 
     var execute =
@@ -86,7 +86,6 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
                 Arrays.asList(0.0, 0.0))));
     geometry.field("geometries", Arrays.asList(point, polygon));
     test1.field("geometry", geometry);
-    test1.save();
 
     session.commit();
 

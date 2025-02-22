@@ -23,11 +23,17 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
-import java.io.Serial;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -35,17 +41,21 @@ import javax.annotation.Nullable;
  * Implementation of ArrayList bound to a source Record object to keep track of changes for literal
  * types. This avoids to call the makeDirty() by hand when the list is changed.
  */
-public class TrackedList<T> extends ArrayList<T>
+public class TrackedList<T> extends AbstractList<T>
     implements RecordElement, TrackedMultiValue<Integer, T>, Serializable {
 
   @Nullable
-  protected RecordElement sourceRecord;
+  protected WeakReference<RecordElement> sourceRecord;
   protected Class<?> genericClass;
 
   private final boolean embeddedCollection;
   private boolean dirty = false;
   private boolean transactionDirty = false;
+
   private final SimpleMultiValueTracker<Integer, T> tracker = new SimpleMultiValueTracker<>(this);
+
+  @Nonnull
+  private final ArrayList<T> list;
 
   public TrackedList(
       @Nonnull final RecordElement iRecord,
@@ -60,22 +70,26 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   public TrackedList(@Nonnull final RecordElement iSourceRecord) {
-    this.sourceRecord = iSourceRecord;
+    this.list = new ArrayList<>();
+    this.sourceRecord = new WeakReference<>(iSourceRecord);
     embeddedCollection = this.getClass().equals(TrackedList.class);
   }
 
   public TrackedList() {
+    this.list = new ArrayList<>();
     embeddedCollection = this.getClass().equals(TrackedList.class);
+    tracker.enable();
   }
 
   public TrackedList(int size) {
-    super(size);
+    this.list = new ArrayList<>(size);
     embeddedCollection = this.getClass().equals(TrackedList.class);
+    tracker.enable();
   }
 
   @Override
   public void setOwner(RecordElement owner) {
-    this.sourceRecord = owner;
+    this.sourceRecord = new WeakReference<>(owner);
   }
 
   @Override
@@ -85,24 +99,37 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public RecordElement getOwner() {
-    return sourceRecord;
+    if (sourceRecord == null) {
+      return null;
+    }
+    return sourceRecord.get();
   }
 
   @Override
   public boolean add(T element) {
     checkValue(element);
-    final var result = super.add(element);
+    final var result = list.add(element);
 
     if (result) {
-      addEvent(super.size() - 1, element);
+      addEvent(list.size() - 1, element);
     }
 
     return result;
   }
 
+  @Override
+  public T get(int index) {
+    return list.get(index);
+  }
+
+  @Override
+  public int size() {
+    return list.size();
+  }
+
   public boolean addInternal(T element) {
     checkValue(element);
-    final var result = super.add(element);
+    final var result = list.add(element);
 
     if (result) {
       addOwner(element);
@@ -112,23 +139,15 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   @Override
-  public boolean addAll(final Collection<? extends T> c) {
-    for (var o : c) {
-      add(o);
-    }
-    return true;
-  }
-
-  @Override
   public void add(int index, T element) {
     checkValue(element);
-    super.add(index, element);
+    list.add(index, element);
     addEvent(index, element);
   }
 
   public void setInternal(int index, T element) {
     checkValue(element);
-    final var oldValue = super.set(index, element);
+    final var oldValue = list.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
       if (oldValue instanceof EntityImpl) {
@@ -142,7 +161,7 @@ public class TrackedList<T> extends ArrayList<T>
   @Override
   public T set(int index, T element) {
     checkValue(element);
-    final var oldValue = super.set(index, element);
+    final var oldValue = list.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
       updateEvent(index, oldValue, element);
@@ -151,32 +170,10 @@ public class TrackedList<T> extends ArrayList<T>
     return oldValue;
   }
 
-  private void addOwner(T e) {
-    if (embeddedCollection) {
-      if (e instanceof EntityImpl entity) {
-        var rid = entity.getIdentity();
-
-        if (!rid.isValid() || rid.isNew()) {
-          ((EntityImpl) e).addOwner(this);
-        }
-      }
-    } else if (e instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
-      trackedMultiValue.setOwner(this);
-    }
-  }
-
-  private void removeOwner(T oldValue) {
-    if (oldValue instanceof TrackedMultiValue<?, ?> trackedMultiValue) {
-      trackedMultiValue.setOwner(null);
-    } else if (oldValue instanceof EntityImpl entity) {
-      entity.removeOwner(this);
-    }
-  }
-
 
   @Override
   public T remove(int index) {
-    final var oldValue = super.remove(index);
+    final var oldValue = list.remove(index);
     removeEvent(index, oldValue);
     return oldValue;
   }
@@ -238,17 +235,14 @@ public class TrackedList<T> extends ArrayList<T>
       final var origValue = this.get(i);
       removeEvent(i, origValue);
     }
-    super.clear();
-  }
-
-  public void reset() {
-    super.clear();
+    list.clear();
   }
 
   public void setDirty() {
     this.dirty = true;
     this.transactionDirty = true;
 
+    var sourceRecord = getOwner();
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof RecordAbstract)
           || !((RecordAbstract) sourceRecord).isDirty()) {
@@ -259,6 +253,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   @Override
   public void setDirtyNoChanged() {
+    var sourceRecord = getOwner();
     if (sourceRecord != null) {
       sourceRecord.setDirtyNoChanged();
     }
@@ -296,23 +291,15 @@ public class TrackedList<T> extends ArrayList<T>
     return genericClass;
   }
 
-  @Serial
-  private Object writeReplace() {
-    return new ArrayList<>(this);
-  }
-
-  @Override
-  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
-    super.set((Integer) event.getKey(), (T) newValue);
-  }
-
   public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
       TrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
 
-    this.sourceRecord = parent;
+    if (getOwner() != parent) {
+      this.sourceRecord = new WeakReference<>(parent);
+    }
   }
 
   public void disableTracking(RecordElement parent) {
@@ -321,7 +308,10 @@ public class TrackedList<T> extends ArrayList<T>
       TrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
-    this.sourceRecord = parent;
+
+    if (getOwner() != parent) {
+      this.sourceRecord = new WeakReference<>(parent);
+    }
   }
 
   @Override
@@ -348,5 +338,139 @@ public class TrackedList<T> extends ArrayList<T>
 
   public MultiValueChangeTimeLine<Integer, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
+  }
+
+  @Override
+  public int indexOf(Object o) {
+    return list.indexOf(o);
+  }
+
+  @Override
+  public int lastIndexOf(Object o) {
+    return list.lastIndexOf(o);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof List)) {
+      return false;
+    }
+    return list.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return list.hashCode();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return list.isEmpty();
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return list.contains(o);
+  }
+
+  @Nonnull
+  @Override
+  public Object[] toArray() {
+    return list.toArray();
+  }
+
+  @Nonnull
+  @Override
+  public <T1> T1[] toArray(@Nonnull T1[] a) {
+    return list.toArray(a);
+  }
+
+  @Override
+  public boolean containsAll(@Nonnull Collection<?> c) {
+    return list.containsAll(c);
+  }
+
+  @Override
+  public String toString() {
+    return list.toString();
+  }
+
+  @Override
+  public void sort(@Nullable Comparator<? super T> c) {
+    list.sort(c);
+  }
+
+  @Nonnull
+  @Override
+  public Spliterator<T> spliterator() {
+    return list.spliterator();
+  }
+
+  @Override
+  public void addFirst(T t) {
+    checkValue(t);
+    list.addFirst(t);
+    addEvent(0, t);
+  }
+
+  @Override
+  public void addLast(T t) {
+    checkValue(t);
+    list.addLast(t);
+    addEvent(list.size() - 1, t);
+  }
+
+  @Override
+  public T getFirst() {
+    return list.getFirst();
+  }
+
+  @Override
+  public T getLast() {
+    return list.getLast();
+  }
+
+  @Override
+  public T removeFirst() {
+    var removed = list.removeFirst();
+    removeEvent(0, removed);
+    return removed;
+  }
+
+  @Override
+  public T removeLast() {
+    var removed = list.removeLast();
+    removeEvent(list.size(), removed);
+    return removed;
+  }
+
+  @Override
+  public List<T> reversed() {
+    return list.reversed();
+  }
+
+  @Override
+  public <T1> T1[] toArray(@Nonnull IntFunction<T1[]> generator) {
+    return list.toArray(generator);
+  }
+
+  @Nonnull
+  @Override
+  public Stream<T> stream() {
+    return list.stream();
+  }
+
+  @Nonnull
+  @Override
+  public Stream<T> parallelStream() {
+    return list.parallelStream();
+  }
+
+  @Override
+  public void forEach(Consumer<? super T> action) {
+    list.forEach(action);
   }
 }

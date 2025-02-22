@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -19,11 +19,11 @@ public class LinksetInTransactionTest extends DbTestBase {
     /* A link must already be there */
     var withLinks1 = session.newInstance("WithLinks");
     var link1 = session.newInstance("Linked");
-    link1.save();
+
     Set set = new HashSet<>();
     set.add(link1);
     withLinks1.setProperty("links", set);
-    withLinks1.save();
+
     session.commit();
 
     /* Only in transaction - without transaction all OK */
@@ -33,17 +33,15 @@ public class LinksetInTransactionTest extends DbTestBase {
 
     /* Add a new linked record */
     var link2 = session.newInstance("Linked");
-    link2.save();
+
     Set links = withLinks1.getProperty("links");
     links.add(link2);
-    withLinks1.save();
 
     /* Remove all from LinkSet - if only link2 removed all OK */
     links = withLinks1.getProperty("links");
     links.remove(link1);
     links = withLinks1.getProperty("links");
     links.remove(link2);
-    withLinks1.save();
 
     /* All seems OK before commit */
     links = withLinks1.getProperty("links");

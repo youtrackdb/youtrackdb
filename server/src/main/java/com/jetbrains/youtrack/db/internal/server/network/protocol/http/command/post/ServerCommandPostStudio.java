@@ -335,7 +335,6 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
         }
       }
 
-      entity.save();
       iResponse.send(
           HttpUtils.STATUS_OK_CODE,
           HttpUtils.STATUS_OK_DESCRIPTION,
@@ -352,7 +351,6 @@ public class ServerCommandPostStudio extends ServerCommandAuthenticatedDbAbstrac
         entity.field(f.getKey(), f.getValue());
       }
 
-      entity.save();
       iResponse.send(
           201,
           "OK",

@@ -114,7 +114,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     docClusterOne.field("ridBag", ridBagClusterOne);
 
     session.begin();
-    docClusterOne.save();
+
     session.commit();
 
     final var directory = session.getStorage().getConfiguration().getDirectory();
@@ -138,15 +138,15 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     var scuti =
         ((EntityImpl) session.newEntity())
             .field("name", "UY Scuti");
-    scuti.save();
+
     var cygni =
         ((EntityImpl) session.newEntity())
             .field("name", "NML Cygni");
-    cygni.save();
+
     var scorpii =
         ((EntityImpl) session.newEntity())
             .field("name", "AH Scorpii");
-    scorpii.save();
+
     session.commit();
 
     scuti = session.bindToSession(scuti);
@@ -164,7 +164,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     doc.field("ridBag", bag);
 
     session.begin();
-    doc.save();
+
     session.commit();
 
     session.begin();
@@ -188,16 +188,12 @@ public class BTreeBasedRidBagTest extends RidBagTest {
 
     session.begin();
     var doc_1 = ((EntityImpl) session.newEntity());
-    doc_1.save();
 
     var doc_2 = ((EntityImpl) session.newEntity());
-    doc_2.save();
 
     var doc_3 = ((EntityImpl) session.newEntity());
-    doc_3.save();
 
     var doc_4 = ((EntityImpl) session.newEntity());
-    doc_4.save();
 
     var doc = ((EntityImpl) session.newEntity());
 
@@ -208,22 +204,19 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     bag.add(doc_4.getIdentity());
 
     doc.field("ridBag", bag);
-    doc.save();
+
     session.commit();
 
     session.begin();
     doc = session.bindToSession(doc);
     var doc_5 = ((EntityImpl) session.newEntity());
-    doc_5.save();
 
     var doc_6 = ((EntityImpl) session.newEntity());
-    doc_6.save();
 
     bag = doc.field("ridBag");
     bag.add(doc_5.getIdentity());
     bag.add(doc_6.getIdentity());
 
-    doc.save();
     session.commit();
 
     session.begin();
@@ -272,7 +265,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     assertEmbedded(realDocRidBag.isEmbedded());
 
     session.begin();
-    realDoc.save();
+
     session.commit();
 
     final var clusterId = session.addCluster("ridBagDeleteTest");
@@ -325,7 +318,7 @@ public class BTreeBasedRidBagTest extends RidBagTest {
     testDocument.field("realDoc", realDoc);
 
     session.begin();
-    testDocument.save();
+
     session.commit();
 
     return testDocument;

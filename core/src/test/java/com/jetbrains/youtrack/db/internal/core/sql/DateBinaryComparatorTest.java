@@ -29,7 +29,7 @@ public class DateBinaryComparatorTest extends DbTestBase {
 
     try {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));
-      document.save();
+
       session.commit();
     } catch (ParseException e) {
       throw new RuntimeException(e);

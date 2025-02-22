@@ -45,7 +45,6 @@ public class DBSequenceRemoteTest extends AbstractRemoteTest {
       var person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
       person.setProperty("id", 1000 + i);
-      person.save();
     }
     db.commit();
 
@@ -67,7 +66,6 @@ public class DBSequenceRemoteTest extends AbstractRemoteTest {
     for (var i = 0; i < 10; i++) {
       var person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
-      person.save();
     }
 
     db.commit();

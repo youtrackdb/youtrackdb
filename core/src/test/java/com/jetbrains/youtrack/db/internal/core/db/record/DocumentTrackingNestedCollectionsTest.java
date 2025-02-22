@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,16 +51,15 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   public void testChangesValuesNestedTrackingSet() {
     session.begin();
     var document = (EntityImpl) session.newEntity();
-    Set objects = new HashSet();
+    var objects = session.newEmbeddedSet();
 
     document.field("objects", objects);
-    Set subObjects = new HashSet();
+    var subObjects = session.newEmbeddedSet();
     objects.add(subObjects);
 
-    var nestedDoc = (EntityImpl) session.newEntity();
+    var nestedDoc = (EntityImpl) session.newEmbededEntity();
     subObjects.add(nestedDoc);
 
-    document.save();
     session.commit();
 
     session.begin();
@@ -85,21 +82,20 @@ public class DocumentTrackingNestedCollectionsTest extends DbTestBase {
   public void testChangesValuesNestedTrackingList() {
     session.begin();
     var document = (EntityImpl) session.newEntity();
-    List objects = new ArrayList();
+    var objects = session.newEmbeddedList();
 
-    document.field("objects", objects);
-    List subObjects = new ArrayList();
+    document.setEmbeddedList("objects", objects);
+    var subObjects = session.newEmbeddedList();
     objects.add(subObjects);
 
-    var nestedDoc = (EntityImpl) session.newEntity();
+    var nestedDoc = (EntityImpl) session.newEmbededEntity();
     subObjects.add(nestedDoc);
 
-    document.save();
     session.commit();
 
     session.begin();
     document = session.bindToSession(document);
-    objects = document.field("objects");
+    objects = document.getEmbeddedList("objects");
     subObjects = (List) objects.iterator().next();
     subObjects.add("one");
     subObjects.add(session.newEmbededEntity());

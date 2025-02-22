@@ -47,14 +47,12 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     doc.field("name", "London");
     session.begin();
-    session.save(doc);
     session.commit();
 
     doc = ((EntityImpl) session.newEntity("City"));
     doc.field("name", "Rome");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     var results = session.query("select from City where name lucene 'London'");
@@ -69,8 +67,6 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     session.begin();
     doc.field("name", "Berlin");
-
-    session.save(doc);
 
     session.commit();
 

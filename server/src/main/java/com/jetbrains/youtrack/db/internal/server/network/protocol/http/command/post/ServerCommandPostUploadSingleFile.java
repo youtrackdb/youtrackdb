@@ -173,7 +173,7 @@ public class ServerCommandPostUploadSingleFile extends
         }
         var entity = new EntityImpl(db);
         entity.updateFromJSON(fileDocument);
-        entity.save();
+
         writer.beginObject("updatedDocument");
         writer.writeAttribute(db, 1, true, "rid", entity.getIdentity().toString());
         writer.endObject();

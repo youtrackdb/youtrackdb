@@ -42,7 +42,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
     session.commit();
     Assert.assertEquals(document.field("list"), list);
@@ -50,7 +50,7 @@ public class ExternalCollectionsTest extends DbTestBase {
     session.begin();
     list.add(1);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
     session.commit();
     Assert.assertEquals(document.field("list"), list);
@@ -65,13 +65,13 @@ public class ExternalCollectionsTest extends DbTestBase {
     final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
 
     session.begin();
     list.add(1);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
     session.commit();
     Assert.assertEquals(document.field("list"), list);
@@ -87,14 +87,14 @@ public class ExternalCollectionsTest extends DbTestBase {
     final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
     session.commit();
     Assert.assertEquals(document.field("list"), list);
 
     list.add(1);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
   }
 
@@ -107,12 +107,12 @@ public class ExternalCollectionsTest extends DbTestBase {
     final var document = ((EntityImpl) session.newEntity());
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
 
     list.add(1);
     Assert.assertEquals(document.field("list"), list);
-    document.save();
+
     Assert.assertEquals(document.field("list"), list);
   }
 }

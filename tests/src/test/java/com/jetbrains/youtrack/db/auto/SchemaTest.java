@@ -162,7 +162,6 @@ public class SchemaTest extends BaseDBTest {
                 var doc = ((EntityImpl) session.newEntity("NewClass"));
 
                 session.begin();
-                session.save(doc);
                 session.commit();
 
                 session.begin();
@@ -421,11 +420,9 @@ public class SchemaTest extends BaseDBTest {
 
     session.begin();
     var document = ((EntityImpl) session.newEntity("RenameClassTest"));
-    document.save();
 
     document = ((EntityImpl) session.newEntity("RenameClassTest"));
 
-    document.save();
     session.commit();
 
     session.begin();
@@ -454,7 +451,8 @@ public class SchemaTest extends BaseDBTest {
 
       for (var i = 0; i < 6; ++i) {
         session.begin();
-        ((EntityImpl) session.newEntity("multipleclusters")).field("num", i).save();
+        ((EntityImpl) session.newEntity("multipleclusters")).field("num", i);
+
         session.commit();
       }
 
@@ -480,7 +478,8 @@ public class SchemaTest extends BaseDBTest {
 
       for (var i = 0; i < 2; ++i) {
         session.begin();
-        ((EntityImpl) session.newEntity("multipleclusters")).field("num", i).save();
+        ((EntityImpl) session.newEntity("multipleclusters")).field("num", i);
+
         session.commit();
       }
 

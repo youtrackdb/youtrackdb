@@ -49,8 +49,8 @@ public class TransactionAtomicTest extends BaseDBTest {
     db2.begin();
     var record1 = ((EntityImpl) db2.newEntity());
     record1
-        .field("value", "This is the first version")
-        .save();
+        .field("value", "This is the first version");
+
     db2.commit();
 
     // RE-READ THE RECORD
@@ -58,12 +58,14 @@ public class TransactionAtomicTest extends BaseDBTest {
     db2.begin();
     EntityImpl record2 = db2.load(record1.getIdentity());
 
-    record2.field("value", "This is the second version").save();
+    record2.field("value", "This is the second version");
+
     db2.commit();
 
     db2.begin();
     record2 = db2.bindToSession(record2);
-    record2.field("value", "This is the third version").save();
+    record2.field("value", "This is the third version");
+
     db2.commit();
 
     db1.activateOnCurrentThread();
@@ -83,7 +85,7 @@ public class TransactionAtomicTest extends BaseDBTest {
     var doc = ((EntityImpl) session.newEntity("Account"));
     session.begin();
     doc.field("version", 0);
-    doc.save();
+
     session.commit();
 
     session.begin();
@@ -92,7 +94,7 @@ public class TransactionAtomicTest extends BaseDBTest {
     doc.field("testmvcc", true);
     RecordInternal.setVersion(doc, doc.getVersion() + 1);
     try {
-      doc.save();
+
       session.commit();
       Assert.fail();
     } catch (ConcurrentModificationException e) {
@@ -106,8 +108,8 @@ public class TransactionAtomicTest extends BaseDBTest {
     var record1 = ((EntityImpl) session.newEntity());
 
     record1
-        .field("value", "This is the first version")
-        .save();
+        .field("value", "This is the first version");
+
     session.commit();
 
     final var listener =
@@ -183,11 +185,6 @@ public class TransactionAtomicTest extends BaseDBTest {
           .field("color", "Yellow");
       var kumquat = ((EntityImpl) session.newEntity("Fruit")).field("name", "Kumquat")
           .field("color", "Orange");
-
-      apple.save();
-      orange.save();
-      banana.save();
-      kumquat.save();
 
       session.commit();
 

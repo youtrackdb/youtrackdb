@@ -59,9 +59,6 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     rome1.field("longitude", 12.5);
 
     session.begin();
-    session.save(rome1);
-    session.save(rome);
-    session.save(london);
     session.commit();
 
     session.begin();

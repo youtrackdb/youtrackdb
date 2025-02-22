@@ -4,17 +4,10 @@ import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.api.exception.SecurityException;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.jetbrains.youtrack.db.api.record.Entity;
-import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -92,14 +85,12 @@ public class PredicateSecurityTest {
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
-          db.save(elem);
         });
     try {
       db.executeInTx(
           () -> {
             var elem = db.newEntity("Person");
             elem.setProperty("name", "bar");
-            db.save(elem);
           });
 
       Assert.fail();
@@ -158,14 +149,12 @@ public class PredicateSecurityTest {
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
-          db.save(elem);
         });
 
     db.executeInTx(
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
-          db.save(elem);
         });
 
     db.close();
@@ -199,14 +188,12 @@ public class PredicateSecurityTest {
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
-          db.save(elem);
         });
 
     db.executeInTx(
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
-          db.save(elem);
         });
 
     db.close();
@@ -239,7 +226,6 @@ public class PredicateSecurityTest {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           elem.setProperty("surname", "foo");
-          db.save(elem);
         });
 
     db.executeInTx(
@@ -247,7 +233,6 @@ public class PredicateSecurityTest {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           elem.setProperty("surname", "bar");
-          db.save(elem);
         });
 
     db.close();
@@ -286,7 +271,6 @@ public class PredicateSecurityTest {
             () -> {
               var e = db.newEntity("Person");
               e.setProperty("name", "foo");
-              db.save(e);
               return e;
             });
 
@@ -295,7 +279,6 @@ public class PredicateSecurityTest {
       elem = db.bindToSession(elem);
       elem.setProperty("name", "baz");
       var elemToSave = elem;
-      db.save(elemToSave);
       db.commit();
       Assert.fail();
     } catch (SecurityException ex) {
@@ -342,7 +325,6 @@ public class PredicateSecurityTest {
             () -> {
               var e = db.newEntity("Person");
               e.setProperty("name", "foo");
-              db.save(e);
               return e;
             });
 
@@ -382,7 +364,6 @@ public class PredicateSecurityTest {
             () -> {
               var e = db.newEntity("Person");
               e.setProperty("name", "foo");
-              db.save(e);
               return e;
             });
 
@@ -391,7 +372,6 @@ public class PredicateSecurityTest {
       elem = db.bindToSession(elem);
       elem.setProperty("name", "bar");
       var elemToSave = elem;
-      db.save(elemToSave);
       db.commit();
       Assert.fail();
     } catch (SecurityException ex) {
@@ -425,7 +405,6 @@ public class PredicateSecurityTest {
             () -> {
               var e = db.newEntity("Person");
               e.setProperty("name", "foo");
-              db.save(e);
               return e;
             });
 
@@ -464,7 +443,6 @@ public class PredicateSecurityTest {
             () -> {
               var e = db.newEntity("Person");
               e.setProperty("name", "bar");
-              db.save(e);
               return e;
             });
 
@@ -480,7 +458,6 @@ public class PredicateSecurityTest {
             () -> {
               var e = db.newEntity("Person");
               e.setProperty("name", "foo");
-              db.save(e);
               return e;
             });
 
@@ -511,14 +488,12 @@ public class PredicateSecurityTest {
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
-          db.save(elem);
         });
 
     db.executeInTx(
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
-          db.save(elem);
         });
 
     db.begin();
@@ -558,14 +533,12 @@ public class PredicateSecurityTest {
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
-          db.save(elem);
         });
 
     db.executeInTx(
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
-          db.save(elem);
         });
 
     db.close();
@@ -597,14 +570,12 @@ public class PredicateSecurityTest {
         () -> {
           var e = db.newEntity("Person");
           e.setProperty("name", "foo");
-          db.save(e);
         });
 
     db.executeInTx(
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
-          db.save(elem);
         });
 
     db.close();
@@ -640,14 +611,12 @@ public class PredicateSecurityTest {
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
-          db.save(elem);
         });
 
     db.executeInTx(
         () -> {
           var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
-          db.save(elem);
         });
 
     db.close();

@@ -231,9 +231,6 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
             throw new UnsupportedOperationException();
           }
 
-          fromVertex.save();
-          toVertex.save();
-
           edges.add(edge);
 
           if (batch > 0 && edges.size() % batch == 0) {

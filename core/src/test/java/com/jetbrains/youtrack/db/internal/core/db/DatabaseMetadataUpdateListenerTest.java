@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DatabaseMetadataUpdateListenerTest {
-
   private YouTrackDB youTrackDB;
   private DatabaseSessionInternal session;
   private int configCount;

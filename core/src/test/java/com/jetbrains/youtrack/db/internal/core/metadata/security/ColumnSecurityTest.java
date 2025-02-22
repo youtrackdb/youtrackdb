@@ -213,11 +213,9 @@ public class ColumnSecurityTest {
 
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
 
     db.close();
     this.db = (DatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
@@ -260,11 +258,9 @@ public class ColumnSecurityTest {
 
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
 
     db.close();
     this.db = (DatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
@@ -297,11 +293,9 @@ public class ColumnSecurityTest {
 
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
-    db.save(elem);
 
     var rs = db.query("select from Person");
     var fooFound = false;
@@ -364,12 +358,10 @@ public class ColumnSecurityTest {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     elem.setProperty("surname", "bar");
-    db.save(elem);
 
     db.close();
 
@@ -402,13 +394,11 @@ public class ColumnSecurityTest {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     elem.setProperty("surname", "bar");
     try {
-      db.save(elem);
       Assert.fail();
     } catch (SecurityException e) {
 
@@ -431,12 +421,10 @@ public class ColumnSecurityTest {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     elem.setProperty("surname", "bar");
-    db.save(elem);
 
     db.close();
 
@@ -474,7 +462,6 @@ public class ColumnSecurityTest {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     db.close();
     this.db = (DatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
@@ -504,7 +491,6 @@ public class ColumnSecurityTest {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     db.close();
 
@@ -525,7 +511,6 @@ public class ColumnSecurityTest {
     var elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
-    db.save(elem);
 
     db.close();
 
@@ -536,7 +521,6 @@ public class ColumnSecurityTest {
       var doc = item.castToEntity();
       doc.setProperty("name", "bar");
       try {
-        doc.save();
         Assert.fail();
       } catch (Exception e) {
 

@@ -185,10 +185,11 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
   }
 
   @Override
-  public void setProperty(@Nonnull String name, Object value, @Nonnull PropertyType fieldType) {
-    EdgeInternal.checkPropertyName(name);
+  public void setProperty(@Nonnull String propertyName, Object value,
+      @Nonnull PropertyType fieldType) {
+    EdgeInternal.checkPropertyName(propertyName);
 
-    entity.setProperty(name, value, fieldType);
+    entity.setProperty(propertyName, value, fieldType);
   }
 
   @Override
@@ -362,11 +363,6 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
   }
 
   @Override
-  public void save() {
-    entity.save();
-  }
-
-  @Override
   public void updateFromJSON(@Nonnull String iJson) {
     entity.updateFromJSON(iJson);
   }
@@ -385,6 +381,11 @@ public class StatefulEdgeImpl implements EdgeInternal, StatefulEdge, EntityInter
   @Override
   public void updateFromMap(@Nonnull Map<String, ?> map) {
     entity.updateFromMap(map);
+  }
+
+  @Override
+  public void updateFromResult(@Nonnull Result result) {
+    entity.updateFromResult(result);
   }
 
 

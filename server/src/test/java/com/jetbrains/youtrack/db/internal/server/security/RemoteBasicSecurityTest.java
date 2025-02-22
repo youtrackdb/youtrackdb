@@ -2,13 +2,10 @@ package com.jetbrains.youtrack.db.internal.server.security;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +44,7 @@ public class RemoteBasicSecurityTest {
     try (var db = youTrackDB.open("test", "admin", "admin")) {
       db.createClass("one");
       db.begin();
-      db.save(((EntityImpl) db.newEntity("one")));
+      db.newEntity("one");
       db.commit();
     }
     youTrackDB.close();
@@ -60,7 +57,7 @@ public class RemoteBasicSecurityTest {
         YouTrackDBConfig.defaultConfig())) {
       try (var db = writerOrient.open("test", "writer", "writer")) {
         db.begin();
-        db.save(((EntityImpl) db.newEntity("one")));
+        db.newEntity("one");
         db.commit();
         try (var rs = db.query("select from one")) {
           assertEquals(2, rs.stream().count());

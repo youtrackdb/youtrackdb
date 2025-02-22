@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool.importer;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.EntityPropertiesVisitor;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 
 /**
  *
@@ -18,8 +18,6 @@ public final class LinksRewriter implements EntityPropertiesVisitor {
   @Override
   public Object visitField(DatabaseSessionInternal db, PropertyType type, PropertyType linkedType,
       Object value) {
-    var oldAutoConvertValue = false;
-
     final var valuesConverter =
         ImportConvertersFactory.INSTANCE.getConverter(value, converterData);
     if (valuesConverter == null) {

@@ -70,7 +70,7 @@ public class SQLInsertTest extends BaseDBTest {
 
     for (var i = 0; i < 30; i++) {
       session.begin();
-      session.newEntity("Address").save();
+      session.newEntity("Address");
       session.commit();
     }
     var positions = getValidPositions(addressId);

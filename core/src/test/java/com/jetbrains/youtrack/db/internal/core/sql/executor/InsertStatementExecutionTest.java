@@ -137,7 +137,7 @@ public class InsertStatementExecutionTest extends DbTestBase {
       EntityImpl doc = session.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 
@@ -187,7 +187,7 @@ public class InsertStatementExecutionTest extends DbTestBase {
       EntityImpl doc = session.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
       session.commit();
     }
 

@@ -3,6 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.orderby;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
@@ -21,9 +22,9 @@ public class TestOrderBy extends DbTestBase {
     session.getMetadata().getSchema().createClass("test");
 
     session.begin();
-    var res1 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Ähhhh"));
-    var res2 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Ahhhh"));
-    var res3 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Zebra"));
+    var res1 = (DBRecord) ((EntityImpl) session.newEntity("test")).field("name", "Ähhhh");
+    var res2 = (DBRecord) ((EntityImpl) session.newEntity("test")).field("name", "Ahhhh");
+    var res3 = (DBRecord) ((EntityImpl) session.newEntity("test")).field("name", "Zebra");
     session.commit();
 
     var queryRes =
@@ -47,9 +48,9 @@ public class TestOrderBy extends DbTestBase {
     var clazz = session.getMetadata().getSchema().createClass("test");
     clazz.createProperty(session, "name", PropertyType.STRING)
         .createIndex(session, INDEX_TYPE.NOTUNIQUE);
-    var res1 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Ähhhh"));
-    var res2 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Ahhhh"));
-    var res3 = session.save(((EntityImpl) session.newEntity("test")).field("name", "Zebra"));
+    var res1 = (DBRecord) ((EntityImpl) session.newEntity("test")).field("name", "Ähhhh");
+    var res2 = (DBRecord) ((EntityImpl) session.newEntity("test")).field("name", "Ahhhh");
+    var res3 = (DBRecord) ((EntityImpl) session.newEntity("test")).field("name", "Zebra");
     var queryRes =
         session.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity(), res2.getIdentity());

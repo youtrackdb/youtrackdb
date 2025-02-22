@@ -191,7 +191,7 @@ public class GraphRepair {
                       VertexInternal.getEdgeLinkFieldName(
                           Direction.OUT, edge.getSchemaClassName(), useVertexFieldsForEdgeLabels);
 
-                  final var outEdges = outVertex.field(outFieldName);
+                  final var outEdges = outVertex.getPropertyInternal(outFieldName);
                   if (outEdges == null) {
                     outVertexMissing = true;
                   } else if (outEdges instanceof RidBag) {
@@ -235,7 +235,7 @@ public class GraphRepair {
                       VertexInternal.getEdgeLinkFieldName(
                           Direction.IN, edge.getSchemaClassName(), useVertexFieldsForEdgeLabels);
 
-                  final var inEdges = inVertex.field(inFieldName);
+                  final var inEdges = inVertex.getPropertyInternal(inFieldName);
                   if (inEdges == null) {
                     inVertexMissing = true;
                   } else if (inEdges instanceof RidBag) {
@@ -373,7 +373,7 @@ public class GraphRepair {
                         stats, true)) {
                       vertexCorrupted = true;
                       if (!checkOnly) {
-                        vertex.field(fieldName, (Object) null);
+                        vertex.field(fieldName, null);
                       } else {
                         message(
                             outputListener,
@@ -449,11 +449,11 @@ public class GraphRepair {
 
                 message(outputListener, "+ repaired corrupted vertex " + vertex + "\n");
                 if (!checkOnly) {
-                  vertex.save();
+
                 }
               } else if (vertex.isDirty() && !checkOnly) {
                 message(outputListener, "+ optimized vertex " + vertex + "\n");
-                vertex.save();
+
               }
             }
 

@@ -31,7 +31,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
     session.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     var results = session.query("select from Person where search_class('John')=true");
@@ -51,7 +51,6 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
     doc.field("name", "John");
 
     session.begin();
-    session.save(doc);
     session.commit();
 
     results = session.query("select from Person where search_class('John')=true");
@@ -70,7 +69,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
     session.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     var results = session.command("select from Person where search_class('John')=true");
@@ -91,7 +90,7 @@ public class LuceneFreezeReleaseTest extends LuceneBaseTest {
     session.release();
 
     session.begin();
-    session.save(((EntityImpl) session.newEntity("Person")).field("name", "John"));
+    ((EntityImpl) session.newEntity("Person")).field("name", "John");
     session.commit();
 
     results = session.command("select from Person where search_class('John')=true");

@@ -28,7 +28,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
     session.begin();
     var toDelete = ((EntityImpl) session.newEntity("TestSubclass")).field("id", 1);
-    toDelete.save();
+
     session.commit();
 
     // 1 SUB, 0 SUPER
@@ -39,8 +39,10 @@ public class DatabaseDocumentTxTest extends DbTestBase {
 
     session.begin();
     try {
-      ((EntityImpl) session.newEntity("TestSuperclass")).field("id", 1).save();
-      ((EntityImpl) session.newEntity("TestSubclass")).field("id", 1).save();
+      ((EntityImpl) session.newEntity("TestSuperclass")).field("id", 1);
+
+      ((EntityImpl) session.newEntity("TestSubclass")).field("id", 1);
+
       // 2 SUB, 1 SUPER
 
       Assert.assertEquals(1, session.countClass("TestSuperclass", false));
@@ -77,7 +79,6 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity();
     doc.field("test", new RecordId(-2, 10));
-    session.save(doc);
     session.commit();
   }
 
@@ -135,19 +136,19 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     var doc = (EntityImpl) session.newEntity("testDocFromJsonEmbedded_Class1");
 
     doc.updateFromJSON(
-        "{\n"
-            + "    \"account\": \"#25:0\",\n"
-            + "    "
-            + "\"meta\": {"
-            + "   \"created\": \"2016-10-03T21:10:21.77-07:00\",\n"
-            + "        \"ip\": \"0:0:0:0:0:0:0:1\",\n"
-            + "   \"contentType\": \"application/x-www-form-urlencoded\","
-            + "   \"userAgent\": \"PostmanRuntime/2.5.2\""
-            + "},"
-            + "\"data\": \"firstName=Jessica&lastName=Smith\"\n"
-            + "}");
+        """
+            {
+                "account": "#25:0",
+                \
+            "meta": {\
+               "created": "2016-10-03T21:10:21.77-07:00",
+                    "ip": "0:0:0:0:0:0:0:1",
+               "contentType": "application/x-www-form-urlencoded",\
+               "userAgent": "PostmanRuntime/2.5.2"\
+            },\
+            "data": "firstName=Jessica&lastName=Smith"
+            }""");
 
-    session.save(doc);
     session.commit();
 
     try (var result = session.query("select from testDocFromJsonEmbedded_Class0")) {
@@ -218,12 +219,10 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     session.begin();
     var doc1 = session.newVertex(className);
     doc1.setProperty("name", "a");
-    doc1.save();
 
     var doc2 = session.newVertex(className);
     doc2.setProperty("name", "b");
     doc2.setProperty("linked", doc1);
-    doc2.save();
     session.commit();
 
     try (var rs = session.query("SELECT FROM " + className + " WHERE name = 'b'")) {
@@ -251,14 +250,12 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     session.begin();
     var doc1 = session.newVertex(vertexClass);
     doc1.setProperty("name", "first");
-    doc1.save();
     session.commit();
 
     session.begin();
     var doc2 = session.newVertex(vertexClass);
     doc2.setProperty("name", "second");
-    doc2.save();
-    session.newStatefulEdge(session.bindToSession(doc1), doc2, "testEdge").save();
+    session.newStatefulEdge(session.bindToSession(doc1), doc2, "testEdge");
     session.commit();
 
     try (var rs = session.query("SELECT out() as o FROM " + vertexClass)) {
@@ -284,18 +281,15 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     session.begin();
     var doc1 = session.newVertex(vertexClass);
     doc1.setProperty("name", "first");
-    doc1.save();
 
     var doc2 = session.newVertex(vertexClass);
     doc2.setProperty("name", "second");
-    doc2.save();
 
     var doc3 = session.newVertex(vertexClass);
     doc3.setProperty("name", "third");
-    doc3.save();
 
-    session.newStatefulEdge(doc1, doc2, "testEdge").save();
-    session.newStatefulEdge(doc1, doc3, "testEdge").save();
+    session.newStatefulEdge(doc1, doc2, "testEdge");
+    session.newStatefulEdge(doc1, doc3, "testEdge");
     session.commit();
 
     try (var rs = session.query("SELECT out() as o FROM " + vertexClass)) {
@@ -318,15 +312,12 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     vc.createProperty(session, "in_testEdge", PropertyType.LINK);
     var doc1 = session.newVertex(vertexClass);
     doc1.setProperty("name", "first");
-    doc1.save();
 
     var doc2 = session.newVertex(vertexClass);
     doc2.setProperty("name", "second");
-    doc2.save();
 
     var doc3 = session.newVertex(vertexClass);
     doc3.setProperty("name", "third");
-    doc3.save();
 
     session.newStatefulEdge(doc1, doc2, "testEdge");
     session.newStatefulEdge(doc1, doc3, "testEdge");
@@ -340,7 +331,7 @@ public class DatabaseDocumentTxTest extends DbTestBase {
     session.begin();
 
     var document = (EntityImpl) session.newEntity(className);
-    document.save();
+
     var reverseIterator =
         new RecordIteratorClassDescendentOrder<EntityImpl>(session, session, className, true);
     Assert.assertTrue(reverseIterator.hasNext());

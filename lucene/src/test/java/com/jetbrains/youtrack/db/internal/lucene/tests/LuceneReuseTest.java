@@ -29,12 +29,11 @@ public class LuceneReuseTest extends LuceneBaseTest {
 
     for (var i = 0; i < 10; i++) {
       session.begin();
-      session.save(
-          ((EntityImpl) session.newEntity("Reuse"))
-              .field("name", "John")
-              .field("date", new Date())
-              .field("surname", "Reese")
-              .field("age", i));
+      ((EntityImpl) session.newEntity("Reuse"))
+          .field("name", "John")
+          .field("date", new Date())
+          .field("surname", "Reese")
+          .field("age", i);
       session.commit();
     }
 
@@ -68,23 +67,21 @@ public class LuceneReuseTest extends LuceneBaseTest {
 
     for (var i = 0; i < 10; i++) {
       session.begin();
-      session.save(
-          ((EntityImpl) session.newEntity("Reuse"))
-              .field("name", "John")
-              .field("date", new Date())
-              .field("surname", "Reese")
-              .field("age", i));
+      ((EntityImpl) session.newEntity("Reuse"))
+          .field("name", "John")
+          .field("date", new Date())
+          .field("surname", "Reese")
+          .field("age", i);
       session.begin();
     }
 
     // additional record
     session.begin();
-    session.save(
-        ((EntityImpl) session.newEntity("Reuse"))
-            .field("name", "John")
-            .field("date", new Date())
-            .field("surname", "Franklin")
-            .field("age", 11));
+    ((EntityImpl) session.newEntity("Reuse"))
+        .field("name", "John")
+        .field("date", new Date())
+        .field("surname", "Franklin")
+        .field("age", 11);
     session.commit();
 
     // exact query on name uses Reuse.conposite

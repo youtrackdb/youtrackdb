@@ -67,7 +67,6 @@ public class TestGraphElementDelete {
     var vertex = database.newVertex("V");
     var vertex1 = database.newVertex("V");
     var edge = vertex.addStateFulEdge(vertex1, "E");
-    database.save(edge);
     database.commit();
 
     database.begin();
@@ -83,7 +82,6 @@ public class TestGraphElementDelete {
     var vertex = database.newVertex("V");
     var vertex1 = database.newVertex("V");
     var edge = vertex.addStateFulEdge(vertex1, "E");
-    database.save(edge);
     database.commit();
 
     database.begin();
@@ -97,7 +95,6 @@ public class TestGraphElementDelete {
                 database.begin();
                 Entity element = database.load(edge.getIdentity());
                 element.setProperty("one", "two");
-                database.save(element);
                 database.commit();
               }
             });

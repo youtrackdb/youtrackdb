@@ -29,7 +29,6 @@ public class DocumentSerializationPersistentTest extends BaseMemoryInternalDatab
 
     doc.setProperty("country", linkedDoc, PropertyType.LINK);
     doc.newEmbeddedList("numbers").addAll(Arrays.asList(0, 1, 2, 3, 4, 5));
-    doc.save();
 
     session.commit();
   }

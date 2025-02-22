@@ -73,18 +73,19 @@ public class ResourceDerivedTest {
     db.begin();
     db.command("UPDATE ORole SET rules = {'database.class.customer': 2} WHERE name = ?", "tenant1");
     db.commit();
-    db.command("ALTER ROLE tenant1 set policy r ON database.class.Customer");
     db.begin();
+    db.command("ALTER ROLE tenant1 set policy r ON database.class.Customer");
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_t1': 31} WHERE name = ?", "tenant1");
     db.commit();
-    db.command("ALTER ROLE tenant1 set policy rw ON database.class.Customer_t1");
     db.begin();
+    db.command("ALTER ROLE tenant1 set policy rw ON database.class.Customer_t1");
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_t2': 2} WHERE name = ?", "tenant1");
     db.commit();
-    db.command("ALTER ROLE tenant1 set policy r ON database.class.Custome_t2r");
+
     db.begin();
+    db.command("ALTER ROLE tenant1 set policy r ON database.class.Custome_t2r");
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_u2': 0} WHERE name = ?", "tenant1");
     db.command(

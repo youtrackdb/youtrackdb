@@ -1,16 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -481,45 +474,5 @@ public class TrackedListTest extends DbTestBase {
         trackedList.returnOriginalState(session,
             (List) trackedList.getTimeLine().getMultiValueChangeEvents()));
     session.rollback();
-  }
-
-  /**
-   * Test that {@link TrackedList} is serialised correctly.
-   */
-  @Test
-  public void testSerialization() throws Exception {
-
-    class NotSerializableEntityImpl extends EntityImpl {
-
-      private static final long serialVersionUID = 1L;
-
-      public NotSerializableEntityImpl(
-          DatabaseSessionInternal database) {
-        super(database);
-      }
-
-      private void writeObject(ObjectOutputStream oos) throws IOException {
-        throw new NotSerializableException();
-      }
-    }
-
-    final var beforeSerialization =
-        new TrackedList<String>(new NotSerializableEntityImpl(session));
-    beforeSerialization.add("firstVal");
-    beforeSerialization.add("secondVal");
-
-    final var memoryStream = new MemoryStream();
-    var out = new ObjectOutputStream(memoryStream);
-    out.writeObject(beforeSerialization);
-    out.close();
-
-    final var input =
-        new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked") final var afterSerialization = (List<String>) input.readObject();
-
-    Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
-    for (var i = 0; i < afterSerialization.size(); i++) {
-      Assert.assertEquals(afterSerialization.get(i), beforeSerialization.get(i));
-    }
   }
 }

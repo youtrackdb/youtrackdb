@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
  */
 public interface CommandContext {
 
+  int SQL_UPDATED_PROPERTY_STACK_SYSTEM_VARIABLE = 1;
+
   enum TIMEOUT_STRATEGY {
     RETURN,
     EXCEPTION
@@ -40,6 +42,13 @@ public interface CommandContext {
   Object getVariable(String iName, Object iDefaultValue);
 
   CommandContext setVariable(String iName, Object iValue);
+
+  <T> void setSystemVariable(int id, T value);
+
+  boolean hasSystemVariable(int id);
+
+  <T> T getSystemVariable(int id);
+
 
   CommandContext incrementVariable(String getNeighbors);
 

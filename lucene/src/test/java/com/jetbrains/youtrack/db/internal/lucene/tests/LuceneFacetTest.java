@@ -49,25 +49,17 @@ public class LuceneFacetTest extends LuceneBaseTest {
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
-    session.save(doc);
-
     doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
-
-    session.save(doc);
 
     doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
-    session.save(doc);
-
     doc = ((EntityImpl) session.newEntity("Item"));
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
-
-    session.save(doc);
 
     session.commit();
   }

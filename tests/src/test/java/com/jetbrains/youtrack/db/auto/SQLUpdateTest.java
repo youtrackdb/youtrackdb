@@ -175,9 +175,9 @@ public class SQLUpdateTest extends BaseDBTest {
       Assert.assertEquals(
           ((Identifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
           positions.get(0));
-      loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
+      loadedDoc.field("addresses", doc.getProperty("addresses"));
 
-      session.save(session.bindToSession(loadedDoc));
+      session.bindToSession(loadedDoc);
       session.commit();
     }
   }
@@ -259,7 +259,7 @@ public class SQLUpdateTest extends BaseDBTest {
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
-    doc.save();
+
     session.commit();
 
     checkUpdatedDoc(session, "Torino", "fmale");
@@ -303,7 +303,7 @@ public class SQLUpdateTest extends BaseDBTest {
     doc.field("name", "Pawel");
     doc.field("city", "Wroclaw");
     doc.field("really_big_field", "BIIIIIIIIIIIIIIIGGGGGGG!!!");
-    doc.save();
+
     session.commit();
 
     // check AFTER
@@ -349,7 +349,7 @@ public class SQLUpdateTest extends BaseDBTest {
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
-    doc.save();
+
     session.commit();
 
     var updatecommand = "update Data set gender = :gender , city = :city where name = :name";
@@ -477,7 +477,7 @@ public class SQLUpdateTest extends BaseDBTest {
 
     session.begin();
     var document = ((EntityImpl) session.newEntity("FormatEscapingTest"));
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -692,7 +692,7 @@ public class SQLUpdateTest extends BaseDBTest {
   public void testMultiplePut() {
     session.begin();
     EntityImpl v = session.newInstance("V");
-    v.save();
+
     session.commit();
 
     session.begin();

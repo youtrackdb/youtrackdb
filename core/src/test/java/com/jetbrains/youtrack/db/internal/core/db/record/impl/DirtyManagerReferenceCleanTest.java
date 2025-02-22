@@ -23,7 +23,6 @@ public class DirtyManagerReferenceCleanTest extends DbTestBase {
       doc.field("ref", doc1);
       doc.field("bb");
 
-      doc.save();
       return doc.getIdentity();
     });
 

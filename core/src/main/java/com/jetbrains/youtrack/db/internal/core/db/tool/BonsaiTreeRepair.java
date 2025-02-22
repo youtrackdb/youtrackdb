@@ -81,7 +81,6 @@ public class BonsaiTreeRepair {
             final RidBag inRidBag = inVertex.field(inVertexName);
             inRidBag.add(edge.getIdentity());
 
-            inVertex.save();
           }
 
           if (outVertex.field(outVertexName) instanceof RidBag) {
@@ -92,7 +91,6 @@ public class BonsaiTreeRepair {
             final RidBag outRidBag = outVertex.field(outVertexName);
             outRidBag.add(edge.getIdentity());
 
-            outVertex.save();
           }
 
           counter++;

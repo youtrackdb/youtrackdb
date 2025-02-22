@@ -48,7 +48,6 @@ public class BrowseClusterTest {
       db.begin();
       var v = db.newVertex("One");
       v.setProperty("a", i);
-      db.save(v);
       db.commit();
     }
     var cluster = db.getClass("One").getClusterIds(db)[0];

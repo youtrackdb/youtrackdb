@@ -72,16 +72,6 @@ public interface DBRecord extends Identifiable {
   boolean isDirty();
 
   /**
-   * Saves in-memory changes to the database. Behavior depends by the current running transaction if
-   * any. If no transaction is running then changes apply immediately. If an Optimistic transaction
-   * is running then the record will be changed at commit time. The current transaction will
-   * continue to see the record as modified, while others not. If a Pessimistic transaction is
-   * running, then an exclusive lock is acquired against the record. Current transaction will
-   * continue to see the record as modified, while others cannot access to it since it's locked.
-   */
-  void save();
-
-  /**
    * Deletes the record from the database. Behavior depends by the current running transaction if
    * any. If no transaction is running then the record is deleted immediately. If an Optimistic
    * transaction is running then the record will be deleted at commit time. The current transaction

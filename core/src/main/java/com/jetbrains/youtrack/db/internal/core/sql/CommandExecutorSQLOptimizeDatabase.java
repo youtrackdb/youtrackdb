@@ -146,8 +146,6 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
               }
             }
 
-            outV.save();
-
             // INCOMING
             final var inField = inV.field("in_" + entity.getSchemaClassName());
             if (outField instanceof RidBag) {
@@ -162,8 +160,6 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
                 }
               }
             }
-
-            inV.save();
 
             entity.delete();
 

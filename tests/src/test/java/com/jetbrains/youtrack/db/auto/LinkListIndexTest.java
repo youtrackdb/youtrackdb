@@ -66,16 +66,14 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     var index = getIndex("linkCollectionIndex");
@@ -101,10 +99,9 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
+
     session.commit();
 
     try {
@@ -113,7 +110,7 @@ public class LinkListIndexTest extends BaseDBTest {
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-      document.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -142,25 +139,21 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
 
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
 
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
-    document.save();
+
     session.commit();
 
     var index = getIndex("linkCollectionIndex");
@@ -185,20 +178,16 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
 
-    document.save();
     session.commit();
 
     try {
@@ -207,7 +196,7 @@ public class LinkListIndexTest extends BaseDBTest {
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
-      document.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -237,20 +226,16 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
 
-    document.save();
     session.commit();
 
     session.begin();
@@ -258,7 +243,7 @@ public class LinkListIndexTest extends BaseDBTest {
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
-    document.save();
+
     session.rollback();
 
     var index = getIndex("linkCollectionIndex");
@@ -283,19 +268,16 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -331,26 +313,23 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<List<Identifiable>>field("linkCollection").add(docThree.getIdentity());
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -380,25 +359,22 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var docThree = ((EntityImpl) session.newEntity());
-    docThree.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     session.begin();
     EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<List<Identifiable>>field("linkCollection").add(docThree.getIdentity());
-    loadedDocument.save();
+
     session.rollback();
 
     var index = getIndex("linkCollectionIndex");
@@ -423,23 +399,21 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     try {
       session.begin();
       EntityImpl loadedDocument = session.load(document.getIdentity());
       loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
-      loadedDocument.save();
+
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -467,22 +441,20 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     session.begin();
     EntityImpl loadedDocument = session.load(document.getIdentity());
     loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
-    loadedDocument.save();
+
     session.rollback();
 
     var index = getIndex("linkCollectionIndex");
@@ -507,16 +479,14 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -546,16 +516,14 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -573,16 +541,14 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     try {
@@ -604,16 +570,14 @@ public class LinkListIndexTest extends BaseDBTest {
 
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     session.begin();
@@ -641,16 +605,14 @@ public class LinkListIndexTest extends BaseDBTest {
   public void testIndexCollectionSQL() {
     session.begin();
     final var docOne = ((EntityImpl) session.newEntity());
-    docOne.save();
 
     final var docTwo = ((EntityImpl) session.newEntity());
-    docTwo.save();
 
     final var document = ((EntityImpl) session.newEntity("LinkListIndexTestClass"));
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
-    document.save();
+
     session.commit();
 
     var result =

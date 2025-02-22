@@ -25,7 +25,6 @@ import com.jetbrains.youtrack.db.api.record.Identifiable;
 import com.jetbrains.youtrack.db.api.record.RID;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -146,14 +144,8 @@ public class FindReferenceHelper {
       final Map<RID, Set<RID>> map,
       final Map<?, ?> values,
       final DBRecord iRootObject) {
-    final Iterator<?> it;
-    if (values instanceof LinkMap) {
-      it = ((LinkMap) values).rawIterator();
-    } else {
-      it = values.values().iterator();
-    }
-    while (it.hasNext()) {
-      checkObject(db, iSourceRIDs, map, it.next(), iRootObject);
+    for (var o : values.values()) {
+      checkObject(db, iSourceRIDs, map, o, iRootObject);
     }
   }
 

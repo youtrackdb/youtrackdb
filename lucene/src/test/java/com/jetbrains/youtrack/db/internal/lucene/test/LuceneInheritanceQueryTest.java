@@ -38,7 +38,6 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
     var doc = ((EntityImpl) session.newEntity("C2"));
     doc.field("name", "abc");
     session.begin();
-    session.save(doc);
     session.commit();
 
     var vertices = session.query("select from C1 where name lucene \"abc\" ");

@@ -20,7 +20,7 @@ public class SelectStatementExecutionTestIT extends DbTestBase {
       EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
     }
 
     for (var run = 0; run < 5; run++) {
@@ -47,7 +47,7 @@ public class SelectStatementExecutionTestIT extends DbTestBase {
       EntityImpl doc = session.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
-      doc.save();
+
     }
     for (var run = 0; run < 5; run++) {
       var begin = System.nanoTime();

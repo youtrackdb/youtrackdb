@@ -42,7 +42,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.begin();
       var doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
-      db.save(doc);
       db.commit();
     }
 
@@ -60,7 +59,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.begin();
       var doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
-      db.save(doc);
       db.commit();
     }
 
@@ -78,7 +76,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.begin();
       var doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
-      db.save(doc);
       db.commit();
     }
 
@@ -97,7 +94,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     for (var i = 0; i < 150; i++) {
       var doc = ((EntityImpl) db.newEntity("Some"));
       doc.setProperty("prop", "value");
-      db.save(doc);
     }
     var res = db.query("select from Some");
 
@@ -121,7 +117,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     var emb = ((EntityImpl) db.newEntity());
     emb.setProperty("one", "value");
     doc.setProperty("emb", emb, PropertyType.EMBEDDED);
-    db.save(doc);
     db.commit();
 
     var res = db.query("select emb from Some");
@@ -143,7 +138,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     emb.setProperty("secEmb", emb1, PropertyType.EMBEDDED);
 
     doc.setProperty("emb", emb, PropertyType.EMBEDDED);
-    db.save(doc);
     db.commit();
 
     var res = db.query("select emb from Some");
@@ -165,7 +159,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     List<Object> list = new ArrayList<>();
     list.add(emb);
     doc.setProperty("list", list, PropertyType.EMBEDDEDLIST);
-    db.save(doc);
     db.commit();
 
     var res = db.query("select list from Some");
@@ -186,7 +179,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     Set<EntityImpl> set = new HashSet<>();
     set.add(emb);
     doc.setProperty("set", set, PropertyType.EMBEDDEDSET);
-    db.save(doc);
     db.commit();
 
     var res = db.query("select set from Some");
@@ -208,7 +200,6 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     Map<String, EntityImpl> map = new HashMap<>();
     map.put("key", emb);
     doc.setProperty("map", map, PropertyType.EMBEDDEDMAP);
-    db.save(doc);
     db.commit();
 
     var res = db.query("select map from Some");

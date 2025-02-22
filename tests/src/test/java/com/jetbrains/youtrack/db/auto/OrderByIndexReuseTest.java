@@ -54,7 +54,6 @@ public class OrderByIndexReuseTest extends BaseDBTest {
       document.field("thirdProp", "prop" + (101 - i));
       document.field("prop4", "prop" + (101 - i));
 
-      document.save();
       session.commit();
     }
   }

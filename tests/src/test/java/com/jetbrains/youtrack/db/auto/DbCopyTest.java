@@ -56,7 +56,7 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
               otherDB.begin();
               EntityImpl doc = otherDB.newInstance(className);
               doc.field("num", 20 + i);
-              doc.save();
+
               otherDB.commit();
               try {
                 Thread.sleep(10);
@@ -77,7 +77,7 @@ public class DbCopyTest extends BaseDBTest implements CommandOutputListener {
       session.begin();
       EntityImpl doc = session.newInstance(className);
       doc.field("num", i);
-      doc.save();
+
       session.commit();
       try {
         Thread.sleep(10);

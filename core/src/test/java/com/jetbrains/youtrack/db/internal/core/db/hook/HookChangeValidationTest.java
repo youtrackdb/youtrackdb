@@ -43,7 +43,7 @@ public class HookChangeValidationTest extends DbTestBase {
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
     try {
-      doc.save();
+
       session.commit();
       Assert.fail("The document save should fail for validation exception");
     } catch (ValidationException ex) {
@@ -81,7 +81,7 @@ public class HookChangeValidationTest extends DbTestBase {
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
-    doc.save();
+
     session.commit();
 
     session.begin();
@@ -94,7 +94,6 @@ public class HookChangeValidationTest extends DbTestBase {
       doc.field("property1", "value1-update");
       doc.field("property2", "value2-update");
 
-      doc.save();
       session.commit();
       Assert.fail("The document save should fail for validation exception");
     } catch (ValidationException ex) {

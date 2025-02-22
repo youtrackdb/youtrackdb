@@ -80,7 +80,7 @@ public class DatabaseRepair extends DatabaseTool {
 
               if (fieldValue instanceof Identifiable) {
                 if (fixLink(fieldValue, db)) {
-                  entity.field(fieldName, (Identifiable) null);
+                  entity.field(fieldName, null);
                   fixedLinks++;
                   changed = true;
                   if (verbose) {
@@ -121,7 +121,6 @@ public class DatabaseRepair extends DatabaseTool {
 
             if (changed) {
               modifiedEntities++;
-              entity.save();
 
               if (verbose) {
                 message("\n-- updated entity " + entity.getIdentity());

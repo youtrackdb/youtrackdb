@@ -134,12 +134,12 @@ public class ServerCommandPostBatch extends ServerCommandDocumentAbstract {
         if (type.equals("c")) {
           // CREATE
           final var entity = getRecord(db, operation);
-          entity.save();
+
           lastResult = entity;
         } else if (type.equals("u")) {
           // UPDATE
           final var entity = getRecord(db, operation);
-          entity.save();
+
           lastResult = entity;
         } else if (type.equals("d")) {
           // DELETE

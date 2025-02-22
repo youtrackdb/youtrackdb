@@ -55,7 +55,7 @@ public class StorageEncryptionTestIT {
                   + " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis"
                   + " nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                   + " ");
-          document.save();
+
         }
 
         final Random random = ThreadLocalRandom.current();
@@ -194,7 +194,6 @@ public class StorageEncryptionTestIT {
                 + " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis"
                 + " nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                 + " ");
-        document.save();
 
         try (var resultSet = db.query("select from EncryptedData where id = ?", 10)) {
           assertTrue(resultSet.hasNext());

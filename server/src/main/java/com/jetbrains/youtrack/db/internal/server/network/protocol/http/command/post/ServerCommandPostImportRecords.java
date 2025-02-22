@@ -126,7 +126,6 @@ public class ServerCommandPostImportRecords extends ServerCommandDocumentAbstrac
               entity.field(columns.get(col), value);
             }
 
-            entity.save();
             imported++;
 
           } catch (Exception e) {

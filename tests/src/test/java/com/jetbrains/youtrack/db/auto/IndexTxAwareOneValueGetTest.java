@@ -48,8 +48,9 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     session.begin();
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2);
 
     session.commit();
 
@@ -63,7 +64,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     session.begin();
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 3).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 3);
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
     try (var stream = index.getInternal().getRids(session, 3)) {
@@ -94,8 +95,8 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
     var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
-    document.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2);
 
     session.commit();
 
@@ -141,8 +142,8 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
     var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
-    document.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2);
 
     session.commit();
 
@@ -158,10 +159,8 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     document = session.bindToSession(document);
     document.removeField(PROPERTY_NAME);
-    document.save();
 
     document.field(PROPERTY_NAME, 1);
-    document.save();
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
     try (var stream = index.getInternal().getRids(session, 1)) {
@@ -185,10 +184,9 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
     var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
-    document.save();
+
     document.field(PROPERTY_NAME, 0);
     document.field(PROPERTY_NAME, 1);
-    document.save();
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
     try (var stream = index.getInternal().getRids(session, 1)) {
@@ -211,7 +209,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
 
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
     try (var stream = index.getInternal().getRids(session, 1)) {
@@ -220,7 +218,8 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     session.commit();
 
     session.begin();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 2);
+
     session.commit();
 
     try (var stream = index.getInternal().getRids(session, 2)) {
@@ -239,7 +238,7 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
     var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
-    document.save();
+
     document.delete();
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
@@ -265,12 +264,10 @@ public class IndexTxAwareOneValueGetTest extends BaseDBTest {
     final var index = session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX);
 
     var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(PROPERTY_NAME, 1);
-    document.save();
 
     document.removeField(PROPERTY_NAME);
-    document.save();
 
-    document.field(PROPERTY_NAME, 1).save();
+    document.field(PROPERTY_NAME, 1);
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX));
     try (var stream = index.getInternal().getRids(session, 1)) {

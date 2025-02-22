@@ -63,13 +63,9 @@ public class SQLJson extends SimpleNode {
 
   public EntityImpl toEntity(Identifiable source, CommandContext ctx) {
     var className = getClassNameForDocument(ctx);
-    var db = ctx.getDatabaseSession();
-    EntityImpl entity;
-    if (className != null) {
-      entity = new EntityImpl(db, className);
-    } else {
-      entity = new EntityImpl(db);
-    }
+    var session = ctx.getDatabaseSession();
+    var entity = SQLUpdateItem.newEntityInstance(ctx, className, session);
+
     for (var item : items) {
       var name = item.getLeftValue();
       if (name == null) {
@@ -88,7 +84,8 @@ public class SQLJson extends SimpleNode {
   }
 
   private EntityImpl toEntity(Result source, CommandContext ctx, String className) {
-    var retDoc = new EntityImpl(ctx.getDatabaseSession(), className);
+    var session = ctx.getDatabaseSession();
+    var retDoc = SQLUpdateItem.newEntityInstance(ctx, className, session);
     Map<String, Character> types = null;
     for (var item : items) {
       var name = item.getLeftValue();

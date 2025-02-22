@@ -57,7 +57,7 @@ public class BetweenConversionTest extends BaseDBTest {
       document.field("d", ed);
 
       session.begin();
-      document.save();
+
       session.commit();
     }
   }

@@ -23,7 +23,7 @@ public class ClassIteratorTest extends DbTestBase {
     session.begin();
     final EntityImpl personDoc = session.newInstance(iClassName);
     personDoc.field("First", first);
-    personDoc.save();
+
     session.commit();
   }
 

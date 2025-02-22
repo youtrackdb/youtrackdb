@@ -45,7 +45,6 @@ public class LuceneGraphTxTest extends LuceneBaseTest {
 
     // save london
     session.begin();
-    session.save(v);
     session.commit();
 
     session.begin();
@@ -59,7 +58,6 @@ public class LuceneGraphTxTest extends LuceneBaseTest {
 
     // re-save
 
-    session.save(v);
     session.commit();
 
     // only berlin

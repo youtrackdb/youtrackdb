@@ -923,7 +923,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
   private void internalSave(DatabaseSessionInternal session) {
     session.begin();
     var entity = toStream(session);
-    entity.save();
+
     session.commit();
   }
 

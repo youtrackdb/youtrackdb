@@ -5,7 +5,6 @@ import static com.jetbrains.youtrack.db.api.config.GlobalConfiguration.QUERY_REM
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.config.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.session.SessionPool;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
@@ -166,7 +165,7 @@ public class RemoteTokenExpireTest {
 
     session.begin();
 
-    session.save(session.newEntity("Some"));
+    session.newEntity("Some");
 
     try (var res = session.query("select from Some")) {
       Assert.assertEquals(1, res.stream().count());
@@ -182,7 +181,7 @@ public class RemoteTokenExpireTest {
 
     session.begin();
 
-    session.save(session.newEntity("Some"));
+    session.newEntity("Some");
 
     try (var resultSet = session.query("select from Some")) {
       Assert.assertEquals(1, resultSet.stream().count());

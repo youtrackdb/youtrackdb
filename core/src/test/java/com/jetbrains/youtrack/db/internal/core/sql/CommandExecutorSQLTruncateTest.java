@@ -17,12 +17,10 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
 
     session.begin();
     var doc = (EntityImpl) session.newEntity("A");
-    session.save(doc);
     session.commit();
 
     session.begin();
     doc = (EntityImpl) session.newEntity("ab");
-    session.save(doc);
     session.commit();
 
     var ret = session.command("truncate class A ");
@@ -35,7 +33,6 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
 
     session.begin();
     var doc = (EntityImpl) session.newEntity("A");
-    session.save(doc);
     session.commit();
 
     session.getMetadata().getSchema().getClasses().stream()
@@ -56,12 +53,10 @@ public class CommandExecutorSQLTruncateTest extends DbTestBase {
 
     session.begin();
     var doc = (EntityImpl) session.newEntity("A");
-    session.save(doc);
     session.commit();
 
     session.begin();
     doc = (EntityImpl) session.newEntity("ab");
-    session.save(doc);
     session.commit();
 
     try (var res = session.command("truncate class A POLYMORPHIC")) {

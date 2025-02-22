@@ -43,7 +43,6 @@ public class TransactionRidAllocationTest {
   public void testAllocation() {
     db.begin();
     var v = db.newVertex("V");
-    db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((TransactionInternal) db.getTransaction());
@@ -66,7 +65,6 @@ public class TransactionRidAllocationTest {
   public void testAllocationCommit() {
     db.begin();
     var v = db.newVertex("V");
-    db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((FrontendTransactionOptimistic) db.getTransaction());
@@ -98,7 +96,6 @@ public class TransactionRidAllocationTest {
     db.activateOnCurrentThread();
     db.begin();
     var v = db.newVertex("V");
-    db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((TransactionInternal) db.getTransaction());
@@ -155,14 +152,13 @@ public class TransactionRidAllocationTest {
     // THIS OFFSET FIRST DB FROM THE SECOND
     for (var i = 0; i < 20; i++) {
       second.begin();
-      second.save(second.newVertex("V"));
+      second.newVertex("V");
       second.commit();
     }
 
     db.activateOnCurrentThread();
     db.begin();
     var v = db.newVertex("V");
-    db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
         .preallocateRids((FrontendTransactionOptimistic) db.getTransaction());
@@ -191,12 +187,11 @@ public class TransactionRidAllocationTest {
 
     List<DBRecord> orecords = new ArrayList<>();
     var v0 = db.newVertex("V");
-    db.save(v0);
     for (var i = 0; i < 20; i++) {
       var v = db.newVertex("V");
       var edge = v0.addStateFulEdge(v);
-      orecords.add(db.save(edge));
-      orecords.add(db.save(v));
+      orecords.add(edge);
+      orecords.add(v);
     }
 
     ((AbstractPaginatedStorage) db.getStorage())

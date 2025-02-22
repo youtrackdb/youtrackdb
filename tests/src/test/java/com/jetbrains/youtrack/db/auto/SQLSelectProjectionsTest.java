@@ -313,7 +313,6 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
 
       rootElement.setProperty("child", childElement, PropertyType.LINK);
 
-      rootElement.save();
       session.commit();
 
       var res =
@@ -349,7 +348,6 @@ public class SQLSelectProjectionsTest extends BaseDBTest {
       rootElement.setProperty("child", childElement, PropertyType.LINK);
       childElement.setProperty("root", List.of(rootElement), PropertyType.LINKLIST);
 
-      rootElement.save();
       session.commit();
 
       var res =

@@ -47,7 +47,7 @@ public class DefaultValueTest extends DbTestBase {
 
     session.begin();
     var doc = (EntityImpl) session.newEntity(classA);
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     session.begin();
@@ -79,7 +79,7 @@ public class DefaultValueTest extends DbTestBase {
 
     session.begin();
     var doc = (EntityImpl) session.newEntity(classA);
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     saved = session.bindToSession(saved);
@@ -110,7 +110,7 @@ public class DefaultValueTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("ClassA");
     doc.updateFromJSON("{\"@class\":\"ClassA\",\"other\":\"other\"}");
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     saved = session.bindToSession(saved);
@@ -131,7 +131,7 @@ public class DefaultValueTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("ClassA");
     doc.updateFromJSON("{\"@class\":\"ClassA\",\"date\":\"" + value1 + "\",\"other\":\"other\"}");
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     saved = session.bindToSession(saved);
@@ -153,7 +153,7 @@ public class DefaultValueTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("ClassA");
     doc.updateFromJSON("{\"@class\":\"ClassA\",\"other\":\"other\"}");
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     saved = session.bindToSession(saved);
@@ -176,7 +176,7 @@ public class DefaultValueTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("ClassA");
     doc.updateFromJSON("{\"@class\":\"ClassA\",\"date\":\"" + value1 + "\",\"other\":\"other\"}");
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     session.begin();
@@ -200,7 +200,7 @@ public class DefaultValueTest extends DbTestBase {
     session.begin();
     var doc = (EntityImpl) session.newEntity("ClassA");
     doc.updateFromJSON("{\"@class\":\"ClassA\",\"other\":\"other\"}");
-    EntityImpl saved = session.save(doc);
+    EntityImpl saved = doc;
     session.commit();
 
     session.begin();
@@ -215,7 +215,7 @@ public class DefaultValueTest extends DbTestBase {
     doc1.updateFromJSON("{\"@class\":\"ClassA\",\"date\":\"" + val + "\",\"other\":\"other1\"}");
     saved.merge(doc1, true, true);
 
-    saved = session.save(saved);
+    saved = saved;
     session.commit();
 
     saved = session.bindToSession(saved);

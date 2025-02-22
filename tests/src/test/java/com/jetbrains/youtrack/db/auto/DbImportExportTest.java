@@ -163,7 +163,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
         for (var i = 0; i < 100; i++) {
           session.begin();
           final var document = ((EntityImpl) session.newEntity(childCls));
-          document.save();
+
           session.commit();
 
           ridsToDelete.add(document.getIdentity());
@@ -183,7 +183,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
           final var embeddedDocument = ((EntityImpl) session.newEntity());
 
           final var doc = ((EntityImpl) session.newEntity(childCls));
-          doc.save();
+
           session.commit();
 
           embeddedDocument.field("link", doc.getIdentity());
@@ -192,7 +192,7 @@ public class DbImportExportTest extends BaseDBTest implements CommandOutputListe
 
         session.begin();
         rootDocument.field("embeddedList", documents);
-        rootDocument.save();
+
         session.commit();
 
         final var databaseExport =

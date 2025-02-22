@@ -13,7 +13,6 @@ public class TestSqlForeach extends DbTestBase {
 
     session.begin();
     var doc = ((EntityImpl) session.newEntity("Test"));
-    session.save(doc);
     session.commit();
 
     var result =

@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Base interface that represents a record element.
@@ -67,8 +67,10 @@ public interface RecordElement {
     }
   }
 
-  @Nonnull
+  @Nullable
   default DatabaseSessionInternal getSession() {
     return getOwnerEntity().getSession();
   }
+
+  void setOwner(RecordElement owner);
 }

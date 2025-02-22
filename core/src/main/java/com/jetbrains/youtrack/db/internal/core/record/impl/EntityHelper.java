@@ -34,8 +34,10 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
@@ -129,6 +131,10 @@ public class EntityHelper {
       @Nullable PropertyType type,
       @Nullable Class<?> fieldJavaClass,
       @Nullable Object value) {
+    if (value == null) {
+      return null;
+    }
+
     if (type == null) {
       type = PropertyType.getTypeByValue(value);
     }
@@ -164,7 +170,8 @@ public class EntityHelper {
         }
       }
     } else if (Set.class.isAssignableFrom(fieldJavaClass)) {
-      if (!(value instanceof Set)) {
+      if (!(value instanceof Set) || type.isLink() && !(value instanceof LinkSet) || !type.isLink()
+          && (value instanceof LinkSet)) {
         // CONVERT IT TO SET
         final Collection<?> newValue;
         if (type.isLink()) {
@@ -189,20 +196,24 @@ public class EntityHelper {
           for (var s : MultiValue.getMultiValueIterable(value)) {
             ((Collection<Object>) newValue).add(s);
           }
+        } else {
+          throw new IllegalArgumentException("Cannot convert value to set: " + value);
         }
         return (RET) newValue;
       } else {
         return (RET) value;
       }
     } else if (List.class.isAssignableFrom(fieldJavaClass)) {
-      if (!(value instanceof List)) {
+      if (!(value instanceof List) ||
+          type.isLink() && !(value instanceof LinkList)
+          || !type.isLink() && (value instanceof LinkList)) {
         // CONVERT IT TO LIST
         final Collection<?> newValue;
 
         if (type.isLink()) {
           newValue = new LinkList(entity);
         } else {
-          newValue = new TrackedList<Object>(entity);
+          newValue = new TrackedList<>(entity);
         }
 
         if (value instanceof Collection) {
@@ -222,11 +233,37 @@ public class EntityHelper {
           for (var s : MultiValue.getMultiValueIterable(value)) {
             ((Collection<Object>) newValue).add(s);
           }
+        } else {
+          throw new IllegalArgumentException("Cannot convert value to list: " + value);
         }
         return (RET) newValue;
       } else {
         return (RET) value;
       }
+    } else if (Map.class.isAssignableFrom(fieldJavaClass)) {
+      if (!(value instanceof Map<?, ?>) ||
+          type.isLink() && !(value instanceof LinkMap)
+          || !type.isLink() && (value instanceof LinkList)) {
+        // CONVERT IT TO LIST
+        final Map<String, ?> newValue;
+
+        if (type.isLink()) {
+          newValue = new LinkMap(entity);
+        } else {
+          newValue = new TrackedMap<>(entity);
+        }
+
+        if (value instanceof Map<?, ?>) {
+          ((Map<String, Object>) newValue).putAll((Map<String, Object>) value);
+        } else {
+          throw new IllegalArgumentException("Cannot convert value to map: " + value);
+        }
+
+        return (RET) newValue;
+      } else {
+        return (RET) value;
+      }
+
     } else if (value instanceof Enum) {
       // ENUM
       if (Number.class.isAssignableFrom(fieldJavaClass)) {

@@ -27,6 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -53,7 +54,8 @@ public class BasicCommandContext implements CommandContext {
   protected boolean recordMetrics = false;
   protected CommandContext parent;
   protected CommandContext child;
-  protected Map<String, Object> variables;
+  private Map<String, Object> variables;
+  private final Int2ObjectOpenHashMap<Object> systemVariables = new Int2ObjectOpenHashMap<>();
 
   protected Map<Object, Object> inputParameters;
 
@@ -74,6 +76,40 @@ public class BasicCommandContext implements CommandContext {
 
   public BasicCommandContext(DatabaseSessionInternal session) {
     this.session = session;
+  }
+
+  @Override
+  public <T> void setSystemVariable(int id, T value) {
+    if (parent != null) {
+      if (parent.hasSystemVariable(id)) {
+        parent.setSystemVariable(id, value);
+      } else {
+        systemVariables.put(id, value);
+      }
+    } else {
+      systemVariables.put(id, value);
+    }
+  }
+
+  @Override
+  public boolean hasSystemVariable(int id) {
+    if (systemVariables.containsKey(id)) {
+      return true;
+    } else if (parent != null) {
+      return parent.hasSystemVariable(id);
+    }
+    return false;
+  }
+
+  @Override
+  public <T> T getSystemVariable(int id) {
+    var value = systemVariables.get(id);
+    if (value != null) {
+      return (T) value;
+    } else if (parent != null) {
+      return parent.getSystemVariable(id);
+    }
+    return null;
   }
 
   public Object getVariable(String iName) {
@@ -185,7 +221,7 @@ public class BasicCommandContext implements CommandContext {
       return null;
     }
 
-    if (iName.startsWith("$")) {
+    if (!iName.isEmpty() && iName.charAt(0) == '$') {
       iName = iName.substring(1);
     }
 
@@ -386,6 +422,9 @@ public class BasicCommandContext implements CommandContext {
 
     if (variables != null && !variables.isEmpty()) {
       copy.variables.putAll(variables);
+    }
+    if (!systemVariables.isEmpty()) {
+      copy.systemVariables.putAll(systemVariables);
     }
 
     copy.recordMetrics = recordMetrics;

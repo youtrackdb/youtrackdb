@@ -16,7 +16,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
@@ -210,17 +209,16 @@ public class DocumentTest extends DbTestBase {
       var doc = (EntityImpl) db.newEntity(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
-      doc.save();
 
       doc.field("name", "My Name 2");
       doc.field("property", "value2");
       doc.undo(); // we decided undo everything
       doc.field("name", "My Name 3"); // change something
-      doc.save();
+
       doc.field("name", "My Name 4");
       doc.field("property", "value4");
       doc.undo("property"); // we decided undo readonly field
-      doc.save();
+
       db.commit();
     } finally {
       if (db != null) {
@@ -251,7 +249,7 @@ public class DocumentTest extends DbTestBase {
       var doc = (EntityImpl) db.newEntity(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
-      doc.save();
+
       db.commit();
 
       db.begin();
@@ -267,7 +265,7 @@ public class DocumentTest extends DbTestBase {
       doc.field("name", "My Name 3");
       assertEquals("My Name 3", doc.field("name"));
       assertEquals("value1", doc.field("property"));
-      doc.save();
+
       db.commit();
 
       db.begin();
@@ -277,7 +275,7 @@ public class DocumentTest extends DbTestBase {
       doc.undo("property");
       assertEquals("My Name 4", doc.field("name"));
       assertEquals("value1", doc.field("property"));
-      doc.save();
+
       db.commit();
 
       doc = db.bindToSession(doc);
@@ -305,7 +303,7 @@ public class DocumentTest extends DbTestBase {
 
     var source = (EntityImpl) session.newEntity();
     source.field("key", "value");
-    source.field("somenull", (Object) null);
+    source.field("somenull", null);
 
     dest.merge(source, true, false);
 
@@ -315,22 +313,15 @@ public class DocumentTest extends DbTestBase {
     session.rollback();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testFailNestedSetNull() {
-    session.executeInTx(() -> {
-      var doc = (EntityImpl) session.newEntity();
-      doc.field("test.nested", "value");
-    });
-  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailNullMapKey() {
     session.executeInTx(() -> {
       var doc = (EntityImpl) session.newEntity();
-      Map<String, String> map = new HashMap<String, String>();
+      var map = session.newEmbeddedMap();
       map.put(null, "dd");
       doc.field("testMap", map);
-      doc.convertAllMultiValuesToTrackedVersions();
+      doc.checkAllMultiValuesAreTrackedVersions();
     });
   }
 
@@ -364,16 +355,16 @@ public class DocumentTest extends DbTestBase {
   public void testNoDirtySameBytes() {
     session.begin();
 
-    var doc = (EntityImpl) session.newEntity();
+    var entity = (EntityImpl) session.newEntity();
     var bytes = new byte[]{0, 1, 2, 3, 4, 5};
-    doc.field("bytes", bytes);
-    EntityInternalUtils.clearTrackData(doc);
-    RecordInternal.unsetDirty(doc);
-    assertFalse(doc.isDirty());
-    assertNull(doc.getOriginalValue("bytes"));
-    doc.field("bytes", bytes.clone());
-    assertFalse(doc.isDirty());
-    assertNull(doc.getOriginalValue("bytes"));
+    entity.setBinary("bytes", bytes);
+    EntityInternalUtils.clearTrackData(entity);
+    RecordInternal.unsetDirty(entity);
+    assertFalse(entity.isDirty());
+    assertNull(entity.getOriginalValue("bytes"));
+    entity.setBinary("bytes", bytes.clone());
+    assertFalse(entity.isDirty());
+    assertNull(entity.getOriginalValue("bytes"));
 
     session.rollback();
   }

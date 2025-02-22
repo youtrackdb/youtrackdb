@@ -59,7 +59,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return 31;
-        }
+         }
          return -1;
       case 2:
         if ((active4 & 0x400L) != 0L) {
@@ -75,7 +75,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 2;
           }
           return 31;
-        }
+         }
          return -1;
       case 3:
         if ((active4 & 0x800L) != 0L) {
@@ -89,7 +89,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 4:
         if ((active4 & 0x400L) != 0L) {
@@ -105,7 +105,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 4;
           }
           return 31;
-        }
+         }
          return -1;
       case 5:
         if ((active4 & 0x800L) != 0L) {
@@ -121,7 +121,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 6:
         if ((active4 & 0x800L) != 0L) {
@@ -137,7 +137,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 7:
         if ((active4 & 0x800L) != 0L) {
@@ -153,7 +153,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 8:
         if ((active4 & 0x800L) != 0L) {
@@ -169,7 +169,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 9:
         if ((active4 & 0x800L) != 0L) {
@@ -185,7 +185,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 10:
         if ((active4 & 0x800L) != 0L) {
@@ -201,7 +201,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 11:
         if ((active4 & 0x400L) != 0L) {
@@ -210,7 +210,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 12:
         if ((active4 & 0x400L) != 0L) {
@@ -219,7 +219,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 13:
         if ((active4 & 0x400L) != 0L) {
@@ -228,7 +228,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
             jjmatchedPos = 1;
           }
           return -1;
-        }
+         }
          return -1;
       case 14:
         if ((active4 & 0x400L) != 0L) {
@@ -856,18 +856,19 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
     int i = 1;
     jjstateSet[0] = startState;
     int kind = 0x7fffffff;
-    for (; ; ) {
+   for (;;)
+   {
       if (++jjround == 0x7fffffff)
         ReInitRounds();
-      if (curChar < 64) {
-        long l = 1L << curChar;
-        do {
-          switch (jjstateSet[--i])
+     if (curChar < 64) {
+       long l = 1L << curChar;
+       do {
+         switch(jjstateSet[--i])
             {
                case 37:
                case 33:
                   jjCheckNAddStates(0, 2);
-                  break;
+                 break;
               case 946:
               case 31:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -884,8 +885,9 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   else if (curChar == 39)
                      jjCheckNAddStates(14, 18);
                   else if (curChar == 36) {
-                    if (kind > 254)
+                    if (kind > 254) {
                       kind = 254;
+                    }
                     jjCheckNAdd(31);
                   } else if (curChar == 34)
                      jjCheckNAddStates(19, 21);
@@ -943,7 +945,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                case 12:
                   if (curChar == 46)
-                     jjCheckNAdd(13);
+                    jjCheckNAdd(13);
                  break;
               case 13:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -954,7 +956,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                case 15:
                   if ((0x280000000000L & l) != 0L)
-                     jjCheckNAdd(16);
+                    jjCheckNAdd(16);
                  break;
               case 16:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -993,7 +995,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                case 26:
                   if ((0xff000000000000L & l) != 0L)
-                     jjCheckNAdd(24);
+                    jjCheckNAdd(24);
                  break;
               case 30:
                 if (curChar != 36)
@@ -1011,7 +1013,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                 if (kind > 262)
                      kind = 262;
-                  jjCheckNAdd(40);
+                jjCheckNAdd(40);
                 break;
               case 40:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -1042,7 +1044,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                case 60:
                   if ((0x280000000000L & l) != 0L)
-                     jjCheckNAdd(61);
+                    jjCheckNAdd(61);
                  break;
               case 61:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -1071,7 +1073,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                case 66:
                   if ((0x280000000000L & l) != 0L)
-                     jjCheckNAdd(67);
+                    jjCheckNAdd(67);
                  break;
               case 67:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -1201,7 +1203,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                 if (kind > 260)
                      kind = 260;
-                  jjCheckNAdd(567);
+                jjCheckNAdd(567);
                 break;
               case 567:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -1375,15 +1377,15 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                  break;
               case 1166:
                 if ((0xffffff7fffffdbffL & l) != 0L)
-                     jjCheckNAdd(1167);
+                  jjCheckNAdd(1167);
                 break;
               case 1167:
                 if (curChar == 39 && kind > 180)
-                     kind = 180;
+                  kind = 180;
                 break;
               case 1169:
                 if ((0x808400000000L & l) != 0L)
-                     jjCheckNAdd(1167);
+                  jjCheckNAdd(1167);
                 break;
               case 1170:
                 if ((0xff000000000000L & l) != 0L)
@@ -1391,7 +1393,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                 break;
               case 1171:
                 if ((0xff000000000000L & l) != 0L)
-                     jjCheckNAdd(1167);
+                  jjCheckNAdd(1167);
                 break;
               case 1172:
                 if ((0xf000000000000L & l) != 0L)
@@ -1488,7 +1490,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                  break;
               case 1199:
                 if (curChar == 46)
-                     jjCheckNAdd(1200);
+                  jjCheckNAdd(1200);
                 break;
               case 1200:
                 if ((0x3ff000000000000L & l) != 0L)
@@ -1496,7 +1498,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                 break;
               case 1202:
                 if ((0x280000000000L & l) != 0L)
-                     jjCheckNAdd(1203);
+                  jjCheckNAdd(1203);
                 break;
               case 1203:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -1511,11 +1513,11 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                  break;
               case 1206:
                 if (curChar == 46)
-                     jjCheckNAdd(1207);
+                  jjCheckNAdd(1207);
                 break;
               case 1208:
                 if ((0x280000000000L & l) != 0L)
-                     jjCheckNAdd(1209);
+                  jjCheckNAdd(1209);
                 break;
               case 1209:
                 if ((0x3ff000000000000L & l) == 0L)
@@ -1526,58 +1528,58 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                default : break;
             }
-        } while (i != startsAt);
-      } else if (curChar < 128) {
-        long l = 1L << (curChar & 077);
-        do {
-          switch (jjstateSet[--i]) {
-            case 1089:
-              if ((0x4000000040000L & l) != 0L)
+       } while (i != startsAt);
+     } else if (curChar < 128) {
+       long l = 1L << (curChar & 077);
+       do {
+         switch (jjstateSet[--i]) {
+           case 1089:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1135;
-              else if ((0x4000000040L & l) != 0L)
+             else if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1130;
-              else if ((0x10000000100000L & l) != 0L)
+             else if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1113;
-              else if ((0x8000000080000L & l) != 0L)
+             else if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1109;
-              else if ((0x40000000400000L & l) != 0L)
+             else if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1102;
-              else if ((0x800000008L & l) != 0L)
+             else if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1097;
-              if ((0x4000000040000L & l) != 0L)
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1124;
-              else if ((0x10000000100000L & l) != 0L)
+             else if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1090;
-              if ((0x4000000040000L & l) != 0L)
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1119;
-              if ((0x4000000040000L & l) != 0L)
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1116;
-              if ((0x4000000040000L & l) != 0L)
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1094;
-              break;
-            case 37:
-              if ((0xfffffffeffffffffL & l) != 0L)
+             break;
+           case 37:
+             if ((0xfffffffeffffffffL & l) != 0L)
                      jjCheckNAddStates(0, 2);
-              if (curChar == 92)
-                     jjCheckNAdd(34);
-              break;
-            case 946:
-              if ((0x7fffffe87fffffeL & l) != 0L) {
-                if (kind > 254)
-                        kind = 254;
-                jjCheckNAdd(31);
-              }
-              if ((0x100000001000L & l) != 0L)
+             if (curChar == 92)
+               jjCheckNAdd(34);
+             break;
+           case 946:
+             if ((0x7fffffe87fffffeL & l) != 0L) {
+               if (kind > 254)
+                 kind = 254;
+               jjCheckNAdd(31);
+             }
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 954;
-              if ((0x100000001000L & l) != 0L)
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 947;
-              break;
-            case 3:
-              if ((0x7fffffe87fffffeL & l) != 0L) {
-                if (kind > 254)
-                  kind = 254;
-                jjCheckNAdd(31);
-              } else if (curChar == 64)
+             break;
+           case 3:
+             if ((0x7fffffe87fffffeL & l) != 0L) {
+               if (kind > 254)
+                 kind = 254;
+               jjCheckNAdd(31);
+             } else if (curChar == 64)
                      jjAddStates(117, 127);
                   else if (curChar == 96)
                      jjCheckNAddTwoStates(33, 37);
@@ -1629,36 +1631,36 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                      jjCheckNAddTwoStates(50, 51);
                   else if (curChar == 109)
                      jjstateSet[jjnewStateCnt++] = 47;
-              break;
-            case 890:
-              if ((0x7fffffe87fffffeL & l) != 0L) {
-                if (kind > 254)
-                        kind = 254;
-                jjCheckNAdd(31);
-              }
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 890:
+             if ((0x7fffffe87fffffeL & l) != 0L) {
+               if (kind > 254)
+                 kind = 254;
+               jjCheckNAdd(31);
+             }
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 956;
-              else if ((0x800000008000L & l) != 0L)
+             else if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 953;
-              else if ((0x2000000020L & l) != 0L)
+             else if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 943;
-              if ((0x800000008000L & l) != 0L)
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 946;
-              else if ((0x2000000020L & l) != 0L)
+             else if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 938;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 932;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 919;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 910;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 906;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 901;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 896;
-              if ((0x2000000020L & l) != 0L)
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 891;
                   break;
                case 1:
@@ -1669,8 +1671,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 5;
                  break;
-            case 5:
-              if ((0x200000002L & l) != 0L && kind > 142)
+           case 5:
+             if ((0x200000002L & l) != 0L && kind > 142)
                      kind = 142;
                   break;
                case 6:
@@ -1689,20 +1691,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 10;
                  break;
-            case 14:
-              if ((0x2000000020L & l) != 0L)
+           case 14:
+             if ((0x2000000020L & l) != 0L)
                      jjAddStates(296, 297);
-              break;
-            case 17:
-              if ((0x5000000050L & l) != 0L && kind > 175)
+             break;
+           case 17:
+             if ((0x5000000050L & l) != 0L && kind > 175)
                      kind = 175;
                   break;
                case 19:
                   if ((0xffffffffefffffffL & l) != 0L)
                      jjCheckNAddStates(19, 21);
                  break;
-            case 20:
-              if (curChar == 92)
+           case 20:
+             if (curChar == 92)
                      jjAddStates(298, 300);
                   break;
                case 21:
@@ -1717,21 +1719,21 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 29;
                  break;
-            case 29:
-              if ((0x200000002000000L & l) != 0L && kind > 251)
-                     kind = 251;
-              break;
-            case 30:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 254)
+           case 29:
+             if ((0x200000002000000L & l) != 0L && kind > 251)
+               kind = 251;
+             break;
+           case 30:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 254)
                      kind = 254;
-                  jjCheckNAdd(31);
-              break;
-            case 31:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 254)
+             jjCheckNAdd(31);
+             break;
+           case 31:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 254)
                      kind = 254;
                   jjCheckNAdd(31);
                   break;
@@ -1749,17 +1751,17 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                case 35:
                   if (curChar == 92)
-                     jjCheckNAdd(34);
+                    jjCheckNAdd(34);
                  break;
-            case 36:
-              if (curChar == 96 && kind > 255)
+           case 36:
+             if (curChar == 96 && kind > 255)
                      kind = 255;
-                  break;
-            case 39:
-            case 40:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 262)
+             break;
+           case 39:
+           case 40:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 262)
                      kind = 262;
                   jjCheckNAdd(40);
                   break;
@@ -1799,32 +1801,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if (curChar == 105)
                      jjCheckNAddTwoStates(50, 51);
                  break;
-            case 50:
-              if (curChar == 115 && kind > 242)
-                     kind = 242;
-              break;
-            case 51:
-              if (curChar == 83 && kind > 242)
+           case 50:
+             if (curChar == 115 && kind > 242)
+               kind = 242;
+             break;
+           case 51:
+             if (curChar == 83 && kind > 242)
                      kind = 242;
                   break;
                case 52:
                   if (curChar == 73)
                      jjCheckNAddTwoStates(51, 50);
                  break;
-            case 55:
-              if ((0x2000000020L & l) != 0L)
+           case 55:
+             if ((0x2000000020L & l) != 0L)
                      jjAddStates(301, 302);
-              break;
-            case 59:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 59:
+             if ((0x2000000020L & l) != 0L)
                      jjAddStates(303, 304);
-              break;
-            case 65:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 65:
+             if ((0x2000000020L & l) != 0L)
                      jjAddStates(305, 306);
-              break;
-            case 68:
-              if ((0x8000000080000L & l) != 0L)
+             break;
+           case 68:
+             if ((0x8000000080000L & l) != 0L)
                      jjAddStates(278, 295);
                   break;
                case 69:
@@ -1995,8 +1997,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 111;
                  break;
-            case 111:
-              if ((0x2000000020L & l) != 0L && kind > 81)
+           case 111:
+             if ((0x2000000020L & l) != 0L && kind > 81)
                      kind = 81;
                   break;
                case 112:
@@ -2027,8 +2029,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 119;
                  break;
-            case 119:
-              if ((0x2000000020L & l) != 0L && kind > 93)
+           case 119:
+             if ((0x2000000020L & l) != 0L && kind > 93)
                      kind = 93;
                   break;
                case 120:
@@ -2063,12 +2065,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 128;
                  break;
-            case 128:
-              if ((0x1000000010L & l) != 0L)
+           case 128:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 129;
-              break;
-            case 129:
-              if ((0x2000000020L & l) != 0L && kind > 94)
+             break;
+           case 129:
+             if ((0x2000000020L & l) != 0L && kind > 94)
                      kind = 94;
                   break;
                case 130:
@@ -2079,12 +2081,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 132;
                  break;
-            case 132:
-              if ((0x2000000020L & l) != 0L)
+           case 132:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 133;
-              break;
-            case 133:
-              if ((0x1000000010000L & l) != 0L && kind > 132)
+             break;
+           case 133:
+             if ((0x1000000010000L & l) != 0L && kind > 132)
                      kind = 132;
                   break;
                case 134:
@@ -2099,12 +2101,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 137;
                  break;
-            case 137:
-              if ((0x2000000020L & l) != 0L)
+           case 137:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 138;
-              break;
-            case 138:
-              if ((0x1000000010L & l) != 0L && kind > 135)
+             break;
+           case 138:
+             if ((0x1000000010L & l) != 0L && kind > 135)
                      kind = 135;
                   break;
                case 139:
@@ -2127,12 +2129,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 144;
                  break;
-            case 144:
-              if ((0x800000008L & l) != 0L)
+           case 144:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 145;
-              break;
-            case 145:
-              if ((0x2000000020L & l) != 0L && kind > 137)
+             break;
+           case 145:
+             if ((0x2000000020L & l) != 0L && kind > 137)
                      kind = 137;
                   break;
                case 146:
@@ -2143,12 +2145,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 148;
                  break;
-            case 148:
-              if ((0x4000000040000L & l) != 0L)
+           case 148:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 149;
-              break;
-            case 149:
-              if ((0x10000000100000L & l) != 0L && kind > 138)
+             break;
+           case 149:
+             if ((0x10000000100000L & l) != 0L && kind > 138)
                      kind = 138;
                   break;
                case 150:
@@ -2163,12 +2165,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 153;
                  break;
-            case 153:
-              if ((0x20000000200000L & l) != 0L)
+           case 153:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 154;
-              break;
-            case 154:
-              if ((0x8000000080000L & l) != 0L && kind > 143)
+             break;
+           case 154:
+             if ((0x8000000080000L & l) != 0L && kind > 143)
                      kind = 143;
                   break;
                case 155:
@@ -2183,24 +2185,24 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 158;
                  break;
-            case 158:
-              if ((0x2000000020L & l) != 0L)
+           case 158:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 159;
-              break;
-            case 159:
-              if ((0x4000000040000L & l) != 0L && kind > 144)
+             break;
+           case 159:
+             if ((0x4000000040000L & l) != 0L && kind > 144)
                      kind = 144;
                   break;
                case 160:
                   if ((0x200000002000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 161;
                  break;
-            case 161:
-              if ((0x400000004000L & l) != 0L)
+           case 161:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 162;
-              break;
-            case 162:
-              if ((0x800000008L & l) != 0L && kind > 145)
+             break;
+           case 162:
+             if ((0x800000008L & l) != 0L && kind > 145)
                      kind = 145;
                   break;
                case 163:
@@ -2223,12 +2225,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 168;
                  break;
-            case 168:
-              if ((0x10000000100000L & l) != 0L)
+           case 168:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 169;
-              break;
-            case 169:
-              if ((0x200000002000000L & l) != 0L && kind > 156)
+             break;
+           case 169:
+             if ((0x200000002000000L & l) != 0L && kind > 156)
                      kind = 156;
                   break;
                case 170:
@@ -2243,16 +2245,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 173;
                  break;
-            case 173:
-              if ((0x2000000020L & l) != 0L)
+           case 173:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 174;
-              break;
-            case 174:
-              if ((0x200000002000L & l) != 0L && kind > 158)
-                     kind = 158;
-              break;
-            case 175:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 174:
+             if ((0x200000002000L & l) != 0L && kind > 158)
+               kind = 158;
+             break;
+           case 175:
+             if ((0x10000000100000L & l) != 0L)
                      jjAddStates(272, 277);
                   break;
                case 176:
@@ -2275,12 +2277,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 181;
                  break;
-            case 181:
-              if ((0x8000000080000L & l) != 0L)
+           case 181:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 182;
-              break;
-            case 182:
-              if ((0x2000000020L & l) != 0L && kind > 12)
+             break;
+           case 182:
+             if ((0x2000000020L & l) != 0L && kind > 12)
                      kind = 12;
                   break;
                case 183:
@@ -2303,12 +2305,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 188;
                  break;
-            case 188:
-              if ((0x20000000200000L & l) != 0L)
+           case 188:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 189;
-              break;
-            case 189:
-              if ((0x10000000100000L & l) != 0L && kind > 46)
+             break;
+           case 189:
+             if ((0x10000000100000L & l) != 0L && kind > 46)
                      kind = 46;
                   break;
                case 190:
@@ -2331,40 +2333,40 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 195;
                  break;
-            case 195:
-              if ((0x10000000100000L & l) != 0L)
+           case 195:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 196;
-              break;
-            case 196:
-              if ((0x2000000020L & l) != 0L && kind > 84)
+             break;
+           case 196:
+             if ((0x2000000020L & l) != 0L && kind > 84)
                      kind = 84;
                   break;
                case 197:
                   if ((0x200000002000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 198;
                  break;
-            case 198:
-              if ((0x1000000010000L & l) != 0L)
+           case 198:
+             if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 199;
-              break;
-            case 199:
-              if ((0x2000000020L & l) != 0L && kind > 112)
+             break;
+           case 199:
+             if ((0x2000000020L & l) != 0L && kind > 112)
                      kind = 112;
                   break;
                case 200:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 201;
                  break;
-            case 201:
-              if ((0x20000000200000L & l) != 0L)
+           case 201:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 202;
-              break;
-            case 202:
-              if ((0x2000000020L & l) != 0L && kind > 184)
-                     kind = 184;
-              break;
-            case 203:
-              if ((0x200000002000L & l) != 0L)
+             break;
+           case 202:
+             if ((0x2000000020L & l) != 0L && kind > 184)
+               kind = 184;
+             break;
+           case 203:
+             if ((0x200000002000L & l) != 0L)
                      jjAddStates(265, 271);
                   break;
                case 204:
@@ -2375,8 +2377,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 206;
                  break;
-            case 206:
-              if ((0x800000008L & l) != 0L)
+           case 206:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 207;
                   break;
                case 207:
@@ -2391,12 +2393,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 210;
                  break;
-            case 210:
-              if ((0x8000000080L & l) != 0L)
+           case 210:
+             if ((0x8000000080L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 211;
-              break;
-            case 211:
-              if ((0x2000000020L & l) != 0L && kind > 31)
+             break;
+           case 211:
+             if ((0x2000000020L & l) != 0L && kind > 31)
                      kind = 31;
                   break;
                case 212:
@@ -2419,12 +2421,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 217;
                  break;
-            case 217:
-              if ((0x10000000100000L & l) != 0L)
+           case 217:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 218;
-              break;
-            case 218:
-              if ((0x10000000100L & l) != 0L && kind > 72)
+             break;
+           case 218:
+             if ((0x10000000100L & l) != 0L && kind > 72)
                      kind = 72;
                   break;
                case 219:
@@ -2447,12 +2449,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 224;
                  break;
-            case 224:
-              if ((0x10000000100000L & l) != 0L)
+           case 224:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 225;
-              break;
-            case 225:
-              if ((0x10000000100L & l) != 0L && kind > 73)
+             break;
+           case 225:
+             if ((0x10000000100L & l) != 0L && kind > 73)
                      kind = 73;
                   break;
                case 226:
@@ -2475,24 +2477,24 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 231;
                  break;
-            case 231:
-              if ((0x10000000100000L & l) != 0L)
+           case 231:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 232;
-              break;
-            case 232:
-              if ((0x200000002L & l) != 0L && kind > 103)
+             break;
+           case 232:
+             if ((0x200000002L & l) != 0L && kind > 103)
                      kind = 103;
                   break;
                case 233:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 234;
                  break;
-            case 234:
-              if ((0x40000000400000L & l) != 0L)
+           case 234:
+             if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 235;
-              break;
-            case 235:
-              if ((0x2000000020L & l) != 0L && kind > 148)
+             break;
+           case 235:
+             if ((0x2000000020L & l) != 0L && kind > 148)
                      kind = 148;
                   break;
                case 236:
@@ -2511,16 +2513,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 240;
                  break;
-            case 240:
-              if ((0x2000000020L & l) != 0L)
+           case 240:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 241;
-              break;
-            case 241:
-              if ((0x8000000080000L & l) != 0L && kind > 250)
-                     kind = 250;
-              break;
-            case 242:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 241:
+             if ((0x8000000080000L & l) != 0L && kind > 250)
+               kind = 250;
+             break;
+           case 242:
+             if ((0x20000000200L & l) != 0L)
                      jjAddStates(250, 264);
                   break;
                case 243:
@@ -2535,24 +2537,24 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 246;
                  break;
-            case 246:
-              if ((0x4000000040000L & l) != 0L)
+           case 246:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 247;
-              break;
-            case 247:
-              if ((0x10000000100000L & l) != 0L && kind > 14)
+             break;
+           case 247:
+             if ((0x10000000100000L & l) != 0L && kind > 14)
                      kind = 14;
                   break;
                case 248:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 249;
                  break;
-            case 249:
-              if ((0x10000000100000L & l) != 0L)
+           case 249:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 250;
-              break;
-            case 250:
-              if ((0x800000008000L & l) != 0L && kind > 25)
+             break;
+           case 250:
+             if ((0x800000008000L & l) != 0L && kind > 25)
                      kind = 25;
                   break;
                case 251:
@@ -2579,12 +2581,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 257;
                  break;
-            case 257:
-              if ((0x400000004000L & l) != 0L)
+           case 257:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 258;
-              break;
-            case 258:
-              if ((0x10000000100000L & l) != 0L && kind > 34)
+             break;
+           case 258:
+             if ((0x10000000100000L & l) != 0L && kind > 34)
                      kind = 34;
                   break;
                case 259:
@@ -2595,16 +2597,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 261;
                  break;
-            case 261:
-              if ((0x2000000020L & l) != 0L)
+           case 261:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 262;
-              break;
-            case 262:
-              if ((0x100000001000000L & l) != 0L && kind > 104)
-                     kind = 104;
-              break;
-            case 263:
-              if ((0x1000000010L & l) != 0L && kind > 108)
+             break;
+           case 262:
+             if ((0x100000001000000L & l) != 0L && kind > 104)
+               kind = 104;
+             break;
+           case 263:
+             if ((0x1000000010L & l) != 0L && kind > 108)
                      kind = 108;
                   break;
                case 264:
@@ -2623,12 +2625,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 268;
                  break;
-            case 268:
-              if ((0x8000000080000L & l) != 0L)
+           case 268:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 269;
-              break;
-            case 269:
-              if ((0x2000000020L & l) != 0L && kind > 113)
+             break;
+           case 269:
+             if ((0x2000000020L & l) != 0L && kind > 113)
                      kind = 113;
                   break;
                case 270:
@@ -2659,16 +2661,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 277;
                  break;
-            case 277:
-              if ((0x400000004000L & l) != 0L)
+           case 277:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 278;
-              break;
-            case 278:
-              if ((0x10000000100000L & l) != 0L && kind > 123)
-                     kind = 123;
-              break;
-            case 279:
-              if ((0x4000000040L & l) != 0L && kind > 128)
+             break;
+           case 278:
+             if ((0x10000000100000L & l) != 0L && kind > 123)
+               kind = 123;
+             break;
+           case 279:
+             if ((0x4000000040L & l) != 0L && kind > 128)
                      kind = 128;
                   break;
                case 280:
@@ -2699,16 +2701,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 287;
                  break;
-            case 287:
-              if ((0x2000000020L & l) != 0L)
+           case 287:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 288;
-              break;
-            case 288:
-              if ((0x1000000010L & l) != 0L && kind > 151)
-                     kind = 151;
-              break;
-            case 289:
-              if ((0x400000004000L & l) != 0L && kind > 240)
+             break;
+           case 288:
+             if ((0x1000000010L & l) != 0L && kind > 151)
+               kind = 151;
+             break;
+           case 289:
+             if ((0x400000004000L & l) != 0L && kind > 240)
                      kind = 240;
                   break;
                case 290:
@@ -2739,12 +2741,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 297;
                  break;
-            case 297:
-              if ((0x800000008000L & l) != 0L)
+           case 297:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 298;
-              break;
-            case 298:
-              if ((0x4000000040L & l) != 0L && kind > 252)
+             break;
+           case 298:
+             if ((0x4000000040L & l) != 0L && kind > 252)
                      kind = 252;
                   break;
                case 299:
@@ -2759,8 +2761,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 302;
                  break;
-            case 302:
-              if ((0x100000001000000L & l) != 0L)
+           case 302:
+             if ((0x100000001000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 303;
                   break;
                case 304:
@@ -2799,32 +2801,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 313;
                  break;
-            case 313:
-              if ((0x8000000080000L & l) != 0L)
+           case 313:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 314;
-              break;
-            case 315:
-              if (curChar == 95)
+             break;
+           case 315:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 316;
-                  break;
-            case 316:
-            case 317:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 257)
+             break;
+           case 316:
+           case 317:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 257)
                      kind = 257;
                   jjCheckNAddTwoStates(317, 318);
-                  break;
-            case 319:
-            case 320:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 257)
+             break;
+           case 319:
+           case 320:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 257)
                      kind = 257;
                   jjCheckNAddTwoStates(318, 320);
-              break;
-            case 321:
-              if (curChar == 95)
+             break;
+           case 321:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 315;
                   break;
                case 322:
@@ -2879,8 +2881,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 333;
                  break;
-            case 335:
-              if (curChar == 95)
+           case 335:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 334;
                   break;
                case 336:
@@ -2931,32 +2933,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 348;
                  break;
-            case 348:
-              if ((0x800000008L & l) != 0L)
+           case 348:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 349;
-              break;
-            case 350:
-              if (curChar == 95)
+             break;
+           case 350:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 351;
-                  break;
-            case 351:
-            case 352:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 258)
+             break;
+           case 351:
+           case 352:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 258)
                      kind = 258;
                   jjCheckNAddTwoStates(352, 353);
-                  break;
-            case 354:
-            case 355:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 258)
+             break;
+           case 354:
+           case 355:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 258)
                      kind = 258;
                   jjCheckNAddTwoStates(353, 355);
-              break;
-            case 356:
-              if (curChar == 95)
+             break;
+           case 356:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 350;
                   break;
                case 357:
@@ -3011,8 +3013,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 368;
                  break;
-            case 370:
-              if (curChar == 95)
+           case 370:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 369;
                   break;
                case 371:
@@ -3067,32 +3069,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 384;
                  break;
-            case 384:
-              if ((0x800000008L & l) != 0L)
+           case 384:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 385;
-              break;
-            case 386:
-              if (curChar == 95)
+             break;
+           case 386:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 387;
-                  break;
-            case 387:
-            case 388:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 259)
+             break;
+           case 387:
+           case 388:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 259)
                      kind = 259;
                   jjCheckNAddTwoStates(388, 389);
-                  break;
-            case 390:
-            case 391:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 259)
+             break;
+           case 390:
+           case 391:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 259)
                      kind = 259;
                   jjCheckNAddTwoStates(389, 391);
-              break;
-            case 392:
-              if (curChar == 95)
+             break;
+           case 392:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 386;
                   break;
                case 393:
@@ -3147,12 +3149,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 404;
                  break;
-            case 406:
-              if (curChar == 95)
+           case 406:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 405;
-              break;
-            case 407:
-              if ((0x800000008L & l) != 0L)
+             break;
+           case 407:
+             if ((0x800000008L & l) != 0L)
                      jjAddStates(227, 249);
                   break;
                case 408:
@@ -3167,12 +3169,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 411;
                  break;
-            case 411:
-              if ((0x10000000100000L & l) != 0L)
+           case 411:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 412;
-              break;
-            case 412:
-              if ((0x2000000020L & l) != 0L && kind > 15)
+             break;
+           case 412:
+             if ((0x2000000020L & l) != 0L && kind > 15)
                      kind = 15;
                   break;
                case 413:
@@ -3191,12 +3193,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 417;
                  break;
-            case 417:
-              if ((0x400000004000L & l) != 0L)
+           case 417:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 418;
-              break;
-            case 418:
-              if ((0x10000000100000L & l) != 0L && kind > 32)
+             break;
+           case 418:
+             if ((0x10000000100000L & l) != 0L && kind > 32)
                      kind = 32;
                   break;
                case 419:
@@ -3207,12 +3209,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 421;
                  break;
-            case 421:
-              if ((0x10000000100L & l) != 0L)
+           case 421:
+             if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 422;
-              break;
-            case 422:
-              if ((0x2000000020L & l) != 0L && kind > 58)
+             break;
+           case 422:
+             if ((0x2000000020L & l) != 0L && kind > 58)
                      kind = 58;
                   break;
                case 423:
@@ -3223,12 +3225,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 425;
                  break;
-            case 425:
-              if ((0x100000001000L & l) != 0L)
+           case 425:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 426;
-              break;
-            case 426:
-              if ((0x2000000020L & l) != 0L && kind > 59)
+             break;
+           case 426:
+             if ((0x2000000020L & l) != 0L && kind > 59)
                      kind = 59;
                   break;
                case 427:
@@ -3239,12 +3241,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 429;
                  break;
-            case 429:
-              if ((0x8000000080000L & l) != 0L)
+           case 429:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 430;
-              break;
-            case 430:
-              if ((0x8000000080000L & l) != 0L && kind > 74)
+             break;
+           case 430:
+             if ((0x8000000080000L & l) != 0L && kind > 74)
                      kind = 74;
                   break;
                case 431:
@@ -3263,12 +3265,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 435;
                  break;
-            case 435:
-              if ((0x2000000020L & l) != 0L)
+           case 435:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 436;
-              break;
-            case 436:
-              if ((0x8000000080000L & l) != 0L && kind > 76)
+             break;
+           case 436:
+             if ((0x8000000080000L & l) != 0L && kind > 76)
                      kind = 76;
                   break;
                case 437:
@@ -3291,12 +3293,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 442;
                  break;
-            case 442:
-              if ((0x4000000040000L & l) != 0L)
+           case 442:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 443;
-              break;
-            case 443:
-              if ((0x8000000080000L & l) != 0L && kind > 89)
+             break;
+           case 443:
+             if ((0x8000000080000L & l) != 0L && kind > 89)
                      kind = 89;
                   break;
                case 444:
@@ -3311,12 +3313,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 447;
                  break;
-            case 447:
-              if ((0x800000008000L & l) != 0L)
+           case 447:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 448;
-              break;
-            case 448:
-              if ((0x200000002000L & l) != 0L && kind > 97)
+             break;
+           case 448:
+             if ((0x200000002000L & l) != 0L && kind > 97)
                      kind = 97;
                   break;
                case 449:
@@ -3371,16 +3373,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 462;
                  break;
-            case 462:
-              if ((0x20000000200L & l) != 0L)
+           case 462:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 463;
                   break;
                case 463:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 464;
                  break;
-            case 464:
-              if ((0x400000004000L & l) != 0L && kind > 98)
+           case 464:
+             if ((0x400000004000L & l) != 0L && kind > 98)
                      kind = 98;
                   break;
                case 465:
@@ -3395,16 +3397,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 468;
                  break;
-            case 468:
-              if ((0x200000002L & l) != 0L)
+           case 468:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 469;
                   break;
                case 469:
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 470;
                  break;
-            case 470:
-              if ((0x2000000020L & l) != 0L && kind > 105)
+           case 470:
+             if ((0x2000000020L & l) != 0L && kind > 105)
                      kind = 105;
                   break;
                case 471:
@@ -3415,16 +3417,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 473;
                  break;
-            case 473:
-              if ((0x200000002000L & l) != 0L)
+           case 473:
+             if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 474;
                   break;
                case 474:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 475;
                  break;
-            case 475:
-              if ((0x10000000100000L & l) != 0L && kind > 126)
+           case 475:
+             if ((0x10000000100000L & l) != 0L && kind > 126)
                      kind = 126;
                   break;
                case 476:
@@ -3443,16 +3445,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 480;
                  break;
-            case 480:
-              if ((0x400000004000L & l) != 0L)
+           case 480:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 481;
                   break;
                case 481:
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 482;
                  break;
-            case 482:
-              if ((0x2000000020L & l) != 0L && kind > 130)
+           case 482:
+             if ((0x2000000020L & l) != 0L && kind > 130)
                      kind = 130;
                   break;
                case 483:
@@ -3467,32 +3469,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 486;
                  break;
-            case 486:
-              if ((0x800000008000L & l) != 0L)
+           case 486:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 487;
                   break;
                case 487:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 488;
                  break;
-            case 488:
-              if ((0x2000000020L & l) != 0L && kind > 133)
+           case 488:
+             if ((0x2000000020L & l) != 0L && kind > 133)
                      kind = 133;
                   break;
                case 489:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 490;
                  break;
-            case 490:
-              if ((0x20000000200000L & l) != 0L)
+           case 490:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 491;
                   break;
                case 491:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 492;
                  break;
-            case 492:
-              if ((0x10000000100000L & l) != 0L && kind > 140)
+           case 492:
+             if ((0x10000000100000L & l) != 0L && kind > 140)
                      kind = 140;
                   break;
                case 493:
@@ -3511,16 +3513,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 497;
                  break;
-            case 497:
-              if ((0x20000000200L & l) != 0L)
+           case 497:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 498;
                   break;
                case 498:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 499;
                  break;
-            case 499:
-              if ((0x8000000080000L & l) != 0L && kind > 244)
+           case 499:
+             if ((0x8000000080000L & l) != 0L && kind > 244)
                      kind = 244;
                   break;
                case 500:
@@ -3551,16 +3553,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 507;
                  break;
-            case 507:
-              if ((0x200000002L & l) != 0L)
+           case 507:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 508;
                   break;
                case 508:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 509;
                  break;
-            case 509:
-              if ((0x100000001000L & l) != 0L && kind > 245)
+           case 509:
+             if ((0x100000001000L & l) != 0L && kind > 245)
                      kind = 245;
                   break;
                case 510:
@@ -3591,16 +3593,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 517;
                  break;
-            case 517:
-              if ((0x200000002L & l) != 0L)
+           case 517:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 518;
                   break;
                case 518:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 519;
                  break;
-            case 519:
-              if ((0x200000002000000L & l) != 0L && kind > 246)
+           case 519:
+             if ((0x200000002000000L & l) != 0L && kind > 246)
                      kind = 246;
                   break;
                case 520:
@@ -3631,16 +3633,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 527;
                  break;
-            case 527:
-              if ((0x80000000800L & l) != 0L)
+           case 527:
+             if ((0x80000000800L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 528;
                   break;
                case 528:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 529;
                  break;
-            case 529:
-              if ((0x200000002000000L & l) != 0L && kind > 247)
+           case 529:
+             if ((0x200000002000000L & l) != 0L && kind > 247)
                      kind = 247;
                   break;
                case 530:
@@ -3679,16 +3681,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 539;
                  break;
-            case 539:
-              if ((0x100000001000L & l) != 0L)
+           case 539:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 540;
                   break;
                case 540:
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 541;
                  break;
-            case 541:
-              if ((0x2000000020L & l) != 0L && kind > 248)
+           case 541:
+             if ((0x2000000020L & l) != 0L && kind > 248)
                      kind = 248;
                   break;
                case 542:
@@ -3723,16 +3725,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 550;
                  break;
-            case 550:
-              if ((0x2000000020L & l) != 0L)
+           case 550:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 551;
                   break;
                case 551:
                   if ((0x100000001000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 552;
                  break;
-            case 552:
-              if ((0x10000000100000L & l) != 0L && kind > 249)
+           case 552:
+             if ((0x10000000100000L & l) != 0L && kind > 249)
                      kind = 249;
                   break;
                case 553:
@@ -3747,16 +3749,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 556;
                  break;
-            case 556:
-              if ((0x10000000100000L & l) != 0L)
+           case 556:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 557;
                   break;
                case 557:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 558;
                  break;
-            case 558:
-              if ((0x4000000040000L & l) != 0L && kind > 253)
+           case 558:
+             if ((0x4000000040000L & l) != 0L && kind > 253)
                      kind = 253;
                   break;
                case 559:
@@ -3775,19 +3777,19 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 563;
                  break;
-            case 563:
-              if ((0x2000000020L & l) != 0L)
+           case 563:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 564;
-              break;
-            case 564:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 564:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 565;
-                  break;
-            case 566:
-            case 567:
-              if ((0x7fffffe87fffffeL & l) == 0L)
-                break;
-              if (kind > 260)
+             break;
+           case 566:
+           case 567:
+             if ((0x7fffffe87fffffeL & l) == 0L)
+               break;
+             if (kind > 260)
                      kind = 260;
                   jjCheckNAdd(567);
                   break;
@@ -3807,31 +3809,31 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 572;
                  break;
-            case 572:
-              if ((0x2000000020L & l) != 0L)
+           case 572:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 573;
-              break;
-            case 573:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 573:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 574;
-              break;
-            case 577:
-              if ((0x100000001000L & l) != 0L && kind > 261)
-                     kind = 261;
-              break;
-            case 579:
-              if ((0x100000001000000L & l) != 0L)
-                     jjCheckNAdd(580);
-              break;
-            case 580:
-              if ((0x7e0000007eL & l) == 0L)
-                break;
-              if (kind > 261)
+             break;
+           case 577:
+             if ((0x100000001000L & l) != 0L && kind > 261)
+               kind = 261;
+             break;
+           case 579:
+             if ((0x100000001000000L & l) != 0L)
+               jjCheckNAdd(580);
+             break;
+           case 580:
+             if ((0x7e0000007eL & l) == 0L)
+               break;
+             if (kind > 261)
                      kind = 261;
                   jjCheckNAddTwoStates(580, 577);
-              break;
-            case 582:
-              if ((0x1000000010L & l) != 0L)
+             break;
+           case 582:
+             if ((0x1000000010L & l) != 0L)
                      jjAddStates(217, 226);
                   break;
                case 583:
@@ -3842,16 +3844,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 585;
                  break;
-            case 585:
-              if ((0x2000000020L & l) != 0L)
+           case 585:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 586;
                   break;
                case 586:
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 587;
                  break;
-            case 587:
-              if ((0x2000000020L & l) != 0L && kind > 16)
+           case 587:
+             if ((0x2000000020L & l) != 0L && kind > 16)
                      kind = 16;
                   break;
                case 588:
@@ -3866,28 +3868,28 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 591;
                  break;
-            case 591:
-              if ((0x400000004000L & l) != 0L)
+           case 591:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 592;
                   break;
                case 592:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 593;
                  break;
-            case 593:
-              if ((0x1000000010L & l) != 0L && kind > 38)
-                     kind = 38;
-              break;
-            case 594:
-              if ((0x2000000020L & l) != 0L)
+           case 593:
+             if ((0x1000000010L & l) != 0L && kind > 38)
+               kind = 38;
+             break;
+           case 594:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 595;
                   break;
                case 595:
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 596;
                  break;
-            case 596:
-              if ((0x800000008L & l) != 0L && kind > 49)
+           case 596:
+             if ((0x800000008L & l) != 0L && kind > 49)
                      kind = 49;
                   break;
                case 597:
@@ -3918,16 +3920,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 604;
                  break;
-            case 604:
-              if ((0x4000000040000L & l) != 0L)
+           case 604:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 605;
                   break;
                case 605:
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 606;
                  break;
-            case 606:
-              if ((0x10000000100000L & l) != 0L && kind > 66)
+           case 606:
+             if ((0x10000000100000L & l) != 0L && kind > 66)
                      kind = 66;
                   break;
                case 607:
@@ -3958,28 +3960,28 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 614;
                  break;
-            case 614:
-              if ((0x20000000200L & l) != 0L)
+           case 614:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 615;
                   break;
                case 615:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 616;
                  break;
-            case 616:
-              if ((0x400000004000L & l) != 0L && kind > 99)
-                     kind = 99;
-              break;
-            case 617:
-              if ((0x4000000040000L & l) != 0L)
+           case 616:
+             if ((0x400000004000L & l) != 0L && kind > 99)
+               kind = 99;
+             break;
+           case 617:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 618;
                   break;
                case 618:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 619;
                  break;
-            case 619:
-              if ((0x1000000010000L & l) != 0L && kind > 100)
+           case 619:
+             if ((0x1000000010000L & l) != 0L && kind > 100)
                      kind = 100;
                   break;
                case 620:
@@ -3998,16 +4000,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x400000004L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 624;
                  break;
-            case 624:
-              if ((0x200000002L & l) != 0L)
+           case 624:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 625;
                   break;
                case 625:
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 626;
                  break;
-            case 626:
-              if ((0x2000000020L & l) != 0L && kind > 109)
+           case 626:
+             if ((0x2000000020L & l) != 0L && kind > 109)
                      kind = 109;
                   break;
                case 627:
@@ -4022,16 +4024,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 630;
                  break;
-            case 630:
-              if ((0x20000000200000L & l) != 0L)
+           case 630:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 631;
                   break;
                case 631:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 632;
                  break;
-            case 632:
-              if ((0x10000000100000L & l) != 0L && kind > 136)
+           case 632:
+             if ((0x10000000100000L & l) != 0L && kind > 136)
                      kind = 136;
                   break;
                case 633:
@@ -4050,16 +4052,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 637;
                  break;
-            case 637:
-              if ((0x400000004000L & l) != 0L)
+           case 637:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 638;
                   break;
                case 638:
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 639;
                  break;
-            case 639:
-              if ((0x10000000100000L & l) != 0L && kind > 141)
+           case 639:
+             if ((0x10000000100000L & l) != 0L && kind > 141)
                      kind = 141;
                   break;
                case 640:
@@ -4086,20 +4088,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 646;
                  break;
-            case 646:
-              if ((0x20000000200L & l) != 0L)
+           case 646:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 647;
                   break;
                case 647:
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 648;
                  break;
-            case 648:
-              if ((0x8000000080000L & l) != 0L && kind > 149)
-                     kind = 149;
-              break;
-            case 649:
-              if ((0x40000000400000L & l) != 0L)
+           case 648:
+             if ((0x8000000080000L & l) != 0L && kind > 149)
+               kind = 149;
+             break;
+           case 649:
+             if ((0x40000000400000L & l) != 0L)
                      jjAddStates(214, 216);
                   break;
                case 650:
@@ -4118,8 +4120,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 654;
                  break;
-            case 654:
-              if ((0x100000001000000L & l) != 0L && kind > 17)
+           case 654:
+             if ((0x100000001000000L & l) != 0L && kind > 17)
                      kind = 17;
                   break;
                case 655:
@@ -4134,16 +4136,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 658;
                  break;
-            case 658:
-              if ((0x2000000020L & l) != 0L && kind > 26)
-                     kind = 26;
-              break;
-            case 659:
-              if ((0x200000002L & l) != 0L)
+           case 658:
+             if ((0x2000000020L & l) != 0L && kind > 26)
+               kind = 26;
+             break;
+           case 659:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 660;
-              break;
-            case 660:
-              if ((0x100000001000L & l) != 0L)
+             break;
+           case 660:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 661;
                   break;
                case 661:
@@ -4154,32 +4156,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 663;
                  break;
-            case 663:
-              if ((0x8000000080000L & l) != 0L && kind > 27)
-                     kind = 27;
-              break;
-            case 664:
-              if ((0x2000000020L & l) != 0L)
+           case 663:
+             if ((0x8000000080000L & l) != 0L && kind > 27)
+               kind = 27;
+             break;
+           case 664:
+             if ((0x2000000020L & l) != 0L)
                      jjAddStates(206, 213);
-              break;
-            case 665:
-              if ((0x1000000010L & l) != 0L)
+             break;
+           case 665:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 666;
                   break;
                case 666:
                   if ((0x8000000080L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 667;
                  break;
-            case 667:
-              if ((0x2000000020L & l) != 0L && kind > 18)
+           case 667:
+             if ((0x2000000020L & l) != 0L && kind > 18)
                      kind = 18;
                   break;
                case 668:
                   if ((0x100000001000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 669;
                  break;
-            case 669:
-              if ((0x800000008L & l) != 0L)
+           case 669:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 670;
                   break;
                case 670:
@@ -4198,24 +4200,24 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 674;
                  break;
-            case 674:
-              if ((0x800000008000L & l) != 0L)
+           case 674:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 675;
-              break;
-            case 675:
-              if ((0x400000004000L & l) != 0L && kind > 79)
+             break;
+           case 675:
+             if ((0x400000004000L & l) != 0L && kind > 79)
                      kind = 79;
                   break;
                case 676:
                   if ((0x100000001000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 677;
                  break;
-            case 677:
-              if ((0x10000000100000L & l) != 0L)
+           case 677:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 678;
-              break;
-            case 678:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 678:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 679;
                   break;
                case 679:
@@ -4226,8 +4228,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 681;
                  break;
-            case 681:
-              if ((0x8000000080000L & l) != 0L && kind > 88)
+           case 681:
+             if ((0x8000000080000L & l) != 0L && kind > 88)
                      kind = 88;
                   break;
                case 682:
@@ -4246,8 +4248,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 686;
                  break;
-            case 686:
-              if ((0x2000000020L & l) != 0L && kind > 106)
+           case 686:
+             if ((0x2000000020L & l) != 0L && kind > 106)
                      kind = 106;
                   break;
                case 687:
@@ -4258,20 +4260,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 689;
                  break;
-            case 689:
-              if ((0x100000001000L & l) != 0L)
+           case 689:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 690;
-              break;
-            case 690:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 690:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 691;
                   break;
                case 691:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 692;
                  break;
-            case 692:
-              if ((0x400000004000L & l) != 0L && kind > 114)
+           case 692:
+             if ((0x400000004000L & l) != 0L && kind > 114)
                      kind = 114;
                   break;
                case 693:
@@ -4282,8 +4284,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 695;
                  break;
-            case 695:
-              if ((0x800000008L & l) != 0L)
+           case 695:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 696;
                   break;
                case 696:
@@ -4294,8 +4296,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 698;
                  break;
-            case 698:
-              if ((0x2000000020L & l) != 0L && kind > 118)
+           case 698:
+             if ((0x2000000020L & l) != 0L && kind > 118)
                      kind = 118;
                   break;
                case 699:
@@ -4306,8 +4308,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 701;
                  break;
-            case 701:
-              if ((0x2000000020L & l) != 0L && kind > 129)
+           case 701:
+             if ((0x2000000020L & l) != 0L && kind > 129)
                      kind = 129;
                   break;
                case 702:
@@ -4318,40 +4320,40 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 704;
                  break;
-            case 704:
-              if ((0x8000000080000L & l) != 0L)
+           case 704:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 705;
                   break;
                case 705:
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 706;
                  break;
-            case 706:
-              if ((0x8000000080000L & l) != 0L && kind > 146)
-                     kind = 146;
-              break;
-            case 707:
-              if ((0x20000000200000L & l) != 0L)
+           case 706:
+             if ((0x8000000080000L & l) != 0L && kind > 146)
+               kind = 146;
+             break;
+           case 707:
+             if ((0x20000000200000L & l) != 0L)
                      jjAddStates(199, 205);
                   break;
                case 708:
                   if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 709;
                  break;
-            case 709:
-              if ((0x1000000010L & l) != 0L)
+           case 709:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 710;
-              break;
-            case 710:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 710:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 711;
                   break;
                case 711:
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 712;
                  break;
-            case 712:
-              if ((0x2000000020L & l) != 0L && kind > 19)
+           case 712:
+             if ((0x2000000020L & l) != 0L && kind > 19)
                      kind = 19;
                   break;
                case 713:
@@ -4362,16 +4364,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 715;
                  break;
-            case 715:
-              if ((0x2000000020L & l) != 0L)
+           case 715:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 716;
-              break;
-            case 716:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 716:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 717;
-              break;
-            case 717:
-              if ((0x10000000100000L & l) != 0L && kind > 20)
+             break;
+           case 717:
+             if ((0x10000000100000L & l) != 0L && kind > 20)
                      kind = 20;
                   break;
                case 718:
@@ -4386,48 +4388,48 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 721;
                  break;
-            case 721:
-              if ((0x4000000040L & l) != 0L)
+           case 721:
+             if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 722;
-              break;
-            case 722:
-              if ((0x2000000020L & l) != 0L && kind > 63)
+             break;
+           case 722:
+             if ((0x2000000020L & l) != 0L && kind > 63)
                      kind = 63;
                   break;
                case 723:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 724;
                  break;
-            case 724:
-              if ((0x80000000800000L & l) != 0L)
+           case 724:
+             if ((0x80000000800000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 725;
                   break;
                case 725:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 726;
                  break;
-            case 726:
-              if ((0x400000004000L & l) != 0L)
+           case 726:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 727;
-              break;
-            case 727:
-              if ((0x1000000010L & l) != 0L && kind > 71)
+             break;
+           case 727:
+             if ((0x1000000010L & l) != 0L && kind > 71)
                      kind = 71;
                   break;
                case 728:
                   if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 729;
                  break;
-            case 729:
-              if ((0x1000000010L & l) != 0L)
+           case 729:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 730;
-              break;
-            case 730:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 730:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 731;
-              break;
-            case 731:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 731:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 732;
                   break;
                case 732:
@@ -4442,56 +4444,56 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 735;
                  break;
-            case 735:
-              if ((0x2000000020L & l) != 0L && kind > 78)
-                     kind = 78;
-              break;
-            case 736:
-              if ((0x8000000080000L & l) != 0L)
+           case 735:
+             if ((0x2000000020L & l) != 0L && kind > 78)
+               kind = 78;
+             break;
+           case 736:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 737;
                   break;
                case 737:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 738;
                  break;
-            case 738:
-              if ((0x4000000040000L & l) != 0L && kind > 153)
+           case 738:
+             if ((0x4000000040000L & l) != 0L && kind > 153)
                      kind = 153;
                   break;
                case 739:
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 740;
                  break;
-            case 740:
-              if ((0x2000000020L & l) != 0L)
+           case 740:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 741;
                   break;
                case 741:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 742;
                  break;
-            case 742:
-              if ((0x8000000080000L & l) != 0L && kind > 154)
-                     kind = 154;
-              break;
-            case 743:
-              if ((0x4000000040L & l) != 0L)
+           case 742:
+             if ((0x8000000080000L & l) != 0L && kind > 154)
+               kind = 154;
+             break;
+           case 743:
+             if ((0x4000000040L & l) != 0L)
                      jjAddStates(191, 198);
-              break;
-            case 744:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 744:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 745;
-              break;
-            case 745:
-              if ((0x800000008000L & l) != 0L)
+             break;
+           case 745:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 746;
-              break;
-            case 746:
-              if ((0x200000002000L & l) != 0L && kind > 21)
-                     kind = 21;
-              break;
-            case 747:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 746:
+             if ((0x200000002000L & l) != 0L && kind > 21)
+               kind = 21;
+             break;
+           case 747:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 748;
                   break;
                case 748:
@@ -4502,40 +4504,40 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 750;
                  break;
-            case 750:
-              if ((0x10000000100L & l) != 0L)
+           case 750:
+             if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 751;
-              break;
-            case 751:
-              if ((0x1000000010000L & l) != 0L)
+             break;
+           case 751:
+             if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 752;
-              break;
-            case 752:
-              if ((0x100000001000L & l) != 0L)
+             break;
+           case 752:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 753;
                   break;
                case 753:
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 754;
                  break;
-            case 754:
-              if ((0x400000004000L & l) != 0L && kind > 50)
-                     kind = 50;
-              break;
-            case 755:
-              if ((0x20000000200L & l) != 0L)
+           case 754:
+             if ((0x400000004000L & l) != 0L && kind > 50)
+               kind = 50;
+             break;
+           case 755:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 756;
                   break;
                case 756:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 757;
                  break;
-            case 757:
-              if ((0x1000000010L & l) != 0L && kind > 86)
-                     kind = 86;
-              break;
-            case 758:
-              if ((0x800000008000L & l) != 0L)
+           case 757:
+             if ((0x1000000010L & l) != 0L && kind > 86)
+               kind = 86;
+             break;
+           case 758:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 759;
                   break;
                case 759:
@@ -4546,48 +4548,48 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 761;
                  break;
-            case 761:
-              if ((0x2000000020L & l) != 0L && kind > 102)
+           case 761:
+             if ((0x2000000020L & l) != 0L && kind > 102)
                      kind = 102;
                   break;
                case 762:
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 763;
                  break;
-            case 763:
-              if ((0x400000004000L & l) != 0L)
+           case 763:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 764;
                   break;
                case 764:
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 765;
                  break;
-            case 765:
-              if ((0x10000000100000L & l) != 0L)
+           case 765:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 766;
-              break;
-            case 766:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 766:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 767;
                   break;
                case 767:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 768;
                  break;
-            case 768:
-              if ((0x400000004000L & l) != 0L && kind > 121)
-                     kind = 121;
-              break;
-            case 769:
-              if ((0x200000002L & l) != 0L)
+           case 768:
+             if ((0x400000004000L & l) != 0L && kind > 121)
+               kind = 121;
+             break;
+           case 769:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 770;
-              break;
-            case 770:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 770:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 771;
-              break;
-            case 771:
-              if ((0x100000001000L & l) != 0L && kind > 131)
+             break;
+           case 771:
+             if ((0x100000001000L & l) != 0L && kind > 131)
                      kind = 131;
                   break;
                case 772:
@@ -4610,8 +4612,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 777;
                  break;
-            case 777:
-              if ((0x10000000100L & l) != 0L && kind > 147)
+           case 777:
+             if ((0x10000000100L & l) != 0L && kind > 147)
                      kind = 147;
                   break;
                case 778:
@@ -4622,32 +4624,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 780;
                  break;
-            case 780:
-              if ((0x8000000080000L & l) != 0L)
+           case 780:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 781;
-              break;
-            case 781:
-              if ((0x2000000020L & l) != 0L && kind > 185)
-                     kind = 185;
-              break;
-            case 782:
-              if ((0x80000000800000L & l) != 0L)
+             break;
+           case 781:
+             if ((0x2000000020L & l) != 0L && kind > 185)
+               kind = 185;
+             break;
+           case 782:
+             if ((0x80000000800000L & l) != 0L)
                      jjAddStates(187, 190);
                   break;
                case 783:
                   if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 784;
                  break;
-            case 784:
-              if ((0x2000000020L & l) != 0L)
+           case 784:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 785;
                   break;
                case 785:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 786;
                  break;
-            case 786:
-              if ((0x2000000020L & l) != 0L && kind > 23)
+           case 786:
+             if ((0x2000000020L & l) != 0L && kind > 23)
                      kind = 23;
                   break;
                case 787:
@@ -4662,28 +4664,28 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 790;
                  break;
-            case 790:
-              if ((0x2000000020L & l) != 0L && kind > 24)
-                     kind = 24;
-              break;
-            case 791:
-              if ((0x200000002L & l) != 0L)
+           case 790:
+             if ((0x2000000020L & l) != 0L && kind > 24)
+               kind = 24;
+             break;
+           case 791:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 792;
                   break;
                case 792:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 793;
                  break;
-            case 793:
-              if ((0x10000000100000L & l) != 0L && kind > 55)
-                     kind = 55;
-              break;
-            case 794:
-              if ((0x20000000200L & l) != 0L)
+           case 793:
+             if ((0x10000000100000L & l) != 0L && kind > 55)
+               kind = 55;
+             break;
+           case 794:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 795;
-              break;
-            case 795:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 795:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 796;
                   break;
                case 796:
@@ -4694,160 +4696,160 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 798;
                  break;
-            case 798:
-              if ((0x400000004000L & l) != 0L && kind > 70)
-                     kind = 70;
-              break;
-            case 799:
-              if ((0x200000002L & l) != 0L)
+           case 798:
+             if ((0x400000004000L & l) != 0L && kind > 70)
+               kind = 70;
+             break;
+           case 799:
+             if ((0x200000002L & l) != 0L)
                      jjAddStates(178, 186);
-              break;
-            case 800:
-              if ((0x1000000010L & l) != 0L)
+             break;
+           case 800:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 801;
-              break;
-            case 801:
-              if ((0x1000000010L & l) != 0L && kind > 29)
-                     kind = 29;
-              break;
-            case 802:
-              if ((0x400000004000L & l) != 0L)
+             break;
+           case 801:
+             if ((0x1000000010L & l) != 0L && kind > 29)
+               kind = 29;
+             break;
+           case 802:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 803;
-              break;
-            case 803:
-              if ((0x1000000010L & l) != 0L && kind > 35)
-                     kind = 35;
-              break;
-            case 804:
-              if ((0x8000000080000L & l) != 0L)
+             break;
+           case 803:
+             if ((0x1000000010L & l) != 0L && kind > 35)
+               kind = 35;
+             break;
+           case 804:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 805;
-              break;
-            case 805:
-              if ((0x800000008L & l) != 0L && kind > 47)
-                     kind = 47;
-              break;
-            case 806:
-              if ((0x8000000080000L & l) != 0L && kind > 48)
-                     kind = 48;
-              break;
-            case 807:
-              if ((0x4000000040L & l) != 0L)
+             break;
+           case 805:
+             if ((0x800000008L & l) != 0L && kind > 47)
+               kind = 47;
+             break;
+           case 806:
+             if ((0x8000000080000L & l) != 0L && kind > 48)
+               kind = 48;
+             break;
+           case 807:
+             if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 808;
-              break;
-            case 808:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 808:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 809;
-              break;
-            case 809:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 809:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 810;
-              break;
-            case 810:
-              if ((0x4000000040000L & l) != 0L && kind > 53)
+             break;
+           case 810:
+             if ((0x4000000040000L & l) != 0L && kind > 53)
                      kind = 53;
                   break;
                case 811:
                   if ((0x400000004L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 812;
                  break;
-            case 812:
-              if ((0x8000000080000L & l) != 0L)
+           case 812:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 813;
-              break;
-            case 813:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 813:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 814;
-              break;
-            case 814:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 814:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 815;
-              break;
-            case 815:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 815:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 816;
-              break;
-            case 816:
-              if ((0x800000008L & l) != 0L)
+             break;
+           case 816:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 817;
-              break;
-            case 817:
-              if ((0x10000000100000L & l) != 0L && kind > 90)
+             break;
+           case 817:
+             if ((0x10000000100000L & l) != 0L && kind > 90)
                      kind = 90;
                   break;
                case 818:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 819;
                  break;
-            case 819:
-              if ((0x10000000100000L & l) != 0L)
+           case 819:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 820;
                   break;
                case 820:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 821;
                  break;
-            case 821:
-              if ((0x4000000040000L & l) != 0L && kind > 91)
-                     kind = 91;
-              break;
-            case 822:
-              if ((0x1000000010L & l) != 0L)
+           case 821:
+             if ((0x4000000040000L & l) != 0L && kind > 91)
+               kind = 91;
+             break;
+           case 822:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 823;
                   break;
                case 823:
                   if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 824;
                  break;
-            case 824:
-              if (curChar == 95)
+           case 824:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 825;
                   break;
                case 825:
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 826;
                  break;
-            case 826:
-              if ((0x100000001000L & l) != 0L)
+           case 826:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 827;
                   break;
                case 827:
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 828;
                  break;
-            case 828:
-              if ((0x8000000080000L & l) != 0L)
+           case 828:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 829;
-              break;
-            case 829:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 829:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 830;
-              break;
-            case 830:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 830:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 831;
-              break;
-            case 831:
-              if ((0x4000000040000L & l) != 0L && kind > 95)
+             break;
+           case 831:
+             if ((0x4000000040000L & l) != 0L && kind > 95)
                      kind = 95;
                   break;
                case 832:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 833;
                  break;
-            case 833:
-              if ((0x100000001000L & l) != 0L && kind > 119)
-                     kind = 119;
-              break;
-            case 834:
-              if ((0x1000000010000L & l) != 0L)
+           case 833:
+             if ((0x100000001000L & l) != 0L && kind > 119)
+               kind = 119;
+             break;
+           case 834:
+             if ((0x1000000010000L & l) != 0L)
                      jjAddStates(170, 177);
                   break;
                case 835:
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 836;
                  break;
-            case 836:
-              if ((0x10000000100000L & l) != 0L && kind > 30)
+           case 836:
+             if ((0x10000000100000L & l) != 0L && kind > 30)
                      kind = 30;
                   break;
                case 837:
@@ -4862,28 +4864,28 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 840;
                  break;
-            case 840:
-              if ((0x100000001000L & l) != 0L)
+           case 840:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 841;
                   break;
                case 841:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 842;
                  break;
-            case 842:
-              if ((0x2000000020L & l) != 0L)
+           case 842:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 843;
-              break;
-            case 843:
-              if ((0x100000001000L & l) != 0L && kind > 64)
-                     kind = 64;
-              break;
-            case 844:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 843:
+             if ((0x100000001000L & l) != 0L && kind > 64)
+               kind = 64;
+             break;
+           case 844:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 845;
-              break;
-            case 845:
-              if ((0x800000008000L & l) != 0L)
+             break;
+           case 845:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 846;
                   break;
                case 846:
@@ -4898,8 +4900,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 849;
                  break;
-            case 849:
-              if ((0x2000000020L & l) != 0L && kind > 80)
+           case 849:
+             if ((0x2000000020L & l) != 0L && kind > 80)
                      kind = 80;
                   break;
                case 850:
@@ -4910,36 +4912,36 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 852;
                  break;
-            case 852:
-              if ((0x200000002000000L & l) != 0L)
+           case 852:
+             if ((0x200000002000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 853;
-              break;
-            case 853:
-              if ((0x200000002000L & l) != 0L)
+             break;
+           case 853:
+             if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 854;
                   break;
                case 854:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 855;
                  break;
-            case 855:
-              if ((0x4000000040000L & l) != 0L)
+           case 855:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 856;
-              break;
-            case 856:
-              if ((0x1000000010000L & l) != 0L)
+             break;
+           case 856:
+             if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 857;
                   break;
                case 857:
                   if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 858;
                  break;
-            case 858:
-              if ((0x20000000200L & l) != 0L)
+           case 858:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 859;
-              break;
-            case 859:
-              if ((0x800000008L & l) != 0L && kind > 85)
+             break;
+           case 859:
+             if ((0x800000008L & l) != 0L && kind > 85)
                      kind = 85;
                   break;
                case 860:
@@ -4962,20 +4964,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 865;
                  break;
-            case 865:
-              if ((0x10000000100000L & l) != 0L)
+           case 865:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 866;
-              break;
-            case 866:
-              if ((0x200000002000000L & l) != 0L && kind > 101)
+             break;
+           case 866:
+             if ((0x200000002000000L & l) != 0L && kind > 101)
                      kind = 101;
                   break;
                case 867:
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 868;
                  break;
-            case 868:
-              if ((0x4000000040000L & l) != 0L)
+           case 868:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 869;
                   break;
                case 869:
@@ -4986,8 +4988,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 871;
                  break;
-            case 871:
-              if ((0x2000000020L & l) != 0L)
+           case 871:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 872;
                   break;
                case 872:
@@ -5002,8 +5004,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 875;
                  break;
-            case 875:
-              if ((0x8000000080000L & l) != 0L && kind > 122)
+           case 875:
+             if ((0x8000000080000L & l) != 0L && kind > 122)
                      kind = 122;
                   break;
                case 876:
@@ -5026,20 +5028,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 881;
                  break;
-            case 881:
-              if ((0x20000000200L & l) != 0L)
+           case 881:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 882;
                   break;
                case 882:
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 883;
                  break;
-            case 883:
-              if ((0x8000000080000L & l) != 0L && kind > 150)
-                     kind = 150;
-              break;
-            case 884:
-              if ((0x800000008000L & l) != 0L)
+           case 883:
+             if ((0x8000000080000L & l) != 0L && kind > 150)
+               kind = 150;
+             break;
+           case 884:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 885;
                   break;
                case 885:
@@ -5054,28 +5056,28 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 888;
                  break;
-            case 888:
-              if ((0x200000002000000L & l) != 0L && kind > 157)
-                     kind = 157;
-              break;
-            case 889:
-              if ((0x4000000040000L & l) != 0L)
+           case 888:
+             if ((0x200000002000000L & l) != 0L && kind > 157)
+               kind = 157;
+             break;
+           case 889:
+             if ((0x4000000040000L & l) != 0L)
                      jjAddStates(158, 169);
                   break;
                case 891:
                   if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 892;
                  break;
-            case 892:
-              if ((0x800000008000L & l) != 0L)
+           case 892:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 893;
                   break;
                case 893:
                   if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 894;
                  break;
-            case 894:
-              if ((0x2000000020L & l) != 0L && kind > 33)
+           case 894:
+             if ((0x2000000020L & l) != 0L && kind > 33)
                      kind = 33;
                   break;
                case 895:
@@ -5086,16 +5088,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 897;
                  break;
-            case 897:
-              if ((0x20000000200000L & l) != 0L)
+           case 897:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 898;
-              break;
-            case 898:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 898:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 899;
-              break;
-            case 899:
-              if ((0x400000004000L & l) != 0L && kind > 51)
+             break;
+           case 899:
+             if ((0x400000004000L & l) != 0L && kind > 51)
                      kind = 51;
                   break;
                case 900:
@@ -5110,16 +5112,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 903;
                  break;
-            case 903:
-              if ((0x4000000040000L & l) != 0L)
+           case 903:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 904;
-              break;
-            case 904:
-              if ((0x1000000010L & l) != 0L && kind > 54)
-                     kind = 54;
-              break;
-            case 905:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 904:
+             if ((0x1000000010L & l) != 0L && kind > 54)
+               kind = 54;
+             break;
+           case 905:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 906;
                   break;
                case 906:
@@ -5130,28 +5132,28 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 908;
                  break;
-            case 908:
-              if ((0x200000002000000L & l) != 0L && kind > 56)
+           case 908:
+             if ((0x200000002000000L & l) != 0L && kind > 56)
                      kind = 56;
                   break;
                case 909:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 910;
                  break;
-            case 910:
-              if ((0x4000000040L & l) != 0L)
+           case 910:
+             if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 911;
-              break;
-            case 911:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 911:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 912;
-              break;
-            case 912:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 912:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 913;
-              break;
-            case 913:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 913:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 914;
                   break;
                case 914:
@@ -5162,12 +5164,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 916;
                  break;
-            case 916:
-              if ((0x2000000020L & l) != 0L)
+           case 916:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 917;
-              break;
-            case 917:
-              if ((0x8000000080000L & l) != 0L && kind > 87)
+             break;
+           case 917:
+             if ((0x8000000080000L & l) != 0L && kind > 87)
                      kind = 87;
                   break;
                case 918:
@@ -5182,8 +5184,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 921;
                  break;
-            case 921:
-              if ((0x40000000400000L & l) != 0L)
+           case 921:
+             if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 922;
                   break;
                case 922:
@@ -5202,8 +5204,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 926;
                  break;
-            case 926:
-              if ((0x20000000200000L & l) != 0L)
+           case 926:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 927;
                   break;
                case 927:
@@ -5218,8 +5220,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 930;
                  break;
-            case 930:
-              if ((0x4000000040000L & l) != 0L && kind > 96)
+           case 930:
+             if ((0x4000000040000L & l) != 0L && kind > 96)
                      kind = 96;
                   break;
                case 931:
@@ -5242,8 +5244,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 936;
                  break;
-            case 936:
-              if ((0x1000000010L & l) != 0L && kind > 107)
+           case 936:
+             if ((0x1000000010L & l) != 0L && kind > 107)
                      kind = 107;
                   break;
                case 937:
@@ -5254,16 +5256,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 939;
                  break;
-            case 939:
-              if ((0x800000008000L & l) != 0L)
+           case 939:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 940;
                   break;
                case 940:
                   if ((0x80000000800L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 941;
                  break;
-            case 941:
-              if ((0x2000000020L & l) != 0L && kind > 116)
+           case 941:
+             if ((0x2000000020L & l) != 0L && kind > 116)
                      kind = 116;
                   break;
                case 942:
@@ -5274,12 +5276,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 944;
                  break;
-            case 944:
-              if ((0x1000000010L & l) != 0L && kind > 117)
-                     kind = 117;
-              break;
-            case 945:
-              if ((0x800000008000L & l) != 0L)
+           case 944:
+             if ((0x1000000010L & l) != 0L && kind > 117)
+               kind = 117;
+             break;
+           case 945:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 946;
                   break;
                case 947:
@@ -5294,96 +5296,96 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 950;
                  break;
-            case 950:
-              if ((0x800000008L & l) != 0L)
+           case 950:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 951;
-              break;
-            case 951:
-              if ((0x80000000800L & l) != 0L && kind > 127)
+             break;
+           case 951:
+             if ((0x80000000800L & l) != 0L && kind > 127)
                      kind = 127;
                   break;
                case 952:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 953;
                  break;
-            case 953:
-              if ((0x100000001000L & l) != 0L)
+           case 953:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 954;
-              break;
-            case 954:
-              if ((0x2000000020L & l) != 0L && kind > 152)
-                     kind = 152;
-              break;
-            case 955:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 954:
+             if ((0x2000000020L & l) != 0L && kind > 152)
+               kind = 152;
+             break;
+           case 955:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 956;
-              break;
-            case 956:
-              if ((0x1000000010L & l) != 0L && kind > 155)
-                     kind = 155;
-              break;
-            case 957:
-              if ((0x800000008000L & l) != 0L)
+             break;
+           case 956:
+             if ((0x1000000010L & l) != 0L && kind > 155)
+               kind = 155;
+             break;
+           case 957:
+             if ((0x800000008000L & l) != 0L)
                      jjAddStates(151, 157);
-              break;
-            case 958:
-              if ((0x4000000040000L & l) != 0L && kind > 36)
+             break;
+           case 958:
+             if ((0x4000000040000L & l) != 0L && kind > 36)
                      kind = 36;
                   break;
                case 959:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 960;
                  break;
-            case 960:
-              if ((0x1000000010L & l) != 0L)
+           case 960:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 961;
                   break;
                case 961:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 962;
                  break;
-            case 962:
-              if ((0x4000000040000L & l) != 0L && kind > 39)
-                     kind = 39;
-              break;
-            case 963:
-              if ((0x4000000040L & l) != 0L)
+           case 962:
+             if ((0x4000000040000L & l) != 0L && kind > 39)
+               kind = 39;
+             break;
+           case 963:
+             if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 964;
                   break;
                case 964:
                   if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 965;
                  break;
-            case 965:
-              if ((0x8000000080000L & l) != 0L)
+           case 965:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 966;
-              break;
-            case 966:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 966:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 967;
-              break;
-            case 967:
-              if ((0x10000000100000L & l) != 0L && kind > 45)
-                     kind = 45;
-              break;
-            case 968:
-              if ((0x400000004000L & l) != 0L && kind > 82)
+             break;
+           case 967:
+             if ((0x10000000100000L & l) != 0L && kind > 45)
+               kind = 45;
+             break;
+           case 968:
+             if ((0x400000004000L & l) != 0L && kind > 82)
                      kind = 82;
                   break;
                case 969:
                   if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 970;
                  break;
-            case 970:
-              if ((0x4000000040L & l) != 0L && kind > 83)
-                     kind = 83;
-              break;
-            case 971:
-              if ((0x1000000010000L & l) != 0L)
+           case 970:
+             if ((0x4000000040L & l) != 0L && kind > 83)
+               kind = 83;
+             break;
+           case 971:
+             if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 972;
-              break;
-            case 972:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 972:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 973;
                   break;
                case 973:
@@ -5394,24 +5396,24 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 975;
                  break;
-            case 975:
-              if ((0x20000000200L & l) != 0L)
+           case 975:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 976;
-              break;
-            case 976:
-              if ((0x400000004000000L & l) != 0L)
+             break;
+           case 976:
+             if ((0x400000004000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 977;
-              break;
-            case 977:
-              if ((0x2000000020L & l) != 0L && kind > 110)
-                     kind = 110;
-              break;
-            case 978:
-              if ((0x1000000010000L & l) != 0L)
+             break;
+           case 977:
+             if ((0x2000000020L & l) != 0L && kind > 110)
+               kind = 110;
+             break;
+           case 978:
+             if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 979;
-              break;
-            case 979:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 979:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 980;
                   break;
                case 980:
@@ -5426,52 +5428,52 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 983;
                  break;
-            case 983:
-              if ((0x200000002L & l) != 0L)
+           case 983:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 984;
-              break;
-            case 984:
-              if ((0x100000001000L & l) != 0L && kind > 139)
-                     kind = 139;
-              break;
-            case 985:
-              if ((0x400000004000L & l) != 0L)
+             break;
+           case 984:
+             if ((0x100000001000L & l) != 0L && kind > 139)
+               kind = 139;
+             break;
+           case 985:
+             if ((0x400000004000L & l) != 0L)
                      jjAddStates(143, 150);
-              break;
-            case 986:
-              if ((0x20000000200000L & l) != 0L)
+             break;
+           case 986:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 987;
                   break;
                case 987:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 988;
                  break;
-            case 988:
-              if ((0x100000001000L & l) != 0L && kind > 37)
-                     kind = 37;
-              break;
-            case 989:
-              if ((0x800000008000L & l) != 0L)
+           case 988:
+             if ((0x100000001000L & l) != 0L && kind > 37)
+               kind = 37;
+             break;
+           case 989:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 990;
                   break;
                case 990:
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 991;
                  break;
-            case 991:
-              if ((0x200000002L & l) != 0L)
+           case 991:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 992;
                   break;
                case 992:
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 993;
                  break;
-            case 993:
-              if ((0x10000000100L & l) != 0L)
+           case 993:
+             if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 994;
-              break;
-            case 994:
-              if ((0x2000000020L & l) != 0L && kind > 60)
+             break;
+           case 994:
+             if ((0x2000000020L & l) != 0L && kind > 60)
                      kind = 60;
                   break;
                case 995:
@@ -5482,20 +5484,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 997;
                  break;
-            case 997:
-              if ((0x20000000200L & l) != 0L)
+           case 997:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 998;
-              break;
-            case 998:
-              if ((0x200000002000L & l) != 0L)
+             break;
+           case 998:
+             if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 999;
                   break;
                case 999:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1000;
                  break;
-            case 1000:
-              if ((0x10000000100000L & l) != 0L && kind > 61)
+           case 1000:
+             if ((0x10000000100000L & l) != 0L && kind > 61)
                      kind = 61;
                   break;
                case 1001:
@@ -5506,20 +5508,20 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1003;
                  break;
-            case 1003:
-              if ((0x200000002000000L & l) != 0L)
+           case 1003:
+             if ((0x200000002000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1004;
                   break;
                case 1004:
                   if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1005;
                  break;
-            case 1005:
-              if ((0x100000001000L & l) != 0L)
+           case 1005:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1006;
-              break;
-            case 1006:
-              if ((0x2000000020L & l) != 0L && kind > 62)
+             break;
+           case 1006:
+             if ((0x2000000020L & l) != 0L && kind > 62)
                      kind = 62;
                   break;
                case 1007:
@@ -5530,8 +5532,8 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1009;
                  break;
-            case 1009:
-              if ((0x4000000040000L & l) != 0L && kind > 69)
+           case 1009:
+             if ((0x4000000040000L & l) != 0L && kind > 69)
                      kind = 69;
                   break;
                case 1010:
@@ -5542,32 +5544,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1012;
                  break;
-            case 1012:
-              if ((0x2000000020L & l) != 0L && kind > 92)
-                     kind = 92;
-              break;
-            case 1013:
-              if ((0x800000008000L & l) != 0L)
+           case 1012:
+             if ((0x2000000020L & l) != 0L && kind > 92)
+               kind = 92;
+             break;
+           case 1013:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1014;
                   break;
                case 1014:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1015;
                  break;
-            case 1015:
-              if ((0x2000000020L & l) != 0L && kind > 120)
-                     kind = 120;
-              break;
-            case 1016:
-              if ((0x800000008000L & l) != 0L)
+           case 1015:
+             if ((0x2000000020L & l) != 0L && kind > 120)
+               kind = 120;
+             break;
+           case 1016:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1017;
-              break;
-            case 1017:
-              if ((0x10000000100000L & l) != 0L && kind > 239)
-                     kind = 239;
-              break;
-            case 1018:
-              if ((0x8000000080L & l) != 0L)
+             break;
+           case 1017:
+             if ((0x10000000100000L & l) != 0L && kind > 239)
+               kind = 239;
+             break;
+           case 1018:
+             if ((0x8000000080L & l) != 0L)
                      jjAddStates(141, 142);
                   break;
                case 1019:
@@ -5578,36 +5580,36 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1021;
                  break;
-            case 1021:
-              if ((0x20000000200000L & l) != 0L)
+           case 1021:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1022;
-              break;
-            case 1022:
-              if ((0x1000000010000L & l) != 0L && kind > 40)
+             break;
+           case 1022:
+             if ((0x1000000010000L & l) != 0L && kind > 40)
                      kind = 40;
                   break;
                case 1023:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1024;
                  break;
-            case 1024:
-              if ((0x200000002L & l) != 0L)
+           case 1024:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1025;
                   break;
                case 1025:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1026;
                  break;
-            case 1026:
-              if ((0x10000000100000L & l) != 0L && kind > 115)
-                     kind = 115;
-              break;
-            case 1027:
-              if ((0x400000004L & l) != 0L)
+           case 1026:
+             if ((0x10000000100000L & l) != 0L && kind > 115)
+               kind = 115;
+             break;
+           case 1027:
+             if ((0x400000004L & l) != 0L)
                      jjAddStates(134, 140);
-              break;
-            case 1028:
-              if ((0x200000002000000L & l) != 0L && kind > 41)
+             break;
+           case 1028:
+             if ((0x200000002000000L & l) != 0L && kind > 41)
                      kind = 41;
                   break;
                case 1029:
@@ -5618,32 +5620,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1031;
                  break;
-            case 1031:
-              if ((0x800000008L & l) != 0L)
+           case 1031:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1032;
-              break;
-            case 1032:
-              if ((0x10000000100L & l) != 0L && kind > 44)
+             break;
+           case 1032:
+             if ((0x10000000100L & l) != 0L && kind > 44)
                      kind = 44;
                   break;
                case 1033:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1034;
                  break;
-            case 1034:
-              if ((0x4000000040L & l) != 0L)
+           case 1034:
+             if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1035;
-              break;
-            case 1035:
-              if ((0x800000008000L & l) != 0L)
+             break;
+           case 1035:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1036;
-              break;
-            case 1036:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 1036:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1037;
-              break;
-            case 1037:
-              if ((0x2000000020L & l) != 0L && kind > 52)
+             break;
+           case 1037:
+             if ((0x2000000020L & l) != 0L && kind > 52)
                      kind = 52;
                   break;
                case 1038:
@@ -5654,32 +5656,32 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1040;
                  break;
-            case 1040:
-              if ((0x200000002L & l) != 0L)
+           case 1040:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1041;
-              break;
-            case 1041:
-              if ((0x1000000010L & l) != 0L)
+             break;
+           case 1041:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1042;
                   break;
                case 1042:
                   if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1043;
                  break;
-            case 1043:
-              if ((0x10000000100L & l) != 0L)
+           case 1043:
+             if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1044;
                   break;
                case 1044:
                   if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 1045;
                  break;
-            case 1045:
-              if ((0x4000000040L & l) != 0L)
+           case 1045:
+             if ((0x4000000040L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1046;
-              break;
-            case 1046:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 1046:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1047;
                   break;
                case 1047:
@@ -5690,12 +5692,12 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1049;
                  break;
-            case 1049:
-              if ((0x10000000100000L & l) != 0L && kind > 67)
-                     kind = 67;
-              break;
-            case 1050:
-              if ((0x2000000020L & l) != 0L)
+           case 1049:
+             if ((0x10000000100000L & l) != 0L && kind > 67)
+               kind = 67;
+             break;
+           case 1050:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1051;
                   break;
                case 1051:
@@ -5706,108 +5708,108 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1053;
                  break;
-            case 1053:
-              if ((0x400000004000L & l) != 0L && kind > 125)
-                     kind = 125;
-              break;
-            case 1054:
-              if ((0x100000001000L & l) != 0L)
+           case 1053:
+             if ((0x400000004000L & l) != 0L && kind > 125)
+               kind = 125;
+             break;
+           case 1054:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1055;
-              break;
-            case 1055:
-              if ((0x800000008000L & l) != 0L)
+             break;
+           case 1055:
+             if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1056;
-              break;
-            case 1056:
-              if ((0x400000004L & l) != 0L && kind > 134)
+             break;
+           case 1056:
+             if ((0x400000004L & l) != 0L && kind > 134)
                      kind = 134;
                   break;
                case 1057:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1058;
                  break;
-            case 1058:
-              if ((0x10000000100000L & l) != 0L)
+           case 1058:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1059;
                   break;
                case 1059:
                   if ((0x80000000800000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1060;
                  break;
-            case 1060:
-              if ((0x2000000020L & l) != 0L)
+           case 1060:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1061;
                   break;
                case 1061:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1062;
                  break;
-            case 1062:
-              if ((0x400000004000L & l) != 0L && kind > 243)
-                     kind = 243;
-              break;
-            case 1063:
-              if ((0x100000001000L & l) != 0L)
+           case 1062:
+             if ((0x400000004000L & l) != 0L && kind > 243)
+               kind = 243;
+             break;
+           case 1063:
+             if ((0x100000001000L & l) != 0L)
                      jjAddStates(128, 133);
                   break;
                case 1064:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1065;
                  break;
-            case 1065:
-              if ((0x200000002000L & l) != 0L)
+           case 1065:
+             if ((0x200000002000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1066;
                   break;
                case 1066:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1067;
                  break;
-            case 1067:
-              if ((0x10000000100000L & l) != 0L && kind > 42)
+           case 1067:
+             if ((0x10000000100000L & l) != 0L && kind > 42)
                      kind = 42;
                   break;
                case 1068:
                   if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1069;
                  break;
-            case 1069:
-              if ((0x10000000100000L & l) != 0L && kind > 57)
+           case 1069:
+             if ((0x10000000100000L & l) != 0L && kind > 57)
                      kind = 57;
                   break;
                case 1070:
                   if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1071;
                  break;
-            case 1071:
-              if ((0x800000008L & l) != 0L)
+           case 1071:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1072;
-              break;
-            case 1072:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 1072:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1073;
                   break;
                case 1073:
                   if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1074;
                  break;
-            case 1074:
-              if ((0x2000000020L & l) != 0L && kind > 68)
+           case 1074:
+             if ((0x2000000020L & l) != 0L && kind > 68)
                      kind = 68;
                   break;
                case 1075:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1076;
                  break;
-            case 1076:
-              if ((0x400000004000L & l) != 0L)
+           case 1076:
+             if ((0x400000004000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1077;
-              break;
-            case 1077:
-              if ((0x80000000800L & l) != 0L && kind > 111)
-                     kind = 111;
-              break;
-            case 1078:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 1077:
+             if ((0x80000000800L & l) != 0L && kind > 111)
+               kind = 111;
+             break;
+           case 1078:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1079;
                   break;
                case 1079:
@@ -5818,169 +5820,169 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x8000000080L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1081;
                  break;
-            case 1081:
-              if ((0x20000000200000L & l) != 0L)
+           case 1081:
+             if ((0x20000000200000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1082;
                   break;
                case 1082:
                   if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1083;
                  break;
-            case 1083:
-              if ((0x8000000080L & l) != 0L)
+           case 1083:
+             if ((0x8000000080L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1084;
-              break;
-            case 1084:
-              if ((0x2000000020L & l) != 0L && kind > 124)
+             break;
+           case 1084:
+             if ((0x2000000020L & l) != 0L && kind > 124)
                      kind = 124;
                   break;
                case 1085:
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1086;
                  break;
-            case 1086:
-              if ((0x80000000800L & l) != 0L)
+           case 1086:
+             if ((0x80000000800L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1087;
-              break;
-            case 1087:
-              if ((0x2000000020L & l) != 0L && kind > 241)
-                     kind = 241;
-              break;
-            case 1088:
-              if (curChar == 64)
+             break;
+           case 1087:
+             if ((0x2000000020L & l) != 0L && kind > 241)
+               kind = 241;
+             break;
+           case 1088:
+             if (curChar == 64)
                      jjAddStates(117, 127);
-              break;
-            case 1090:
-              if ((0x10000000100L & l) != 0L)
+             break;
+           case 1090:
+             if ((0x10000000100L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1091;
-              break;
-            case 1091:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 1091:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1092;
-              break;
-            case 1092:
-              if ((0x8000000080000L & l) != 0L && kind > 159)
-                     kind = 159;
-              break;
-            case 1093:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 1092:
+             if ((0x8000000080000L & l) != 0L && kind > 159)
+               kind = 159;
+             break;
+           case 1093:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1094;
-                  break;
-            case 1094:
-            case 1122:
-              if ((0x20000000200L & l) != 0L)
-                     jjCheckNAdd(1095);
-              break;
-            case 1095:
-              if ((0x1000000010L & l) != 0L && kind > 160)
-                     kind = 160;
-              break;
-            case 1096:
-              if ((0x800000008L & l) != 0L)
+             break;
+           case 1094:
+           case 1122:
+             if ((0x20000000200L & l) != 0L)
+               jjCheckNAdd(1095);
+             break;
+           case 1095:
+             if ((0x1000000010L & l) != 0L && kind > 160)
+               kind = 160;
+             break;
+           case 1096:
+             if ((0x800000008L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1097;
-              break;
-            case 1097:
-              if ((0x100000001000L & l) != 0L)
+             break;
+           case 1097:
+             if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1098;
-              break;
-            case 1098:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 1098:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1099;
-              break;
-            case 1099:
-              if ((0x8000000080000L & l) != 0L)
-                     jjCheckNAdd(1100);
-              break;
-            case 1100:
-              if ((0x8000000080000L & l) != 0L && kind > 160)
-                     kind = 160;
-              break;
-            case 1101:
-              if ((0x40000000400000L & l) != 0L)
+             break;
+           case 1099:
+             if ((0x8000000080000L & l) != 0L)
+               jjCheckNAdd(1100);
+             break;
+           case 1100:
+             if ((0x8000000080000L & l) != 0L && kind > 160)
+               kind = 160;
+             break;
+           case 1101:
+             if ((0x40000000400000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1102;
-              break;
-            case 1102:
-              if ((0x2000000020L & l) != 0L)
+             break;
+           case 1102:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1103;
-              break;
-            case 1103:
-              if ((0x4000000040000L & l) != 0L)
+             break;
+           case 1103:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1104;
-              break;
-            case 1104:
-              if ((0x8000000080000L & l) != 0L)
+             break;
+           case 1104:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1105;
-              break;
-            case 1105:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 1105:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1106;
                   break;
                case 1106:
                   if ((0x800000008000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1107;
                  break;
-            case 1107:
-              if ((0x400000004000L & l) != 0L && kind > 160)
-                     kind = 160;
-              break;
-            case 1108:
-              if ((0x8000000080000L & l) != 0L)
+           case 1107:
+             if ((0x400000004000L & l) != 0L && kind > 160)
+               kind = 160;
+             break;
+           case 1108:
+             if ((0x8000000080000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1109;
-              break;
-            case 1109:
-              if ((0x20000000200L & l) != 0L)
+             break;
+           case 1109:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1110;
-              break;
-            case 1110:
-              if ((0x400000004000000L & l) != 0L)
-                     jjCheckNAdd(1111);
-              break;
-            case 1111:
-              if ((0x2000000020L & l) != 0L && kind > 160)
-                     kind = 160;
-              break;
-            case 1112:
-              if ((0x10000000100000L & l) != 0L)
+             break;
+           case 1110:
+             if ((0x400000004000000L & l) != 0L)
+               jjCheckNAdd(1111);
+             break;
+           case 1111:
+             if ((0x2000000020L & l) != 0L && kind > 160)
+               kind = 160;
+             break;
+           case 1112:
+             if ((0x10000000100000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1113;
                   break;
                case 1113:
                   if ((0x200000002000000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1114;
                  break;
-            case 1114:
-              if ((0x1000000010000L & l) != 0L)
-                     jjCheckNAdd(1111);
-              break;
-            case 1115:
-              if ((0x4000000040000L & l) != 0L)
+           case 1114:
+             if ((0x1000000010000L & l) != 0L)
+               jjCheckNAdd(1111);
+             break;
+           case 1115:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1116;
-              break;
-            case 1116:
-              if ((0x200000002L & l) != 0L)
+             break;
+           case 1116:
+             if ((0x200000002L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1117;
-              break;
-            case 1117:
-              if ((0x80000000800000L & l) != 0L && kind > 160)
+             break;
+           case 1117:
+             if ((0x80000000800000L & l) != 0L && kind > 160)
                      kind = 160;
                   break;
                case 1118:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1119;
                  break;
-            case 1119:
-              if ((0x20000000200L & l) != 0L)
+           case 1119:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1120;
-              break;
-            case 1120:
-              if ((0x1000000010L & l) != 0L)
+             break;
+           case 1120:
+             if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1121;
                   break;
                case 1121:
                   if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 1122;
                  break;
-            case 1123:
-              if ((0x4000000040000L & l) != 0L)
+           case 1123:
+             if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1124;
                   break;
                case 1124:
@@ -5991,16 +5993,16 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x1000000010L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1126;
                  break;
-            case 1126:
-              if (curChar == 95)
+           case 1126:
+             if (curChar == 95)
                      jjstateSet[jjnewStateCnt++] = 1127;
-              break;
-            case 1127:
-              if ((0x1000000010000L & l) != 0L)
+             break;
+           case 1127:
+             if ((0x1000000010000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1128;
-              break;
-            case 1128:
-              if ((0x800000008000L & l) != 0L)
+             break;
+           case 1128:
+             if ((0x800000008000L & l) != 0L)
                      jjCheckNAdd(1100);
                   break;
                case 1129:
@@ -6011,162 +6013,163 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1131;
                  break;
-            case 1131:
-              if ((0x2000000020L & l) != 0L)
+           case 1131:
+             if ((0x2000000020L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1132;
                   break;
                case 1132:
                   if ((0x100000001000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1133;
                  break;
-            case 1133:
-              if ((0x1000000010L & l) != 0L)
+           case 1133:
+             if ((0x1000000010L & l) != 0L)
                      jjCheckNAdd(1100);
                   break;
                case 1134:
                   if ((0x4000000040000L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1135;
                  break;
-            case 1135:
-              if ((0x20000000200L & l) != 0L)
+           case 1135:
+             if ((0x20000000200L & l) != 0L)
                      jjstateSet[jjnewStateCnt++] = 1136;
-              break;
-            case 1136:
-              if ((0x1000000010L & l) != 0L && kind > 161)
-                     kind = 161;
-              break;
-            case 1139:
-              if ((0x100000001000L & l) != 0L && kind > 171)
-                     kind = 171;
-              break;
-            case 1141:
-              if ((0x100000001000L & l) != 0L)
-                     jjCheckNAdd(1151);
-              break;
-            case 1146:
-              if ((0x100000001000L & l) != 0L && kind > 182)
-                     kind = 182;
-              break;
-            case 1148:
-              if ((0x100000001000000L & l) != 0L)
-                     jjCheckNAdd(1149);
-              break;
-            case 1149:
-              if ((0x7e0000007eL & l) == 0L)
-                break;
-              if (kind > 182)
+             break;
+           case 1136:
+             if ((0x1000000010L & l) != 0L && kind > 161)
+               kind = 161;
+             break;
+           case 1139:
+             if ((0x100000001000L & l) != 0L && kind > 171)
+               kind = 171;
+             break;
+           case 1141:
+             if ((0x100000001000L & l) != 0L)
+               jjCheckNAdd(1151);
+             break;
+           case 1146:
+             if ((0x100000001000L & l) != 0L && kind > 182)
+               kind = 182;
+             break;
+           case 1148:
+             if ((0x100000001000000L & l) != 0L)
+               jjCheckNAdd(1149);
+             break;
+           case 1149:
+             if ((0x7e0000007eL & l) == 0L)
+               break;
+             if (kind > 182)
                      kind = 182;
                   jjCheckNAddTwoStates(1149, 1146);
-              break;
-            case 1153:
-              if ((0x100000001000L & l) != 0L)
-                     jjCheckNAdd(1164);
-              break;
-            case 1158:
-              if ((0x100000001000L & l) != 0L && kind > 183)
-                     kind = 183;
-              break;
-            case 1160:
-              if ((0x100000001000000L & l) != 0L)
-                     jjCheckNAdd(1161);
-              break;
-            case 1161:
-              if ((0x7e0000007eL & l) == 0L)
-                break;
-              if (kind > 183)
+             break;
+           case 1153:
+             if ((0x100000001000L & l) != 0L)
+               jjCheckNAdd(1164);
+             break;
+           case 1158:
+             if ((0x100000001000L & l) != 0L && kind > 183)
+               kind = 183;
+             break;
+           case 1160:
+             if ((0x100000001000000L & l) != 0L)
+               jjCheckNAdd(1161);
+             break;
+           case 1161:
+             if ((0x7e0000007eL & l) == 0L)
+               break;
+             if (kind > 183)
                      kind = 183;
                   jjCheckNAddTwoStates(1161, 1158);
-              break;
-            case 1166:
-              if ((0xffffffffefffffffL & l) != 0L)
-                     jjCheckNAdd(1167);
-              break;
-            case 1168:
-              if (curChar == 92)
+             break;
+           case 1166:
+             if ((0xffffffffefffffffL & l) != 0L)
+               jjCheckNAdd(1167);
+             break;
+           case 1168:
+             if (curChar == 92)
                      jjAddStates(307, 309);
-              break;
-            case 1169:
-              if ((0x14404410000000L & l) != 0L)
+             break;
+           case 1169:
+             if ((0x14404410000000L & l) != 0L)
                      jjCheckNAdd(1167);
                   break;
                case 1174:
                   if ((0xffffffffefffffffL & l) != 0L)
                      jjCheckNAddStates(93, 95);
                  break;
-            case 1175:
-              if (curChar == 92)
+           case 1175:
+             if (curChar == 92)
                      jjAddStates(310, 312);
                   break;
                case 1176:
                   if ((0x14404410000000L & l) != 0L)
                      jjCheckNAddStates(93, 95);
                  break;
-            case 1186:
-              if ((0x100000001000000L & l) != 0L)
+           case 1186:
+             if ((0x100000001000000L & l) != 0L)
                      jjCheckNAdd(1187);
                   break;
                case 1187:
                   if ((0x7e0000007eL & l) != 0L)
                      jjCheckNAddStates(100, 102);
                  break;
-            case 1190:
-              if ((0x100000001000000L & l) != 0L)
+           case 1190:
+             if ((0x100000001000000L & l) != 0L)
                      jjCheckNAdd(1191);
                   break;
                case 1191:
                   if ((0x7e0000007eL & l) != 0L)
                      jjCheckNAddStates(106, 108);
                  break;
-            case 1194:
-              if ((0x100000001000000L & l) != 0L)
-                     jjCheckNAdd(1195);
-              break;
-            case 1195:
-              if ((0x7e0000007eL & l) == 0L)
-                break;
-              if (kind > 171)
+           case 1194:
+             if ((0x100000001000000L & l) != 0L)
+               jjCheckNAdd(1195);
+             break;
+           case 1195:
+             if ((0x7e0000007eL & l) == 0L)
+               break;
+             if (kind > 171)
                      kind = 171;
                   jjCheckNAddTwoStates(1195, 1139);
-              break;
-            case 1197:
-              if ((0x100000001000000L & l) != 0L)
+             break;
+           case 1197:
+             if ((0x100000001000000L & l) != 0L)
                      jjCheckNAddTwoStates(1198, 1199);
-              break;
-            case 1198:
-              if ((0x7e0000007eL & l) != 0L)
+             break;
+           case 1198:
+             if ((0x7e0000007eL & l) != 0L)
                      jjCheckNAddTwoStates(1198, 1199);
-              break;
-            case 1200:
-              if ((0x7e0000007eL & l) != 0L)
+             break;
+           case 1200:
+             if ((0x7e0000007eL & l) != 0L)
                      jjAddStates(313, 314);
-              break;
-            case 1201:
-              if ((0x1000000010000L & l) != 0L)
+             break;
+           case 1201:
+             if ((0x1000000010000L & l) != 0L)
                      jjAddStates(315, 316);
-              break;
-            case 1204:
-              if ((0x100000001000000L & l) != 0L)
+             break;
+           case 1204:
+             if ((0x100000001000000L & l) != 0L)
                      jjCheckNAdd(1205);
                   break;
                case 1205:
                   if ((0x7e0000007eL & l) != 0L)
                      jjCheckNAddStates(114, 116);
                  break;
-            case 1207:
-              if ((0x1000000010000L & l) != 0L)
+           case 1207:
+             if ((0x1000000010000L & l) != 0L)
                      jjAddStates(317, 318);
-              break;
-            default : break;
-          }
-        } while (i != startsAt);
-      } else {
-        int hiByte = curChar >> 8;
-        int i1 = hiByte >> 6;
-        long l1 = 1L << (hiByte & 077);
-        int i2 = (curChar & 0xff) >> 6;
-        long l2 = 1L << (curChar & 077);
-        do {
-          switch (jjstateSet[--i])
+             break;
+           default:
+             break;
+         }
+       } while (i != startsAt);
+     } else {
+       int hiByte = curChar >> 8;
+       int i1 = hiByte >> 6;
+       long l1 = 1L << (hiByte & 077);
+       int i2 = (curChar & 0xff) >> 6;
+       long l2 = 1L << (curChar & 077);
+       do {
+         switch(jjstateSet[--i])
             {
                case 37:
                case 33:
@@ -6191,7 +6194,7 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
                   break;
                default : break;
             }
-        } while(i != startsAt);
+       } while(i != startsAt);
       }
       if (kind != 0x7fffffff)
       {
@@ -6199,16 +6202,15 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
          jjmatchedPos = curPos;
          kind = 0x7fffffff;
       }
-      ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 1210 - (jjnewStateCnt = startsAt))) {
-        return curPos;
-      }
-      try {
-        curChar = input_stream.readChar();
-      } catch (java.io.IOException e) {
-        return curPos;
-      }
-    }
+     ++curPos;
+     if ((i = jjnewStateCnt) == (startsAt = 1210 - (jjnewStateCnt = startsAt)))
+       return curPos;
+     try {
+       curChar = input_stream.readChar();
+     } catch (java.io.IOException e) {
+       return curPos;
+     }
+   }
   }
 
   private int jjMoveStringLiteralDfa0_2() {
@@ -6405,24 +6407,22 @@ public class YouTrackDBSqlTokenManager implements YouTrackDBSqlConstants {
    */
   public YouTrackDBSqlTokenManager(CharStream stream, int lexState) {
     this(stream);
-    SwitchTo(lexState);
-  }
+   SwitchTo(lexState);
+}
 
-  /** Reinitialise parser. */
-public void ReInit(CharStream stream)
-{
-   jjmatchedPos = jjnewStateCnt = 0;
+/** Reinitialise parser. */
+public void ReInit(CharStream stream) {
+  jjmatchedPos = jjnewStateCnt = 0;
   curLexState = defaultLexState;
   input_stream = stream;
   ReInitRounds();
 }
-
-  private void ReInitRounds() {
-    int i;
+private void ReInitRounds() {
+  int i;
    jjround = 0x80000001;
-    for (i = 1210; i-- > 0; )
-      jjrounds[i] = 0x80000000;
-  }
+  for (i = 1210; i-- > 0; )
+    jjrounds[i] = 0x80000000;
+}
 
   /**
    * Reinitialise parser.
@@ -6589,13 +6589,13 @@ public void ReInit(CharStream stream)
   }
 
   void SkipLexicalActions(Token matchedToken) {
-    switch (jjmatchedKind) {
-      default:
-        break;
-    }
-  }
-
-  void MoreLexicalActions()
+    switch (jjmatchedKind)
+   {
+      default :
+         break;
+   }
+}
+void MoreLexicalActions()
 {
    jjimageLen += (lengthOfMatch = jjmatchedPos + 1);
    switch(jjmatchedKind)

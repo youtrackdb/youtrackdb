@@ -65,7 +65,7 @@ public class RestrictedTest extends BaseDBTest {
 
     session.begin();
     var adminRecord = ((EntityImpl) session.newEntity("CMSDocument")).field("user", "admin");
-    adminRecord.save();
+
     this.adminRecordId = adminRecord.getIdentity();
     session.commit();
 
@@ -90,7 +90,7 @@ public class RestrictedTest extends BaseDBTest {
     session = createSessionInstance("writer", "writer");
     session.begin();
     var writerRecord = ((EntityImpl) session.newEntity("CMSDocument")).field("user", "writer");
-    writerRecord.save();
+
     this.writerRecordId = writerRecord.getIdentity();
     session.commit();
   }
@@ -146,7 +146,6 @@ public class RestrictedTest extends BaseDBTest {
     try {
       var adminRecord = session.loadEntity(this.adminRecordId);
       adminRecord.setProperty("user", "writer-hacker");
-      adminRecord.save();
       session.commit();
     } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
@@ -190,7 +189,7 @@ public class RestrictedTest extends BaseDBTest {
       allows.add(
           session.getMetadata().getSecurity().getUser(session.geCurrentUser().getName(session))
               .getIdentity());
-      adminRecord.save();
+
       session.commit();
     } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
@@ -208,7 +207,6 @@ public class RestrictedTest extends BaseDBTest {
     Set<Identifiable> allows = writerRecord.field(SecurityShared.ALLOW_ALL_FIELD);
     allows.add(readerRole.getIdentity());
 
-    writerRecord.save();
     session.commit();
   }
 
@@ -235,7 +233,7 @@ public class RestrictedTest extends BaseDBTest {
     Assert.assertEquals(
         ((Collection<?>) writerRecord.field(RestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         1);
-    writerRecord.save();
+
     session.commit();
   }
 
@@ -261,7 +259,7 @@ public class RestrictedTest extends BaseDBTest {
         .getMetadata()
         .getSecurity()
         .allowUser(writerRecord, RestrictedOperation.ALLOW_READ, "reader");
-    writerRecord.save();
+
     session.commit();
   }
 
@@ -285,7 +283,7 @@ public class RestrictedTest extends BaseDBTest {
         .getMetadata()
         .getSecurity()
         .denyUser(writerRecord, RestrictedOperation.ALLOW_READ, "reader");
-    writerRecord.save();
+
     session.commit();
   }
 
@@ -322,7 +320,7 @@ public class RestrictedTest extends BaseDBTest {
         .getMetadata()
         .getSecurity()
         .allowRole(writerRecord, RestrictedOperation.ALLOW_READ, "writer");
-    writerRecord.save();
+
     session.commit();
   }
 
@@ -381,7 +379,7 @@ public class RestrictedTest extends BaseDBTest {
     session.begin();
     var adminRecord = ((EntityImpl) session.newEntity("TestUpdateRestricted")).field("user",
         "admin");
-    adminRecord.save();
+
     this.adminRecordId = adminRecord.getIdentity();
     session.commit();
 
@@ -410,7 +408,6 @@ public class RestrictedTest extends BaseDBTest {
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
 
-    session.save(doc);
     session.commit();
 
     session.close();

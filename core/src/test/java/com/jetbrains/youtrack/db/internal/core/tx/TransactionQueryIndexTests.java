@@ -3,10 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.SchemaProperty;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -42,7 +40,6 @@ public class TransactionQueryIndexTests {
     database.begin();
     EntityImpl doc = database.newInstance("test");
     doc.setProperty("test", "abcdefg");
-    database.save(doc);
     var res = database.query("select from Test where test='abcdefg' ");
 
     assertEquals(1L, res.stream().count());
@@ -64,7 +61,6 @@ public class TransactionQueryIndexTests {
     EntityImpl doc = database.newInstance("Test2");
     doc.setProperty("foo", "abcdefg");
     doc.setProperty("bar", "abcdefg");
-    database.save(doc);
     var res = database.query("select from Test2 where foo='abcdefg' and bar = 'abcdefg' ");
 
     assertEquals(1L, res.stream().count());

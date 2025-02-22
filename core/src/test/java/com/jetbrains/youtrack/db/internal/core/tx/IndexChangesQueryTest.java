@@ -1,18 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.tx;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.DbTestBase;
-import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,11 +58,10 @@ public class IndexChangesQueryTest {
 
     var doc = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc.field(FIELD_NAME, 1);
-    doc.save();
 
     var doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc1.field(FIELD_NAME, 2);
-    doc1.save();
+
     Assert.assertNotNull(db.getTransaction().getIndexChanges(INDEX_NAME));
 
     Assert.assertFalse(fetchCollectionFromIndex(index, 1).isEmpty());
@@ -88,15 +86,12 @@ public class IndexChangesQueryTest {
 
     var doc1 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc1.field(FIELD_NAME, 1);
-    doc1.save();
 
     var doc2 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc2.field(FIELD_NAME, 1);
-    doc2.save();
 
     var doc3 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc3.field(FIELD_NAME, 2);
-    doc3.save();
 
     final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, INDEX_NAME);
@@ -119,11 +114,9 @@ public class IndexChangesQueryTest {
 
     doc3 = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc3.field(FIELD_NAME, 1);
-    doc3.save();
 
     var doc = ((EntityImpl) db.newEntity(CLASS_NAME));
     doc.field(FIELD_NAME, 2);
-    doc.save();
 
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 1)).size());
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 2)).size());

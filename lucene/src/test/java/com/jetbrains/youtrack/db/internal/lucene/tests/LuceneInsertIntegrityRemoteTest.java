@@ -56,7 +56,6 @@ public class LuceneInsertIntegrityRemoteTest extends LuceneBaseTest {
     doc.field("name", "Rome");
 
     session.begin();
-    session.save(doc);
     session.commit();
     var idx = schema.getClassInternal("City").getClassIndex(session, "City.name");
 
@@ -71,7 +70,6 @@ public class LuceneInsertIntegrityRemoteTest extends LuceneBaseTest {
 
     session.begin();
     doc.field("name", "London");
-    session.save(doc);
     session.commit();
 
     try (var stream = idx.getInternal().getRids(session, "Rome")) {
@@ -88,7 +86,6 @@ public class LuceneInsertIntegrityRemoteTest extends LuceneBaseTest {
 
     session.begin();
     doc.field("name", "Berlin");
-    session.save(doc);
     session.commit();
 
     doc = session.load(doc.getIdentity());

@@ -1,12 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool.importer;
 
 import com.jetbrains.youtrack.db.api.record.Identifiable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.api.record.RID;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -17,16 +20,25 @@ public final class ImportConvertersFactory {
   public static final ImportConvertersFactory INSTANCE = new ImportConvertersFactory();
 
   public ValuesConverter getConverter(Object value, ConverterData converterData) {
-    if (value instanceof Map) {
-      return new MapConverter(converterData);
+    if (value instanceof LinkMap) {
+      return new LinkMapConverter(converterData);
+    }
+    if (value instanceof TrackedMap<?>) {
+      return new EmbeddedMapConverter(converterData);
     }
 
-    if (value instanceof List) {
-      return new ListConverter(converterData);
+    if (value instanceof LinkList) {
+      return new LinkListConverter(converterData);
+    }
+    if (value instanceof TrackedList<?>) {
+      return new EmbeddedListConverter(converterData);
     }
 
-    if (value instanceof Set) {
-      return new SetConverter(converterData);
+    if (value instanceof LinkSet) {
+      return new LinkSetConverter(converterData);
+    }
+    if (value instanceof TrackedSet<?>) {
+      return new EmbeddedSetConverter(converterData);
     }
 
     if (value instanceof RidBag) {

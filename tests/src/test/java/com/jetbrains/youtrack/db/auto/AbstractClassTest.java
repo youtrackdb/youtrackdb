@@ -21,7 +21,6 @@ import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.api.exception.SchemaException;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -58,7 +57,7 @@ public class AbstractClassTest extends BaseDBTest {
   public void testCannotCreateInstances() {
     try {
       session.begin();
-      session.newEntity("AbstractPerson").save();
+      session.newEntity("AbstractPerson");
       session.begin();
     } catch (BaseException e) {
       Throwable cause = e;

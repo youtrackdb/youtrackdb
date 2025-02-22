@@ -75,7 +75,6 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    session.save(mapper);
     session.commit();
 
     final var keyIndex = getIndex("mapIndexTestKey");
@@ -115,7 +114,6 @@ public class MapIndexTest extends BaseDBTest {
       map.put("key2", 20);
 
       mapper.setProperty("intMap", map);
-      session.save(mapper);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -164,7 +162,7 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", mapOne);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -177,7 +175,6 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", mapTwo);
 
-    session.save(mapper);
     session.commit();
 
     var keyIndex = getIndex("mapIndexTestKey");
@@ -223,7 +220,7 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", mapOne);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -235,7 +232,6 @@ public class MapIndexTest extends BaseDBTest {
 
       mapper = session.bindToSession(mapper);
       mapper.setProperty("intMap", mapTwo);
-      session.save(mapper);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -285,7 +281,7 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", mapOne);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -296,7 +292,6 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper = session.bindToSession(mapper);
     mapper.setProperty("intMap", mapTwo);
-    session.save(mapper);
     session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
@@ -342,7 +337,7 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
 
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -391,14 +386,13 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     try {
       session.begin();
       Entity loadedMapper = session.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
-      session.save(loadedMapper);
 
       session.commit();
     } catch (Exception e) {
@@ -448,13 +442,12 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
     Entity loadedMapper = session.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
-    session.save(loadedMapper);
     session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
@@ -500,7 +493,7 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -550,14 +543,13 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     try {
       session.begin();
       Entity loadedMapper = session.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
-      session.save(loadedMapper);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -607,13 +599,12 @@ public class MapIndexTest extends BaseDBTest {
     mapper.setProperty("intMap", map);
 
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
     Entity loadedMapper = session.load(new RecordId(mapper.getIdentity()));
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
-    session.save(loadedMapper);
     session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
@@ -660,7 +651,7 @@ public class MapIndexTest extends BaseDBTest {
     mapper.setProperty("intMap", map);
 
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -710,14 +701,13 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     try {
       session.begin();
       Entity loadedMapper = session.load(mapper.getIdentity());
       loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
-      session.save(loadedMapper);
       session.commit();
     } catch (Exception e) {
       session.rollback();
@@ -768,13 +758,12 @@ public class MapIndexTest extends BaseDBTest {
     mapper.setProperty("intMap", map);
 
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
     Entity loadedMapper = session.load(mapper.getIdentity());
     loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
-    session.save(loadedMapper);
     session.rollback();
 
     var keyIndex = getIndex("mapIndexTestKey");
@@ -819,7 +808,7 @@ public class MapIndexTest extends BaseDBTest {
 
     mapper.setProperty("intMap", map);
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -846,7 +835,7 @@ public class MapIndexTest extends BaseDBTest {
     mapper.setProperty("intMap", map);
 
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     try {
@@ -877,7 +866,7 @@ public class MapIndexTest extends BaseDBTest {
     mapper.setProperty("intMap", map);
 
     session.begin();
-    mapper = session.save(mapper);
+    mapper = mapper;
     session.commit();
 
     session.begin();
@@ -925,7 +914,6 @@ public class MapIndexTest extends BaseDBTest {
     mapper.setProperty("intMap", map);
 
     session.begin();
-    session.save(mapper);
     session.commit();
 
     var resultByKey =

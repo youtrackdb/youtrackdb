@@ -115,7 +115,7 @@ public class DateIndexTest extends BaseDBTest {
     dateDoc.field("value", "v1");
 
     session.begin();
-    dateDoc.save();
+
     session.commit();
 
     final var dateIndexTestDateIndex =

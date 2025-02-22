@@ -92,7 +92,7 @@ public class HookSaveTest extends DbTestBase {
     session.getMetadata().getSchema().createClass("another");
 
     session.begin();
-    EntityImpl doc = session.save(session.newEntity("test"));
+    EntityImpl doc = (EntityImpl) session.newEntity("test");
     session.commit();
 
     EntityImpl newRef = session.bindToSession(doc).field("testNewLinkedRecord");

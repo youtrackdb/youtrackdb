@@ -11,7 +11,6 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.io.IOException;
 import org.junit.After;
@@ -82,7 +81,7 @@ public class StorageBackupTestWithLuceneIndex {
     final var document = ((EntityImpl) db.newEntity("BackupClass"));
     document.field("num", 1);
     document.field("name", "Storage");
-    document.save();
+
     db.commit();
 
     final var backupDir = new File(buildDirectory, "backupDir");
@@ -152,7 +151,7 @@ public class StorageBackupTestWithLuceneIndex {
     var document = ((EntityImpl) db.newEntity("BackupClass"));
     document.field("num", 1);
     document.field("name", "Storage");
-    document.save();
+
     db.commit();
 
     db.incrementalBackup(backupDir.toPath());
@@ -161,7 +160,7 @@ public class StorageBackupTestWithLuceneIndex {
     document = ((EntityImpl) db.newEntity("BackupClass"));
     document.field("num", 1);
     document.field("name", "Storage1");
-    document.save();
+
     db.commit();
 
     db.incrementalBackup(backupDir.toPath());

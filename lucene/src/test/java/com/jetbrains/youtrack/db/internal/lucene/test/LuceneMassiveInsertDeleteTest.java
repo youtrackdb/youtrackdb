@@ -53,7 +53,6 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
       city.field("name", "Rome " + i);
 
       session.begin();
-      session.save(city);
       session.commit();
     }
     var query = "select * from City where name LUCENE 'name:Rome'";

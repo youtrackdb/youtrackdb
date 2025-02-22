@@ -58,7 +58,7 @@ public class TraverseTestNew extends BaseDBTest {
     nicoleKidman.setProperty("attributeWithDotValue", "a.b");
 
     session.begin();
-    nicoleKidman = session.save(nicoleKidman);
+    nicoleKidman = nicoleKidman;
     session.commit();
 
     totalElements++;
@@ -68,7 +68,7 @@ public class TraverseTestNew extends BaseDBTest {
     topGun.setProperty("year", 1986);
 
     session.begin();
-    topGun = session.save(topGun);
+    topGun = topGun;
     session.commit();
 
     totalElements++;
@@ -77,7 +77,7 @@ public class TraverseTestNew extends BaseDBTest {
     missionImpossible.setProperty("year", 1996);
 
     session.begin();
-    missionImpossible = session.save(missionImpossible);
+    missionImpossible = missionImpossible;
     session.commit();
 
     totalElements++;
@@ -86,7 +86,7 @@ public class TraverseTestNew extends BaseDBTest {
     youHaveGotMail.setProperty("year", 1998);
 
     session.begin();
-    youHaveGotMail = session.save(youHaveGotMail);
+    youHaveGotMail = youHaveGotMail;
     session.commit();
 
     totalElements++;

@@ -115,14 +115,12 @@ public class LiveQueryRemoteTest {
     var listener = new MyLiveQueryListener(new CountDownLatch(1));
     db.begin();
     var item = db.newVertex();
-    item.save();
     db.commit();
 
     db.live("LIVE SELECT FROM " + item.getIdentity(), listener);
     db.begin();
     item = db.load(item.getIdentity());
     item.setProperty("x", "z");
-    item.save();
     db.commit();
 
     Assert.assertTrue(listener.latch.await(10, TimeUnit.SECONDS));
@@ -269,7 +267,6 @@ public class LiveQueryRemoteTest {
       var elem = db.newEntity("test");
       elem.setProperty("name", "foo");
       elem.setProperty("surname", "bar" + i);
-      elem.save();
     }
     db.commit();
 

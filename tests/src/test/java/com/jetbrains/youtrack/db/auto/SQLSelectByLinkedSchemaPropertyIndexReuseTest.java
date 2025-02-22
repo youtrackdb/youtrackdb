@@ -352,7 +352,6 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     final EntityImpl group1 = session.newInstance("lpirtGroup");
     group1.field("name", "PZ-08-1");
     group1.field("curator", curator1);
-    group1.save();
 
     final EntityImpl diploma1 = session.newInstance("lpirtDiploma");
     diploma1.field("GPA", 3.);
@@ -375,7 +374,6 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     student1.field("diploma", diploma1);
     student1.field("transcript", transcript);
     student1.field("skill", skill);
-    student1.save();
 
     EntityImpl curator2 = session.newInstance("lpirtCurator");
     curator2.field("name", "Someone else");
@@ -384,7 +382,6 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     final EntityImpl group2 = session.newInstance("lpirtGroup");
     group2.field("name", "PZ-08-2");
     group2.field("curator", curator2);
-    group2.save();
 
     final EntityImpl diploma2 = session.newInstance("lpirtDiploma");
     diploma2.field("GPA", 5.);
@@ -399,7 +396,6 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     student2.field("name", "Jane Smith");
     student2.field("group", group2);
     student2.field("diploma", diploma2);
-    student2.save();
 
     EntityImpl curator3 = session.newInstance("lpirtCurator");
     curator3.field("name", "Someone else");
@@ -408,7 +404,6 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     final EntityImpl group3 = session.newInstance("lpirtGroup");
     group3.field("name", "PZ-08-3");
     group3.field("curator", curator3);
-    group3.save();
 
     final EntityImpl diploma3 = session.newInstance("lpirtDiploma");
     diploma3.field("GPA", 4.);
@@ -422,18 +417,16 @@ public class SQLSelectByLinkedSchemaPropertyIndexReuseTest extends AbstractIndex
     student3.field("name", "James Bell");
     student3.field("group", group3);
     student3.field("diploma", diploma3);
-    student3.save();
 
     final EntityImpl student4 = session.newInstance("lpirtStudent");
     student4.field("name", "Roger Connor");
     student4.field("group", group3);
-    student4.save();
 
     final EntityImpl student5 = session.newInstance("lpirtStudent");
     student5.field("name", "William James");
     student5.field("group", group3);
     student5.field("diploma", diploma3);
-    student5.save();
+
     session.commit();
   }
 

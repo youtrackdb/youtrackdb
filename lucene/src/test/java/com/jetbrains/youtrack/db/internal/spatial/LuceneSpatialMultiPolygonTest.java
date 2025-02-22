@@ -219,7 +219,6 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     italy.field("location", location);
 
     session.begin();
-    session.save(italy);
     session.commit();
 
     var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Place.location");

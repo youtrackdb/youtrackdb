@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
@@ -9,7 +8,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,7 +41,7 @@ public class LiveIndexRebuildTest {
     for (var i = 0; i < 1000000; i++) {
       var document = (EntityImpl) db.newEntity(className);
       document.field(propertyName, i);
-      document.save();
+
     }
 
     var executorService = Executors.newFixedThreadPool(6);

@@ -228,7 +228,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     doc.field("boolean", false);
     doc.field("integerList", Collections.EMPTY_LIST);
     doc.field("booleanList", Collections.EMPTY_LIST);
-    session.save(doc);
     session.commit();
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -275,7 +274,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     nestedCound.put("nestedCount", 10);
     test.field("map", nestedCound);
 
-    session.save(test);
     session.commit();
 
     var queried = session.query("SELECT FROM test WHERE id = \"id1\"").next().castToEntity();
@@ -309,7 +307,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.begin();
     final var test = (EntityImpl) session.newEntity("test");
     test.field("text", "initial value");
-    session.save(test);
     session.commit();
 
     var queried = session.query("SELECT FROM test").next().castToEntity();
@@ -334,7 +331,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     final var test = (EntityImpl) session.newEntity("test");
     test.field("text", "initial value");
 
-    session.save(test);
     session.commit();
 
     var queried = session.query("SELECT FROM test").next().castToEntity();
@@ -499,7 +495,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.begin();
     var d = (EntityImpl) session.newEntity("Foo");
     d.field("name", "foo");
-    d.save();
 
     session.command("update Foo MERGE {\"a\":1}").close();
     session.command("update Foo CONTENT {\"a\":1}").close();
@@ -521,13 +516,13 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.begin();
     var d = (EntityImpl) session.newEntity("Foo");
     d.field("name", "foo");
-    d.save();
+
     session.commit();
 
     session.begin();
     d = (EntityImpl) session.newEntity("Foo");
     d.field("name", "bar");
-    d.save();
+
     session.commit();
 
     session.begin();
@@ -548,7 +543,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     session.begin();
     var state = (EntityImpl) session.newEntity("TestLinked");
     state.setProperty("id", "idvalue");
-    session.save(state);
     session.commit();
 
     session.begin();
@@ -556,7 +550,6 @@ public class CommandExecutorSQLUpdateTest extends DbTestBase {
     state = session.bindToSession(state);
     d.setProperty("name", "foo");
     d.setProperty("linked", state);
-    session.save(d);
     session.commit();
 
     session.begin();

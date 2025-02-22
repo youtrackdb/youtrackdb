@@ -127,7 +127,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
       followers.add(follower2);
 
       bObama.getOrCreateLinkSet("followers").addAll(followers);
-      bObama.save();
     }
 
     session.commit();
@@ -169,7 +168,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
           binary[b] = (byte) b;
         }
         element.setProperty("binary", binary);
-        element.save();
         if (!remoteDB) {
           Assert.assertTrue(accountClusterIds.contains(element.getIdentity().getClusterId()));
         }
@@ -200,7 +198,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
               profile.setProperty("nick", "generatedNick" + i);
               profile.setProperty("name", "generatedName" + i);
               profile.setProperty("surname", "generatedSurname" + i);
-              profile.save();
             }
           }
         });
@@ -239,7 +236,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
           bnAddress.setProperty("city", rome);
           bonaparte.setProperty("location", bnAddress);
 
-          bonaparte.save();
         });
   }
 
@@ -250,7 +246,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
           var city = session.newInstance("City");
           city.setProperty("name", "Rome");
           city.setProperty("country", italy);
-          city.save();
 
           return city;
         });
@@ -261,8 +256,6 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
         () -> {
           var italy = session.newEntity("Country");
           italy.setProperty("name", "Italy");
-          italy.save();
-
           return italy;
         });
   }
@@ -300,18 +293,15 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     session.begin();
     var washington = session.newInstance("Country");
     washington.setProperty("name", "Washington");
-    washington.save();
 
     var redmond = session.newInstance("City");
     redmond.setProperty("name", "Redmond");
     redmond.setProperty("country", washington);
-    redmond.save();
 
     var address = session.newInstance("Address");
     address.setProperty("type", "Headquarter");
     address.setProperty("city", redmond);
     address.setProperty("street", "WA 98073-9717");
-    address.save();
 
     session.commit();
     return address;
@@ -578,14 +568,11 @@ public abstract class BaseDBTest extends BaseTest<DatabaseSessionInternal> {
     carNode.setProperty("brand", "Hyundai");
     carNode.setProperty("model", "Coupe");
     carNode.setProperty("year", 2003);
-    carNode.save();
 
     var motoNode = session.newVertex("GraphMotocycle");
     motoNode.setProperty("brand", "Yamaha");
     motoNode.setProperty("model", "X-City 250");
     motoNode.setProperty("year", 2009);
-    motoNode.save();
-
     session.commit();
 
     session.begin();

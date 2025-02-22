@@ -1569,29 +1569,6 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   /**
-   * Saves a entity to the database. Behavior depends on the current running transaction if any. If
-   * no transaction is running then changes apply immediately. If an Optimistic transaction is
-   * running then the record will be changed at commit time. The current transaction will continue
-   * to see the record as modified, while others not. If a Pessimistic transaction is running, then
-   * an exclusive lock is acquired against the record. Current transaction will continue to see the
-   * record as modified, while others cannot access to it since it's locked.
-   *
-   * @param record Record to save.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   * @throws ConcurrentModificationException if the version of the entity is different by the
-   *                                         version contained in the database.
-   * @throws ValidationException             if the entity breaks some validation constraints
-   *                                         defined in the schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}
-   */
-  @Override
-  public <RET extends DBRecord> RET save(final DBRecord record) {
-    assert assertIfNotActive();
-    return save(record, null);
-  }
-
-  /**
    * Saves a entity specifying a cluster where to store the record. Behavior depends by the current
    * running transaction if any. If no transaction is running then changes apply immediately. If an
    * Optimistic transaction is running then the record will be changed at commit time. The current
@@ -1644,20 +1621,13 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
   }
 
   private <RET extends DBRecord> RET saveInternal(RecordAbstract record, String clusterName) {
-
     if (!(record instanceof EntityImpl entity)) {
       assignAndCheckCluster(record, clusterName);
       return (RET) currentTx.saveRecord(record, clusterName);
     }
 
     EntityInternalUtils.checkClass(entity, this);
-    try {
-      entity.autoConvertValues();
-    } catch (ValidationException e) {
-      entity.undo();
-      throw e;
-    }
-    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
+    entity.checkAllMultiValuesAreTrackedVersions();
 
     if (!entity.getIdentity().isValid()) {
       if (entity.getSchemaClassName() != null) {
@@ -2433,12 +2403,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public List<Identifiable> newLinkList() {
-    return new LinkList();
+    return new LinkList(this);
   }
 
   @Override
   public List<Identifiable> newLinkList(int size) {
-    return new LinkList(size);
+    return new LinkList(size, this);
   }
 
   @Override
@@ -2460,12 +2430,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Set<Identifiable> newLinkSet() {
-    return new LinkSet();
+    return new LinkSet(this);
   }
 
   @Override
   public Set<Identifiable> newLinkSet(int size) {
-    return new LinkSet(size);
+    return new LinkSet(size, this);
   }
 
   @Override
@@ -2487,11 +2457,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<SessionList
 
   @Override
   public Map<String, Identifiable> newLinkMap() {
-    return new LinkMap();
+    return new LinkMap(this);
   }
 
   @Override
   public Map<String, Identifiable> newLinkMap(int size) {
-    return new LinkMap(size);
+    return new LinkMap(size, this);
   }
 }

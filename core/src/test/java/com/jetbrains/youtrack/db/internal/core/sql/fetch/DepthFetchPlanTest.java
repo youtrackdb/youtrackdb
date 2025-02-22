@@ -22,21 +22,18 @@ public class DepthFetchPlanTest extends DbTestBase {
     var doc1 = ((EntityImpl) session.newEntity("Test"));
     var doc2 = ((EntityImpl) session.newEntity("Test"));
     doc.field("name", "name");
-    session.save(doc);
     session.commit();
 
     session.begin();
     doc = session.bindToSession(doc);
     doc1.field("name", "name1");
     doc1.field("ref", doc);
-    session.save(doc1);
     session.commit();
 
     session.begin();
     doc1 = session.bindToSession(doc1);
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
-    session.save(doc2);
     session.commit();
 
     doc2 = session.bindToSession(doc2);
@@ -58,14 +55,12 @@ public class DepthFetchPlanTest extends DbTestBase {
     var doc2 = ((EntityImpl) session.newEntity("Test"));
     var doc3 = ((EntityImpl) session.newEntity("Test"));
     doc.field("name", "name");
-    session.save(doc);
     session.commit();
 
     session.begin();
     doc = session.bindToSession(doc);
     doc1.field("name", "name1");
     doc1.field("ref", doc);
-    session.save(doc1);
     session.commit();
 
     session.begin();
@@ -73,7 +68,6 @@ public class DepthFetchPlanTest extends DbTestBase {
 
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
-    session.save(doc2);
     session.commit();
 
     session.begin();
@@ -81,7 +75,6 @@ public class DepthFetchPlanTest extends DbTestBase {
 
     doc3.field("name", "name2");
     doc3.field("ref", doc2);
-    session.save(doc3);
     session.commit();
 
     doc3 = session.bindToSession(doc3);

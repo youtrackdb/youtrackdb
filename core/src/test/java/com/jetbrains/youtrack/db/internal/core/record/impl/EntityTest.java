@@ -30,7 +30,6 @@ public class EntityTest extends DbTestBase {
     session.begin();
     var elem = session.newEntity("TestLoadAndSave");
     elem.setProperty("name", "foo");
-    session.save(elem);
     session.commit();
 
     var result = session.query("select from TestLoadAndSave where name = 'foo'");

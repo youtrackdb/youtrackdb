@@ -56,9 +56,11 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
     final var index =
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     session.commit();
 
@@ -71,7 +73,7 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
 
     session.begin();
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> resultTwo = new HashSet<>();
@@ -99,10 +101,10 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
     var docOne = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    docOne.save();
+
     var docTwo = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    docTwo.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     session.commit();
 
@@ -147,9 +149,10 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
     var docOne = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    docOne.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     session.commit();
 
@@ -193,12 +196,12 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
 
     session.begin();
     final var document = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    document.save();
+
     document.field(FIELD_NAME, 0);
     document.field(FIELD_NAME, 1);
-    document.save();
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
+
     session.commit();
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX_NAME));
@@ -229,8 +232,9 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
     final var index =
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX_NAME));
     Set<Identifiable> result = new HashSet<>();
@@ -241,7 +245,8 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
     session.commit();
 
     session.begin();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
+
     session.commit();
 
     stream = index.getInternal().streamEntries(session, Arrays.asList(1, 2), true);
@@ -261,8 +266,8 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
     var doc = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    doc.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     doc.delete();
 
@@ -295,8 +300,8 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
     var docOne = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    docOne.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     docOne.delete();
 
@@ -329,11 +334,11 @@ public class IndexTxAwareMultiValueGetEntriesTest extends BaseDBTest {
         session.getMetadata().getIndexManagerInternal().getIndex(session, INDEX_NAME);
 
     final var docOne = ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
-    docOne.save();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2).save();
+
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 2);
 
     docOne.delete();
-    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1).save();
+    ((EntityImpl) session.newEntity(CLASS_NAME)).field(FIELD_NAME, 1);
 
     Assert.assertNotNull(session.getTransaction().getIndexChanges(INDEX_NAME));
 

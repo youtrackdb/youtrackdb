@@ -5,14 +5,11 @@ import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
 import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.DBRecord;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.record.RID;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +68,6 @@ public class UpdateStatementExecutionTest {
       tagsMap.put("baz", "baz");
       doc.setProperty("tagsMap", tagsMap);
 
-      doc.save();
     }
     db.commit();
   }
@@ -590,7 +586,6 @@ public class UpdateStatementExecutionTest {
     }
     doc.setProperty("theProperty", theList);
 
-    doc.save();
     db.commit();
 
     db.begin();
@@ -630,7 +625,6 @@ public class UpdateStatementExecutionTest {
     }
     doc.setProperty("theProperty", theList);
 
-    doc.save();
     db.commit();
 
     db.begin();
@@ -684,7 +678,6 @@ public class UpdateStatementExecutionTest {
     emb.setProperty("aaa", "bar");
     doc.setProperty("theProperty", emb);
 
-    doc.save();
     db.commit();
 
     db.begin();
@@ -756,7 +749,7 @@ public class UpdateStatementExecutionTest {
     db.begin();
     var vertex = db.newVertex();
     vertex.setProperty("one", "two");
-    var identity = db.save(vertex).getIdentity();
+    var identity = vertex.getIdentity();
     db.commit();
 
     db.begin();

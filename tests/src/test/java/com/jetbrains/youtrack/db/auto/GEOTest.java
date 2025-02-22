@@ -84,7 +84,7 @@ public class GEOTest extends BaseDBTest {
       point.field("y", (0.14056d + i / 100d));
 
       session.begin();
-      point.save();
+
       session.commit();
     }
   }

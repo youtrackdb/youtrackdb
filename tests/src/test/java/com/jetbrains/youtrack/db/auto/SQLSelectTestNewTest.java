@@ -71,8 +71,8 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
 
       for (var i = 0; i < 1000; ++i) {
         session.begin();
-        session.newInstance("Profile").field("test", i).field("name", "N" + i)
-            .save();
+        session.newInstance("Profile").field("test", i).field("name", "N" + i);
+
         session.commit();
       }
     }
@@ -81,7 +81,8 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
       session.getMetadata().getSchema().createClass("company", 1);
       for (var i = 0; i < 20; ++i) {
         session.begin();
-        ((EntityImpl) session.newEntity("company")).field("id", i).save();
+        ((EntityImpl) session.newEntity("company")).field("id", i);
+
         session.commit();
       }
     }
@@ -197,7 +198,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc = ((EntityImpl) session.newEntity("Profile"));
     doc.field("tags", tags, PropertyType.EMBEDDEDSET);
 
-    doc.save();
     session.commit();
 
     var resultset =
@@ -221,7 +221,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc = ((EntityImpl) session.newEntity("Profile"));
     doc.field("tags", tags);
 
-    doc.save();
     session.commit();
 
     var resultset =
@@ -251,7 +250,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc = ((EntityImpl) session.newEntity("Profile"));
     doc.field("coll", coll, PropertyType.EMBEDDEDSET);
 
-    doc.save();
     session.commit();
 
     var resultset =
@@ -278,7 +276,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc = ((EntityImpl) session.newEntity("Profile"));
     doc.field("coll", coll, PropertyType.EMBEDDEDLIST);
 
-    doc.save();
     session.commit();
 
     var resultset =
@@ -307,7 +304,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc = ((EntityImpl) session.newEntity("Profile"));
     doc.field("customReferences", customReferences, PropertyType.EMBEDDEDMAP);
 
-    doc.save();
     session.commit();
 
     var resultset =
@@ -379,7 +375,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc = ((EntityImpl) session.newEntity("Profile"));
     doc.field("customReferences", customReferences, PropertyType.EMBEDDEDMAP);
 
-    doc.save();
     session.commit();
 
     var resultset =
@@ -439,7 +434,7 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     races.add(session.newInstance("AnimalRace").field("name", "Siamese"));
     record.field("age", 10);
     record.field("races", races);
-    record.save();
+
     session.commit();
 
     var result =
@@ -1315,7 +1310,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     document.field("f1", "a").field("f2", "a");
 
     session.begin();
-    session.save(document);
     session.commit();
 
     Map<String, Object> parameters = new HashMap<String, Object>();
@@ -1397,12 +1391,11 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var doc1 = ((EntityImpl) session.newEntity(facClass));
     doc1.field("context", "test");
     doc1.field("date", currentYear.getTime());
-    doc1.save();
 
     var doc2 = ((EntityImpl) session.newEntity(facClass));
     doc2.field("context", "test");
     doc2.field("date", oneYearAgo.getTime());
-    doc2.save();
+
     session.commit();
 
     var result =
@@ -1474,7 +1467,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     odoc.field("descr", "Adda");
 
     session.begin();
-    session.save(odoc);
     session.commit();
 
     odoc = ((EntityImpl) session.newEntity("Place"));
@@ -1482,7 +1474,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     odoc.field("descr", "Lago di Como");
 
     session.begin();
-    session.save(odoc);
     session.commit();
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -1512,7 +1503,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     odoc.field("descr", "Adda");
 
     session.begin();
-    session.save(odoc);
     session.commit();
 
     inputValues.add(odoc.getIdentity());
@@ -1522,7 +1512,6 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     odoc.field("descr", "Lago di Como");
 
     session.begin();
-    session.save(odoc);
     session.commit();
     inputValues.add(odoc.getIdentity());
 
@@ -1544,11 +1533,8 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     var firstPlace = ((EntityImpl) session.newEntity("Place"));
 
     session.begin();
-    session.save(firstPlace);
     var secondPlace = ((EntityImpl) session.newEntity("Place"));
-    session.save(secondPlace);
     var famousPlace = ((EntityImpl) session.newEntity("FamousPlace"));
-    session.save(famousPlace);
     session.commit();
 
     RID secondPlaceId = secondPlace.getIdentity();
@@ -1792,7 +1778,8 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
           new HashSet<String>(Arrays.asList("Luca", "Jill", "Sara", "Tania", "Gianluca", "Marco"));
       for (var n : names) {
         session.begin();
-        ((EntityImpl) session.newEntity("PersonMultipleClusters")).field("First", n).save();
+        ((EntityImpl) session.newEntity("PersonMultipleClusters")).field("First", n);
+
         session.commit();
       }
 
@@ -2054,23 +2041,19 @@ public class SQLSelectTestNewTest extends AbstractSelectTest {
     session.begin();
     var elem1 = session.newEntity(className);
     elem1.setProperty("name", "a");
-    elem1.save();
 
     var elem2 = session.newEntity(className);
     elem2.setProperty("name", "b");
     elem2.setProperty("surname", "lkj");
-    elem2.save();
 
     var elem3 = session.newEntity(className);
     elem3.setProperty("name", "c");
-    elem3.save();
 
     var elem4 = session.newEntity(className);
     elem4.setProperty("name", "d");
     elem4.setProperty("elem1", elem1);
     elem4.setProperty("elem2", elem2);
     elem4.setProperty("elem3", elem3);
-    elem4.save();
     session.commit();
 
     var result =

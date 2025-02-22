@@ -61,7 +61,6 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
     doc.field("geometry", geometry);
 
     session.begin();
-    session.save(doc);
     session.commit();
   }
 

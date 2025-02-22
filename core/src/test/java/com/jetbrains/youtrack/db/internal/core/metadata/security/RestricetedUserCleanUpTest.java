@@ -26,15 +26,17 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     var auser = security.createUser("auser", "wherever", new String[]{});
     var reader = security.getUser("admin");
     var doc = (EntityImpl) session.newEntity("TestRecord");
-    Set<Identifiable> users = new HashSet<Identifiable>();
+
+    var users = new HashSet<Identifiable>();
     users.add(auser.getIdentity());
     users.add(reader.getIdentity());
 
-    doc.field(SecurityShared.ALLOW_READ_FIELD, users);
-    doc.field(SecurityShared.ALLOW_UPDATE_FIELD, users);
-    doc.field(SecurityShared.ALLOW_DELETE_FIELD, users);
-    doc.field(SecurityShared.ALLOW_ALL_FIELD, users);
-    EntityImpl rid = session.save(doc);
+    doc.newLinkList(SecurityShared.ALLOW_READ_FIELD).addAll(users);
+    doc.newLinkSet(SecurityShared.ALLOW_UPDATE_FIELD).addAll(users);
+    doc.newLinkSet(SecurityShared.ALLOW_DELETE_FIELD).addAll(users);
+    doc.newLinkSet(SecurityShared.ALLOW_ALL_FIELD).addAll(users);
+
+    EntityImpl rid = doc;
     session.commit();
 
     System.gc();
@@ -51,7 +53,7 @@ public class RestricetedUserCleanUpTest extends DbTestBase {
     Assert.assertEquals(2, ((Set<?>) doc.field(SecurityShared.ALLOW_ALL_FIELD)).size());
 
     doc.field("abc", "abc");
-    doc.save();
+
     session.commit();
 
     System.gc();

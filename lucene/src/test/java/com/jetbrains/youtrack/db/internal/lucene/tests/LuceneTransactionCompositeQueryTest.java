@@ -52,7 +52,6 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc.field("name", "Test");
     doc.field("bar", "abc");
     session.begin();
-    session.save(doc);
 
     var query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true ";
     try (var vertices = session.command(query)) {
@@ -76,8 +75,6 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc.field("bar", "abc");
 
     var index = session.getMetadata().getIndexManagerInternal().getIndex(session, "Foo.bar");
-
-    session.save(doc);
 
     session.commit();
 
@@ -125,15 +122,12 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    session.save(doc);
-
     session.commit();
 
     session.begin();
 
     doc = session.bindToSession(doc);
     doc.field("bar", "removed");
-    session.save(doc);
 
     var query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\") =true";
     Collection<?> coll;
@@ -193,15 +187,11 @@ public class LuceneTransactionCompositeQueryTest extends LuceneBaseTest {
     doc1.field("name", "Test");
     doc1.field("bar", "abc");
 
-    session.save(doc1);
-    session.save(doc);
-
     session.commit();
 
     session.begin();
     doc = session.bindToSession(doc);
     doc.field("bar", "removed");
-    session.save(doc);
 
     var query = "select from Foo where name = 'Test' and SEARCH_CLASS(\"abc\")=true ";
     Collection coll;

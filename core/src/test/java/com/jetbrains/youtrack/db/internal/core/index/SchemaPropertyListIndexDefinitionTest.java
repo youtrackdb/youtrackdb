@@ -101,7 +101,7 @@ public class SchemaPropertyListIndexDefinitionTest extends DbTestBase {
     session.begin();
     final var document = (EntityImpl) session.newEntity();
 
-    document.field("fOne", Arrays.asList("12", "23"));
+    document.newEmbeddedList("fOne").addAll(Arrays.asList("12", "23"));
     document.field("fTwo", 10);
 
     final var result = propertyIndex.getDocumentValueToIndex(session, document);
