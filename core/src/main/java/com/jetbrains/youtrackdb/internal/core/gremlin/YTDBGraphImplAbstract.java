@@ -80,13 +80,12 @@ public abstract class YTDBGraphImplAbstract implements YTDBGraphInternal, Consum
             .addStrategies(
                 // Position in this list is informational — the strategy resolver topologically
                 // sorts by each strategy's applyPrior()/applyPost(). Tie-break names the translator
-                // in applyPost(), so ORDER BY steps gain by(T.id) before translation; the four
-                // strategies below the translator name it in applyPrior() and become the decline
-                // fallback. Collation is one of those four: a translated shape has no order() step
-                // left to modulate, and the engine comparison applies the declared collation
-                // instead. RepeatDeclineStrategy is the one entry that is not a provider
-                // optimization: it is a decoration strategy, and the resolver's category ordering
-                // is what puts it ahead of TinkerPop's RepeatUnrollStrategy.
+                // in applyPost(), so ORDER BY steps gain by(T.id) before translation. Strategies
+                // below the translator name it in applyPrior() and become the decline fallback.
+                // Collation applies through engine comparison after translation. OrderNulls waits
+                // on the translator so comparator wrapping hits only native-decline order() steps.
+                // RepeatDeclineStrategy is the one entry that is not a provider optimization. It is
+                // a decoration strategy, and category ordering puts it before RepeatUnrollStrategy.
                 RepeatDeclineStrategy.instance(),
                 YTDBOrderRidTieBreakStrategy.instance(),
                 GremlinToMatchStrategy.instance(),
