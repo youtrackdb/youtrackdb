@@ -83,9 +83,10 @@ public abstract class YTDBGraphImplAbstract implements YTDBGraphInternal, Consum
                 // in applyPost(), so ORDER BY steps gain by(T.id) before translation. Strategies
                 // below the translator name it in applyPrior() and become the decline fallback.
                 // Collation applies through engine comparison after translation. OrderNulls waits
-                // on the translator so comparator wrapping hits only native-decline order() steps.
-                // RepeatDeclineStrategy is the one entry that is not a provider optimization. It is
-                // a decoration strategy, and category ordering puts it before RepeatUnrollStrategy.
+                // on the translator and ProductiveOrderBy, so wrapping hits only native-decline
+                // order() steps and sees missing keys as nulls. RepeatDeclineStrategy is the one
+                // entry that is not a provider optimization. It is a decoration strategy, and
+                // category ordering puts it before RepeatUnrollStrategy.
                 RepeatDeclineStrategy.instance(),
                 YTDBOrderRidTieBreakStrategy.instance(),
                 GremlinToMatchStrategy.instance(),
