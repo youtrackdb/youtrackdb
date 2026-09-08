@@ -25,10 +25,8 @@ Coverage details live in `docs-internal/dev-workflow/coverage-verification.md`.
 
 ## Verification Gates
 
-Verification rules live in `docs-internal/dev-workflow/track-development.md`.
-Integration command syntax lives in `docs-internal/agents/thread-guidelines.md`.
-Never run the full integration suite locally. The pull request pipeline runs it instead.
-`docs-internal/dev-workflow/track-development.md` owns integration scope.
+A developer machine never runs an integration test. The pull request pipeline runs the integration
+suite. Follow `docs-internal/dev-workflow/track-development.md` for scope and exceptions.
 If in doubt, run the full unit test suite.
 
 ### Serial Maven execution
