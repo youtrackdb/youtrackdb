@@ -5,10 +5,12 @@ import com.jetbrains.youtrackdb.api.gremlin.tokens.YTDBQueryConfigParam;
 import com.jetbrains.youtrackdb.internal.core.db.DatabaseSessionEmbedded;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBGraph;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBTransaction;
+import com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy.ContradictoryOrderSemanticsException;
 import javax.annotation.Nullable;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal.Admin;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.EmptyStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.StandardOrderSemanticsStrategy;
 
 public final class YTDBStrategyUtil {
 
@@ -103,28 +105,43 @@ public final class YTDBStrategyUtil {
         GlobalConfiguration.QUERY_GREMLIN_POLYMORPHIC_BY_DEFAULT);
   }
 
-  /// Check whether a global-scope `order()` step must keep a record that does not carry the
-  /// ordered property. Returns `null` when the traversal has no attached YTDB graph (see
-  /// [#resolveYtdbSession]) or its configuration cannot be resolved; otherwise the explicit
-  /// `orderIncludesMissingKey` option, or the
-  /// `QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY` session default. The option is read first, so one
-  /// traversal opts out of the deviation without touching the deployment-wide value.
-  @Nullable public static Boolean orderIncludesMissingKey(Admin<?, ?> traversal) {
-    final var session = resolveYtdbSession(traversal);
-    if (session == null) {
-      return null;
+  /// Resolves whether a global-scope `order()` step keeps a record without the ordered property.
+  /// The explicit per-traversal option takes precedence over the database setting. The
+  /// user-supplied standard-order strategy takes precedence only when the explicit option does not
+  /// select record retention. The sole contradiction is an explicit
+  /// `orderIncludesMissingKey=true` option with the standard-order strategy. An unresolved setting
+  /// keeps records unless the strategy is present.
+  public static boolean orderIncludesMissingKey(Admin<?, ?> traversal) {
+    final Boolean explicit =
+        getConfigValue(YTDBQueryConfigParam.orderIncludesMissingKey, traversal);
+    if (Boolean.FALSE.equals(explicit)) {
+      return false;
     }
 
-    final Boolean value = getConfigValue(YTDBQueryConfigParam.orderIncludesMissingKey, traversal);
-    if (value != null) {
-      return value;
+    if (explicit == null) {
+      final var session = resolveYtdbSession(traversal);
+      if (session != null && session.getConfiguration() != null
+          && !session.getConfiguration().getValueAsBoolean(
+              GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY)) {
+        return false;
+      }
     }
 
-    final var configuration = session.getConfiguration();
-    if (configuration == null) {
-      return null;
+    if (!hasStandardOrderSemanticsStrategy(traversal)) {
+      return true;
     }
-    return configuration.getValueAsBoolean(
-        GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY);
+    if (Boolean.TRUE.equals(explicit)) {
+      throw new ContradictoryOrderSemanticsException(
+          "StandardOrderSemanticsStrategy conflicts with the explicit "
+              + "orderIncludesMissingKey=true option. Remove the strategy with "
+              + "withoutStrategies(StandardOrderSemanticsStrategy.class).");
+    }
+    return false;
+  }
+
+  /// Reports whether the root traversal carries the user strategy for standard order semantics.
+  public static boolean hasStandardOrderSemanticsStrategy(Admin<?, ?> traversal) {
+    return rootTraversal(traversal).getStrategies()
+        .getStrategy(StandardOrderSemanticsStrategy.class).isPresent();
   }
 }

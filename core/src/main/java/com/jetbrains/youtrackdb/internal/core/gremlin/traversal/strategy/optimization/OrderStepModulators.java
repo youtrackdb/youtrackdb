@@ -20,12 +20,16 @@ import org.javatuples.Pair;
  * first equal-looking slot instead of the requested one. There is no positional setter on
  * {@code ComparatorHolder} either, so the step is rebuilt with the slot list the caller wants and
  * swapped in at the same index. The index is found by reference, not through
- * {@code TraversalHelper.stepIndex}, which matches on {@code hashCode} and would find an earlier
+ * {@code TraversalHelper.stepIndex}, which matches on {@code hashCode} and could find an earlier
  * equal-looking order step.
  *
- * <p>The class holds one copy of that walk on purpose. Two strategies replace modulators now, and a
- * second private copy of the swap is what lets two callers drift into rebuilding the step
- * differently.
+ * <p>A rebuild must preserve state established by earlier strategies. The limit controls how many
+ * sorted traversers survive, and missing-key filtering controls whether a traverser without a sort
+ * key survives. Losing either state would change query semantics while replacing only a modulator.
+ * Labels must also survive because later traversal steps address them by name.
+ *
+ * <p>The class holds one copy of this walk on purpose. Two strategies replace modulators now, and
+ * a second private copy of the swap would let callers rebuild the step differently.
  */
 final class OrderStepModulators {
 
@@ -51,9 +55,9 @@ final class OrderStepModulators {
    * Rebuilds {@code step} with {@code modulators} in its comparator slots, keeping every comparator
    * and every step label, and swaps the rebuilt step in at the same index.
    *
-   * <p>A bare {@code order()} keeps its fast path: its comparator field is empty and
-   * {@code getComparators} synthesises the single identity slot, so installing the modulator on the
-   * step itself replaces that slot with nothing to rebuild.
+   * <p>A bare {@code order()} keeps its fast path. Its comparator field is empty, and
+   * {@code getComparators} synthesises the single identity slot. Installing the modulator on the
+   * existing step therefore preserves the limit and missing-key filtering state without a rebuild.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   static void replaceGlobalModulators(OrderGlobalStep step, List<Admin> modulators) {
@@ -63,8 +67,11 @@ final class OrderStepModulators {
       return;
     }
     var replacement = new OrderGlobalStep(step.getTraversal());
-    // Carried explicitly: a preceding range fold already pushed its bound onto the old step.
+    // Preserve state that earlier strategies placed on the old step.
     replacement.setLimit(step.getLimit());
+    if (step.isFilteringUnproductiveTraversers()) {
+      replacement.enableFilteringUnproductiveTraversers();
+    }
     for (var index = 0; index < comparators.size(); index++) {
       replacement.addComparator(modulators.get(index), comparators.get(index).getValue1());
     }

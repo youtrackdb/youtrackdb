@@ -100,10 +100,8 @@ public class YTDBDockerGraphFeatureTestHooks {
   private static void reloadAllTestGraphs() {
     var graphsToLoad = LoadGraphWith.GraphData.values();
     var dbType = calculateDbType();
-    // Same portable-order opt-out as YTDBGraphInitUtil / remote GraphProvider: Cucumber Order
-    // scenarios assert the TinkerPop drop for missing keys. Without the flag at create, the
-    // container ships the product default and keeps software vertices that have no age.
-    var suiteConfig = portableOrderSuiteConfig();
+    // Docker conformance databases exercise the shipped default.
+    var suiteConfig = defaultOrderSuiteConfig();
     var admin = new LocalUserCredential(
         ADMIN_USER_NAME, ADMIN_USER_PASSWORD, PredefinedLocalRole.ADMIN);
 
@@ -124,14 +122,11 @@ public class YTDBDockerGraphFeatureTestHooks {
     }
   }
 
-  /**
-   * Suite databases must drop records that lack the ordered key so upstream Cucumber order
-   * scenarios match portable semantics. Product images keep the shipped default ({@code true}).
-   */
-  private static Configuration portableOrderSuiteConfig() {
+  /** Returns the explicit shipped mode for Docker conformance databases. */
+  private static Configuration defaultOrderSuiteConfig() {
     var config = new BaseConfiguration();
     config.setProperty(
-        GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY.getKey(), Boolean.FALSE);
+        GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY.getKey(), Boolean.TRUE);
     return config;
   }
 

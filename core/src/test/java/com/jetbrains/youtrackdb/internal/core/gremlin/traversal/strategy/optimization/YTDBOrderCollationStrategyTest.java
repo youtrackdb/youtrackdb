@@ -16,6 +16,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.process.traversal.lambda.ValueTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderGlobalStep;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.StandardOrderSemanticsStrategy;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.javatuples.Pair;
 import org.junit.Test;
@@ -50,6 +51,18 @@ public class YTDBOrderCollationStrategyTest extends GraphBaseTest {
     assertThat(collated.getPropertyKey()).isEqualTo("name");
     assertThat(collated.getCollate()).isInstanceOf(CaseInsensitiveCollate.class);
     assertThat(comparators.get(0).getValue1()).isEqualTo(Order.desc);
+  }
+
+  /** Proves a collation rebuild preserves the filtering flag for standard order semantics. */
+  @Test
+  public void apply_rebuildPreservesStandardOrderSemanticsFlag() {
+    declareCaseInsensitiveName("Person");
+    var admin = graph.traversal().V().hasLabel("Person").order().by("name").asAdmin();
+    StandardOrderSemanticsStrategy.instance().apply(admin);
+
+    YTDBOrderCollationStrategy.instance().apply(admin);
+
+    assertThat(orderStep(admin).isFilteringUnproductiveTraversers()).isTrue();
   }
 
   /**

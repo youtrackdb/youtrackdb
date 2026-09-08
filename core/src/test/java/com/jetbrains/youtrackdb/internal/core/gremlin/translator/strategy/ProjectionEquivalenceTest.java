@@ -1372,17 +1372,17 @@ public class ProjectionEquivalenceTest extends GraphBaseTest {
   }
 
   /**
-   * Under the portable opt-out, {@code order().by("age")} emits only the two vertices that carry
+   * Under the standard order semantics mode, {@code order().by("age")} emits only the two vertices that carry
    * {@code age}. Gremlin's modulator is then a filter, so an element with no {@code age} produces
    * no value and its traverser is dropped.
    *
    * <p>The opt-out is explicit because the SHIPPED DEFAULT no longer drops: a global-scope order
    * keeps the ageless element and orders it as a null key, the way YQL {@code ORDER BY} does. This
-   * case therefore pins the equivalence of the two arms under portable semantics only. The
-   * absolute rows of the default are pinned by {@code YTDBProductiveOrderByStrategyTest}.
+   * case therefore pins the equivalence of the two arms under standard order semantics only. The
+   * absolute rows of the default are pinned by {@code YTDBStandardOrderSemanticsStrategyTest}.
    */
   @Test
-  public void orderByMissingKeyUnderPortableOptOut_dropsElementLikeNative() {
+  public void orderByMissingKeyUnderStandardOrderSemantics_dropsElementLikeNative() {
     seedAgedAndAgeless();
 
     // Ordered comparison: after the drop only Bob (25) and Alice (30) survive and their ages
@@ -1397,13 +1397,13 @@ public class ProjectionEquivalenceTest extends GraphBaseTest {
   }
 
   /**
-   * Under the same portable opt-out the drop has to reach a following {@code count()}, which reads
+   * Under the same standard order semantics mode the drop has to reach a following {@code count()}, which reads
    * the filtered pattern rather than the projected stream: {@code order().by("age").count()} is 2,
    * not 4. The shipped default counts all four instead, which
-   * {@code YTDBProductiveOrderByStrategyTest} pins as an absolute value.
+   * {@code YTDBStandardOrderSemanticsStrategyTest} pins as an absolute value.
    */
   @Test
-  public void countAfterOrderByMissingKeyUnderPortableOptOut_countsOnlyKeyBearers() {
+  public void countAfterOrderByMissingKeyUnderStandardOrderSemantics_countsOnlyKeyBearers() {
     seedAgedAndAgeless();
 
     assertEquivalent(

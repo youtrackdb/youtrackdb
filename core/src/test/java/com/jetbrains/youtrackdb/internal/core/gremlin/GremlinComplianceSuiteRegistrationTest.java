@@ -4,7 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBGraphFeatureTest;
+import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBGraphProvider;
 import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBProcessTest;
+import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBStandardOrderSemanticsFeatureTest;
+import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBStandardOrderSemanticsGraphProvider;
+import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBStandardOrderSemanticsProcessTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.YTDBStructureTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.suites.YTDBGremlinProcessTests;
 import com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest.suites.YTDBStructureSuite;
@@ -12,6 +16,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -21,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -58,16 +65,16 @@ public class GremlinComplianceSuiteRegistrationTest {
       "com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest";
 
   /**
-   * The three suite-wrapper classes are entry points that surefire runs directly (each gets its
-   * own {@code gremlin-*-compliance-tests} execution); they are not themselves registered inside
-   * a suite array, so they are exempt from the "must be registered" check below. In practice none
-   * of them declare a {@code @Test} method of their own either, so the scan would skip them
-   * anyway -- this set just makes that exemption explicit and future-proof.
+   * Maven Surefire runs each suite wrapper through a dedicated compliance execution.
+   * Suite arrays do not contain wrappers.
+   * The registration check therefore excludes these five wrappers.
    */
   private static final Set<String> WRAPPER_CLASS_NAMES = Set.of(
       YTDBProcessTest.class.getName(),
       YTDBStructureTest.class.getName(),
-      YTDBGraphFeatureTest.class.getName());
+      YTDBGraphFeatureTest.class.getName(),
+      YTDBStandardOrderSemanticsProcessTest.class.getName(),
+      YTDBStandardOrderSemanticsFeatureTest.class.getName());
 
   /**
    * Floor for the number of concrete, {@code @Test}-bearing classes {@link
@@ -133,12 +140,37 @@ public class GremlinComplianceSuiteRegistrationTest {
       YTDBGremlinProcessTests.class, 20,
       YTDBStructureSuite.class, 15);
 
+  @Test
+  public void standardOrderExecutions_nameTheirWrappersAndModes() throws Exception {
+    var pom = Files.readString(Path.of(System.getProperty("basedir"), "pom.xml"));
+
+    assertExecution(
+        pom,
+        "gremlin-standard-order-process-compliance-tests",
+        "**/YTDBStandardOrderSemanticsProcessTest.java",
+        null);
+    assertExecution(
+        pom,
+        "gremlin-standard-order-feature-compliance-tests",
+        "**/YTDBStandardOrderSemanticsFeatureTest.java",
+        "standard");
+  }
+
+  @Test
+  public void processProviderExclusionCounts_matchTheirExecutions() {
+    assertThat(YTDBGraphProvider.class.getDeclaredAnnotationsByType(Graph.OptOut.class))
+        .isEmpty();
+    assertThat(YTDBStandardOrderSemanticsGraphProvider.class
+        .getDeclaredAnnotationsByType(Graph.OptOut.class))
+        .hasSize(1);
+  }
+
   /**
    * Scenario: a hand-written, concrete class under {@code gremlintest/**} declares (directly or
    * by inheritance, e.g. a nested subclass of an abstract scenario base) at least one JUnit4
    * {@code @Test} method. Expected outcome: that exact class -- top-level or nested -- appears in
    * one of the {@code Class<?>[]} registry fields on {@link YTDBGremlinProcessTests} or {@link
-   * YTDBStructureSuite}, or is one of the three suite-wrapper classes. Any class satisfying the
+   * YTDBStructureSuite}, or is one of the five suite-wrapper classes. Any class satisfying the
    * first half without the second is named in the failure message, since it would otherwise run
    * nowhere in a normal build.
    *
@@ -209,6 +241,24 @@ public class GremlinComplianceSuiteRegistrationTest {
                 + "entirely and no compliance execution references them; add each one to the "
                 + "appropriate suite array")
         .isEmpty();
+  }
+
+  private static void assertExecution(
+      String pom, String executionId, String wrapper, String mode) {
+    var id = "<id>" + executionId + "</id>";
+    var start = pom.indexOf(id);
+    assertThat(start).as("missing Maven execution %s", executionId).isNotNegative();
+    var end = pom.indexOf("</execution>", start);
+    assertThat(end).as("unterminated Maven execution %s", executionId).isNotNegative();
+    var execution = pom.substring(start, end);
+
+    assertThat(execution).contains("<include>" + wrapper + "</include>");
+    assertThat(execution).contains("<failIfNoTests>true</failIfNoTests>");
+    if (mode != null) {
+      assertThat(execution).contains(
+          "<youtrackdb.test.gremlin.orderSemantics>" + mode
+              + "</youtrackdb.test.gremlin.orderSemantics>");
+    }
   }
 
   /**

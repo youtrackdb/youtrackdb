@@ -6,19 +6,22 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.process.traversal.step.TraversalParent;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.StandardOrderSemanticsStrategy;
+import org.apache.tinkerpop.gremlin.process.traversal.util.DefaultTraversalStrategies;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link YTDBStrategyUtil}'s traversal-to-session resolution and its null-safety
- * contract. They pin the regression that {@link YTDBStrategyUtil#resolveYtdbSession} — and
- * therefore {@link YTDBStrategyUtil#isPolymorphic} and {@link
- * YTDBStrategyUtil#orderIncludesMissingKey}, which delegate to it — must DECLINE with a
- * {@code null} on a traversal that is detached or attached to a non-YTDB / non-transactional
- * graph, rather than throwing. The cast-based predecessor threw {@code
- * UnsupportedOperationException} the moment it called {@code tx()} on TinkerPop's {@code
- * EmptyGraph}. Pure mocks are used (no database) because only the graph-attachment gate is under
- * test; the YTDB-attached happy path is exercised by the strategy and walker suites.
+ * Unit tests for {@link YTDBStrategyUtil}'s traversal-to-session resolution and null-safety.
+ * The order resolver reads the explicit per-traversal option, a user-supplied
+ * {@link StandardOrderSemanticsStrategy}, and the database setting.
+ * An unresolved database setting retains records unless a false option or standard-order strategy
+ * intervenes.
+ * The tests also verify that detached and non-YTDB traversals decline session resolution safely.
+ * Detached and non-YTDB cases use mocks, while the child-traversal case uses a real traversal.
+ * The YTDB-attached path is exercised by the strategy and walker suites.
  */
 public class YTDBStrategyUtilTest {
 
@@ -37,8 +40,8 @@ public class YTDBStrategyUtilTest {
         .as("a detached traversal yields a null polymorphism result")
         .isNull();
     assertThat(YTDBStrategyUtil.orderIncludesMissingKey(traversal))
-        .as("a detached traversal yields a null productive-order result")
-        .isNull();
+        .as("an unresolved order setting keeps records")
+        .isTrue();
   }
 
   /**
@@ -63,8 +66,23 @@ public class YTDBStrategyUtilTest {
         .as("a non-YTDB graph yields null polymorphism, not a thrown exception")
         .isNull();
     assertThat(YTDBStrategyUtil.orderIncludesMissingKey(traversal))
-        .as("a non-YTDB graph yields a null productive-order result, not a thrown exception")
-        .isNull();
+        .as("a non-YTDB graph keeps records without calling tx")
+        .isTrue();
+  }
+
+  /** Proves the resolver walks from a child traversal to the root strategy for standard order semantics. */
+  @Test
+  public void orderIncludesMissingKey_childTraversalWalksRootForStandardOrderSemantics() {
+    var root = __.V().union(__.order()).asAdmin();
+    var rootStrategies = new DefaultTraversalStrategies();
+    rootStrategies.addStrategies(StandardOrderSemanticsStrategy.instance());
+    root.setStrategies(rootStrategies);
+    var child = ((TraversalParent) root.getEndStep()).getGlobalChildren().get(0);
+
+    assertThat(child.getStrategies().getStrategy(StandardOrderSemanticsStrategy.class)).isEmpty();
+    assertThat(YTDBStrategyUtil.orderIncludesMissingKey(child))
+        .as("the child resolves standard order semantics from the root strategy")
+        .isFalse();
   }
 
   /** Builds a mock {@code Traversal.Admin} whose {@code getGraph()} returns {@code graph} (or empty
@@ -73,6 +91,7 @@ public class YTDBStrategyUtilTest {
   private static Traversal.Admin<Object, Object> mockTraversalWithGraph(Graph graph) {
     Traversal.Admin<Object, Object> traversal = mock(Traversal.Admin.class);
     when(traversal.getGraph()).thenReturn(Optional.ofNullable(graph));
+    when(traversal.getStrategies()).thenReturn(new DefaultTraversalStrategies());
     return traversal;
   }
 }

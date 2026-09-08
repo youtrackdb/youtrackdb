@@ -3,6 +3,7 @@ package com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
+import com.jetbrains.youtrackdb.api.gremlin.tokens.YTDBQueryConfigParam;
 import com.jetbrains.youtrackdb.internal.core.gremlin.GraphBaseTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBTransaction;
 import com.jetbrains.youtrackdb.internal.core.gremlin.translator.step.YTDBMatchPlanStep;
@@ -12,6 +13,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Pop;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.process.traversal.lambda.ConstantTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.StandardOrderSemanticsStrategy;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.Before;
@@ -303,15 +305,36 @@ public class GremlinTranslationCacheTest extends GraphBaseTest {
   }
 
   /**
-   * The resolved productive-order setting is part of the shape key. The two values produce
+   * The resolved order mode is part of the shape key. The two values produce
    * different patterns for the same step list — one carries the order-key {@code IS DEFINED}
    * conjunct and the other does not — so they must not share an entry.
    */
   @Test
   public void productiveOrderSetting_discriminatesShapeKeys() {
     final var includingKey = captureOrderShapeKeyWith(true);
-    final var portableKey = captureOrderShapeKeyWith(false);
-    assertThat(includingKey).isNotEqualTo(portableKey);
+    final var standardOrderKey = captureOrderShapeKeyWith(false);
+    assertThat(includingKey).isNotEqualTo(standardOrderKey);
+  }
+
+  /** The per-traversal option partitions the effective order mode in the shape key. */
+  @Test
+  public void perTraversalOrderOption_discriminatesShapeKeys() {
+    var retaining = shapeKey(() -> graph.traversal()
+        .with(YTDBQueryConfigParam.orderIncludesMissingKey, true).V().order().by("age"));
+    var removing = shapeKey(() -> graph.traversal()
+        .with(YTDBQueryConfigParam.orderIncludesMissingKey, false).V().order().by("age"));
+
+    assertThat(retaining).isNotEqualTo(removing);
+  }
+
+  /** A user strategy partitions the effective order mode in the existing shape token. */
+  @Test
+  public void standardOrderStrategy_discriminatesShapeKeys() {
+    var retaining = shapeKey(() -> graph.traversal().V().order().by("age"));
+    var removing = shapeKey(() -> graph.traversal()
+        .withStrategies(StandardOrderSemanticsStrategy.instance()).V().order().by("age"));
+
+    assertThat(retaining).isNotEqualTo(removing);
   }
 
   /**
@@ -321,7 +344,7 @@ public class GremlinTranslationCacheTest extends GraphBaseTest {
    * <p>The second translation must MISS. Without the shape-key token it would hit, and the plan
    * built under the first setting would be spliced verbatim into a traversal running under the
    * second — across sessions, because the cache is storage-wide. The rows prove which semantics
-   * each run actually got: three rows under the including default, two under the portable opt-out.
+   * each run actually got: three rows under the including default, two under the standard order semantics mode.
    */
   @Test
   public void flippingProductiveOrderSetting_missesTranslationCacheWithinOneLifetime() {
@@ -354,15 +377,15 @@ public class GremlinTranslationCacheTest extends GraphBaseTest {
 
       config.setValue(GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY, false);
 
-      var portable = apply(() -> graph.traversal().V().order().by("age").values("name"));
+      var standardOrderResult = apply(() -> graph.traversal().V().order().by("age").values("name"));
       assertThat(cache.getTranslationMisses())
           .as("the flipped setting must key a different entry, so this translation misses")
           .isEqualTo(missesBefore + 2);
       assertThat(cache.getTranslationHits())
           .as("and it must not be served the plan built under the other setting")
           .isEqualTo(hitsBefore + 1);
-      assertThat(portable)
-          .as("the portable opt-out drops the record that carries no age")
+      assertThat(standardOrderResult)
+          .as("the standard order semantics mode drops the record that carries no age")
           .hasSize(2);
     } finally {
       config.setValue(GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY, previous);
@@ -493,7 +516,7 @@ public class GremlinTranslationCacheTest extends GraphBaseTest {
     return tx.getDatabaseSession();
   }
 
-  /** The order shape's key as extracted with the productive-order setting forced to {@code value}. */
+  /** Returns the order shape key for the supplied order mode. */
   private String captureOrderShapeKeyWith(boolean value) {
     var config = graphSession().getConfiguration();
     var previous =

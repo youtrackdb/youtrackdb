@@ -1441,13 +1441,13 @@ public class GremlinStepWalkerTest extends GraphBaseTest {
   }
 
   /**
-   * {@code order().by("name").values("name")} under the PORTABLE OPT-OUT: the order key puts
+   * {@code order().by("name").values("name")} under the STANDARD ORDER SEMANTICS MODE: the order key puts
    * {@code name IS DEFINED} on the pattern. The terminal {@code values("name")} still sets
    * {@code dropOnAbsent} — that shaping skip lives with ORDER BY projection deferral on the
    * ordered-limit branch, not with this setting alone — so the filter and the drop both fire.
    */
   @Test
-  public void walk_orderByThenValuesSameKey_underPortableOptOut_emitsOrderKeyPresence() {
+  public void walk_orderByThenValuesSameKey_underStandardOrderSemantics_emitsOrderKeyPresence() {
     withOrderIncludesMissingKey(false, () -> {
       var admin = graph.traversal().V().order().by("name").values("name").asAdmin();
 
@@ -2292,7 +2292,7 @@ public class GremlinStepWalkerTest extends GraphBaseTest {
   }
 
   /**
-   * Runs {@code body} with the productive-order setting forced, restoring the previous value. The
+   * Runs {@code body} with the order mode forced, then restores the previous value. The
    * order-key presence conjunct follows this setting.
    */
   private void withOrderIncludesMissingKey(boolean value, Runnable body) {

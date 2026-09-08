@@ -1,5 +1,6 @@
 package com.jetbrains.youtrackdb.internal.core.gremlin.gremlintest;
 
+import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBGraph;
 import io.cucumber.java.Scenario;
 import java.io.File;
@@ -33,22 +34,36 @@ import org.junit.AssumptionViolatedException;
  */
 public class GraphFeatureWorld implements World {
 
+  private static final String ORDER_SEMANTICS_PROPERTY =
+      "youtrackdb.test.gremlin.orderSemantics";
   private static final Map<String, String> IGNORED_TESTS = Map.of(
       "g_injectXhello_hiX_concat_XV_valuesXnameXX",
-      "YouTrackDB doesn't guarantee a consistent order of element's IDs");
+      "YouTrackDB does not guarantee a consistent order of element identifiers");
+  private static final Map<String, String> STANDARD_ORDER_IGNORED_TESTS = Map.of(
+      "g_V_order_byXageX", "The fork expectation uses the default order semantics.",
+      "g_V_orXhasLabelXpersonX_hasXsoftware_name_lopXX_order_byXageX",
+      "The fork expectation uses the default order semantics.",
+      "g_V_order_byXlangX_count", "The fork expectation uses the default order semantics.",
+      "g_V_order_byXnoX_count", "The fork expectation uses the default order semantics.",
+      "g_VX2X_repeatXout_localXorder_byXperformancesX_tailX1XXX_timesX1X_valuesXnameX",
+      "The fork expectation uses the default order semantics.",
+      "g_VX250X_repeatXout_localXorder_byXperformancesX_tailX1XXX_timesX2X_valuesXnameX",
+      "The fork expectation uses the default order semantics.");
 
   /** Cached data-file paths shared across all World instances in the same JVM. */
   public static final ConcurrentHashMap<String, String> PATHS = new ConcurrentHashMap<>();
 
-  // Lazily-initialized graph sets, one per test class, so that core and embedded
-  // runners each get their own independent set of databases.
-  private static final ConcurrentHashMap<Class<?>, GraphSet> GRAPH_CACHE =
+  // Each test class and order mode receives an independent database set.
+  private static final ConcurrentHashMap<GraphCacheKey, GraphSet> GRAPH_CACHE =
       new ConcurrentHashMap<>();
 
+  private final boolean standardOrderSemantics;
   private final GraphSet graphs;
 
   protected GraphFeatureWorld(Class<?> testClass) {
-    this.graphs = GRAPH_CACHE.computeIfAbsent(testClass, GraphFeatureWorld::createGraphs);
+    standardOrderSemantics = usesStandardOrderSemantics();
+    graphs = GRAPH_CACHE.computeIfAbsent(
+        cacheKey(testClass, standardOrderSemantics), GraphFeatureWorld::createGraphs);
   }
 
   // ----- World interface implementation -----
@@ -103,35 +118,51 @@ public class GraphFeatureWorld implements World {
 
   @Override
   public void beforeEachScenario(final Scenario scenario) {
-    if (IGNORED_TESTS.containsKey(scenario.getName())) {
-      throw new AssumptionViolatedException(IGNORED_TESTS.get(scenario.getName()));
+    var ignored = IGNORED_TESTS.get(scenario.getName());
+    if (ignored == null && standardOrderSemantics) {
+      ignored = STANDARD_ORDER_IGNORED_TESTS.get(scenario.getName());
+    }
+    if (ignored != null) {
+      throw new AssumptionViolatedException(ignored);
     }
     graphs.empty.traversal().V().drop().iterate();
   }
 
   // ----- Graph initialization helpers -----
 
+  public record GraphCacheKey(Class<?> testClass, boolean standardOrderSemantics) {
+  }
+
   private record GraphSet(
       YTDBGraph modern, YTDBGraph classic, YTDBGraph crew,
       YTDBGraph grateful, YTDBGraph sink, YTDBGraph empty) {
   }
 
-  private static GraphSet createGraphs(Class<?> testClass) {
-    return new GraphSet(
-        initGraph(GraphData.MODERN, testClass),
-        initGraph(GraphData.CLASSIC, testClass),
-        initGraph(GraphData.CREW, testClass),
-        initGraph(GraphData.GRATEFUL, testClass),
-        initGraph(GraphData.SINK, testClass),
-        initGraph(null, testClass));
+  public static GraphCacheKey cacheKey(Class<?> testClass, boolean standardOrderSemantics) {
+    return new GraphCacheKey(testClass, standardOrderSemantics);
   }
 
-  private static YTDBGraph initGraph(GraphData graphData, Class<?> testClass) {
+  public static int ignoredScenarioCount(boolean standardOrderSemantics) {
+    return IGNORED_TESTS.size()
+        + (standardOrderSemantics ? STANDARD_ORDER_IGNORED_TESTS.size() : 0);
+  }
+
+  private static GraphSet createGraphs(GraphCacheKey key) {
+    return new GraphSet(
+        initGraph(GraphData.MODERN, key),
+        initGraph(GraphData.CLASSIC, key),
+        initGraph(GraphData.CREW, key),
+        initGraph(GraphData.GRATEFUL, key),
+        initGraph(GraphData.SINK, key),
+        initGraph(null, key));
+  }
+
+  private static YTDBGraph initGraph(GraphData graphData, GraphCacheKey key) {
     final var configs = new BaseConfiguration();
     final var directory =
         makeTestDirectory(
             graphData == null ? "default" : graphData.name().toLowerCase(Locale.ROOT),
-            testClass);
+            key.testClass());
 
     try {
       FileUtils.deleteDirectory(new File(directory));
@@ -141,12 +172,24 @@ public class GraphFeatureWorld implements World {
 
     YTDBGraphInitUtil.getBaseConfiguration("ssss", directory)
         .forEach(configs::setProperty);
+    configs.setProperty(
+        GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY.getKey(),
+        !key.standardOrderSemantics());
 
     final var graph = (YTDBGraph) GraphFactory.open(configs);
     if (graphData != null) {
       readIntoGraph(graph, graphData);
     }
     return graph;
+  }
+
+  private static boolean usesStandardOrderSemantics() {
+    var mode = System.getProperty(ORDER_SEMANTICS_PROPERTY, "default");
+    if (!"default".equals(mode) && !"standard".equals(mode)) {
+      throw new IllegalArgumentException(
+          ORDER_SEMANTICS_PROPERTY + " must be default or standard, but was " + mode);
+    }
+    return "standard".equals(mode);
   }
 
   private static String makeTestDirectory(final String graphName, Class<?> testClass) {

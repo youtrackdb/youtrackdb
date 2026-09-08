@@ -297,9 +297,8 @@ public class YTDBGraphBinaryRemoteGraphProvider extends AbstractGraphProvider im
           graphGetterSessionPools.put(graphName, cachedPool);
         }
       } else {
-        // Same portable-order opt-out as YTDBGraphInitUtil for embedded suites: remote
-        // Process/Feature graphs execute on the server, so the flag must be on the DB at create.
-        serverContext.create(graphName, dbType, portableOrderSuiteConfig(),
+        // Remote conformance databases exercise the shipped default.
+        serverContext.create(graphName, dbType, defaultOrderSuiteConfig(),
             ADMIN_USER_NAME, ADMIN_USER_PASSWORD, "admin");
         cachedPool = serverContext.cachedPool(graphName, ADMIN_USER_NAME, ADMIN_USER_PASSWORD);
 
@@ -322,23 +321,18 @@ public class YTDBGraphBinaryRemoteGraphProvider extends AbstractGraphProvider im
       return;
     }
 
-    serverContext.create(DEFAULT_DB_NAME, dbType, portableOrderSuiteConfig(),
+    serverContext.create(DEFAULT_DB_NAME, dbType, defaultOrderSuiteConfig(),
         ADMIN_USER_NAME, ADMIN_USER_PASSWORD, "admin");
     graphGetterSessionPools.put(DEFAULT_DB_NAME,
         serverContext.cachedPool(DEFAULT_DB_NAME, ADMIN_USER_NAME,
             ADMIN_USER_PASSWORD));
   }
 
-  /**
-   * Suite databases must drop records that lack the ordered key so upstream TinkerPop Order /
-   * Cucumber scenarios match portable semantics. Product code and project-owned tests keep the
-   * shipped default ({@code true}); a traversal can still opt back in with
-   * {@code with(orderIncludesMissingKey, true)}.
-   */
-  private static YouTrackDBConfig portableOrderSuiteConfig() {
+  /** Returns the explicit shipped mode for remote conformance databases. */
+  private static YouTrackDBConfig defaultOrderSuiteConfig() {
     return YouTrackDBConfig.builder()
         .addGlobalConfigurationParameter(
-            GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY, Boolean.FALSE)
+            GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY, Boolean.TRUE)
         .build();
   }
 

@@ -2,6 +2,7 @@ package com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy;
 
 import static com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy.TranslatorEquivalenceSupport.countBoundarySteps;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
 import com.jetbrains.youtrackdb.api.gremlin.tokens.YTDBQueryConfigParam;
@@ -13,20 +14,16 @@ import com.jetbrains.youtrackdb.internal.core.metadata.schema.schema.PropertyTyp
 import com.jetbrains.youtrackdb.internal.core.metadata.schema.schema.SchemaClass.INDEX_TYPE;
 import java.util.List;
 import java.util.function.Supplier;
-import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
-import org.apache.tinkerpop.gremlin.process.traversal.lambda.ValueTraversal;
-import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderGlobalStep;
-import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.StandardOrderSemanticsStrategy;
 import org.apache.tinkerpop.gremlin.structure.T;
-import org.javatuples.Pair;
 import org.junit.Test;
 
 /**
- * Absolute-value pins for the TRANSLATED half of the productive order semantics: under the shipped
- * default the translated plan stops emitting the order-key {@code IS DEFINED} conjunct, so a record
- * missing the ordered property survives the pattern and sorts as a null key; under the portable
- * opt-out the conjunct is emitted and the record is dropped as before.
+ * Covers standard order semantics on the translated path.
+ * The shipped default omits the order-key {@code IS DEFINED} conjunct.
+ * A record without the ordered property then survives and sorts as a null key.
+ * Standard order semantics emit the conjunct and remove the record.
  *
  * <p><b>Rows are named, not compared arm to arm alone.</b> Arm-to-arm equality cannot detect a
  * change that moves both arms, and this change moves both. Each case therefore pins the absolute
@@ -91,11 +88,11 @@ public class TranslatedProductiveOrderTest extends GraphBaseTest {
   }
 
   /**
-   * Under the portable opt-out the conjunct comes back and the translated plan drops the ageless
+   * Under the standard order semantics mode the conjunct comes back and the translated plan drops the ageless
    * record, which is the pre-change contract expressed as absolute rows.
    */
   @Test
-  public void translatedOrderByMissingKey_underPortableOptOut_dropsRecord() {
+  public void translatedOrderByMissingKey_underStandardOrderSemantics_dropsRecord() {
     seedAgedAndAgeless();
 
     var names = withOrderIncludesMissingKey(false, () -> namesFromArm(true,
@@ -201,110 +198,32 @@ public class TranslatedProductiveOrderTest extends GraphBaseTest {
         .contains("Bea");
   }
 
-  /**
-   * Exactly ONE mechanism serves any shape, and never zero.
-   *
-   * <p>The native {@code YTDBProductiveOrderByStrategy} names the translator as a prior strategy, so
-   * the two cannot both act: a RECOGNISED shape has its whole step list replaced by the boundary
-   * step, leaving no {@code OrderGlobalStep} for the native rewrite to touch, while a DECLINED shape
-   * keeps its order step and gets the native rewrite. This case pins both halves of that split, and
-   * pins that each half produces the semantics the setting asks for, which rules out a shape served
-   * by neither.
-   */
+  /** A user strategy selects standard order semantics on the translated path. */
   @Test
-  public void recognisedShapeUsesTranslatorOnly_declinedShapeUsesNativeRewriteOnly() {
+  public void translatedUserStrategy_selectsStandardOrderSemantics() {
     seedAgedAndAgeless();
 
-    withOrderIncludesMissingKey(true, () -> {
-      var recognised = translatedSteps(
-          () -> graph.traversal().V().hasLabel("Person").order().by("age").values("name"));
-      assertThat(countBoundarySteps(recognised))
-          .as("the recognised shape is spliced to a boundary step")
-          .isEqualTo(1);
-      assertThat(orderSteps(recognised))
-          .as("no OrderGlobalStep survives translation, so the native rewrite cannot also apply")
-          .isEmpty();
-      assertThat(rows(recognised))
-          .as("the translated plan alone delivers the including semantics")
-          .hasSize(3);
+    var names = namesFromArm(true, () -> graph.traversal()
+        .withStrategies(StandardOrderSemanticsStrategy.instance())
+        .V().hasLabel("Person").order().by("age").values("name"));
 
-      var declined = translatedSteps(
-          () -> graph.traversal().V().hasLabel("Person").order().by("age")
-              .filter(traverser -> true).values("name"));
-      assertThat(countBoundarySteps(declined))
-          .as("the lambda filter declines the whole traversal")
-          .isZero();
-      assertThat(modulatorBypass(declined))
-          .as("the declined shape is served by the native rewrite instead")
-          .isNotNull();
-      assertThat(rows(declined))
-          .as("and the native rewrite delivers the same including semantics")
-          .hasSize(3);
-      return null;
-    });
+    assertThat(names).containsExactly("Bob", "Alice");
+  }
 
-    withOrderIncludesMissingKey(false, () -> {
-      var recognised = translatedSteps(
-          () -> graph.traversal().V().hasLabel("Person").order().by("age").values("name"));
-      assertThat(orderSteps(recognised)).isEmpty();
-      assertThat(rows(recognised))
-          .as("under the opt-out the translated plan drops the ageless record")
-          .hasSize(2);
+  /** Contradictory explicit instructions remain visible through translator fallback handling. */
+  @Test
+  public void translatedContradictoryInstructions_raiseDedicatedError() {
+    seedAgedAndAgeless();
 
-      var declined = translatedSteps(
-          () -> graph.traversal().V().hasLabel("Person").order().by("age")
-              .filter(traverser -> true).values("name"));
-      assertThat(modulatorBypass(declined))
-          .as("under the opt-out the native rewrite leaves the modulator filtering")
-          .isNull();
-      assertThat(rows(declined))
-          .as("so the declined shape drops the ageless record too")
-          .hasSize(2);
-      return null;
-    });
+    assertThatThrownBy(() -> namesFromArm(true, () -> graph.traversal()
+        .with(YTDBQueryConfigParam.orderIncludesMissingKey, true)
+        .withStrategies(StandardOrderSemanticsStrategy.instance())
+        .V().hasLabel("Person").order().by("age").values("name")))
+        .isInstanceOf(ContradictoryOrderSemanticsException.class)
+        .hasMessageContaining("withoutStrategies(StandardOrderSemanticsStrategy.class)");
   }
 
   // --- helpers ----------------------------------------------------------------------------------
-
-  /** Compiles a traversal with the translator enabled, so both mechanisms have had their chance. */
-  private Traversal.Admin<?, ?> translatedSteps(Supplier<GraphTraversal<?, ?>> supplier) {
-    var configuration = graphConfiguration();
-    var previous = configuration.getValueAsBoolean(
-        GlobalConfiguration.QUERY_GREMLIN_TO_MATCH_TRANSLATOR_ENABLED);
-    configuration.setValue(GlobalConfiguration.QUERY_GREMLIN_TO_MATCH_TRANSLATOR_ENABLED, true);
-    try {
-      var admin = supplier.get().asAdmin();
-      admin.applyStrategies();
-      return admin;
-    } finally {
-      configuration.setValue(
-          GlobalConfiguration.QUERY_GREMLIN_TO_MATCH_TRANSLATOR_ENABLED, previous);
-    }
-  }
-
-  private static List<OrderGlobalStep> orderSteps(Traversal.Admin<?, ?> admin) {
-    return TraversalHelper.getStepsOfAssignableClassRecursively(OrderGlobalStep.class, admin);
-  }
-
-  /**
-   * The bypass traversal the native rewrite installs on a {@code by(key)} modulator, or
-   * {@code null} when the modulator was left filtering. Reading the bypass is what distinguishes a
-   * rewritten modulator from an untouched one.
-   */
-  @SuppressWarnings("rawtypes")
-  private static Object modulatorBypass(Traversal.Admin<?, ?> admin) {
-    var steps = orderSteps(admin);
-    assertThat(steps).as("a declined shape keeps exactly one order step").hasSize(1);
-    OrderGlobalStep<?, ?> orderStep = steps.getFirst();
-    var pair = (Pair) orderStep.getComparators().getFirst();
-    var modulator = pair.getValue0();
-    assertThat(modulator).isInstanceOf(ValueTraversal.class);
-    return ((ValueTraversal<?, ?>) modulator).getBypassTraversal();
-  }
-
-  private static List<String> rows(Traversal.Admin<?, ?> admin) {
-    return admin.toList().stream().map(String::valueOf).toList();
-  }
 
   /**
    * Drains one arm and pins its engagement: the translated arm must splice exactly one boundary
@@ -332,7 +251,7 @@ public class TranslatedProductiveOrderTest extends GraphBaseTest {
     }
   }
 
-  /** Runs {@code body} with the productive-order setting forced, restoring the previous value. */
+  /** Runs {@code body} with the order mode forced, then restores the previous value. */
   private <T> T withOrderIncludesMissingKey(boolean value, Supplier<T> body) {
     var configuration = graphConfiguration();
     var previous = configuration.getValueAsBoolean(

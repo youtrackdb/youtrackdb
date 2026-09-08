@@ -25,16 +25,10 @@ public class YTDBGraphInitUtil {
     configs.put(YTDBGraphFactory.CONFIG_DB_TYPE, dbType.name());
     configs.put(YTDBGraphFactory.CONFIG_USER_ROLE, "admin");
 
-    // Portable order semantics for the upstream TinkerPop suites. YouTrackDB ships a deviation:
-    // a global-scope order() keeps a record that lacks the ordered property and sorts it as a
-    // null key. Upstream scenarios assert the portable drop, so the suites run with the deviation
-    // switched off and keep measuring portable behaviour.
-    //
-    // This switches OFF the YouTrackDB default only. Upstream ProductiveByStrategy is untouched:
-    // a scenario that adds that strategy still gets productive modulators, because the strategy
-    // rewrites the by-modulator itself and reads none of this setting.
+    // The primary conformance suites exercise the shipped default. Separate executions exercise
+    // standard order semantics.
     configs.put(
-        GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY.getKey(), Boolean.FALSE);
+        GlobalConfiguration.QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY.getKey(), Boolean.TRUE);
 
     return configs;
   }

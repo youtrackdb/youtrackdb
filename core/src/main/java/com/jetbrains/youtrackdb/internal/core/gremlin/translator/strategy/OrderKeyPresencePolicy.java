@@ -28,11 +28,10 @@ package com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy;
  *
  * <h2>What the answer depends on</h2>
  *
- * The answer is the resolved {@code orderIncludesMissingKey} setting, inverted: the per-traversal
- * option first, the session default second, read through the same resolver the native
- * {@code YTDBProductiveOrderByStrategy} reads. Under the shipped default the record survives the
- * pattern and sorts as a null key. Under the portable opt-out the conjunct is emitted exactly as
- * it was before the setting existed.
+ * The answer inverts the resolved {@code orderIncludesMissingKey} mode.
+ * The resolver combines the explicit option, {@code StandardOrderSemanticsStrategy}, and database setting.
+ * The shipped default keeps the record and sorts the missing key as null.
+ * Standard order semantics emit the conjunct and remove the record.
  *
  * <p>Because the answer is now a runtime value, the translation cache must key on it:
  * {@code GremlinShapeExtractor.appendStrategyFlags} encodes the resolved value as the {@code oim}
@@ -55,13 +54,13 @@ final class OrderKeyPresencePolicy {
   /**
    * Whether an {@code order().by(key)} modulator contributes {@code key IS DEFINED} to the pattern.
    *
-   * <p>{@code false} under the shipped default, where {@code orderIncludesMissingKey} is on:
-   * nothing drops the record, so it reaches {@code ORDER BY} and sorts as a null key, which is what
-   * YQL does with a missing column and what the native {@code YTDBProductiveOrderByStrategy} does
-   * with a missing modulator value.
+   * <p>{@code false} uses the shipped default. {@code OrderGlobalStep} retains a traverser
+   * with a missing modulator value. The record reaches {@code ORDER BY} and sorts as null,
+   * matching YQL.
    *
-   * <p>{@code true} under the portable opt-out: the drop happens inside the plan, before
-   * {@code ORDER BY} / {@code SKIP} / {@code LIMIT}, which is where portable Gremlin puts it.
+   * <p>{@code true} uses standard order semantics. The translated plan drops the record before
+   * {@code ORDER BY}, {@code SKIP}, or {@code LIMIT}. Native {@code OrderGlobalStep} drops the
+   * same record when filtering is enabled.
    *
    * @param ctx the walk whose resolved {@link RecognitionContext#orderIncludesMissingKey()} answers
    *     for this traversal
