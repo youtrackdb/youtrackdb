@@ -976,7 +976,7 @@ public enum GlobalConfiguration {
       "youtrackdb.query.gremlin.orderIncludesMissingKey",
       "Controls whether a global-scope Gremlin order() step keeps a record that does not carry"
           + " the ordered property. True, the default, orders such a record as a null key exactly"
-          + " as YQL ORDER BY does. False restores portable TinkerPop behaviour, where the"
+          + " as YQL ORDER BY does. False restores standard order semantics, where the"
           + " by-modulator produces nothing and the record is dropped. Local-scope order and the"
           + " select, values, group and dedup modulators are unaffected either way. A single"
           + " traversal overrides the default with"

@@ -185,7 +185,7 @@ public class OrderedIndexIgnoringNullsTest extends DbTestBase {
   /**
    * WHY THE GUARD IS NOT RELAXED FOR A PRESENCE CONDITION.
    *
-   * <p>An ordered plan under the portable Gremlin opt-out carries {@code key IS DEFINED} on the
+   * <p>An ordered plan under the standard order semantics opt-out carries {@code key IS DEFINED} on the
    * ordered alias, which looks like a licence to walk a null-ignoring index: a record without
    * the key is excluded by the predicate anyway. IT IS NOT. {@code IS DEFINED} is an
    * ENTITY-LAYER test that matches a property present with a LITERAL NULL VALUE, while an index

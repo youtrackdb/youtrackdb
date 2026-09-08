@@ -363,12 +363,13 @@ final class WalkerContext implements RecognitionContext {
   }
 
   /**
-   * Records whether a global-scope {@code order().by(key)} keeps a record missing {@code key},
-   * resolved once by the walker from the traversal option and the session default.
+   * Records whether a global-scope {@code order().by(key)} keeps a record missing {@code key}.
+   * The walker resolves the value from the option, {@code StandardOrderSemanticsStrategy},
+   * and the database setting.
    *
-   * <p>The field starts {@code false}, the PORTABLE answer, so a context built by a unit test that
-   * never calls this setter keeps the pre-existing emission behaviour rather than silently
-   * inheriting the shipped default.
+   * <p>The field starts {@code false}, the standard order semantics answer. A unit-test context
+   * that never calls this setter keeps the pre-existing emission behavior. The context does not
+   * inherit the shipped default.
    */
   void setOrderIncludesMissingKey(boolean orderIncludesMissingKey) {
     this.orderIncludesMissingKey = orderIncludesMissingKey;

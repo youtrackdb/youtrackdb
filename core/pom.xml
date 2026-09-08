@@ -260,6 +260,19 @@
                 </configuration>
               </execution>
               <execution>
+                <id>gremlin-standard-order-process-compliance-tests</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <includes>
+                    <include>**/YTDBStandardOrderSemanticsProcessTest.java</include>
+                  </includes>
+                  <failIfNoTests>true</failIfNoTests>
+                </configuration>
+              </execution>
+              <execution>
                 <id>gremlin-structure-compliance-tests</id>
                 <phase>test</phase>
                 <goals>
@@ -282,6 +295,25 @@
                   <includes>
                     <include>**/YTDBGraphFeatureTest.java</include>
                   </includes>
+                  <systemPropertyVariables>
+                    <youtrackdb.test.gremlin.orderSemantics>default</youtrackdb.test.gremlin.orderSemantics>
+                  </systemPropertyVariables>
+                  <failIfNoTests>true</failIfNoTests>
+                </configuration>
+              </execution>
+              <execution>
+                <id>gremlin-standard-order-feature-compliance-tests</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <includes>
+                    <include>**/YTDBStandardOrderSemanticsFeatureTest.java</include>
+                  </includes>
+                  <systemPropertyVariables>
+                    <youtrackdb.test.gremlin.orderSemantics>standard</youtrackdb.test.gremlin.orderSemantics>
+                  </systemPropertyVariables>
                   <failIfNoTests>true</failIfNoTests>
                 </configuration>
               </execution>

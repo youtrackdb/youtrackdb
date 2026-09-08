@@ -29,16 +29,19 @@ value without recompiling, through a Java system property at startup.
 -Dyoutrackdb.query.gremlin.orderIncludesMissingKey=false
 ```
 
-One traversal source can also opt out on its own, through the public constant
-`YTDBQueryConfigParam.orderIncludesMissingKey`.
+One traversal source can also opt out through the public application programming
+interface (API) constant `YTDBQueryConfigParam.orderIncludesMissingKey`.
 
 ```java
 graph.traversal().with(YTDBQueryConfigParam.orderIncludesMissingKey, false);
 ```
 
-A database opened with the same key in its own configuration keeps that value, and it
-outranks both routes above. Check that configuration first when a change appears to have no
-effect.
+`StandardOrderSemanticsStrategy` also selects standard order semantics for one traversal source.
+Do not combine the strategy with an explicit `orderIncludesMissingKey=true` option.
+YouTrackDB rejects that contradiction.
+
+An explicit per-traversal option has the highest precedence. The strategy ranks next.
+A database configuration ranks below both traversal routes and above the global setting.
 
 **Known limitation.** Under the including default, an ordered query can lose duplicate
 rows. Three conditions must hold together. Several source records reach one target over a

@@ -391,10 +391,9 @@ final class GremlinStepWalker {
   }
 
   /**
-   * As {@link #extractShape(Traversal.Admin, DatabaseSessionEmbedded)}, but with the
-   * productive-order setting already resolved by the caller. The strategy resolves it once per
-   * compilation and passes the same value here and to {@link #walk(Traversal.Admin, Boolean)}, so
-   * a runtime flip between the two reads cannot file a plan under the other setting's key.
+   * The caller can provide the order mode to {@link
+   * #extractShape(Traversal.Admin, DatabaseSessionEmbedded)}. The strategy resolves the mode once.
+   * The same value reaches the shape key and the traversal walk.
    */
   static GremlinShapeExtractor.Extraction extractShape(
       Traversal.Admin<?, ?> traversal,
@@ -414,9 +413,8 @@ final class GremlinStepWalker {
   }
 
   /**
-   * As {@link #walk(Traversal.Admin)}, but with the productive-order setting already resolved by
-   * the caller. A {@code null} value means the walk resolves it itself, which is what the
-   * test-facing overload above does.
+   * The caller can provide the order mode to {@link #walk(Traversal.Admin)}.
+   * A {@code null} value asks the walk to resolve the mode.
    */
   @Nullable GremlinToMatchTranslator.TranslationResult walk(
       Traversal.Admin<?, ?> traversal, @Nullable Boolean orderIncludesMissingKey) {
@@ -443,8 +441,8 @@ final class GremlinStepWalker {
   }
 
   /**
-   * The full walk entry point. {@code orderIncludesMissingKey} carries the resolved
-   * productive-order setting, or {@code null} to resolve it here.
+   * The full walk entry point receives the resolved order mode.
+   * A {@code null} value asks this method to resolve the mode.
    */
   @Nullable GremlinToMatchTranslator.TranslationResult walk(
       Traversal.Admin<?, ?> traversal,
@@ -498,11 +496,8 @@ final class GremlinStepWalker {
             .getStrategy(ProductiveByStrategy.class)
             .map(ProductiveByStrategy::getProductiveKeys)
             .orElse(null));
-    // Resolve the productive-order setting once, through the SAME resolver the native
-    // YTDBProductiveOrderByStrategy reads, so the two arms cannot answer differently for one
-    // traversal. A null resolution cannot happen here (the isPolymorphic resolution above already
-    // proved an attached session) and is read as the portable answer, which keeps the order-key
-    // presence conjunct.
+    // Resolve the order mode through the resolver used by native execution.
+    // The resolver combines the option, user strategy, and database setting.
     ctx.setOrderIncludesMissingKey(
         Boolean.TRUE.equals(
             orderIncludesMissingKey != null

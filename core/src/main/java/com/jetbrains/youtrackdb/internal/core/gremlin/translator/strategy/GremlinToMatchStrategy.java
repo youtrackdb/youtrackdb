@@ -48,9 +48,11 @@ import org.slf4j.LoggerFactory;
  * step in place of the entire step list ({@link #applyTranslation}). Landing the gating
  * cascade + throw-safety net + kill-switch before any recognizer ran under the strategy was
  * deliberate: it guarantees the "a translator bug in {@code apply} can only ever decline, never break
- * a query" invariant holds from the moment the strategy is first registered. The one throw meant to
- * reach the caller is a {@link ReservedAliasException} — a prohibited user alias in the reserved
- * {@code $} namespace — which the net re-throws rather than degrades (see "Throw-safety net").
+ * a query" invariant holds from the moment the strategy is first registered. Two deliberate throws
+ * reach the caller. The first is a {@link ReservedAliasException} for a prohibited user alias in
+ * the reserved {@code $} namespace. The second is a {@link ContradictoryOrderSemanticsException}
+ * for incompatible order-mode instructions. The net re-throws both rather than degrading them
+ * (see "Throw-safety net").
  *
  * <h2>Gating cascade</h2>
  *
@@ -108,12 +110,18 @@ import org.slf4j.LoggerFactory;
  * degrades a translator bug to native execution rather than a broken query, and it exists from
  * the skeleton so the invariant holds before any recognizer runs under the strategy.
  *
- * <p>The net makes one deliberate exception. A {@link ReservedAliasException} — thrown by the
+ * <p>The net makes two deliberate exceptions. A {@link ReservedAliasException} is thrown by the
  * walker's reserved-prefix pre-flight when a user {@code as(...)} label sits in the reserved {@code
- * $} namespace — rejects prohibited input rather than reporting a translator failure, so the {@code
- * catch} re-throws it (caught before the {@link RuntimeException} clause) and the query fails with a
- * clear error. Native execution would accept the {@code $} label, so degrading this to a decline
- * would let a prohibited alias run silently; propagating it is the point.
+ * $} namespace and rejects prohibited input rather than reporting a translator failure.
+ *
+ * <p>A {@link ContradictoryOrderSemanticsException} rejects a per-traversal request that combines
+ * {@code orderIncludesMissingKey=true} with {@code StandardOrderSemanticsStrategy}. The {@code
+ * catch} re-throws both exceptions before the {@link RuntimeException} clause.
+ *
+ * <p>Native execution
+ * would otherwise accept the reserved alias. The native fallback invokes the same order-mode
+ * resolver, so it does not avoid the contradictory-order exception. Degrading either exception to
+ * a decline would therefore hide a user error.
  *
  * <p>The catch is narrowed to {@link RuntimeException}, so {@link Error} — including {@link
  * AssertionError} — is never swallowed: it is not a {@code RuntimeException} and propagates
@@ -197,7 +205,7 @@ public final class GremlinToMatchStrategy
   /**
    * The production translator. Written as a named implementation rather than a method reference so
    * it can carry the resolved-setting overload, which is what keeps the shape key and the plan on
-   * one reading of the productive-order setting.
+   * one reading of the order mode.
    */
   private static final TraversalTranslator PRODUCTION_TRANSLATOR = new TraversalTranslator() {
     @Nullable @Override
@@ -270,12 +278,8 @@ public final class GremlinToMatchStrategy
     // the plan build both succeed, so a caught exception always leaves the step list unmodified.
     try {
       applyOrDecline(traversal);
-    } catch (ReservedAliasException e) {
-      // The one deliberate hard rejection: a user as(...) label in the reserved '$' namespace is
-      // prohibited input, not a best-effort-translation failure. Propagate it so the query fails with
-      // a clear error rather than silently degrading to native (which accepts the '$' label). It must
-      // be caught before the RuntimeException clause below, which would otherwise turn it into a
-      // decline — ReservedAliasException is a RuntimeException subtype.
+    } catch (ReservedAliasException | ContradictoryOrderSemanticsException e) {
+      // Deliberate input rejections must reach the caller instead of becoming native declines.
       throw e;
     } catch (RuntimeException e) {
       // Swallow every other unchecked exception deliberately: translation is a best-effort
@@ -326,7 +330,7 @@ public final class GremlinToMatchStrategy
     if (containsBoundaryStep(traversal)) {
       return;
     }
-    // Resolve the productive-order setting ONCE for this compilation. The shape key below and the
+    // Resolve the order mode once for this compilation. The shape key below and the
     // walk further down both read this value. Two independent reads could straddle a runtime flip
     // and file a plan built under one setting under the other setting's key, in a cache that is
     // storage-wide and outlives the session.
@@ -793,7 +797,7 @@ public final class GremlinToMatchStrategy
     @Nullable GremlinToMatchTranslator.TranslationResult translate(Traversal.Admin<?, ?> traversal);
 
     /**
-     * Translates with the productive-order setting already resolved by the caller. The default
+     * Translates with the order mode already resolved by the caller. The default
      * ignores the resolved value, which suits every fixture translator in the tests: a fixture
      * returns a fixed result and reads no setting. Production overrides it so the walk and the
      * shape key read one and the same answer.

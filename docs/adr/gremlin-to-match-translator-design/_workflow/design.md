@@ -144,8 +144,8 @@ shape declines along with anything else unrecognized.
 | Projection | `valueMap(keys...)` | nested-map projection | Track 5 |
 | Projection | `elementMap()` | full schema-driven property map | Track 5 |
 | Projection | `project(keys...).by(<recognized by-shape>)` | composite map; one `by(...)` per key, applied positionally (TinkerPop semantics) | Track 5 |
-| Order | `order().by(key, Order.asc/desc)` | `SQLOrderBy` (`Order.shuffle` declines) | Track 5 |
-| Order | `order().by(<recognized by-shape>, Order.asc/desc)` | by-modulator unwrapped to a field/identity reference, then `SQLOrderBy` | Track 5 |
+| Order | `order().by(key, Order.asc/desc)` | `SQLOrderBy`; missing sort keys remain by default; standard order semantics add `IS DEFINED` (`Order.shuffle` declines) | Track 5 |
+| Order | `order().by(<recognized by-shape>, Order.asc/desc)` | by-modulator unwrapped to a field/identity reference, then `SQLOrderBy`; property-key modulators use the order presence policy | Track 5 |
 | Pagination | `limit(n)` | `SQLLimit(n)` | Track 5 |
 | Pagination | `skip(n)` | `SQLSkip(n)` | Track 5 |
 | Pagination | `range(low, high)` | `SQLSkip(low) + SQLLimit(high - low)` | Track 5 |
@@ -1652,6 +1652,26 @@ produces a `SQLOrderBy` where each `by(...)` becomes one entry.
 equivalent → the recognizer declines → under D3 all-or-nothing the
 entire traversal declines. Multiple `by(...)` modulators produce a
 multi-key sort.
+
+The shipped default keeps a record when its sort-key traversal produces no
+value. MATCH gives the missing key a null value and keeps the record in the
+sort. Standard order semantics add an `IS DEFINED` predicate for each
+property-key order modulator. The predicate removes the record before ordering.
+
+A preceding projection performs its own removal. In `values(k).order()`, the
+`values(k)` step drops a record with no `k` property under either mode. The
+ordering policy emits no predicate for the identity modulator in that shape.
+
+`YTDBStrategyUtil` resolves the effective mode from configuration and any
+user-supplied `StandardOrderSemanticsStrategy`. The resolver walks to the
+root traversal before inspecting strategies. A child traversal has an empty
+strategy list until its parent locks. Direct child inspection would miss the
+user strategy.
+
+The translation cache stores the effective mode in its existing `oim` shape
+token. The effective mode already combines both inputs, so a second strategy
+token would duplicate the same distinction. This token prevents a plan with
+an `IS DEFINED` predicate from serving the default mode, or the reverse.
 
 **Pagination** — `RangeGlobalStep(low, high)` is the modern TinkerPop
 representation of both `limit(n)` and `skip(n)`. Translation is a

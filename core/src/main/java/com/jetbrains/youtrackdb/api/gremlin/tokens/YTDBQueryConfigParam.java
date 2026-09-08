@@ -12,7 +12,7 @@ public enum YTDBQueryConfigParam {
 
   /// Controls whether a global-scope `order()` step keeps a record that does not carry the
   /// ordered property. `true` orders such a record as a null key, the way YQL `ORDER BY` does.
-  /// `false` restores portable TinkerPop behaviour, where the by-modulator produces nothing and
+  /// `false` restores standard order semantics behaviour, where the by-modulator produces nothing and
   /// the record is dropped. Overrides
   /// [[com.jetbrains.youtrackdb.api.config.GlobalConfiguration#QUERY_GREMLIN_ORDER_INCLUDES_MISSING_KEY]]
   /// for one traversal. Local-scope order and the `select`, `values`, `group` and `dedup`
