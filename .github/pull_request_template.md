@@ -2,16 +2,24 @@
 
 If this PR is related to an issue, prefix the title with the issue number (e.g., `YTDB-123: Imperative summary under 50 chars`).
 
-Two title tags change which checks run:
+One title tag changes which checks run:
 
-- `[no-it-tests]` skips the integration test run. Use it only when the change cannot affect integration tests.
 - `[no-test-number-check]` skips the test count gate. Use it only for an intentional test refactoring that does not reduce coverage.
 
 Integration test run conditions:
 
-- Integration tests run unless the pull request is a draft.
-- Integration tests do not run when the pull request branch lives in a fork.
-- Integration tests do not run when every changed file is a Markdown file.
+- Integration tests do not run for a draft pull request or when every changed file is a Markdown file.
+- A merge queue orders approved pull requests for merging.
+- A merge group temporarily combines changes GitHub tests before a merge queue writes them to the target branch.
+- Merge groups do not rerun integration tests because the pull request head already ran the full suite.
+- The exact lowercase marker `[no-it-tests]` skips integration tests when it appears in the first line of the head commit message.
+- The marker comparison respects letter case and works only for a pull request from the same repository.
+- A fork workflow waits when its pull request author or event actor is an external contributor.
+- JetBrains organisation members are not external contributors, including when they open pull requests from personal forks.
+- Changing the repository approval setting can remove this control.
+- The pull request page shows **Awaiting approval** until a maintainer with write access approves a waiting workflow run.
+- Every new push starts another workflow run, and GitHub evaluates approval for that run.
+- Fork gate failures provide details in the job log because fork workflows cannot write pull request comments.
 
 #### Motivation:
 

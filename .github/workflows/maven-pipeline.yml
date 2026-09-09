@@ -45,8 +45,9 @@ jobs:
       - name: Check for build-relevant changes
         id: filter
         env:
-          MAVEN_MIRROR_USERNAME: ${{ secrets.MAVEN_MIRROR_USERNAME }}
-          MAVEN_MIRROR_PASSWORD: ${{ secrets.MAVEN_MIRROR_PASSWORD }}
+          MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
+          MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
+          MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
           EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           MERGE_GROUP_BASE_SHA: ${{ github.event.merge_group.base_sha }}
@@ -100,7 +101,7 @@ jobs:
 
           # Extract Maven module directories using Maven itself
           set +e
-          MODULES=$(./mvnw -s .github/workflows/settings.xml -q help:evaluate \
+          MODULES=$(./mvnw $MAVEN_SETTINGS -q help:evaluate \
             -Dexpression=project.modules -DforceStdout -N \
             | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
           MVN_EXIT=$?
@@ -202,10 +203,11 @@ jobs:
           python-version: '3.11'
       - name: Run Unit Tests
         id: tests
-        run: ./mvnw -s .github/workflows/settings.xml clean package -B ${{ matrix.mvn_opts }}
+        run: ./mvnw $MAVEN_SETTINGS clean package -B ${{ matrix.mvn_opts }}
         env:
-          MAVEN_MIRROR_USERNAME: ${{ secrets.MAVEN_MIRROR_USERNAME }}
-          MAVEN_MIRROR_PASSWORD: ${{ secrets.MAVEN_MIRROR_PASSWORD }}
+          MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
+          MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
+          MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
       # Maven ignores test failures, so this gate reads reports and restores a failing outcome.
       - name: Gate Unit Test Results
         if: success()
@@ -348,10 +350,11 @@ jobs:
       - name: Run Unit Tests
         id: tests
         shell: bash
-        run: ./mvnw -s .github/workflows/settings.xml clean package -B -Dmaven.test.failure.ignore=true
+        run: ./mvnw $MAVEN_SETTINGS clean package -B -Dmaven.test.failure.ignore=true
         env:
-          MAVEN_MIRROR_USERNAME: ${{ secrets.MAVEN_MIRROR_USERNAME }}
-          MAVEN_MIRROR_PASSWORD: ${{ secrets.MAVEN_MIRROR_PASSWORD }}
+          MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
+          MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
+          MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
       # Maven ignores test failures, so this gate reads reports and restores a failing outcome.
       - name: Gate Unit Test Results
         if: success()
@@ -436,10 +439,11 @@ jobs:
           python-version: '3.11'
       - name: Run Unit Tests
         id: tests
-        run: ./mvnw -s .github/workflows/settings.xml clean package -B -Dmaven.test.failure.ignore=true
+        run: ./mvnw $MAVEN_SETTINGS clean package -B -Dmaven.test.failure.ignore=true
         env:
-          MAVEN_MIRROR_USERNAME: ${{ secrets.MAVEN_MIRROR_USERNAME }}
-          MAVEN_MIRROR_PASSWORD: ${{ secrets.MAVEN_MIRROR_PASSWORD }}
+          MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
+          MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
+          MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
       # Maven ignores test failures, so this gate reads reports and restores a failing outcome.
       - name: Gate Unit Test Results
         if: success()
@@ -545,10 +549,11 @@ jobs:
         # is exactly the event those notifications exist for, and the diagnostics artifact the
         # agent needs is now uploaded before them.
         timeout-minutes: 105
-        run: ./mvnw -s .github/workflows/settings.xml -pl core -am clean verify -P small-cache-it -Dmaven.test.failure.ignore=true -B
+        run: ./mvnw $MAVEN_SETTINGS -pl core -am clean verify -P small-cache-it -Dmaven.test.failure.ignore=true -B
         env:
-          MAVEN_MIRROR_USERNAME: ${{ secrets.MAVEN_MIRROR_USERNAME }}
-          MAVEN_MIRROR_PASSWORD: ${{ secrets.MAVEN_MIRROR_PASSWORD }}
+          MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
+          MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
+          MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
       # Maven ignores test failures, so this gate reads reports and restores a failing outcome.
       # Core skips unit tests under small-cache-it.
       # Other modules in the reactor still produce unit test reports.
@@ -675,7 +680,12 @@ jobs:
             --output-md /tmp/coverage-gate.md
 
       - name: Post Coverage Gate Comment
-        if: always() && steps.gate.outcome != 'cancelled'
+        if: >-
+          always() &&
+          steps.gate.outcome != 'cancelled' &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name &&
+          github.event.pull_request.head.repo.full_name == github.repository
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -709,8 +719,17 @@ jobs:
 
       - name: Enforce Coverage Gate
         if: always() && steps.gate.outcome == 'failure'
+        env:
+          CURRENT_REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
-          echo "Coverage gate failed. See the PR comment for details."
+          if [[ "$EVENT_NAME" == "pull_request" && -n "$HEAD_REPOSITORY" \
+            && "$HEAD_REPOSITORY" == "$CURRENT_REPOSITORY" ]]; then
+            echo "Coverage gate failed. See the pull request comment for details."
+          else
+            echo "Coverage gate failed. See the Run Coverage Gate step in this job log for details."
+          fi
           exit 1
 
   # ------------------------------------------------------------------
@@ -793,7 +812,12 @@ jobs:
           python3 .github/scripts/test-count-gate.py "${ARGS[@]}"
 
       - name: Post Test Count Gate Comment
-        if: always() && steps.gate.outcome != 'cancelled'
+        if: >-
+          always() &&
+          steps.gate.outcome != 'cancelled' &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name &&
+          github.event.pull_request.head.repo.full_name == github.repository
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -826,8 +850,17 @@ jobs:
 
       - name: Enforce Test Count Gate
         if: always() && steps.gate.outcome == 'failure'
+        env:
+          CURRENT_REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
-          echo "Test count gate failed. See the PR comment for details."
+          if [[ "$EVENT_NAME" == "pull_request" && -n "$HEAD_REPOSITORY" \
+            && "$HEAD_REPOSITORY" == "$CURRENT_REPOSITORY" ]]; then
+            echo "Test count gate failed. See the pull request comment for details."
+          else
+            echo "Test count gate failed. See the Run Test Count Gate step in this job log for details."
+          fi
           exit 1
 
   # ------------------------------------------------------------------

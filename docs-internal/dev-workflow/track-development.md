@@ -201,15 +201,42 @@ full verification runs:
    not be reported as one: its report-set assertion is what separates a measured pass from a
    vacuous one, and nothing in this section can tell them apart.
 
-The full local integration suite is no longer a gate for any change class. It takes about five
-hours.
-Integration tests run unless the pull request is a draft. Worker threads do most work during the
-draft phase. The pipeline skips integration tests for a pull request whose branch lives in a
-fork.
+The full local integration suite is no longer a gate for any change class. The full integration
+test suite usually takes several hours.
 
-A title tag is a bracketed keyword in the pull request title. The `[no-it-tests]` title tag means
-no integration tests and skips that pipeline run. Use it only when the change cannot affect
-integration tests.
+Integration tests do not run for a draft pull request or when every changed file is a Markdown
+file. A merge queue orders approved pull requests for merging. A merge group temporarily
+combines changes GitHub tests before a merge queue writes them to the target branch. Merge groups
+do not rerun integration tests because the pull request head already ran the full suite.
+Worker threads do most work during the draft phase.
+
+The exact lowercase marker `[no-it-tests]` skips integration tests when it appears in the first
+line of the head commit message. The marker comparison respects letter case and works only for a
+pull request from the same repository. Use it only when the change cannot affect integration
+tests.
+
+GitHub applies required fork approval before any workflow job starts. The repository setting
+**Approval for running fork pull request workflows from contributors** has the current API value
+`all_external_contributors`. Under this policy, GitHub checks the pull request author and the
+actor who triggered the event.
+
+An external contributor is not a repository member or owner and does not belong to the JetBrains
+organisation. JetBrains organisation members are not external contributors. Their workflows from
+personal forks do not wait for this approval.
+
+Verify the value with this command:
+
+```bash
+gh api repos/JetBrains/youtrackdb/actions/permissions/fork-pr-contributor-approval
+```
+
+Changing that repository setting can remove the approval control. When approval is required, the
+pull request page shows **Awaiting approval**. A maintainer with write access must approve the
+workflow run. Every new push starts another workflow run, and GitHub evaluates approval for that
+run.
+
+The run conditions above apply after GitHub grants approval. Fork gate failures provide details
+in the job log because fork workflows cannot write pull request comments.
 
 Gating only at the track's closing event would have reviewers reviewing unverified code; gating
 only before the review would let review-fix commits land unverified. Both holes are closed by

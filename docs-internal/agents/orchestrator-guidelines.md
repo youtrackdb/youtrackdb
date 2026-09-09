@@ -68,7 +68,21 @@ that output.
 - **Must use the PR template** at `.github/pull_request_template.md`. Every PR must include the Motivation section explaining WHY the change was made.
 - Pull request synchronization rules live in `pr-publishing.md` from the `ytdb-slate` package.
 - **Test count gate bypass**: Add `[no-test-number-check]` to the PR title to skip the test count gate. Use this only for intentional test refactorings that restructure or consolidate tests without reducing coverage.
-- **Integration test bypass**: Add `[no-it-tests]` to the pull request title to skip the pipeline's integration tests. Use this only when the change cannot affect integration tests. Pull requests whose branches live in forks do not run integration tests.
+- **Integration test conditions**: Integration tests do not run for drafts or Markdown-only changes.
+  A merge queue orders approved pull requests for merging.
+  A merge group temporarily combines changes GitHub tests before a merge queue writes them to the target branch.
+  Merge groups do not rerun integration tests because the pull request head already ran the full suite.
+- **Integration test marker**: The exact lowercase marker `[no-it-tests]` skips them on same-repository pull requests.
+  It must appear in the first line of the head commit message.
+  The marker comparison respects letter case.
+  Use the marker only when the change cannot affect integration tests.
+- **Fork workflow approval**: GitHub applies required fork approval before any workflow job starts.
+  A fork workflow waits when its pull request author or event actor is an external contributor.
+  JetBrains organisation members are not external contributors, including for pull requests from personal forks.
+  Changing the repository approval setting can remove this control.
+  A waiting run shows **Awaiting approval** until a maintainer with write access approves it.
+  Every new push starts another workflow run, and GitHub evaluates approval for that run.
+- **Fork gate failures**: Read the job log because fork workflows cannot write pull request comments.
 - **Planned changes and Tracks sections**: The template rules live in `pr-publishing.md`.
   YTDB template deltas live in `docs-internal/dev-workflow/track-development.md`.
 - Peer-review rules live in `docs-internal/agents/slate-doctrine-extra.md`.
