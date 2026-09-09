@@ -1,7 +1,7 @@
 package com.jetbrains.youtrackdb.internal.core.sql.executor;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.DbTestBase;
 import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.common.concur.TimeoutException;
@@ -17,13 +17,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(SequentialTest.class)
 @SuppressWarnings("DataFlowIssue")
 public class OrderByStepTest extends DbTestBase {
+
+  private Object previousAscending;
+
+  @Before
+  public void saveNullPlacementGlobal() {
+    previousAscending = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.getValue();
+  }
+
+  @After
+  public void restoreNullPlacementGlobal() {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previousAscending);
+  }
 
   private CommandContext ctx() {
     var ctx = new BasicCommandContext();
@@ -645,7 +659,7 @@ public class OrderByStepTest extends DbTestBase {
    * out its first row. That stands for a configuration change landing while a sort runs.
    */
   private AbstractExecutionStep flippingUpstream(
-      CommandContext ctx, List<Result> rows, OrderByNullsDefault flipTo) {
+      CommandContext ctx, List<Result> rows, OrderByNullsPlacement flipTo) {
     return new AbstractExecutionStep(ctx, false) {
       @Override
       public ExecutionStep copy(CommandContext ctx) {
@@ -669,7 +683,7 @@ public class OrderByStepTest extends DbTestBase {
                 var row = delegate.next();
                 served++;
                 if (served == 1) {
-                  GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(flipTo);
+                  GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(flipTo);
                 }
                 return row;
               }
@@ -680,14 +694,14 @@ public class OrderByStepTest extends DbTestBase {
 
   /**
    * The bounded heap must resolve null placement once, when the sort starts, not on every comparison
-   * that touches a null. The upstream flips the global default to NULLS_LARGEST after its first row,
+   * that touches a null. The upstream flips the global default to LAST after its first row,
    * which for ASC would move nulls to the end. Resolving per comparison would therefore reject the
-   * trailing null row and return [1, 2]. One placement for the whole run keeps the NULLS_SMALLEST
+   * trailing null row and return [1, 2]. One placement for the whole run keeps the FIRST
    * that was in force at sort start and returns [null, 1].
    */
   @Test
   public void boundedHeapKeepsOnePlacementWhenGlobalFlipsMidSort() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_SMALLEST);
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.FIRST);
     try {
       var ctx = ctx();
       var step = new OrderByStep(orderBy(SQLOrderByItem.ASC), 2, ctx, -1, false);
@@ -695,7 +709,7 @@ public class OrderByStepTest extends DbTestBase {
           flippingUpstream(
               ctx,
               makeNullableRows(ctx, 1, 2, null),
-              OrderByNullsDefault.NULLS_LARGEST));
+              OrderByNullsPlacement.LAST));
 
       var results = collect(step.start(ctx), ctx);
 
@@ -704,19 +718,40 @@ public class OrderByStepTest extends DbTestBase {
       Assert.assertEquals(1, (int) results.get(1).getProperty(SORT_FIELD));
       // The flip did land: the test would be vacuous if the upstream never changed the value.
       Assert.assertEquals(
-          OrderByNullsDefault.NULLS_LARGEST,
-          GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.<OrderByNullsDefault>getValue());
+          OrderByNullsPlacement.LAST,
+          GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.<OrderByNullsPlacement>getValue());
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previousAscending);
     }
   }
 
   /**
-   * Under the default configuration (NULLS_SMALLEST) null placement is unchanged by the hoist. Nulls
+   * The unbounded sort also fixes placement before draining its upstream. A mid-drain flip must not
+   * change the placement used when the collected rows are sorted.
+   */
+  @Test
+  public void unboundedSortKeepsOnePlacementWhenGlobalFlipsMidDrain() {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.FIRST);
+    var ctx = ctx();
+    var step = new OrderByStep(orderBy(SQLOrderByItem.ASC), null, ctx, -1, false);
+    step.setPrevious(
+        flippingUpstream(
+            ctx, makeNullableRows(ctx, 1, 2, null), OrderByNullsPlacement.LAST));
+
+    var results = collect(step.start(ctx), ctx);
+
+    Assert.assertNull(results.getFirst().getProperty(SORT_FIELD));
+    Assert.assertEquals(1, (int) results.get(1).getProperty(SORT_FIELD));
+    Assert.assertEquals(2, (int) results.get(2).getProperty(SORT_FIELD));
+  }
+
+  /**
+   * Under the shipped configuration (FIRST) null placement is unchanged by the hoist. Nulls
    * sort first for ASC and last for DESC, on both the unbounded and the bounded path.
    */
   @Test
-  public void defaultConfigurationPlacesNullsSmallest() {
+  public void shippedConfigurationPlacesNullsByDirection() {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.FIRST);
     var ctx = ctx();
     var ascending = new OrderByStep(orderBy(SQLOrderByItem.ASC), null, ctx, -1, false);
     ascending.setPrevious(upstream(ctx, makeNullableRows(ctx, 2, null, 1)));
@@ -795,14 +830,14 @@ public class OrderByStepTest extends DbTestBase {
   }
 
   /**
-   * Early termination on an index-ordered input, with null primary keys, under NULLS_SMALLEST. The
+   * Early termination on an index-ordered input, with null primary keys, under FIRST. The
    * input arrives in that order, so both null keys come first and the heap fills with them. The next
    * row sorts worse by the primary key, which ends the scan before the input is drained. This is the
    * only path where the resolved placement reaches the primary-key cutoff comparison.
    */
   @Test
-  public void earlyTerminationStopsOnWorsePrimaryKeyWithNullsSmallest() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_SMALLEST);
+  public void earlyTerminationStopsOnWorsePrimaryKeyWithFirstPlacement() {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.FIRST);
     try {
       var ctx = ctx();
       ctx.setSystemVariable(CommandContext.VAR_INDEX_ORDERED_PRE_SORTED, Boolean.TRUE);
@@ -819,19 +854,19 @@ public class OrderByStepTest extends DbTestBase {
       Assert.assertNull(results.get(1).getProperty(SORT_FIELD));
       Assert.assertEquals("the scan must stop at the first worse key", 3, pulled.get());
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previousAscending);
     }
   }
 
   /**
-   * The same cutoff under NULLS_LARGEST, where the index-ordered input ends with the null keys. The
+   * The same cutoff under LAST, where the index-ordered input ends with the null keys. The
    * cutoff must treat a null primary key as worse than the kept rows and stop, keeping [1, 2]. A
    * placement that disagreed with the input order would rank the null key first. The heap would then
    * admit it and evict a row that belongs in the answer.
    */
   @Test
-  public void earlyTerminationTreatsNullKeyAsWorseUnderNullsLargest() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_LARGEST);
+  public void earlyTerminationTreatsNullKeyAsWorseUnderLastPlacement() {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.LAST);
     try {
       var ctx = ctx();
       ctx.setSystemVariable(CommandContext.VAR_INDEX_ORDERED_PRE_SORTED, Boolean.TRUE);
@@ -848,7 +883,7 @@ public class OrderByStepTest extends DbTestBase {
       Assert.assertEquals(2, (int) results.get(1).getProperty(SORT_FIELD));
       Assert.assertEquals("the scan must stop at the first null key", 3, pulled.get());
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previousAscending);
     }
   }
 }

@@ -21,7 +21,6 @@ import com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimiz
 import com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimization.YTDBOrderCollationStrategy;
 import com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimization.YTDBOrderNullsStrategy;
 import com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimization.YTDBOrderRidTieBreakStrategy;
-import com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimization.YTDBProductiveOrderByStrategy;
 import com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimization.YTDBStandardOrderSemanticsStrategy;
 import com.jetbrains.youtrackdb.internal.core.id.RecordIdInternal;
 import com.jetbrains.youtrackdb.internal.core.metadata.schema.schema.SchemaClass;
@@ -83,8 +82,8 @@ public abstract class YTDBGraphImplAbstract implements YTDBGraphInternal, Consum
                 // in applyPost(), so ORDER BY steps gain by(T.id) before translation. Strategies
                 // below the translator name it in applyPrior() and become the decline fallback.
                 // Collation applies through engine comparison after translation. OrderNulls waits
-                // on the translator and ProductiveOrderBy, so wrapping hits only native-decline
-                // order() steps and sees missing keys as nulls. RepeatDeclineStrategy is the one
+                // on the translator and standard-order strategy, so wrapping hits only native-decline
+                // order() steps and sees the final missing-key behavior. RepeatDeclineStrategy is the one
                 // entry that is not a provider optimization. It is a decoration strategy, and
                 // category ordering puts it before RepeatUnrollStrategy.
                 RepeatDeclineStrategy.instance(),
@@ -99,7 +98,6 @@ public abstract class YTDBGraphImplAbstract implements YTDBGraphInternal, Consum
                 // whole process, so a registration gated on configuration would freeze the
                 // decision at first class load. The strategy reads the setting in its own apply().
                 YTDBStandardOrderSemanticsStrategy.instance(),
-                YTDBProductiveOrderByStrategy.instance(),
                 YTDBOrderNullsStrategy.instance(),
                 YTDBQueryMetricsStrategy.instance()));
   }

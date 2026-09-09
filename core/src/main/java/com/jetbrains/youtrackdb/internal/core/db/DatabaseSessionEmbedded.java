@@ -1536,7 +1536,7 @@ public class DatabaseSessionEmbedded extends ListenerManger<SessionListener>
    */
   private void fixNullPlacement(@Nonnull CachedEntry entry) {
     if (entry.getOrderBy() != null) {
-      entry.seedNullsDefault(OrderByNullsUtil.resolveDefault(getConfiguration()));
+      entry.seedNullsDefault(OrderByNullsUtil.resolvePlacements(getConfiguration()));
     }
   }
 

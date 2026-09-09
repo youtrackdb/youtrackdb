@@ -10,10 +10,11 @@ import com.jetbrains.youtrackdb.api.YouTrackDB.LocalUserCredential;
 import com.jetbrains.youtrackdb.api.YouTrackDB.PredefinedLocalRole;
 import com.jetbrains.youtrackdb.api.YourTracks;
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.DbTestBase;
 import com.jetbrains.youtrackdb.internal.LogRecordCollector;
 import com.jetbrains.youtrackdb.internal.SequentialTest;
+import com.jetbrains.youtrackdb.internal.common.io.FileUtils;
 import com.jetbrains.youtrackdb.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrackdb.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrackdb.internal.core.exception.DatabaseException;
@@ -26,24 +27,23 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 /**
- * Round-trip tests for storage-local settings of enum-typed configuration keys. They use {@link
- * GlobalConfiguration#QUERY_ORDER_BY_NULLS_DEFAULT}, the only enum-typed key a user sets per
- * storage.
+ * Round-trip tests for the two enum-typed, storage-local null placement settings.
  *
  * <p>The value is written as its constant name when the storage closes and converted back by its
  * declared type when the storage loads. Enum-typed keys need their own conversion on that read path,
  * and a value that names no constant must not make the database unopenable. Such a value is skipped,
  * and the next clean close drops it from disk.
  *
- * <p>Marked {@code @Category(SequentialTest)} because the tests mutate the process-wide
- * {@code QUERY_ORDER_BY_NULLS_DEFAULT} global. The default surefire execution runs four test
- * classes in parallel in one virtual machine, so the mutation would leak between classes.
+ * <p>Marked {@code @Category(SequentialTest)} because the tests mutate process-wide placement
+ * globals. Parallel execution could leak those mutations between classes.
  */
 @Category(SequentialTest.class)
 public class StorageConfigurationEnumValueTest {
 
-  private static final GlobalConfiguration NULLS_KEY =
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT;
+  private static final GlobalConfiguration ASC_NULLS_KEY =
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC;
+  private static final GlobalConfiguration DESC_NULLS_KEY =
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC;
 
   /** A non-enum key used to prove the tolerant read stays bounded to enum-typed keys. */
   private static final GlobalConfiguration INT_KEY =
@@ -54,9 +54,15 @@ public class StorageConfigurationEnumValueTest {
 
   private YouTrackDBImpl youTrackDB;
   private String databaseName;
+  private Object previousAscending;
+  private Object previousDescending;
+  private Object previousInteger;
 
   @Before
   public void before() {
+    previousAscending = ASC_NULLS_KEY.getValue();
+    previousDescending = DESC_NULLS_KEY.getValue();
+    previousInteger = INT_KEY.getValue();
     databaseName = name.getMethodName();
     youTrackDB = openContext();
     youTrackDB.create(
@@ -67,65 +73,75 @@ public class StorageConfigurationEnumValueTest {
 
   @After
   public void after() {
-    NULLS_KEY.resetToDefault();
-    INT_KEY.resetToDefault();
+    ASC_NULLS_KEY.setValue(previousAscending);
+    DESC_NULLS_KEY.setValue(previousDescending);
+    INT_KEY.setValue(previousInteger);
     try {
       if (youTrackDB.isOpen() && youTrackDB.exists(databaseName)) {
         youTrackDB.drop(databaseName);
       }
     } catch (RuntimeException e) {
-      // A test that deliberately leaves an unopenable database cannot drop it. The database lives
-      // under target/, so leaving it behind costs nothing.
+      // A deliberately corrupted database may be impossible to drop through the storage API.
     } finally {
-      if (youTrackDB.isOpen()) {
-        youTrackDB.close();
+      try {
+        if (youTrackDB.isOpen()) {
+          youTrackDB.close();
+        }
+      } finally {
+        FileUtils.deleteRecursively(DbTestBase.getBaseDirectoryPath(getClass()).toFile());
       }
     }
   }
 
   /**
-   * Regression test for the reopen blocker. Storing the enum-typed key on a disk storage used to
-   * make that database unopenable. The shared type conversion on the load path has no enum branch.
-   * The value must survive close and reopen.
+   * Regression test for the reopen blocker. Both enum values must survive one close and reopen
+   * cycle without making the disk database unopenable.
    */
   @Test
-  public void diskDatabaseReopensAfterEnumValueIsStored() {
-    storeOnStorage(NULLS_KEY, OrderByNullsDefault.NULLS_LARGEST);
+  public void diskDatabaseReopensAfterBothPlacementValuesAreStored() {
+    try (var session = youTrackDB.open(databaseName, "admin", DbTestBase.ADMIN_PASSWORD)) {
+      var configuration = session.getStorage().getContextConfiguration();
+      configuration.setValue(ASC_NULLS_KEY, OrderByNullsPlacement.LAST);
+      configuration.setValue(DESC_NULLS_KEY, OrderByNullsPlacement.FIRST);
+    }
+    youTrackDB.close();
 
     reopenContext();
 
-    assertEquals(OrderByNullsDefault.NULLS_LARGEST, storageConfiguration().getValue(NULLS_KEY));
+    var configuration = storageConfiguration();
+    assertEquals(OrderByNullsPlacement.LAST, configuration.getValue(ASC_NULLS_KEY));
+    assertEquals(OrderByNullsPlacement.FIRST, configuration.getValue(DESC_NULLS_KEY));
   }
 
   /**
    * A value persisted in lower case still names the constant, and a server property carries plain
    * text. The load path matches constant names while ignoring case, like the global setter does. The
-   * storage therefore honours NULLS_LARGEST rather than falling back without a word.
+   * storage therefore honours LAST rather than falling back without a word.
    */
   @Test
   public void storedLowerCaseValueIsAcceptedAndHonoured() {
-    NULLS_KEY.setValue(OrderByNullsDefault.NULLS_SMALLEST);
-    storeOnStorage(NULLS_KEY, "nulls_largest");
+    ASC_NULLS_KEY.setValue(OrderByNullsPlacement.FIRST);
+    storeOnStorage(ASC_NULLS_KEY, "last");
 
     reopenContext();
 
     var configuration = storageConfiguration();
-    assertEquals(OrderByNullsDefault.NULLS_LARGEST, configuration.getValue(NULLS_KEY));
+    assertEquals(OrderByNullsPlacement.LAST, configuration.getValue(ASC_NULLS_KEY));
     assertEquals(
-        OrderByNullsDefault.NULLS_LARGEST, OrderByNullsUtil.resolveDefault(configuration));
+        OrderByNullsPlacement.LAST, OrderByNullsUtil.resolvePlacements(configuration).ascending());
   }
 
   /**
    * A stored value that names no constant is skipped, and the database opens. The key is absent from
    * the storage configuration, so the runtime global stays in force. The global is set to
-   * NULLS_LARGEST here, so a fallback to the declared default would fail the assertion too. The
+   * LAST here, so a fallback to the declared default would fail the assertion too. The
    * logged warning has to name the database, the key, the value and the consequence, because it is
    * the operator's only signal.
    */
   @Test
   public void storedInvalidValueIsReportedAndGlobalDefaultApplies() {
-    NULLS_KEY.setValue(OrderByNullsDefault.NULLS_LARGEST);
-    storeOnStorage(NULLS_KEY, "NOT_A_CONSTANT");
+    ASC_NULLS_KEY.setValue(OrderByNullsPlacement.LAST);
+    storeOnStorage(ASC_NULLS_KEY, "NOT_A_CONSTANT");
 
     reopenContext();
 
@@ -135,10 +151,11 @@ public class StorageConfigurationEnumValueTest {
       assertTrue(
           "the skipped value must be reported, captured: " + logs.messages(),
           logs.warnedWithAll(
-              databaseName, NULLS_KEY.getKey(), "NOT_A_CONSTANT", "global default applies"));
+              databaseName, ASC_NULLS_KEY.getKey(), "NOT_A_CONSTANT", "global default applies"));
     }
-    assertFalse(configuration.getContextKeys().contains(NULLS_KEY.getKey()));
-    assertEquals(OrderByNullsDefault.NULLS_LARGEST, OrderByNullsUtil.resolveDefault(configuration));
+    assertFalse(configuration.getContextKeys().contains(ASC_NULLS_KEY.getKey()));
+    assertEquals(OrderByNullsPlacement.LAST,
+        OrderByNullsUtil.resolvePlacements(configuration).ascending());
   }
 
   /**
@@ -148,7 +165,7 @@ public class StorageConfigurationEnumValueTest {
    */
   @Test
   public void storedInvalidValueIsForgottenAtTheNextCleanClose() {
-    storeOnStorage(NULLS_KEY, "NOT_A_CONSTANT");
+    storeOnStorage(ASC_NULLS_KEY, "NOT_A_CONSTANT");
 
     reopenContext();
     loadStorage();
@@ -160,9 +177,9 @@ public class StorageConfigurationEnumValueTest {
       loadStorage();
       assertFalse(
           "the skipped value must be gone from disk, captured: " + logs.messages(),
-          logs.warnedWithAll(NULLS_KEY.getKey(), "NOT_A_CONSTANT"));
+          logs.warnedWithAll(ASC_NULLS_KEY.getKey(), "NOT_A_CONSTANT"));
     }
-    assertFalse(storageConfiguration().getContextKeys().contains(NULLS_KEY.getKey()));
+    assertFalse(storageConfiguration().getContextKeys().contains(ASC_NULLS_KEY.getKey()));
   }
 
   /**
@@ -171,15 +188,15 @@ public class StorageConfigurationEnumValueTest {
    */
   @Test
   public void storedPaddedValueIsRejectedLikeTheGlobalSetter() {
-    NULLS_KEY.setValue(OrderByNullsDefault.NULLS_SMALLEST);
-    storeOnStorage(NULLS_KEY, " NULLS_LARGEST ");
+    ASC_NULLS_KEY.setValue(OrderByNullsPlacement.FIRST);
+    storeOnStorage(ASC_NULLS_KEY, " LAST ");
 
     reopenContext();
 
     var configuration = storageConfiguration();
-    assertFalse(configuration.getContextKeys().contains(NULLS_KEY.getKey()));
+    assertFalse(configuration.getContextKeys().contains(ASC_NULLS_KEY.getKey()));
     assertEquals(
-        OrderByNullsDefault.NULLS_SMALLEST, OrderByNullsUtil.resolveDefault(configuration));
+        OrderByNullsPlacement.FIRST, OrderByNullsUtil.resolvePlacements(configuration).ascending());
   }
 
   /**

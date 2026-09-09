@@ -2,7 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrackdb.internal.core.sql.parser;
 
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.internal.core.sql.ResolvedOrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.core.command.CommandContext;
 import com.jetbrains.youtrackdb.internal.core.db.DatabaseSessionEmbedded;
 import com.jetbrains.youtrackdb.internal.core.query.Result;
@@ -72,11 +72,11 @@ public class SQLOrderBy extends SimpleNode {
    *
    * @param nullsDefault the null-placement default resolved once for the whole sort by the caller
    *     (see {@link
-   *     com.jetbrains.youtrackdb.internal.core.sql.OrderByNullsUtil#resolveDefaultForSort}). This
+   *     com.jetbrains.youtrackdb.internal.core.sql.OrderByNullsUtil#resolvePlacementsForSort}). This
    *     node must not cache it. The value is mutable at runtime, and the statement cache hands one
    *     shared node to every session that runs the statement.
    */
-  public int compare(Result a, Result b, CommandContext ctx, OrderByNullsDefault nullsDefault) {
+  public int compare(Result a, Result b, CommandContext ctx, ResolvedOrderByNullsPlacement nullsDefault) {
     for (var item : items) {
       var result = item.compare(a, b, ctx, nullsDefault);
       if (result != 0) {

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrackdb.api.DatabaseType;
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.DbTestBase;
 import com.jetbrains.youtrackdb.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrackdb.internal.core.command.CommandContext;
@@ -19,6 +19,7 @@ import com.jetbrains.youtrackdb.internal.core.db.record.record.RID;
 import com.jetbrains.youtrackdb.internal.core.metadata.schema.schema.PropertyType;
 import com.jetbrains.youtrackdb.internal.core.query.Result;
 import com.jetbrains.youtrackdb.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrackdb.internal.core.sql.ResolvedOrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrackdb.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrackdb.internal.core.sql.parser.SQLOrderBy;
@@ -669,7 +670,7 @@ public class CachedResultSetViewTest {
   public void mergeUsesThePlacementOwnedByTheEntry() {
     var storageConfig = db.getStorage().getContextConfiguration();
     storageConfig.setValue(
-        GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, OrderByNullsDefault.NULLS_LARGEST);
+        GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.LAST);
     try {
       var orderBy = parseOrderBy("SELECT FROM " + CLASS_NAME + " ORDER BY " + FIELD + " ASC");
       var entry = recordEntry(orderBy, List.of(newRec(1), newRec(2)));
@@ -677,9 +678,10 @@ public class CachedResultSetViewTest {
       var view = new CachedResultSetView(entry, cursor(Set.of(), inject), db, tx(), null, ctx());
 
       assertEquals(Arrays.asList(1, 2, null), drainValues(view));
-      assertEquals(OrderByNullsDefault.NULLS_LARGEST, entry.fixedNullsDefault());
+      assertEquals(new ResolvedOrderByNullsPlacement(
+          OrderByNullsPlacement.LAST, OrderByNullsPlacement.LAST), entry.fixedNullsDefault());
     } finally {
-      storageConfig.setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, null);
+      storageConfig.setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, null);
     }
   }
 }

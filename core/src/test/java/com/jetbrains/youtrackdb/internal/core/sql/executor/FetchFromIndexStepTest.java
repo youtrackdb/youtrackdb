@@ -1141,7 +1141,7 @@ public class FetchFromIndexStepTest extends TestUtilsFixture {
 
   /**
    * Serialized plans carry {@code nullsFirst}; legacy blobs without it fall back to {@code orderAsc}
-   * (NULLS_SMALLEST semantic).
+   * (FIRST semantic).
    */
   @Test
   public void deserializeRestoresNullsFirstAndFallsBackWhenOmitted() {

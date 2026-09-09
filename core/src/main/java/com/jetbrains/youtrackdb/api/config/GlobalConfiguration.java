@@ -1457,21 +1457,29 @@ public enum GlobalConfiguration {
       true),
 
   /**
-   * Default null comparison semantic for {@code ORDER BY} and Gremlin {@code order()} when no
-   * explicit {@code NULLS FIRST}/{@code NULLS LAST} is given. See {@link OrderByNullsDefault}.
-   * Per-storage {@link com.jetbrains.youtrackdb.internal.core.config.ContextConfiguration} values
-   * override the runtime global. Changeable at runtime so tests and deployments can flip the
-   * default without restarting.
+   * Null placement for ascending {@code ORDER BY} items and Gremlin {@code Order.asc} when no
+   * explicit placement is given. Per-storage values override the runtime global.
    */
-  QUERY_ORDER_BY_NULLS_DEFAULT(
-      "youtrackdb.query.orderBy.nullsDefault",
-      "Default null ordering for ORDER BY and Gremlin order() when NULLS FIRST/LAST is omitted. "
-          + "NULLS_SMALLEST (default): nulls first for ASC, nulls last for DESC. "
-          + "NULLS_LARGEST: nulls last for ASC, nulls first for DESC. "
+  QUERY_ORDER_BY_NULLS_PLACEMENT_ASC(
+      "youtrackdb.query.orderBy.nullsPlacementAsc",
+      "Null placement for ascending ORDER BY items and Gremlin Order.asc. Ships as FIRST. "
           + "Per-storage settings override the runtime global. "
-          + "An explicit NULLS FIRST/LAST on an ORDER BY item overrides this setting.",
-      OrderByNullsDefault.class,
-      OrderByNullsDefault.NULLS_SMALLEST,
+          + "An explicit NULLS FIRST/LAST clause overrides this setting.",
+      OrderByNullsPlacement.class,
+      OrderByNullsPlacement.FIRST,
+      true),
+
+  /**
+   * Null placement for descending {@code ORDER BY} items and Gremlin {@code Order.desc} when no
+   * explicit placement is given. Per-storage values override the runtime global.
+   */
+  QUERY_ORDER_BY_NULLS_PLACEMENT_DESC(
+      "youtrackdb.query.orderBy.nullsPlacementDesc",
+      "Null placement for descending ORDER BY items and Gremlin Order.desc. Ships as LAST. "
+          + "Per-storage settings override the runtime global. "
+          + "An explicit NULLS FIRST/LAST clause overrides this setting.",
+      OrderByNullsPlacement.class,
+      OrderByNullsPlacement.LAST,
       true),
 
   QUERY_INDEX_ORDERED_MIN_LINKBAG(

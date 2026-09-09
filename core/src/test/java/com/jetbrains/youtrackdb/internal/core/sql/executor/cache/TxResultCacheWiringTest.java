@@ -7,13 +7,14 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.DbTestBase;
 import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.core.command.CommandContext;
 import com.jetbrains.youtrackdb.internal.core.db.DatabaseSessionEmbedded;
 import com.jetbrains.youtrackdb.internal.core.metadata.schema.schema.PropertyType;
 import com.jetbrains.youtrackdb.internal.core.query.ResultSet;
+import com.jetbrains.youtrackdb.internal.core.sql.ResolvedOrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrackdb.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrackdb.internal.core.sql.parser.SQLStatement;
@@ -412,7 +413,7 @@ public class TxResultCacheWiringTest extends DbTestBase {
     GlobalConfiguration.QUERY_TX_RESULT_CACHE_ENABLED.setValue(true);
     var storageConfig = session.getStorage().getContextConfiguration();
     storageConfig.setValue(
-        GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, OrderByNullsDefault.NULLS_LARGEST);
+        GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.LAST);
     try {
       seed(2);
       session.begin();
@@ -425,13 +426,14 @@ public class TxResultCacheWiringTest extends DbTestBase {
       var entry = CacheTestSupport.onlyEntry(cache);
       assertEquals(
           "populate must fix the placement in force at that moment",
-          OrderByNullsDefault.NULLS_LARGEST,
+          new ResolvedOrderByNullsPlacement(
+              OrderByNullsPlacement.LAST, OrderByNullsPlacement.LAST),
           entry.fixedNullsDefault());
 
       // A change after populate must not reach this entry, because the cached rows keep the order
       // the populating execution gave them.
       storageConfig.setValue(
-          GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, OrderByNullsDefault.NULLS_SMALLEST);
+          GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.FIRST);
       var withoutSortKey = session.newEntity(CLASS_NAME);
       assertNull("the injected row must carry a null sort key", withoutSortKey.getProperty(FIELD));
 
@@ -446,7 +448,7 @@ public class TxResultCacheWiringTest extends DbTestBase {
           values);
       session.rollback();
     } finally {
-      storageConfig.setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, null);
+      storageConfig.setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, null);
     }
   }
 

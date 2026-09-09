@@ -1,7 +1,6 @@
 package com.jetbrains.youtrackdb.internal.core.sql.parser;
 
-import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.internal.core.sql.ResolvedOrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.common.comparator.GremlinOrderComparator;
 import com.jetbrains.youtrackdb.internal.common.log.LogManager;
 import com.jetbrains.youtrackdb.internal.core.command.CommandContext;
@@ -56,7 +55,7 @@ public class SQLOrderByItem {
   protected String type = ASC;
   /**
    * Explicit null ordering from the grammar ({@link #NULLS_FIRST}, {@link #NULLS_LAST}), or
-   * {@code null} when omitted (fall back to {@link GlobalConfiguration#QUERY_ORDER_BY_NULLS_DEFAULT}).
+   * {@code null} when omitted. The direction-specific configuration then applies.
    */
   @Nullable protected String nullOrdering;
   protected SQLExpression collate;
@@ -128,9 +127,8 @@ public class SQLOrderByItem {
   /**
    * Resolves whether nulls should sort before non-nulls for this item.
    *
-   * <p>Precedence: explicit {@code NULLS FIRST}/{@code NULLS LAST} wins (absolute). Otherwise
-   * {@link GlobalConfiguration#QUERY_ORDER_BY_NULLS_DEFAULT} is read from {@code config} when set,
-   * falling back to the runtime global, and composes with ASC/DESC.
+   * <p>An explicit clause wins. Otherwise the direction-specific setting is read from {@code
+   * config} when present, then from the runtime global.
    */
   public boolean resolveNullsFirst(@Nullable ContextConfiguration config) {
     return OrderByNullsUtil.resolveNullsFirst(nullOrdering, !DESC.equals(type), config);
@@ -146,7 +144,7 @@ public class SQLOrderByItem {
    *
    * @param nullsDefault the default resolved once at the start of the sort
    */
-  public boolean nullsFirstFor(OrderByNullsDefault nullsDefault) {
+  public boolean nullsFirstFor(ResolvedOrderByNullsPlacement nullsDefault) {
     return OrderByNullsUtil.composeNullsFirst(nullOrdering, !DESC.equals(type), nullsDefault);
   }
 
@@ -178,11 +176,11 @@ public class SQLOrderByItem {
    * Compares two rows by this sort key.
    *
    * @param nullsDefault the null-placement default resolved once for the whole sort (see {@link
-   *     OrderByNullsUtil#resolveDefaultForSort}). It is a parameter rather than a per-comparison
+   *     OrderByNullsUtil#resolvePlacementsForSort}). It is a parameter rather than a per-comparison
    *     read for two reasons. A change in the middle of a sort would break the comparator contract,
    *     and the read takes a storage lock.
    */
-  public int compare(Result a, Result b, CommandContext ctx, OrderByNullsDefault nullsDefault) {
+  public int compare(Result a, Result b, CommandContext ctx, ResolvedOrderByNullsPlacement nullsDefault) {
     Object aVal = null;
     Object bVal = null;
     if (rid != null) {

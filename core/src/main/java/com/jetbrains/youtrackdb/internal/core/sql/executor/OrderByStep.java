@@ -205,7 +205,7 @@ public class OrderByStep extends AbstractExecutionStep {
       // Null placement is fixed for the whole scan, exactly like the early-termination flag below.
       // Resolving per comparison would take a storage read lock on every null-involved compare. A
       // configuration change mid-sort would also break the comparator contract.
-      var nullsDefault = OrderByNullsUtil.resolveDefaultForSort(ctx);
+      var nullsDefault = OrderByNullsUtil.resolvePlacementsForSort(ctx);
 
       // Reversed comparator: peek() returns the element that sorts LAST (worst in top-N).
       var heap = new PriorityQueue<Result>(
@@ -267,6 +267,8 @@ public class OrderByStep extends AbstractExecutionStep {
     var maxElementsAllowed =
         GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
     List<Result> cachedResult = new ArrayList<>();
+    // Fix placement when the sort starts, before a potentially long upstream drain.
+    var nullsDefault = OrderByNullsUtil.resolvePlacementsForSort(ctx);
     try {
       while (upstream.hasNext(ctx)) {
         if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
@@ -283,8 +285,6 @@ public class OrderByStep extends AbstractExecutionStep {
                   + " to increase this limit");
         }
       }
-      // Resolved once for the whole sort: see initBoundedHeap for why this is not read per compare.
-      var nullsDefault = OrderByNullsUtil.resolveDefaultForSort(ctx);
       cachedResult.sort((a, b) -> orderBy.compare(a, b, ctx, nullsDefault));
       return cachedResult;
     } finally {

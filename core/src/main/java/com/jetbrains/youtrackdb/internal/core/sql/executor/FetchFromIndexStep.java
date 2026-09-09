@@ -119,8 +119,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   /**
    * Whether null-key index entries are emitted before non-null keys. Independent of {@link
    * #orderAsc} when the ORDER BY item specifies {@code NULLS FIRST}/{@code NULLS LAST}; otherwise
-   * derived from direction and the global nulls default. Legacy call sites that omit this flag
-   * default to {@code orderAsc} (NULLS_SMALLEST semantic).
+   * derived from the direction-specific setting. Legacy call sites that omit this flag use the
+   * shipped placement for their direction.
    */
   private boolean nullsFirst;
 
@@ -284,10 +284,9 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
    *
    * <p>Null keys are physically stored in a separate bucket outside the sorted B-tree, so their
    * position in the emitted sequence is decided purely by where the null stream is concatenated.
-   * Callers resolve {@code nullsFirst} from the ORDER BY item (explicit {@code NULLS FIRST}/
-   * {@code NULLS LAST}, or the global {@code NULLS_SMALLEST}/{@code NULLS_LARGEST} default composed
-   * with ASC/DESC). Legacy call sites that pass {@code nullsFirst == isOrderAsc} reproduce the
-   * NULLS_SMALLEST semantic.
+   * Callers resolve {@code nullsFirst} from the ORDER BY item. An explicit clause wins over the
+   * direction-specific setting. Legacy callers that pass {@code nullsFirst == isOrderAsc}
+   * reproduce the shipped placements.
    */
   private static List<Stream<RawPair<Object, RID>>> processFlatIteration(
       DatabaseSessionEmbedded session, Index index, boolean isOrderAsc, boolean nullsFirst) {
@@ -918,7 +917,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       desc = new IndexSearchDescriptor(index, condition, additionalRangeCondition, null);
       orderAsc = fromResult.getProperty("orderAsc");
       Boolean storedNullsFirst = fromResult.getProperty("nullsFirst");
-      // Pre-feature serialized plans omit nullsFirst; fall back to orderAsc (NULLS_SMALLEST).
+      // Pre-feature serialized plans omit nullsFirst. Use the shipped placement for the direction.
       nullsFirst = storedNullsFirst != null ? storedNullsFirst : orderAsc;
     } catch (Exception e) {
       throw BaseException.wrapException(new CommandExecutionException(session, ""), e, session);

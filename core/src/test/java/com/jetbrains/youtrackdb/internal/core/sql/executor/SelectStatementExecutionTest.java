@@ -4,7 +4,7 @@ import static com.jetbrains.youtrackdb.internal.core.sql.executor.ExecutionPlanP
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.DbTestBase;
 import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.common.concur.TimeoutException;
@@ -7097,7 +7097,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
   /**
    * Explicit {@code NULLS LAST} with ASC: absolute placement puts nulls last even though ASC with
-   * the default NULLS_SMALLEST would put them first. Index path must match.
+   * the default FIRST would put them first. Index path must match.
    */
   @Test
   public void testOrderByAscNullsLastIndexAccelerated() {
@@ -7111,8 +7111,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   }
 
   /**
-   * Explicit {@code NULLS FIRST} with DESC: absolute placement puts nulls first even though DESC
-   * with the default NULLS_SMALLEST would put them last.
+   * Explicit {@code NULLS FIRST} with DESC puts nulls first instead of the shipped LAST placement.
    */
   @Test
   public void testOrderByDescNullsFirstIndexAccelerated() {
@@ -7126,8 +7125,7 @@ public class SelectStatementExecutionTest extends DbTestBase {
   }
 
   /**
-   * Explicit {@code NULLS LAST} with DESC: absolute placement puts nulls last (same placement as
-   * the default NULLS_SMALLEST for DESC, but pinned via the clause).
+   * Explicit {@code NULLS LAST} with DESC pins the same placement as the shipped LAST setting.
    */
   @Test
   public void testOrderByDescNullsLastIndexAccelerated() {
@@ -7169,60 +7167,63 @@ public class SelectStatementExecutionTest extends DbTestBase {
   }
 
   /**
-   * Omitted NULLS clause with global default {@code NULLS_LARGEST}: ASC puts nulls last. Both
-   * index-accelerated and in-memory paths must agree; the default is restored in finally.
+   * Omitted NULLS clause with ascending placement {@code LAST} puts nulls last. Both
+   * index-accelerated and in-memory paths must agree.
    */
   @Test
-  public void testOrderByGlobalDefaultNullsLargestAsc() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_LARGEST);
+  public void testOrderByGlobalLastPlacementAscending() {
+    var previous = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.getValue();
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.LAST);
     try {
-      var indexed = "testOrderByNullsLargestAscIdx";
+      var indexed = "testOrderByLastPlacementAscIdx";
       createIndexedNameClass(indexed, INDEX_TYPE.NOTUNIQUE);
       seedNames(indexed, Arrays.asList("b", "a", "c", null, null));
       Assert.assertEquals(
           Arrays.asList("a", "b", "c", null, null), orderedNamesIndexAccelerated(indexed, "ASC"));
 
-      var plain = "testOrderByNullsLargestAscNoIdx";
+      var plain = "testOrderByLastPlacementAscNoIdx";
       createPlainNameClass(plain);
       seedNames(plain, Arrays.asList("b", "a", "c", null, null));
       Assert.assertEquals(
           Arrays.asList("a", "b", "c", null, null), orderedNamesInMemory(plain, "ASC"));
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previous);
     }
   }
 
   /**
-   * Omitted NULLS clause with global default {@code NULLS_LARGEST}: DESC puts nulls first. Both
-   * paths must agree; the default is restored in finally.
+   * Omitted NULLS clause with descending placement {@code FIRST} puts nulls first. Both paths must
+   * agree.
    */
   @Test
-  public void testOrderByGlobalDefaultNullsLargestDesc() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_LARGEST);
+  public void testOrderByGlobalFirstPlacementDescending() {
+    var previous = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC.getValue();
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC.setValue(OrderByNullsPlacement.FIRST);
     try {
-      var indexed = "testOrderByNullsLargestDescIdx";
+      var indexed = "testOrderByFirstPlacementDescIdx";
       createIndexedNameClass(indexed, INDEX_TYPE.NOTUNIQUE);
       seedNames(indexed, Arrays.asList("b", "a", "c", null, null));
       Assert.assertEquals(
           Arrays.asList(null, null, "c", "b", "a"), orderedNamesIndexAccelerated(indexed, "DESC"));
 
-      var plain = "testOrderByNullsLargestDescNoIdx";
+      var plain = "testOrderByFirstPlacementDescNoIdx";
       createPlainNameClass(plain);
       seedNames(plain, Arrays.asList("b", "a", "c", null, null));
       Assert.assertEquals(
           Arrays.asList(null, null, "c", "b", "a"), orderedNamesInMemory(plain, "DESC"));
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC.setValue(previous);
     }
   }
 
   /**
-   * Explicit {@code NULLS FIRST} overrides a {@code NULLS_LARGEST} global default: ASC still puts
+   * Explicit {@code NULLS FIRST} overrides a {@code LAST} global default: ASC still puts
    * nulls first. Pins the precedence rule (clause &gt; global default).
    */
   @Test
-  public void testOrderByExplicitNullsOverridesGlobalDefault() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_LARGEST);
+  public void testOrderByExplicitNullsOverridesGlobalPlacement() {
+    var previous = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.getValue();
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.LAST);
     try {
       var className = "testOrderByNullsOverride";
       createPlainNameClass(className);
@@ -7232,24 +7233,25 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
       Assert.assertEquals(Arrays.asList(null, "a", "b"), ordered);
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previous);
     }
   }
 
   /**
-   * Per-storage {@code youtrackdb.query.orderBy.nullsDefault} overrides the runtime global when the
+   * A per-storage ascending placement overrides the runtime global when the
    * NULLS clause is omitted.
    */
   @Test
-  public void testOrderByStorageLocalDefaultOverridesGlobal() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.setValue(OrderByNullsDefault.NULLS_SMALLEST);
+  public void testOrderByStorageLocalPlacementOverridesGlobal() {
+    var previous = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.getValue();
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(OrderByNullsPlacement.FIRST);
     session
         .getStorage()
         .getContextConfiguration()
-        .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT,
-            OrderByNullsDefault.NULLS_LARGEST);
+        .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC,
+            OrderByNullsPlacement.LAST);
     try {
-      var className = "testOrderByStorageNullsLargest";
+      var className = "testOrderByStorageLastPlacement";
       createPlainNameClass(className);
       seedNames(className, Arrays.asList("b", "a", "c", null, null));
 
@@ -7257,11 +7259,11 @@ public class SelectStatementExecutionTest extends DbTestBase {
 
       Assert.assertEquals(Arrays.asList("a", "b", "c", null, null), ordered);
     } finally {
-      GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+      GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previous);
       session
           .getStorage()
           .getContextConfiguration()
-          .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, null);
+          .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, null);
     }
   }
 

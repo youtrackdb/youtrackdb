@@ -3,7 +3,8 @@ package com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimi
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
+import com.jetbrains.youtrackdb.api.gremlin.tokens.YTDBQueryConfigParam;
 import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.GraphBaseTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBTransaction;
@@ -19,56 +20,66 @@ import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.javatuples.Pair;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 /**
- * {@link YTDBOrderNullsStrategy} applies {@link GlobalConfiguration#QUERY_ORDER_BY_NULLS_DEFAULT}
- * to native Gremlin {@code order()} when the effective default is {@link
- * OrderByNullsDefault#NULLS_LARGEST}. {@link OrderByNullsDefault#NULLS_SMALLEST} is a no-op
- * because TinkerPop's comparator already matches it.
+ * {@link YTDBOrderNullsStrategy} applies both direction-specific placement settings to native
+ * Gremlin {@code order()}. Reversed placements require wrapped comparators because TinkerPop's
+ * comparators already match the shipped placements.
  *
  * <p>Marked {@code @Category(SequentialTest)} because it mutates the process-wide
- * {@code QUERY_ORDER_BY_NULLS_DEFAULT} global. The default surefire execution runs four test
- * classes in parallel in one virtual machine, so the mutation would leak between classes.
+ * placement globals. The default surefire execution runs four test classes in parallel in one
+ * virtual machine, so the mutation would leak between classes.
  */
 @Category(SequentialTest.class)
 public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
 
-  /**
-   * Runs after the translator and after productive-order rewrite so wrapping sees missing keys as
-   * nulls on the native path.
-   */
+  private Object previousAscending;
+  private Object previousDescending;
+
+  @Before
+  public void saveGlobals() {
+    previousAscending = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.getValue();
+    previousDescending = GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC.getValue();
+  }
+
+  /** The null strategy runs after translation and standard-order missing-key handling. */
   @Test
-  public void applyPrior_waitsForTranslatorAndProductiveOrder() {
+  public void applyPriorWaitsForTranslatorAndStandardOrderSemantics() {
     assertThat(YTDBOrderNullsStrategy.instance().applyPrior())
         .containsExactlyInAnyOrder(
-            GremlinToMatchStrategy.class, YTDBProductiveOrderByStrategy.class);
+            GremlinToMatchStrategy.class, YTDBStandardOrderSemanticsStrategy.class);
   }
 
   @After
-  public void restoreDefault() {
-    GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT.resetToDefault();
+  public void restoreConfiguration() {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(previousAscending);
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC.setValue(previousDescending);
     var tx = (YTDBTransaction) graph.tx();
     tx.readWrite();
     tx.getDatabaseSession()
         .getConfiguration()
-        .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, null);
+        .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, null);
+    tx.getDatabaseSession()
+        .getConfiguration()
+        .setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC, null);
   }
 
   /**
-   * Storage-local {@code NULLS_LARGEST} puts null sort keys last for ascending native {@code
-   * order().by(age)}. Productive rewrite keeps vertices without {@code age} in the sort stream.
+   * Storage-local reversed placement puts null sort keys last for ascending native {@code
+   * order().by(age)}. Record-retention mode keeps vertices without {@code age} in the sort stream.
    */
   @Test
-  public void storageNullsLargestAscPutsNullAgeVerticesLast() {
+  public void storageReversedPlacementPutsNullAgeVerticesLastAscending() {
     graph.addVertex(T.label, "Person", "name", "Alice", "age", 30);
     graph.addVertex(T.label, "Person", "name", "Bob", "age", 25);
     graph.addVertex(T.label, "Person", "name", "Nobody");
     graph.addVertex(T.label, "Person", "name", "Nemo");
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var names = graph.traversal().V().order().by("age").values("name").toList();
 
@@ -77,18 +88,18 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
   }
 
   /**
-   * Storage-local {@code NULLS_LARGEST} puts null sort keys first for descending native {@code
+   * Storage-local reversed placement puts null sort keys first for descending native {@code
    * order().by(age, desc)}.
    */
   @Test
-  public void storageNullsLargestDescPutsNullAgeVerticesFirst() {
+  public void storageReversedPlacementPutsNullAgeVerticesFirstDescending() {
     graph.addVertex(T.label, "Person", "name", "Alice", "age", 30);
     graph.addVertex(T.label, "Person", "name", "Bob", "age", 25);
     graph.addVertex(T.label, "Person", "name", "Nobody");
     graph.addVertex(T.label, "Person", "name", "Nemo");
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var names = graph.traversal().V().order().by("age", Order.desc).values("name").toList();
 
@@ -97,11 +108,43 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
   }
 
   /**
-   * With the default {@code NULLS_SMALLEST}, {@link YTDBOrderNullsStrategy#apply} returns before
+   * Direct strategy application preserves standard-order filtering when reversed placement
+   * rebuilds a native global order step.
+   */
+  @Test
+  public void applyPreservesMissingKeyFilteringOnRebuiltGlobalOrder() {
+    graph.addVertex(T.label, "Person", "age", 30);
+    graph.tx().commit();
+
+    setStorageReversedPlacement();
+
+    var admin =
+        graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderIncludesMissingKey, false)
+            .V()
+            .order()
+            .by("age")
+            .asAdmin();
+    YTDBStandardOrderSemanticsStrategy.instance().apply(admin);
+    var orderBefore =
+        TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
+    assertThat(orderBefore.isFilteringUnproductiveTraversers()).isTrue();
+
+    YTDBOrderNullsStrategy.instance().apply(admin);
+
+    var orderAfter =
+        TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
+    assertThat(orderAfter).isNotSameAs(orderBefore);
+    assertThat(orderAfter.isFilteringUnproductiveTraversers()).isTrue();
+  }
+
+  /**
+   * With the default {@code FIRST}, {@link YTDBOrderNullsStrategy#apply} returns before
    * rebuilding any order step.
    */
   @Test
-  public void applyIsNoOpWhenNullsSmallestDefault() {
+  public void applyIsNoOpUnderShippedPlacement() {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
@@ -122,15 +165,15 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
 
   /**
    * Direct {@code apply} on a native {@code order()} traversal rebuilds framework comparators when
-   * storage uses {@code NULLS_LARGEST}. End-to-end runs often translate {@code order().by(...)} to
+   * storage uses {@code LAST}. End-to-end runs often translate {@code order().by(...)} to
    * MATCH, so this pins the strategy body itself.
    */
   @Test
-  public void applyWrapsNativeOrderGlobalStepWhenNullsLargest() {
+  public void applyWrapsNativeGlobalOrderUnderReversedPlacement() {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var admin = graph.traversal().V().order().by("age").by("name", Order.desc).asAdmin();
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -149,15 +192,15 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
   }
 
   /**
-   * Bare {@code order()} synthesizes identity+asc. Under {@code NULLS_LARGEST} that asc comparator
+   * Bare {@code order()} synthesizes identity+asc. Under {@code LAST} that asc comparator
    * is wrapped the same way as an explicit {@code by(..., asc)}.
    */
   @Test
-  public void applyWrapsBareOrderUnderNullsLargest() {
+  public void applyWrapsBareOrderUnderReversedPlacement() {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var admin = graph.traversal().V().order().asAdmin();
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -170,15 +213,15 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
   }
 
   /**
-   * {@code order(Scope.local)} uses {@link OrderLocalStep}. Under {@code NULLS_LARGEST} its
+   * {@code order(Scope.local)} uses {@link OrderLocalStep}. Under {@code LAST} its
    * framework comparators are rebuilt the same way as the global step.
    */
   @Test
-  public void applyWrapsOrderLocalStepUnderNullsLargest() {
+  public void applyWrapsLocalOrderUnderReversedPlacement() {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var admin = graph.traversal().V().fold().order(Scope.local).by("age").asAdmin();
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -199,7 +242,7 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var admin = graph.traversal().V().map(__.order().by("age")).asAdmin();
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -219,7 +262,7 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var admin = graph.traversal().V().order().by(Order.shuffle).by("age").asAdmin();
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -235,11 +278,11 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
    * asc}/{@code desc} constants are replaced.
    */
   @Test
-  public void applyIsIdempotentUnderNullsLargest() {
+  public void applyIsIdempotentUnderReversedPlacement() {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     var admin = graph.traversal().V().order().by("age").asAdmin();
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -260,7 +303,7 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
-    setStorageNullsLargest();
+    setStorageReversedPlacement();
 
     Comparator<Integer> caller = Integer::compareTo;
     var admin = graph.traversal().V().order().by("age", caller).asAdmin();
@@ -271,13 +314,17 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     assertThat(comparatorAt(orderStep, 0)).isSameAs(caller);
   }
 
-  private void setStorageNullsLargest() {
+  private void setStorageReversedPlacement() {
     var tx = (YTDBTransaction) graph.tx();
     tx.readWrite();
     tx.getDatabaseSession()
         .getConfiguration()
         .setValue(
-            GlobalConfiguration.QUERY_ORDER_BY_NULLS_DEFAULT, OrderByNullsDefault.NULLS_LARGEST);
+            GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.LAST);
+    tx.getDatabaseSession()
+        .getConfiguration()
+        .setValue(
+            GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC, OrderByNullsPlacement.FIRST);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})

@@ -2911,8 +2911,8 @@ public class SelectExecutionPlanner {
       }
       if (indexFound && orderType != null) {
         var orderAsc = orderType.equals(SQLOrderByItem.ASC);
-        // Null-key stream placement follows the first ORDER BY item (explicit NULLS FIRST/LAST or
-        // the global NULLS_SMALLEST/NULLS_LARGEST default). The index can always honor that by
+        // Null-key stream placement follows the first ORDER BY item. An explicit clause wins over
+        // the direction-specific setting. The index can always honor that by
         // concatenating the null bucket before or after the B-tree scan.
         var nullsFirst =
             info.orderBy
@@ -3194,7 +3194,7 @@ public class SelectExecutionPlanner {
       var ascending = !Boolean.FALSE.equals(orderAsc);
       // When ORDER BY is present, place the null-key stream per the first item's resolved null
       // ordering so a fullySorted index plan matches in-memory null placement. Without ORDER BY,
-      // keep the legacy NULLS_SMALLEST default (nullsFirst == ascending).
+      // keep the shipped placement for the direction.
       var nullsFirst =
           (info.orderBy != null && !info.orderBy.getItems().isEmpty())
               ? info.orderBy

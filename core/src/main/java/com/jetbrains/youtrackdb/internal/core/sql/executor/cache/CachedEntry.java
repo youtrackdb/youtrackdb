@@ -1,11 +1,11 @@
 package com.jetbrains.youtrackdb.internal.core.sql.executor.cache;
 
-import com.jetbrains.youtrackdb.api.config.OrderByNullsDefault;
 import com.jetbrains.youtrackdb.internal.core.command.CommandContext;
 import com.jetbrains.youtrackdb.internal.core.db.record.record.RID;
 import com.jetbrains.youtrackdb.internal.core.metadata.schema.schema.SchemaClass;
 import com.jetbrains.youtrackdb.internal.core.query.Result;
 import com.jetbrains.youtrackdb.internal.core.sql.OrderByNullsUtil;
+import com.jetbrains.youtrackdb.internal.core.sql.ResolvedOrderByNullsPlacement;
 import com.jetbrains.youtrackdb.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrackdb.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrackdb.internal.core.sql.executor.resultset.IdempotentExecutionStream;
@@ -144,7 +144,7 @@ public final class CachedEntry {
    * outside the cache, as a test does, may also reach a comparison unseeded. The first comparison
    * then fixes the value, so the one-value rule holds either way.
    */
-  @Nullable private OrderByNullsDefault nullsDefault;
+  @Nullable private ResolvedOrderByNullsPlacement nullsDefault;
 
   // Per-entry record-cap guard. The cache installs the cap and the overflow callback at put time; the
   // view's row append checks the cap so an entry whose populate crosses it removes itself from the
@@ -296,7 +296,7 @@ public final class CachedEntry {
    *
    * @param seeded the placement in force when this entry was populated
    */
-  public void seedNullsDefault(@Nonnull OrderByNullsDefault seeded) {
+  public void seedNullsDefault(@Nonnull ResolvedOrderByNullsPlacement seeded) {
     assert nullsDefault == null
         : "the null placement of a cached entry is fixed once, at populate";
     if (nullsDefault == null) {
@@ -314,9 +314,9 @@ public final class CachedEntry {
    * @param ctx the context of the query that drives the comparison
    */
   @Nonnull
-  public OrderByNullsDefault nullsDefault(@Nonnull CommandContext ctx) {
+  public ResolvedOrderByNullsPlacement nullsDefault(@Nonnull CommandContext ctx) {
     if (nullsDefault == null) {
-      nullsDefault = OrderByNullsUtil.resolveDefaultForSort(ctx);
+      nullsDefault = OrderByNullsUtil.resolvePlacementsForSort(ctx);
     }
     return nullsDefault;
   }
@@ -325,7 +325,7 @@ public final class CachedEntry {
    * The placement already fixed for this entry, or {@code null} when none is. Exposed so a test can
    * prove that populate seeds it, and that an entry with no ORDER BY never reads the configuration.
    */
-  @Nullable OrderByNullsDefault fixedNullsDefault() {
+  @Nullable ResolvedOrderByNullsPlacement fixedNullsDefault() {
     return nullsDefault;
   }
 
