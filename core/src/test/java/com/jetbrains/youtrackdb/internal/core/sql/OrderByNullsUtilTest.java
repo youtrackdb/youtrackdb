@@ -101,7 +101,7 @@ public class OrderByNullsUtilTest {
           logs.warnedWithAll(
               "NOT_A_PLACEMENT_TRACK_02",
               GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.getKey(),
-              "runtime global value applies"));
+              "runtime global value applies when it is readable"));
     }
   }
 

@@ -1,5 +1,7 @@
 package com.jetbrains.youtrackdb.api.gremlin.tokens;
 
+import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
+
 /// YTDB-specific parameters that can be passed to
 /// [[com.jetbrains.youtrackdb.api.gremlin.YTDBGraphTraversalSourceDSL#with(YTDBQueryConfigParam, Object)]] and
 /// [[com.jetbrains.youtrackdb.api.gremlin.YTDBGraphTraversalSourceDSL#with(YTDBQueryConfigParam)]]
@@ -18,6 +20,12 @@ public enum YTDBQueryConfigParam {
   /// for one traversal. Local-scope order and the `select`, `values`, `group` and `dedup`
   /// modulators keep their filtering behaviour under either value.
   orderIncludesMissingKey(Boolean.class),
+
+  /// Overrides the ascending null placement for one traversal.
+  orderByNullsPlacementAsc(OrderByNullsPlacement.class),
+
+  /// Overrides the descending null placement for one traversal.
+  orderByNullsPlacementDesc(OrderByNullsPlacement.class),
 
   /// Client-provided query summary for query monitoring purposes.
   querySummary(String.class);

@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 /** Resolves null placement for {@code ORDER BY} and Gremlin {@code order()}. */
 public final class OrderByNullsUtil {
 
+  // Bound invalid-value reporting so arbitrary operator input cannot grow process memory forever.
   private static final int MAX_REPORTED_INVALID_VALUES = 256;
   private static final Set<String> REPORTED_INVALID_VALUES =
       Collections.synchronizedSet(new LinkedHashSet<>());
@@ -63,8 +64,8 @@ public final class OrderByNullsUtil {
   }
 
   /**
-   * Resolves both direction-specific keys. A storage value wins over its runtime global. Every
-   * unreadable value falls back to the runtime global, then to the shipped value.
+   * Resolves both direction-specific keys. Precedence is database setting, readable server setting,
+   * then shipped value. Each direction resolves independently.
    */
   public static ResolvedOrderByNullsPlacement resolvePlacements(
       @Nullable ContextConfiguration config) {
@@ -122,7 +123,7 @@ public final class OrderByNullsUtil {
                 + presentation
                 + "' of the configuration key '"
                 + key.getKey()
-                + "'. The runtime global value applies when set. Otherwise the shipped null "
-                + "placement applies until the value is corrected.");
+                + "'. The runtime global value applies when it is readable. Otherwise the shipped "
+                + "value applies.");
   }
 }

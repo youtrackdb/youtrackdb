@@ -6,12 +6,12 @@ import java.util.List;
 import org.apache.tinkerpop.gremlin.process.traversal.Step;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal.Admin;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderGlobalStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderLocalStep;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
 import org.javatuples.Pair;
 
 /**
- * Positional replacement of the {@code by(...)} modulators of an {@code order()} step, shared by the
- * strategies that install a provider sort key.
+ * State-preserving rebuilds of {@code order()} steps, shared by strategies that replace sort slots.
  *
  * <h2>Why a rebuild rather than a child replacement</h2>
  *
@@ -28,8 +28,8 @@ import org.javatuples.Pair;
  * key survives. Losing either state would change query semantics while replacing only a modulator.
  * Labels must also survive because later traversal steps address them by name.
  *
- * <p>The class holds one copy of this walk on purpose. Two strategies replace modulators now, and
- * a second private copy of the swap would let callers rebuild the step differently.
+ * <p>The class holds one copy of each rebuild on purpose. Modulator and comparator strategies must
+ * preserve step state identically.
  */
 final class OrderStepModulators {
 
@@ -66,14 +66,38 @@ final class OrderStepModulators {
       step.modulateBy(modulators.getFirst(), comparators.getFirst().getValue1());
       return;
     }
+    var replacements = new ArrayList<Pair<Admin, Comparator>>(comparators.size());
+    for (var index = 0; index < comparators.size(); index++) {
+      replacements.add(Pair.with(modulators.get(index), comparators.get(index).getValue1()));
+    }
+    replaceGlobalComparators(step, replacements);
+  }
+
+  /** Rebuilds a global step with replacement slots while preserving limit, filtering, and labels. */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  static void replaceGlobalComparators(
+      OrderGlobalStep step, List<Pair<Admin, Comparator>> comparators) {
     var replacement = new OrderGlobalStep(step.getTraversal());
-    // Preserve state that earlier strategies placed on the old step.
     replacement.setLimit(step.getLimit());
     if (step.isFilteringUnproductiveTraversers()) {
       replacement.enableFilteringUnproductiveTraversers();
     }
-    for (var index = 0; index < comparators.size(); index++) {
-      replacement.addComparator(modulators.get(index), comparators.get(index).getValue1());
+    for (var comparator : comparators) {
+      replacement.addComparator(comparator.getValue0(), comparator.getValue1());
+    }
+    swapStep(step, replacement);
+  }
+
+  /** Rebuilds a local step with replacement slots while preserving filtering and labels. */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  static void replaceLocalComparators(
+      OrderLocalStep step, List<Pair<Admin, Comparator>> comparators) {
+    var replacement = new OrderLocalStep(step.getTraversal());
+    if (step.isFilteringUnproductiveTraversers()) {
+      replacement.enableFilteringUnproductiveTraversers();
+    }
+    for (var comparator : comparators) {
+      replacement.addComparator(comparator.getValue0(), comparator.getValue1());
     }
     swapStep(step, replacement);
   }

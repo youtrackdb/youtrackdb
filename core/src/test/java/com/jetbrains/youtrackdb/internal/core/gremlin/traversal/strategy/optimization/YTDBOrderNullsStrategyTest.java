@@ -1,6 +1,7 @@
 package com.jetbrains.youtrackdb.internal.core.gremlin.traversal.strategy.optimization;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.jetbrains.youtrackdb.api.config.GlobalConfiguration;
 import com.jetbrains.youtrackdb.api.config.OrderByNullsPlacement;
@@ -9,6 +10,7 @@ import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.GraphBaseTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBTransaction;
 import com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy.GremlinToMatchStrategy;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.tinkerpop.gremlin.process.traversal.Order;
@@ -50,7 +52,9 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
   public void applyPriorWaitsForTranslatorAndStandardOrderSemantics() {
     assertThat(YTDBOrderNullsStrategy.instance().applyPrior())
         .containsExactlyInAnyOrder(
-            GremlinToMatchStrategy.class, YTDBStandardOrderSemanticsStrategy.class);
+            GremlinToMatchStrategy.class,
+            YTDBOrderRidTieBreakStrategy.class,
+            YTDBStandardOrderSemanticsStrategy.class);
   }
 
   @After
@@ -129,6 +133,8 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     YTDBStandardOrderSemanticsStrategy.instance().apply(admin);
     var orderBefore =
         TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
+    orderBefore.setLimit(3);
+    orderBefore.addLabel("ordered");
     assertThat(orderBefore.isFilteringUnproductiveTraversers()).isTrue();
 
     YTDBOrderNullsStrategy.instance().apply(admin);
@@ -137,14 +143,36 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
         TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
     assertThat(orderAfter).isNotSameAs(orderBefore);
     assertThat(orderAfter.isFilteringUnproductiveTraversers()).isTrue();
+    assertThat(orderAfter.getLimit()).isEqualTo(3);
+    assertThat(orderAfter.getLabels()).containsExactly("ordered");
+  }
+
+  /** A rebuilt local order preserves its filtering state and labels. */
+  @Test
+  public void applyPreservesFilteringAndLabelsOnRebuiltLocalOrder() {
+    setStorageReversedPlacement();
+    var admin = graph.traversal().inject(List.of(2, 1)).order(Scope.local).asAdmin();
+    var orderBefore =
+        TraversalHelper.getStepsOfAssignableClass(OrderLocalStep.class, admin).getFirst();
+    orderBefore.addLabel("ordered");
+
+    YTDBOrderNullsStrategy.instance().apply(admin);
+
+    var orderAfter =
+        TraversalHelper.getStepsOfAssignableClass(OrderLocalStep.class, admin).getFirst();
+    assertThat(orderAfter).isNotSameAs(orderBefore);
+    assertThat(orderAfter.isFilteringUnproductiveTraversers())
+        .isEqualTo(orderBefore.isFilteringUnproductiveTraversers());
+    assertThat(orderAfter.getLabels()).containsExactly("ordered");
   }
 
   /**
-   * With the default {@code FIRST}, {@link YTDBOrderNullsStrategy#apply} returns before
-   * rebuilding any order step.
+   * With the shipped {@code FIRST}, {@link YTDBOrderNullsStrategy#apply} returns before rebuilding
+   * any order step.
    */
   @Test
   public void applyIsNoOpUnderShippedPlacement() {
+    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
     graph.addVertex(T.label, "Person", "age", 1);
     graph.tx().commit();
 
@@ -161,6 +189,95 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
         TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
     assertThat(orderAfter).isSameAs(orderBefore);
     assertThat(comparatorAt(orderAfter, 0)).isSameAs(Order.asc);
+  }
+
+  /** Each typed per-query option overrides only its direction. */
+  @Test
+  public void perQueryOverridesEachDirectionIndependently() {
+    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
+
+    var ascendingAdmin =
+        graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, OrderByNullsPlacement.LAST)
+            .inject(1)
+            .order()
+            .by(Order.asc)
+            .by(Order.desc)
+            .asAdmin();
+    YTDBOrderNullsStrategy.instance().apply(ascendingAdmin);
+    var ascendingStep =
+        TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, ascendingAdmin).getFirst();
+    assertThat(comparatorAt(ascendingStep, 0)).isNotSameAs(Order.asc);
+    assertThat(comparatorAt(ascendingStep, 1)).isSameAs(Order.desc);
+
+    var descendingAdmin =
+        graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderByNullsPlacementDesc, OrderByNullsPlacement.FIRST)
+            .inject(1)
+            .order()
+            .by(Order.asc)
+            .by(Order.desc)
+            .asAdmin();
+    YTDBOrderNullsStrategy.instance().apply(descendingAdmin);
+    var descendingStep =
+        TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, descendingAdmin)
+            .getFirst();
+    assertThat(comparatorAt(descendingStep, 0)).isSameAs(Order.asc);
+    assertThat(comparatorAt(descendingStep, 1)).isNotSameAs(Order.desc);
+  }
+
+  /** Per-query options beat every combination of the two server settings. */
+  @Test
+  public void perQueryOverridesAllFourGlobalCombinations() {
+    for (var globalAscending : OrderByNullsPlacement.values()) {
+      for (var globalDescending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(globalAscending, globalDescending);
+        var admin =
+            graph
+                .traversal()
+                .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, OrderByNullsPlacement.LAST)
+                .with(YTDBQueryConfigParam.orderByNullsPlacementDesc, OrderByNullsPlacement.FIRST)
+                .inject(1)
+                .order()
+                .by(Order.asc)
+                .by(Order.desc)
+                .asAdmin();
+
+        YTDBOrderNullsStrategy.instance().apply(admin);
+
+        var orderStep =
+            TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
+        assertThat(comparatorAt(orderStep, 0)).isNotSameAs(Order.asc);
+        assertThat(comparatorAt(orderStep, 1)).isNotSameAs(Order.desc);
+      }
+    }
+  }
+
+  /** A local collection sort places a real null according to its per-query option. */
+  @Test
+  public void perQueryAscendingOverridePlacesNullLastInsideCollection() {
+    var values =
+        graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, OrderByNullsPlacement.LAST)
+            .inject(Arrays.asList(null, 2, 1))
+            .order(Scope.local)
+            .next();
+
+    assertThat(values).containsExactly(1, 2, null);
+  }
+
+  /** Enum-typed options reject unreadable client values before traversal construction. */
+  @Test
+  public void perQueryPlacementRejectsWrongType() {
+    assertThatThrownBy(
+        () -> graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, "LAST"))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining(OrderByNullsPlacement.class.getSimpleName());
   }
 
   /**
@@ -312,6 +429,12 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     var orderStep =
         TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
     assertThat(comparatorAt(orderStep, 0)).isSameAs(caller);
+  }
+
+  private static void setGlobalPlacement(
+      OrderByNullsPlacement ascending, OrderByNullsPlacement descending) {
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC.setValue(ascending);
+    GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC.setValue(descending);
   }
 
   private void setStorageReversedPlacement() {
