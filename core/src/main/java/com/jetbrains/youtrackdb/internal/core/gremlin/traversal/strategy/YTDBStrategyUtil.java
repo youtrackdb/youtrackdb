@@ -119,13 +119,34 @@ public final class YTDBStrategyUtil {
     }
 
     final var configured = OrderByNullsUtil.resolvePlacements(session.getConfiguration());
-    final OrderByNullsPlacement ascending =
-        getConfigValue(YTDBQueryConfigParam.orderByNullsPlacementAsc, traversal);
-    final OrderByNullsPlacement descending =
-        getConfigValue(YTDBQueryConfigParam.orderByNullsPlacementDesc, traversal);
+    final var ascending =
+        queryNullPlacement(YTDBQueryConfigParam.orderByNullsPlacementAsc, traversal);
+    final var descending =
+        queryNullPlacement(YTDBQueryConfigParam.orderByNullsPlacementDesc, traversal);
     return new ResolvedOrderByNullsPlacement(
         ascending == null ? configured.ascending() : ascending,
         descending == null ? configured.descending() : descending);
+  }
+
+  private static @Nullable OrderByNullsPlacement queryNullPlacement(
+      YTDBQueryConfigParam param, Admin<?, ?> traversal) {
+    final Object raw = getConfigValue(param, traversal);
+    if (raw == null) {
+      return null;
+    }
+    if (raw instanceof OrderByNullsPlacement placement) {
+      return placement;
+    }
+    if (raw instanceof String presentation) {
+      for (var placement : OrderByNullsPlacement.values()) {
+        if (placement.name().equalsIgnoreCase(presentation)) {
+          return placement;
+        }
+      }
+    }
+    throw new IllegalArgumentException(
+        "Invalid value '" + raw + "' for parameter '" + param.name()
+            + "'. Accepted values: FIRST, LAST.");
   }
 
   /// Resolves whether a global-scope `order()` step keeps a record without the ordered property.

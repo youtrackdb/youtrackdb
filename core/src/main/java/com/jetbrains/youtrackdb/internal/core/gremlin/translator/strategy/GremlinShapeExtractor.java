@@ -15,6 +15,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.lambda.IdentityTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.lambda.TokenTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.lambda.ValueTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.step.TraversalParent;
+import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderGlobalStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.optimization.ProductiveByStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.verification.EdgeLabelVerificationStrategy;
 
@@ -105,13 +106,15 @@ final class GremlinShapeExtractor {
     encoder.appendToken(
         "oim",
         orderIncludesMissingKey == null ? "n" : (orderIncludesMissingKey ? "1" : "0"));
-    // The converter writes these values into every ORDER BY item. They therefore partition both
-    // cached translations and the plan fingerprints rendered from those translated items.
-    encoder.appendToken(
-        "onp",
-        orderByNullsPlacements.ascending().name()
-            + "/"
-            + orderByNullsPlacements.descending().name());
+    // Only a global order step can embed these values in a translated plan. Search every child
+    // because union arms and other nested traversals are encoded into the same shape key.
+    if (containsGlobalOrder(traversal)) {
+      encoder.appendToken(
+          "onp",
+          orderByNullsPlacements.ascending().name()
+              + "/"
+              + orderByNullsPlacements.descending().name());
+    }
     if (productiveKeys == null) {
       encoder.appendToken("pb", "-");
     } else {
@@ -120,6 +123,27 @@ final class GremlinShapeExtractor {
         encoder.appendToken(key);
       }
     }
+  }
+
+  private static boolean containsGlobalOrder(Traversal.Admin<?, ?> traversal) {
+    for (Step<?, ?> step : traversal.getSteps()) {
+      if (step instanceof OrderGlobalStep) {
+        return true;
+      }
+      if (step instanceof TraversalParent parent) {
+        for (var child : parent.getLocalChildren()) {
+          if (containsGlobalOrder(child.asAdmin())) {
+            return true;
+          }
+        }
+        for (var child : parent.getGlobalChildren()) {
+          if (containsGlobalOrder(child.asAdmin())) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private void visit(Traversal.Admin<?, ?> traversal) {

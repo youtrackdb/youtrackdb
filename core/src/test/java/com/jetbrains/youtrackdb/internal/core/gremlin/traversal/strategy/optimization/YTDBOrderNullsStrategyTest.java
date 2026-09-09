@@ -9,15 +9,22 @@ import com.jetbrains.youtrackdb.api.gremlin.tokens.YTDBQueryConfigParam;
 import com.jetbrains.youtrackdb.internal.SequentialTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.GraphBaseTest;
 import com.jetbrains.youtrackdb.internal.core.gremlin.YTDBTransaction;
+import com.jetbrains.youtrackdb.internal.core.gremlin.translator.step.YTDBMatchPlanStep;
 import com.jetbrains.youtrackdb.internal.core.gremlin.translator.strategy.GremlinToMatchStrategy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.tinkerpop.gremlin.process.traversal.Order;
 import org.apache.tinkerpop.gremlin.process.traversal.Scope;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderGlobalStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.OrderLocalStep;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.javatuples.Pair;
@@ -166,6 +173,24 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     assertThat(orderAfter.getLabels()).containsExactly("ordered");
   }
 
+  /** A rebuilt local order keeps enabled missing-key filtering during execution. */
+  @Test
+  public void applyPreservesEnabledFilteringOnRebuiltLocalOrder() {
+    setStorageReversedPlacement();
+    var kept = graph.addVertex(T.label, "Person", "name", "kept", "age", 1);
+    var dropped = graph.addVertex(T.label, "Person", "name", "dropped");
+    graph.tx().commit();
+    var admin =
+        graph.traversal().inject(List.of(dropped, kept)).order(Scope.local).by("age").asAdmin();
+    var orderBefore =
+        TraversalHelper.getStepsOfAssignableClass(OrderLocalStep.class, admin).getFirst();
+    orderBefore.enableFilteringUnproductiveTraversers();
+
+    YTDBOrderNullsStrategy.instance().apply(admin);
+
+    assertThat(admin.next()).asList().containsExactly(kept);
+  }
+
   /**
    * With the shipped {@code FIRST}, {@link YTDBOrderNullsStrategy#apply} returns before rebuilding
    * any order step.
@@ -269,15 +294,51 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     assertThat(values).containsExactly(1, 2, null);
   }
 
-  /** Enum-typed options reject unreadable client values before traversal construction. */
+  /** Portable string options parse case-insensitively for native execution. */
   @Test
-  public void perQueryPlacementRejectsWrongType() {
+  public void perQueryPlacementParsesPortableStringIgnoringCase() {
+    var values =
+        graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, "lAsT")
+            .inject(Arrays.asList(null, 2, 1))
+            .order(Scope.local)
+            .next();
+
+    assertThat(values).containsExactly(1, 2, null);
+  }
+
+  /** Embedded enum input is normalized to a GraphBinary-portable string option. */
+  @Test
+  public void perQueryPlacementEnumIsStoredAsPortableString() {
+    var source =
+        graph
+            .traversal()
+            .with(
+                YTDBQueryConfigParam.orderByNullsPlacementAsc,
+                OrderByNullsPlacement.LAST);
+    var options =
+        source.getStrategies().getStrategy(OptionsStrategy.class).orElseThrow().getOptions();
+
+    assertThat(YTDBQueryConfigParam.orderByNullsPlacementAsc.type()).isEqualTo(String.class);
+    assertThat(options.get(YTDBQueryConfigParam.orderByNullsPlacementAsc.name()))
+        .isEqualTo("LAST");
+  }
+
+  /** Untyped malformed options fail clearly during strategy application. */
+  @Test
+  public void perQueryPlacementRejectsMalformedUntypedValue() {
     assertThatThrownBy(
         () -> graph
             .traversal()
-            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, "LAST"))
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc.name(), 17)
+            .V()
+            .order()
+            .by("age")
+            .toList())
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining(OrderByNullsPlacement.class.getSimpleName());
+        .hasMessageContaining(YTDBQueryConfigParam.orderByNullsPlacementAsc.name())
+        .hasMessageContaining("FIRST, LAST");
   }
 
   /**
@@ -429,6 +490,231 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     var orderStep =
         TraversalHelper.getStepsOfAssignableClass(OrderGlobalStep.class, admin).getFirst();
     assertThat(comparatorAt(orderStep, 0)).isSameAs(caller);
+  }
+
+  /** Native record sorting executes every global placement and reachable null shape. */
+  @Test
+  public void nativeRecordSortCoversGlobalPlacementMatrix() {
+    seedNullShapeVertices();
+    for (var ascending : OrderByNullsPlacement.values()) {
+      for (var descending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(ascending, descending);
+        for (var shape : NullShape.values()) {
+          assertThat(nativeRecordOrder(shape, Order.asc, null, null))
+              .containsExactlyElementsOf(expected(Order.asc, ascending));
+          assertThat(nativeRecordOrder(shape, Order.desc, null, null))
+              .containsExactlyElementsOf(expected(Order.desc, descending));
+        }
+      }
+    }
+  }
+
+  /** Local collection sorting executes every global placement and reachable null shape. */
+  @Test
+  public void localCollectionSortCoversGlobalPlacementMatrix() {
+    for (var ascending : OrderByNullsPlacement.values()) {
+      for (var descending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(ascending, descending);
+        for (var shape : NullShape.values()) {
+          assertThat(localCollectionOrder(shape, Order.asc, null, null))
+              .containsExactlyElementsOf(expected(Order.asc, ascending));
+          assertThat(localCollectionOrder(shape, Order.desc, null, null))
+              .containsExactlyElementsOf(expected(Order.desc, descending));
+        }
+      }
+    }
+  }
+
+  /** Converted MATCH sorting executes every global placement for property-backed null shapes. */
+  @Test
+  public void convertedSortCoversGlobalPlacementMatrix() {
+    seedNullShapeVertices();
+    for (var ascending : OrderByNullsPlacement.values()) {
+      for (var descending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(ascending, descending);
+        for (var shape : List.of(NullShape.ABSENT, NullShape.STORED)) {
+          assertThat(convertedRecordOrder(shape, Order.asc, null, null))
+              .containsExactlyElementsOf(expected(Order.asc, ascending));
+          assertThat(convertedRecordOrder(shape, Order.desc, null, null))
+              .containsExactlyElementsOf(expected(Order.desc, descending));
+        }
+      }
+    }
+  }
+
+  /** Both query parameters execute against all native record null shapes. */
+  @Test
+  public void nativeRecordSortCoversBothQueryOverrides() {
+    seedNullShapeVertices();
+    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
+    for (var shape : NullShape.values()) {
+      assertThat(
+          nativeRecordOrder(
+              shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
+          .containsExactly("low", "high", "null");
+      assertThat(
+          nativeRecordOrder(
+              shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
+          .containsExactly("null", "high", "low");
+    }
+  }
+
+  /** Both query parameters execute against all local collection null shapes. */
+  @Test
+  public void localCollectionSortCoversBothQueryOverrides() {
+    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
+    for (var shape : NullShape.values()) {
+      assertThat(
+          localCollectionOrder(
+              shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
+          .containsExactly("low", "high", "null");
+      assertThat(
+          localCollectionOrder(
+              shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
+          .containsExactly("null", "high", "low");
+    }
+  }
+
+  /** Both query parameters execute through MATCH for property-backed null shapes. */
+  @Test
+  public void convertedSortCoversBothQueryOverrides() {
+    seedNullShapeVertices();
+    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
+    for (var shape : List.of(NullShape.ABSENT, NullShape.STORED)) {
+      assertThat(
+          convertedRecordOrder(
+              shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
+          .containsExactly("low", "high", "null");
+      assertThat(
+          convertedRecordOrder(
+              shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
+          .containsExactly("null", "high", "low");
+    }
+  }
+
+  /** Expression order modulators are deliberately outside MATCH conversion. */
+  @Test
+  public void expressionNullOrderDeclinesMatchConversion() {
+    seedNullShapeVertices();
+    var admin = recordTraversal(graph.traversal(), NullShape.EXPRESSION, Order.asc).asAdmin();
+
+    admin.applyStrategies();
+
+    assertThat(TraversalHelper.getStepsOfAssignableClass(YTDBMatchPlanStep.class, admin)).isEmpty();
+  }
+
+  private void seedNullShapeVertices() {
+    for (var shape : NullShape.values()) {
+      graph.addVertex(T.label, "Person", "shape", shape.name(), "role", "low", "age", 1);
+      graph.addVertex(T.label, "Person", "shape", shape.name(), "role", "high", "age", 2);
+      var nullVertex =
+          graph.addVertex(T.label, "Person", "shape", shape.name(), "role", "null");
+      if (shape == NullShape.STORED) {
+        nullVertex.property("age", null);
+      } else if (shape == NullShape.EXPRESSION) {
+        nullVertex.property("age", 3);
+        nullVertex.property("expressionNull", true);
+      }
+    }
+    graph.tx().commit();
+  }
+
+  private List<Object> nativeRecordOrder(
+      NullShape shape,
+      Order order,
+      YTDBQueryConfigParam option,
+      String optionValue) {
+    GraphTraversalSource source = graph.traversal().withoutStrategies(GremlinToMatchStrategy.class);
+    if (option != null) {
+      source = source.with(option.name(), optionValue);
+    }
+    return recordTraversal(source, shape, order).toList();
+  }
+
+  private List<Object> convertedRecordOrder(
+      NullShape shape,
+      Order order,
+      YTDBQueryConfigParam option,
+      String optionValue) {
+    GraphTraversalSource source = graph.traversal();
+    if (option != null) {
+      source = source.with(option.name(), optionValue);
+    }
+    var admin = recordTraversal(source, shape, order).asAdmin();
+    admin.applyStrategies();
+    assertThat(TraversalHelper.getStepsOfAssignableClass(YTDBMatchPlanStep.class, admin))
+        .isNotEmpty();
+    return admin.toList();
+  }
+
+  private GraphTraversal<?, Object> recordTraversal(
+      GraphTraversalSource source, NullShape shape, Order order) {
+    var traversal = source.V().has("shape", shape.name()).order();
+    if (shape == NullShape.EXPRESSION) {
+      traversal =
+          traversal.by(
+              __.choose(__.has("expressionNull"), __.constant(null), __.values("age")), order);
+    } else {
+      traversal = traversal.by("age", order);
+    }
+    return traversal.values("role");
+  }
+
+  private List<String> localCollectionOrder(
+      NullShape shape,
+      Order order,
+      YTDBQueryConfigParam option,
+      String optionValue) {
+    GraphTraversalSource source = graph.traversal();
+    if (option != null) {
+      source = source.with(option.name(), optionValue);
+    }
+    var rows = new ArrayList<Map<String, Object>>();
+    rows.add(new HashMap<>(Map.of("role", "low", "age", 1)));
+    rows.add(new HashMap<>(Map.of("role", "high", "age", 2)));
+    var nullRow = new HashMap<String, Object>();
+    nullRow.put("role", "null");
+    if (shape == NullShape.STORED) {
+      nullRow.put("age", null);
+    } else if (shape == NullShape.EXPRESSION) {
+      nullRow.put("age", 3);
+      nullRow.put("expressionNull", true);
+    }
+    rows.add(nullRow);
+
+    var traversal = source.inject(rows).order(Scope.local);
+    if (shape == NullShape.EXPRESSION) {
+      traversal =
+          traversal.by(
+              __.map(
+                  traverser -> {
+                    @SuppressWarnings("unchecked")
+                    var row = (Map<String, Object>) traverser.get();
+                    return Boolean.TRUE.equals(row.get("expressionNull"))
+                        ? null
+                        : row.get("age");
+                  }),
+              order);
+    } else {
+      traversal = traversal.by("age", order);
+    }
+    var ordered = traversal.next();
+    return ordered.stream().map(row -> (String) row.get("role")).toList();
+  }
+
+  private static List<String> expected(Order order, OrderByNullsPlacement placement) {
+    if (placement == OrderByNullsPlacement.FIRST) {
+      return order == Order.asc
+          ? List.of("null", "low", "high")
+          : List.of("null", "high", "low");
+    }
+    return order == Order.asc
+        ? List.of("low", "high", "null")
+        : List.of("high", "low", "null");
+  }
+
+  private enum NullShape {
+    ABSENT, STORED, EXPRESSION
   }
 
   private static void setGlobalPlacement(

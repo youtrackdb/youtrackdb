@@ -429,6 +429,38 @@ public class GremlinTranslationCacheTest extends GraphBaseTest {
     assertThat(cache.getTranslationMisses()).isEqualTo(missesBefore + 2);
   }
 
+  /** Placement changes do not partition a shape without any global order step. */
+  @Test
+  public void nullPlacement_doesNotPartitionShapeWithoutOrder() {
+    setGlobalNullPlacements(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
+    var shipped = shapeKey(() -> graph.traversal().V().hasLabel("Person"));
+    setGlobalNullPlacements(OrderByNullsPlacement.LAST, OrderByNullsPlacement.FIRST);
+    var reversed = shapeKey(() -> graph.traversal().V().hasLabel("Person"));
+
+    assertThat(shipped).isEqualTo(reversed);
+  }
+
+  /** A nested union-arm order still partitions the enclosing translation shape. */
+  @Test
+  public void nullPlacement_partitionsShapeForNestedUnionOrder() {
+    setGlobalNullPlacements(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
+    var shipped =
+        rawShapeKey(
+            () -> graph
+                .traversal()
+                .V()
+                .union(__.order().by("age"), __.identity()));
+    setGlobalNullPlacements(OrderByNullsPlacement.LAST, OrderByNullsPlacement.FIRST);
+    var reversed =
+        rawShapeKey(
+            () -> graph
+                .traversal()
+                .V()
+                .union(__.order().by("age"), __.identity()));
+
+    assertThat(shipped).isNotEqualTo(reversed);
+  }
+
   /** The per-session polymorphism flag is part of the shape key; toggling it must split entries. */
   @Test
   public void polymorphismFlag_discriminatesShapeKeys() {
@@ -650,6 +682,12 @@ public class GremlinTranslationCacheTest extends GraphBaseTest {
     var extraction = GremlinStepWalker.extractShape(supplier.get().asAdmin(), graphSession());
     assertThat(extraction.complete()).isTrue();
     return extraction.key();
+  }
+
+  private String rawShapeKey(
+      java.util.function.Supplier<
+          org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal<?, ?>> supplier) {
+    return GremlinStepWalker.extractShape(supplier.get().asAdmin(), graphSession()).key();
   }
 
   private List<?> apply(

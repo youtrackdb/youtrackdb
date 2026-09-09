@@ -21,11 +21,13 @@ public enum YTDBQueryConfigParam {
   /// modulators keep their filtering behaviour under either value.
   orderIncludesMissingKey(Boolean.class),
 
-  /// Overrides the ascending null placement for one traversal.
-  orderByNullsPlacementAsc(OrderByNullsPlacement.class),
+  /// Overrides the ascending null placement for one traversal. Stored as a string so the option is
+  /// portable through the default remote serializers.
+  orderByNullsPlacementAsc(String.class),
 
-  /// Overrides the descending null placement for one traversal.
-  orderByNullsPlacementDesc(OrderByNullsPlacement.class),
+  /// Overrides the descending null placement for one traversal. Stored as a string so the option is
+  /// portable through the default remote serializers.
+  orderByNullsPlacementDesc(String.class),
 
   /// Client-provided query summary for query monitoring purposes.
   querySummary(String.class);
@@ -38,5 +40,27 @@ public enum YTDBQueryConfigParam {
 
   public Class<?> type() {
     return type;
+  }
+
+  /// Converts embedded enum use to the portable string representation. Other parameters retain
+  /// their declared representation.
+  public Object normalizeValue(Object value) {
+    if (isNullPlacement() && value instanceof OrderByNullsPlacement placement) {
+      return placement.name();
+    }
+    return value;
+  }
+
+  public boolean accepts(Object value) {
+    return type.isInstance(normalizeValue(value));
+  }
+
+  public String validationDescription() {
+    return isNullPlacement() ? "Accepted values: FIRST, LAST."
+        : "Expected " + type.getSimpleName() + ".";
+  }
+
+  private boolean isNullPlacement() {
+    return this == orderByNullsPlacementAsc || this == orderByNullsPlacementDesc;
   }
 }
