@@ -28,11 +28,14 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_build: ${{ steps.filter.outputs.should_build }}
+      run_integration_tests: ${{ steps.filter.outputs.run_integration_tests }}
+      integration_skip_reason: ${{ steps.filter.outputs.integration_skip_reason }}
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -42,56 +45,99 @@ jobs:
           cache: 'maven'
           overwrite-settings: false
 
+      - name: Read trusted head commit subject
+        id: head_commit
+        if: >-
+          github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name
+          && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if HEAD_COMMIT_SUBJECT=$(gh api \
+            "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" \
+            --jq '.commit.message | split("\n")[0]'); then
+            echo "read_status=success" >> "$GITHUB_OUTPUT"
+            echo "subject=$HEAD_COMMIT_SUBJECT" >> "$GITHUB_OUTPUT"
+          else
+            echo "read_status=failure" >> "$GITHUB_OUTPUT"
+            echo "subject=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check for build-relevant changes
         id: filter
         env:
           MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
           MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
           MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
+          CURRENT_REPOSITORY: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
+          HEAD_COMMIT_READ_STATUS: ${{ steps.head_commit.outputs.read_status }}
+          HEAD_COMMIT_SUBJECT: ${{ steps.head_commit.outputs.subject }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           MERGE_GROUP_BASE_SHA: ${{ github.event.merge_group.base_sha }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
-          # Determine comparison base
-          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+          emit_decision() {
+            echo "should_build=$1" >> "$GITHUB_OUTPUT"
+            echo "run_integration_tests=$RUN_INTEGRATION_TESTS" >> "$GITHUB_OUTPUT"
+            echo "integration_skip_reason=$INTEGRATION_SKIP_REASON" >> "$GITHUB_OUTPUT"
+          }
+
+          RUN_INTEGRATION_TESTS=true
+          INTEGRATION_SKIP_REASON=
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "Manual trigger — always build and run integration tests"
+            emit_decision true
+            exit 0
+          elif [[ "$EVENT_NAME" == "pull_request" ]]; then
             BASE_SHA="$PR_BASE_SHA"
           elif [[ "$EVENT_NAME" == "merge_group" ]]; then
             BASE_SHA="$MERGE_GROUP_BASE_SHA"
+            RUN_INTEGRATION_TESTS=false
+            INTEGRATION_SKIP_REASON=merge-group
           elif [[ "$EVENT_NAME" == "push" ]]; then
             BASE_SHA="$PUSH_BEFORE_SHA"
+            RUN_INTEGRATION_TESTS=false
+            INTEGRATION_SKIP_REASON=push
           else
-            echo "Manual trigger — always build"
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
-            exit 0
+            echo "Unsupported event: $EVENT_NAME"
+            exit 1
           fi
 
-          # Initial push (all-zeros SHA) — always build
+          # Only a nonempty, same-repository pull request head is trusted.
+          if [[ "$EVENT_NAME" == "pull_request" && -n "$HEAD_REPOSITORY" \
+            && "$HEAD_REPOSITORY" == "$CURRENT_REPOSITORY" ]]; then
+            if [[ "$HEAD_COMMIT_READ_STATUS" != "success" ]]; then
+              echo "::warning::The head commit message could not be read. Integration tests will run."
+            elif [[ "$HEAD_COMMIT_SUBJECT" == *"[no-it-tests]"* ]]; then
+              RUN_INTEGRATION_TESTS=false
+              INTEGRATION_SKIP_REASON=no-it-tests
+              echo "The head commit subject contains [no-it-tests]. Integration tests will be skipped."
+            fi
+          fi
+
+          # Initial pushes and unreachable comparison bases must build.
           if [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
             echo "Initial push — always build"
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            emit_decision true
             exit 0
           fi
-
-          # Unreachable base SHA (e.g. after force-push) — always build
           if ! git cat-file -e "$BASE_SHA" 2>/dev/null; then
             echo "Base SHA $BASE_SHA not reachable — always build"
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            emit_decision true
             exit 0
           fi
 
-          # Three-dot (merge-base) diff, NOT two-dot. BASE_SHA is the base
-          # branch tip at event time, which may be ahead of where this branch
-          # forked. A two-dot "git diff BASE_SHA HEAD" would then report every
-          # commit the base branch gained since the fork as a phantom change on
-          # this branch, flagging unrelated code files and forcing a needless
-          # build on docs/workflow-only PRs that have fallen behind develop.
-          # The three-dot form scopes the diff to this branch's own commits.
-          CHANGED_FILES=$(git diff --name-only "$BASE_SHA...HEAD")
+          # The three-dot diff compares the selected pull request, push, or merge-group base with HEAD.
+          CHANGED_FILES=$(git diff --no-renames --name-only "$BASE_SHA...HEAD")
 
           if [[ -z "$CHANGED_FILES" ]]; then
             echo "No changed files detected — skipping build"
-            echo "should_build=false" >> "$GITHUB_OUTPUT"
+            emit_decision false
             exit 0
           fi
 
@@ -99,7 +145,22 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          # Extract Maven module directories using Maven itself
+          # One changed-file list controls both Markdown and build decisions.
+          ONLY_MARKDOWN=true
+          while IFS= read -r file; do
+            if [[ "$file" != *.md ]]; then
+              ONLY_MARKDOWN=false
+              break
+            fi
+          done <<< "$CHANGED_FILES"
+          if [[ "$EVENT_NAME" == "pull_request" && "$RUN_INTEGRATION_TESTS" == "true" \
+            && "$ONLY_MARKDOWN" == "true" ]]; then
+            RUN_INTEGRATION_TESTS=false
+            INTEGRATION_SKIP_REASON=markdown-only
+            echo "Every changed file ends in .md. Integration tests will be skipped."
+          fi
+
+          # Extract Maven module directories using Maven itself.
           set +e
           MODULES=$(./mvnw $MAVEN_SETTINGS -q help:evaluate \
             -Dexpression=project.modules -DforceStdout -N \
@@ -109,7 +170,7 @@ jobs:
 
           if [[ -z "$MODULES" ]]; then
             echo "Failed to extract Maven modules (mvn exit code: $MVN_EXIT) — always build"
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            emit_decision true
             exit 0
           fi
 
@@ -117,18 +178,13 @@ jobs:
           echo "$MODULES"
           echo ""
 
-          # A file is build-relevant when it is NOT a *.md file AND
-          # resides inside a Maven module directory or is a root build file.
           SHOULD_BUILD=false
           while IFS= read -r file; do
             [[ -z "$file" ]] && continue
-
-            # Markdown files are never build-relevant
             if [[ "$file" == *.md ]]; then
               continue
             fi
 
-            # Root build infrastructure
             if [[ "$file" == pom.xml ]] || [[ "$file" == .mvn/* ]] || \
                [[ "$file" == mvnw ]] || [[ "$file" == mvnw.cmd ]] || \
                [[ "$file" == .github/workflows/* ]] || \
@@ -138,7 +194,6 @@ jobs:
               break
             fi
 
-            # Check if the file belongs to any Maven module
             while IFS= read -r module; do
               [[ -z "$module" ]] && continue
               if [[ "$file" == "$module"/* ]]; then
@@ -152,8 +207,7 @@ jobs:
           if [[ "$SHOULD_BUILD" == "false" ]]; then
             echo "No build-relevant changes — skipping build"
           fi
-
-          echo "should_build=$SHOULD_BUILD" >> "$GITHUB_OUTPUT"
+          emit_decision "$SHOULD_BUILD"
 
   test-linux:
     name: Linux ${{ matrix.arch }} - JDK ${{ matrix.java }} - ${{ matrix.distribution }}
@@ -485,6 +539,119 @@ jobs:
           comment_mode: off
           compare_to_earlier_commit: false
           check_name: Tests Results (macOS arm, JDK ${{ matrix.java }} - ${{ matrix.distribution }})
+
+  integration-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_integration_tests == 'true'
+    permissions:
+      contents: read
+      checks: write
+    runs-on: [ self-hosted, type-cpx42, image-x86-system-ubuntu-24.04, in-nbg1-fsn1-hel1 ]
+    # Lower caps can terminate legitimate long-running integration tests.
+    timeout-minutes: 600
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          architecture: x64
+          overwrite-settings: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Run Maven Test
+        id: tests
+        run: >-
+          ./mvnw $MAVEN_SETTINGS clean verify -B
+          -Dmaven.test.failure.ignore=true -P ci-integration-tests -P docker-images
+          -Ddocker.platforms=linux/amd64
+        env:
+          MAVEN_SETTINGS: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && '-s .github/workflows/settings.xml' || '' }}
+          MAVEN_MIRROR_USERNAME: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_USERNAME || '' }}
+          MAVEN_MIRROR_PASSWORD: ${{ (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.full_name == github.repository)) && secrets.MAVEN_MIRROR_PASSWORD || '' }}
+
+      # The gate verifies that every expected module produced required reports.
+      # The gate verifies that the required report kinds ran tests.
+      # The gate also checks every report for a failure or an error.
+      # Use --allow-missing-module when a module produces no integration test report by design.
+      # The option affects integration test reports only, because the gate derives expected modules only for those reports.
+      - name: Gate Integration Test Results
+        if: success()
+        run: >-
+          python3 .github/scripts/test-failure-gate.py
+          --root '${{ github.workspace }}' --require failsafe
+
+      - name: Print VMLens Data Race Report
+        if: always()
+        run: |
+          REPORT_DIR="core/target/vmlens-report"
+          if [ -d "$REPORT_DIR" ]; then
+            echo "::group::VMLens Data Race Report"
+            echo "Report files:"
+            find "$REPORT_DIR" -type f | sort
+            echo ""
+            for f in "$REPORT_DIR"/*.html; do
+              [ -f "$f" ] || continue
+              echo "=== $(basename "$f") ==="
+              sed 's/<[^>]*>//g; s/&nbsp;/ /g; s/&lt;/</g; s/&gt;/>/g; s/&amp;/\&/g' "$f" \
+                | sed '/^[[:space:]]*$/d'
+              echo ""
+            done
+            echo "::endgroup::"
+          else
+            echo "No VMLens report directory found at $REPORT_DIR"
+          fi
+
+      - name: Upload VMLens Report
+        uses: actions/upload-artifact@v7
+        if: "!cancelled()"
+        with:
+          name: vmlens-report-pr-integration-jdk21-temurin
+          path: 'core/target/vmlens-report/'
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # Upload diagnostics before publishing results so timeout evidence gets priority.
+      - name: Upload Test Diagnostics
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-diagnostics-pr-integration-jdk21-temurin-attempt${{ github.run_attempt }}
+          path: |
+            **/target/deadlock-report.txt
+            **/target/surefire-reports/*.dumpstream
+            **/target/surefire-reports/*.dump
+            **/target/failsafe-reports/*.dumpstream
+            **/target/failsafe-reports/*.dump
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # The publisher remains a second layer. It can also fail the job.
+      # Keep job_summary enabled. Setting it false makes fork runs exit zero despite failing tests.
+      # Upstream issue 789 documents this fork behavior.
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        if: always()
+        with:
+          files: |
+            **/target/surefire-reports/TEST-*.xml
+            **/target/failsafe-reports/TEST-*.xml
+          action_fail: true
+          action_fail_on_inconclusive: true
+          large_files: true
+          comment_mode: off
+          compare_to_earlier_commit: false
+          check_name: PR Integration Test Results (Linux x86, JDK 21 - temurin)
 
   # ------------------------------------------------------------------
   # JOB: SMALL CACHE INTEGRATION TESTS (advisory, not in ci-status gate)
@@ -906,14 +1073,14 @@ jobs:
 
   # ------------------------------------------------------------------
   # GATE JOB: CI STATUS
-  # Always runs — reports success when build is skipped or all jobs pass.
+  # Reports success when every required test branch passes or has a permitted skip.
   # This workflow contributes `CI Status` to branch protection.
-  # Other workflows contribute checks such as `integration-status` and `check-merges`.
+  # The Block Merge Commits workflow contributes `check-merges`.
   # ------------------------------------------------------------------
   ci-status:
     name: CI Status
     if: always() && github.event.pull_request.draft != true
-    needs: [ detect-changes, test-linux, test-windows, test-macos, coverage-gate, test-count-gate ]
+    needs: [ detect-changes, integration-tests, test-linux, test-windows, test-macos, coverage-gate, test-count-gate ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -938,6 +1105,9 @@ jobs:
         env:
           DETECT_RESULT: ${{ needs.detect-changes.result }}
           SHOULD_BUILD: ${{ needs.detect-changes.outputs.should_build }}
+          RUN_INTEGRATION_TESTS: ${{ needs.detect-changes.outputs.run_integration_tests }}
+          INTEGRATION_SKIP_REASON: ${{ needs.detect-changes.outputs.integration_skip_reason }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
           LINUX_RESULT: ${{ needs.test-linux.result }}
           WINDOWS_RESULT: ${{ needs.test-windows.result }}
           MACOS_RESULT: ${{ needs.test-macos.result }}
@@ -948,6 +1118,29 @@ jobs:
             echo "detect-changes job did not succeed (result: $DETECT_RESULT)"
             exit 1
           fi
+
+          if [[ "$RUN_INTEGRATION_TESTS" == "true" ]]; then
+            if [[ "$INTEGRATION_RESULT" != "success" ]]; then
+              echo "Required integration tests did not succeed (result: $INTEGRATION_RESULT)"
+              exit 1
+            fi
+          elif [[ "$RUN_INTEGRATION_TESTS" == "false" \
+            && "$INTEGRATION_RESULT" == "skipped" ]]; then
+            case "$INTEGRATION_SKIP_REASON" in
+              no-it-tests|markdown-only|push|merge-group)
+                echo "Integration tests skipped for permitted reason: $INTEGRATION_SKIP_REASON"
+                ;;
+              *)
+                echo "Integration tests skipped for an unknown reason: '$INTEGRATION_SKIP_REASON'"
+                exit 1
+                ;;
+            esac
+          else
+            echo "Integration decision and result disagree" \
+              "(required=$RUN_INTEGRATION_TESTS, result=$INTEGRATION_RESULT)"
+            exit 1
+          fi
+
           if [[ "$SHOULD_BUILD" == "false" ]]; then
             echo "Build skipped — no relevant changes"
             exit 0
