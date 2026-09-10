@@ -27,11 +27,11 @@ import org.apache.tinkerpop.gremlin.process.traversal.strategy.verification.Edge
  * {@code false} from {@link StepRecogniser#contributeShape}, or a lambda modulator the extractor
  * cannot name, marks the extraction incomplete so {@code apply} will not cache a {@code Translate}.
  *
- * <p>The key opens with the strategy-flag section, which carries every resolved setting that
- * changes the emitted plan for one and the same step sequence: polymorphism ({@code poly}), edge
- * label verification ({@code elv}), productive-order setting ({@code oim}), resolved null
- * placements ({@code onp}), and upstream {@code ProductiveByStrategy}'s productive keys ({@code
- * pb}).
+ * <p>The key opens with the strategy-flag section. It carries every resolved setting that changes
+ * the emitted plan for one step sequence. The section includes polymorphism ({@code poly}), edge
+ * label verification ({@code elv}), and the productive-order setting ({@code oim}). It includes
+ * resolved null placements ({@code onp}) only when a global order step can embed them. It also
+ * includes upstream {@code ProductiveByStrategy}'s productive keys ({@code pb}).
  *
  * <p>Lambda {@code by()} modulators ({@link ValueTraversal}, {@link TokenTraversal}, {@link
  * IdentityTraversal}, {@link RecordIdSortKeyTraversal}) have an empty step list; their property key

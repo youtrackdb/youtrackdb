@@ -52,7 +52,19 @@ public enum YTDBQueryConfigParam {
   }
 
   public boolean accepts(Object value) {
-    return type.isInstance(normalizeValue(value));
+    var normalized = normalizeValue(value);
+    if (!type.isInstance(normalized)) {
+      return false;
+    }
+    if (!isNullPlacement()) {
+      return true;
+    }
+    for (var placement : OrderByNullsPlacement.values()) {
+      if (placement.name().equalsIgnoreCase((String) normalized)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public String validationDescription() {

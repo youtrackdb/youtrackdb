@@ -23,10 +23,13 @@ import org.javatuples.Pair;
  * {@code TraversalHelper.stepIndex}, which matches on {@code hashCode} and could find an earlier
  * equal-looking order step.
  *
- * <p>A rebuild must preserve state established by earlier strategies. The limit controls how many
- * sorted traversers survive, and missing-key filtering controls whether a traverser without a sort
- * key survives. Losing either state would change query semantics while replacing only a modulator.
- * Labels must also survive because later traversal steps address them by name.
+ * <p>A global rebuild must preserve state established by earlier strategies. The limit controls
+ * how many sorted traversers survive. Missing-key filtering controls whether a traverser without a
+ * sort key survives. Losing either state would change query semantics while replacing only a
+ * modulator. Labels must also survive because later traversal steps address them by name.
+ *
+ * <p>The fork always enables missing-key filtering for local order steps. It exposes no path that
+ * disables this state. A new local step therefore preserves the only reachable state by default.
  *
  * <p>The class holds one copy of each rebuild on purpose. Modulator and comparator strategies must
  * preserve step state identically.
@@ -88,14 +91,11 @@ final class OrderStepModulators {
     swapStep(step, replacement);
   }
 
-  /** Rebuilds a local step with replacement slots while preserving filtering and labels. */
+  /** Rebuilds a local step with replacement slots while preserving labels. */
   @SuppressWarnings({"unchecked", "rawtypes"})
   static void replaceLocalComparators(
       OrderLocalStep step, List<Pair<Admin, Comparator>> comparators) {
     var replacement = new OrderLocalStep(step.getTraversal());
-    if (step.isFilteringUnproductiveTraversers()) {
-      replacement.enableFilteringUnproductiveTraversers();
-    }
     for (var comparator : comparators) {
       replacement.addComparator(comparator.getValue0(), comparator.getValue1());
     }

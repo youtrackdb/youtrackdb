@@ -154,9 +154,9 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     assertThat(orderAfter.getLabels()).containsExactly("ordered");
   }
 
-  /** A rebuilt local order preserves its filtering state and labels. */
+  /** A rebuilt local order preserves its labels. */
   @Test
-  public void applyPreservesFilteringAndLabelsOnRebuiltLocalOrder() {
+  public void applyPreservesLabelsOnRebuiltLocalOrder() {
     setStorageReversedPlacement();
     var admin = graph.traversal().inject(List.of(2, 1)).order(Scope.local).asAdmin();
     var orderBefore =
@@ -168,27 +168,7 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     var orderAfter =
         TraversalHelper.getStepsOfAssignableClass(OrderLocalStep.class, admin).getFirst();
     assertThat(orderAfter).isNotSameAs(orderBefore);
-    assertThat(orderAfter.isFilteringUnproductiveTraversers())
-        .isEqualTo(orderBefore.isFilteringUnproductiveTraversers());
     assertThat(orderAfter.getLabels()).containsExactly("ordered");
-  }
-
-  /** A rebuilt local order keeps enabled missing-key filtering during execution. */
-  @Test
-  public void applyPreservesEnabledFilteringOnRebuiltLocalOrder() {
-    setStorageReversedPlacement();
-    var kept = graph.addVertex(T.label, "Person", "name", "kept", "age", 1);
-    var dropped = graph.addVertex(T.label, "Person", "name", "dropped");
-    graph.tx().commit();
-    var admin =
-        graph.traversal().inject(List.of(dropped, kept)).order(Scope.local).by("age").asAdmin();
-    var orderBefore =
-        TraversalHelper.getStepsOfAssignableClass(OrderLocalStep.class, admin).getFirst();
-    orderBefore.enableFilteringUnproductiveTraversers();
-
-    YTDBOrderNullsStrategy.instance().apply(admin);
-
-    assertThat(admin.next()).asList().containsExactly(kept);
   }
 
   /**
@@ -325,20 +305,28 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
         .isEqualTo("LAST");
   }
 
-  /** Untyped malformed options fail clearly during strategy application. */
+  /** Typed malformed strings fail when the option is set. */
   @Test
-  public void perQueryPlacementRejectsMalformedUntypedValue() {
+  public void perQueryPlacementRejectsMalformedTypedString() {
     assertThatThrownBy(
         () -> graph
             .traversal()
-            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc.name(), 17)
-            .V()
-            .order()
-            .by("age")
-            .toList())
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc, "MIDDLE"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining(YTDBQueryConfigParam.orderByNullsPlacementAsc.name())
         .hasMessageContaining("FIRST, LAST");
+  }
+
+  /** Untyped malformed strings still fail clearly during strategy application. */
+  @Test
+  public void perQueryPlacementRejectsMalformedUntypedString() {
+    assertMalformedUntypedPlacement("MIDDLE");
+  }
+
+  /** Untyped values of the wrong type still fail clearly during strategy application. */
+  @Test
+  public void perQueryPlacementRejectsWrongUntypedType() {
+    assertMalformedUntypedPlacement(17);
   }
 
   /**
@@ -542,65 +530,96 @@ public class YTDBOrderNullsStrategyTest extends GraphBaseTest {
     }
   }
 
-  /** Both query parameters execute against all native record null shapes. */
+  /** Both query parameters beat every global pair for all native record null shapes. */
   @Test
   public void nativeRecordSortCoversBothQueryOverrides() {
     seedNullShapeVertices();
-    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
-    for (var shape : NullShape.values()) {
-      assertThat(
-          nativeRecordOrder(
-              shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
-          .containsExactly("low", "high", "null");
-      assertThat(
-          nativeRecordOrder(
-              shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
-          .containsExactly("null", "high", "low");
+    for (var ascending : OrderByNullsPlacement.values()) {
+      for (var descending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(ascending, descending);
+        for (var shape : NullShape.values()) {
+          assertThat(
+              nativeRecordOrder(
+                  shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
+              .containsExactly("low", "high", "null");
+          assertThat(
+              nativeRecordOrder(
+                  shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
+              .containsExactly("null", "high", "low");
+        }
+      }
     }
   }
 
-  /** Both query parameters execute against all local collection null shapes. */
+  /** Both query parameters beat every global pair for all local collection null shapes. */
   @Test
   public void localCollectionSortCoversBothQueryOverrides() {
-    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
-    for (var shape : NullShape.values()) {
-      assertThat(
-          localCollectionOrder(
-              shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
-          .containsExactly("low", "high", "null");
-      assertThat(
-          localCollectionOrder(
-              shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
-          .containsExactly("null", "high", "low");
+    for (var ascending : OrderByNullsPlacement.values()) {
+      for (var descending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(ascending, descending);
+        for (var shape : NullShape.values()) {
+          assertThat(
+              localCollectionOrder(
+                  shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
+              .containsExactly("low", "high", "null");
+          assertThat(
+              localCollectionOrder(
+                  shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
+              .containsExactly("null", "high", "low");
+        }
+      }
     }
   }
 
-  /** Both query parameters execute through MATCH for property-backed null shapes. */
+  /** Both query parameters beat every global pair for property-backed MATCH null shapes. */
   @Test
   public void convertedSortCoversBothQueryOverrides() {
     seedNullShapeVertices();
-    setGlobalPlacement(OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST);
-    for (var shape : List.of(NullShape.ABSENT, NullShape.STORED)) {
-      assertThat(
-          convertedRecordOrder(
-              shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
-          .containsExactly("low", "high", "null");
-      assertThat(
-          convertedRecordOrder(
-              shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
-          .containsExactly("null", "high", "low");
+    for (var ascending : OrderByNullsPlacement.values()) {
+      for (var descending : OrderByNullsPlacement.values()) {
+        setGlobalPlacement(ascending, descending);
+        for (var shape : List.of(NullShape.ABSENT, NullShape.STORED)) {
+          assertThat(
+              convertedRecordOrder(
+                  shape, Order.asc, YTDBQueryConfigParam.orderByNullsPlacementAsc, "last"))
+              .containsExactly("low", "high", "null");
+          assertThat(
+              convertedRecordOrder(
+                  shape, Order.desc, YTDBQueryConfigParam.orderByNullsPlacementDesc, "First"))
+              .containsExactly("null", "high", "low");
+        }
+      }
     }
   }
 
-  /** Expression order modulators are deliberately outside MATCH conversion. */
+  /** Expression-null ordering declines MATCH conversion and executes natively under both placements. */
   @Test
-  public void expressionNullOrderDeclinesMatchConversion() {
+  public void expressionNullOrderDeclinesMatchAndExecutesNativelyUnderBothPlacements() {
     seedNullShapeVertices();
-    var admin = recordTraversal(graph.traversal(), NullShape.EXPRESSION, Order.asc).asAdmin();
+    for (var ascending : OrderByNullsPlacement.values()) {
+      setGlobalPlacement(ascending, OrderByNullsPlacement.LAST);
+      var admin = recordTraversal(graph.traversal(), NullShape.EXPRESSION, Order.asc).asAdmin();
 
-    admin.applyStrategies();
+      admin.applyStrategies();
 
-    assertThat(TraversalHelper.getStepsOfAssignableClass(YTDBMatchPlanStep.class, admin)).isEmpty();
+      assertThat(TraversalHelper.getStepsOfAssignableClass(YTDBMatchPlanStep.class, admin))
+          .isEmpty();
+      assertThat(admin.toList()).containsExactlyElementsOf(expected(Order.asc, ascending));
+    }
+  }
+
+  private void assertMalformedUntypedPlacement(Object value) {
+    assertThatThrownBy(
+        () -> graph
+            .traversal()
+            .with(YTDBQueryConfigParam.orderByNullsPlacementAsc.name(), value)
+            .V()
+            .order()
+            .by("age")
+            .toList())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining(YTDBQueryConfigParam.orderByNullsPlacementAsc.name())
+        .hasMessageContaining("FIRST, LAST");
   }
 
   private void seedNullShapeVertices() {
