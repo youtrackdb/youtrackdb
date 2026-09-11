@@ -102,6 +102,13 @@ compiles against a changed API is already covered by the compile gate, and re-ru
 suites costs tens of minutes for no new signal. When the changed behavior does reach a
 dependent's tests, name that dependent in `-pl` explicitly.
 
+A developer machine never runs the full unit suite in disk mode. Disk mode means starting the
+run with `-Dyoutrackdb.test.env=ci`. The targeted subset includes tests covering changed
+production code and tests changed by the same work. The pull request pipeline runs the full disk-mode suite.
+
+A developer machine never runs an integration test. The pipeline skips integration tests for four cases: draft, fork, `[no-it-tests]`, and Markdown-only changes.
+Local verification relies on the pipeline for wider disk-mode coverage.
+
 **Integration-gate set** — the integration test classes covering the subsystems touched by the
 changed files. This set names classes, not modules, because module scope alone still runs the
 whole module suite.
@@ -190,10 +197,10 @@ At the end of each track's implementation, and **before** that track's agent cod
 full verification runs:
 
 1. **Unit tests** for the test-gate modules, green.
-2. **Integration tests** for the integration-gate set, green. Follow
-   `docs-internal/agents/thread-guidelines.md` for command syntax. If the set remains uncertain,
-   record the searches and results in the thread report. The orchestrator then chooses the
-   verification path.
+2. **Integration tests** for the integration-gate set run in the pull request pipeline unless an
+   exception listed above applies. A developer machine never runs an integration test. If the set
+   remains uncertain, record the searches and results in the thread report. The orchestrator then
+   chooses the verification path.
 3. **The coverage gate** over the changed lines, at the thresholds owned by
    orchestrator-guidelines § Test Policy. **Read
    `docs-internal/dev-workflow/coverage-verification.md` and follow it before producing the
@@ -201,15 +208,10 @@ full verification runs:
    not be reported as one: its report-set assertion is what separates a measured pass from a
    vacuous one, and nothing in this section can tell them apart.
 
-The full local integration suite is no longer a gate for any change class. It takes about five
-hours.
-Integration tests run unless the pull request is a draft. Worker threads do most work during the
-draft phase. The pipeline skips integration tests for a pull request whose branch lives in a
-fork.
+Integration tests run in the pull request pipeline unless an exception listed above applies. A
+developer machine never runs an integration test.
 
-A title tag is a bracketed keyword in the pull request title. The `[no-it-tests]` title tag means
-no integration tests and skips that pipeline run. Use it only when the change cannot affect
-integration tests.
+Use the `[no-it-tests]` title tag only when the change cannot affect integration tests.
 
 Gating only at the track's closing event would have reviewers reviewing unverified code; gating
 only before the review would let review-fix commits land unverified. Both holes are closed by

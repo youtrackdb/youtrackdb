@@ -33,7 +33,9 @@ import com.jetbrains.youtrackdb.internal.common.serialization.types.ShortSeriali
 import com.jetbrains.youtrackdb.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrackdb.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrackdb.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrackdb.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrackdb.internal.core.db.DatabaseSessionEmbedded;
+import com.jetbrains.youtrackdb.internal.core.db.SharedContext;
 import com.jetbrains.youtrackdb.internal.core.db.YouTrackDBInternalEmbedded;
 import com.jetbrains.youtrackdb.internal.core.db.record.record.RID;
 import com.jetbrains.youtrackdb.internal.core.engine.local.EngineLocalPaginated;
@@ -58,6 +60,12 @@ import com.jetbrains.youtrackdb.internal.core.storage.config.CollectionBasedStor
 import com.jetbrains.youtrackdb.internal.core.storage.fs.File;
 import com.jetbrains.youtrackdb.internal.core.storage.impl.local.AbstractStorage;
 import com.jetbrains.youtrackdb.internal.core.storage.impl.local.StartupMetadata;
+import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.FeatureFormatIdentity;
+import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.LineageFloorAdoption;
+import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.StorageAdmissionException;
+import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.StorageBootstrapMetadata;
+import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.StorageIdentity;
+import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.StorageLineageIdentity;
 import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.StorageStartupMetadata;
 import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrackdb.internal.core.storage.impl.local.paginated.atomicoperations.operationsfreezer.FreezeKind;
@@ -84,9 +92,12 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -227,7 +238,10 @@ public class DiskStorage extends AbstractStorage {
       BTreeMultiValueIndexEngine.M_CONTAINER_EXTENSION,
       IndexHistogramManager.IXS_EXTENSION,
       DoubleWriteLogGL.EXTENSION,
-      FreeSpaceMap.DEF_EXTENSION
+      FreeSpaceMap.DEF_EXTENSION,
+      ".bsm",
+      ".bsm.tmp",
+      ".bsml"
   };
 
   private static final int ONE_KB = 1024;
@@ -235,7 +249,11 @@ public class DiskStorage extends AbstractStorage {
   private final int deleteMaxRetries;
   private final int deleteWaitTime;
 
+  private static final FeatureFormatIdentity FEATURE_FORMAT = new FeatureFormatIdentity(1);
+
   private final StorageStartupMetadata startupMetadata;
+  @Nullable private StorageBootstrapMetadata bootstrapMetadata;
+  @Nullable private StorageBootstrapMetadata.Snapshot bootstrapSnapshot;
 
   private final Path storagePath;
   private final ClosableLinkedContainer<Long, File> files;
@@ -257,7 +275,7 @@ public class DiskStorage extends AbstractStorage {
       final long walMaxSegSize,
       long doubleWriteLogMaxSegSize,
       YouTrackDBInternalEmbedded context) {
-    super(name, filePath, id, context);
+    super(name, filePath, id, context, false);
 
     this.walMaxSegSize = walMaxSegSize;
     this.files = files;
@@ -317,6 +335,245 @@ public class DiskStorage extends AbstractStorage {
     }
 
     super.doCreate(contextConfiguration);
+  }
+
+  @Override
+  protected void prepareStorageBirth() {
+    try {
+      var birth = bootstrapMetadata().createBirth(StorageIdentity.random(),
+          StorageLineageIdentity.random());
+      bootstrapSnapshot = birth;
+      updateStorageIdentity(birth.storageIdentity(), birth.lineageIdentity());
+    } catch (IOException exception) {
+      throw BaseException.wrapException(
+          new StorageException(name, "Cannot publish the storage bootstrap birth"),
+          exception,
+          name);
+    }
+  }
+
+  /**
+   * Forces every genesis artifact of this disk image to durable media.
+   *
+   * <p>The barrier flushes dirty index histogram data first. An index histogram is index
+   * statistics data that the index engine keeps in a separate file. The barrier then flushes every
+   * index engine. The barrier then flushes the write-ahead log. The barrier then flushes the write
+   * cache, which synchronizes every storage file.
+   *
+   * <p>The plain flush helper {@code flushAllData} is insufficient alone. That helper skips index
+   * histogram data by contract. The barrier therefore uses the wider path.
+   *
+   * <p>The barrier fails closed. A storage in the internal error state and a failed flush both
+   * reach the caller. The creation path therefore publishes no active lifecycle state over content
+   * that never reached durable media.
+   */
+  @Override
+  protected void barrierOverGenesisArtifacts() {
+    barrierWithOwnStateLock();
+  }
+
+  @Override
+  protected void activateStorageBirth() {
+    activateBootstrapSnapshot("Cannot activate the storage bootstrap birth");
+  }
+
+  /**
+   * Publishes the restore-in-progress lifecycle state of this fresh restore target.
+   *
+   * <p>The restore path calls this method directly after the creation of the storage files. The
+   * creation published the birth-in-progress lifecycle state, and this method replaces that state
+   * without any activation. A restore target therefore never appears as an empty active database.
+   */
+  @Override
+  public void beginRestoreLifecycle() {
+    try {
+      var current = java.util.Objects.requireNonNull(bootstrapSnapshot, "bootstrapSnapshot");
+      bootstrapSnapshot = bootstrapMetadata().beginRestoreFromBirth(current);
+    } catch (IOException exception) {
+      throw BaseException.wrapException(
+          new StorageException(name, "Cannot publish the restore-in-progress lifecycle state"),
+          exception,
+          name);
+    }
+  }
+
+  /**
+   * Deletes one interrupted restore target inside one exclusive unit.
+   *
+   * <p>A destructive restart is the full deletion of an interrupted restore target and a fresh
+   * restore. This method performs the deletion part of that restart. The acceptance check and the
+   * deletion run under the authority lock of the target, so two concurrent restarts never destroy
+   * a healthy restored database. Before deletion, the unit attempts the existing normal database
+   * lock without waiting and holds an acquired lock through content deletion. The deletion removes
+   * every content file first and removes the authority copies last.
+   *
+   * <p>An absent target directory carries no evidence of an interrupted restore, so this method
+   * refuses an absent target directory.
+   *
+   * @param storagePath the directory of the restore target
+   * @throws StorageAdmissionException when the target is no interrupted restore target
+   */
+  public static void deleteInterruptedRestoreTarget(Path storagePath) throws IOException {
+    requireExistingRestoreTargetDirectory(storagePath);
+    new StorageBootstrapMetadata(storagePath, FEATURE_FORMAT)
+        .deleteInterruptedRestoreTarget(DiskStorage::deleteRestoreTargetContent);
+  }
+
+  /**
+   * Reports whether this image already holds content that a creation must not overwrite.
+   *
+   * <p>The deletion of a destructive restart keeps the authority lock file of the target. A
+   * directory whose only entry is that lock file therefore holds no storage content, and a
+   * creation over that directory overwrites nothing. The existence probe of the manager still
+   * reports such a directory as one database, so the birth residue stays visible to an operator.
+   */
+  @Override
+  protected boolean existsBeforeCreation() {
+    try {
+      if (status == STATUS.CLOSED
+          && StorageBootstrapMetadata.holdsOnlyTheAuthorityLockFile(storagePath)) {
+        return false;
+      }
+    } catch (IOException listingFailure) {
+      throw BaseException.wrapException(
+          new StorageException(name, "Cannot list the files of the storage directory"),
+          listingFailure,
+          name);
+    }
+    return exists();
+  }
+
+  /**
+   * Checks that one directory is a valid destructive restart target and changes no content.
+   *
+   * <p>The caller runs this check before the caller discards any in-memory state of the named
+   * database. A refused restart therefore keeps every file and every live session of a healthy
+   * database. The deletion repeats the same check inside its own exclusive unit.
+   *
+   * <p>The check requires positive evidence on disk. An absent target directory holds no such
+   * evidence, so the check refuses an absent target directory. The caller therefore never discards
+   * the in-memory state of a database that the named directory does not back. One example of such
+   * a database is a memory database of the same name.
+   *
+   * @param storagePath the directory of the restore target
+   * @throws StorageAdmissionException when the target is no interrupted restore target
+   */
+  public static void requireInterruptedRestoreTarget(Path storagePath) throws IOException {
+    requireExistingRestoreTargetDirectory(storagePath);
+    new StorageBootstrapMetadata(storagePath, FEATURE_FORMAT).requireInterruptedRestoreTarget();
+  }
+
+  /**
+   * Refuses a restore target whose directory exists nowhere.
+   *
+   * <p>The destructive restart reads the evidence of an interrupted restore from the target
+   * directory. An absent directory holds no bootstrap authority record, so the restart reports the
+   * missing-record admission reason for an absent directory.
+   *
+   * @param storagePath the directory of the restore target
+   * @throws StorageAdmissionException when the directory exists nowhere
+   */
+  private static void requireExistingRestoreTargetDirectory(Path storagePath) throws IOException {
+    if (isRealDirectory(storagePath)) {
+      return;
+    }
+    throw new StorageAdmissionException(
+        StorageAdmissionException.Reason.AUTHORITY_MISSING,
+        storagePath,
+        "The destructive restore restart requires an existing target directory");
+  }
+
+  /**
+   * Reports whether the given path is a real directory.
+   *
+   * <p>The check reads the attributes of the path itself and follows no symbolic link. A symbolic
+   * link named like a database would otherwise redirect a deletion outside of the databases
+   * directory.
+   *
+   * @return false when the path exists nowhere
+   * @throws IOException when the path exists and is no real directory
+   */
+  private static boolean isRealDirectory(Path storagePath) throws IOException {
+    final BasicFileAttributes attributes;
+    try {
+      attributes =
+          Files.readAttributes(storagePath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+    } catch (NoSuchFileException absentPath) {
+      return false;
+    }
+    if (!attributes.isDirectory()) {
+      throw new IOException(
+          "The destructive restore restart accepts a real directory only, and the path "
+              + storagePath
+              + " is no real directory");
+    }
+    return true;
+  }
+
+  /** Removes every file of one storage directory that is no bootstrap authority artifact. */
+  private static void deleteRestoreTargetContent(Path storageDirectory) throws IOException {
+    try (var entries = Files.list(storageDirectory)) {
+      for (var entry : entries.toList()) {
+        if (StorageBootstrapMetadata.isBootstrapArtifactName(
+            entry.getFileName().toString())) {
+          // The authority copies and the authority lock file leave after every content file.
+          continue;
+        }
+        if (Files.isDirectory(entry)) {
+          PathUtils.deleteDirectory(entry);
+        } else {
+          Files.deleteIfExists(entry);
+        }
+      }
+    }
+  }
+
+  /**
+   * Runs the single admission decision of this storage image.
+   *
+   * <p>Storage open calls this method before write-ahead log initialization and before recovery. A
+   * write-ahead log records a change before that change reaches its final file. A rejected image
+   * therefore never reaches recovery.
+   */
+  @Override
+  protected void readStorageIdentity() {
+    try {
+      var active = bootstrapMetadata().readActiveRequired();
+      bootstrapSnapshot = active;
+      updateStorageIdentity(active.storageIdentity(), active.lineageIdentity());
+    } catch (StorageAdmissionException rejection) {
+      // The cause already names the admission reason and the storage path. This message therefore
+      // states the cause in plain words and never repeats the reason identifier.
+      throw BaseException.wrapException(
+          new StorageException(
+              name,
+              "Cannot open database '" + name + "'. " + rejection.reason().description()),
+          rejection,
+          name);
+    } catch (IOException exception) {
+      throw BaseException.wrapException(
+          new StorageException(name, "Cannot read the storage bootstrap authority"),
+          exception,
+          name);
+    }
+  }
+
+  private StorageBootstrapMetadata bootstrapMetadata() throws IOException {
+    if (bootstrapMetadata == null) {
+      bootstrapMetadata = new StorageBootstrapMetadata(storagePath, FEATURE_FORMAT);
+    }
+    return bootstrapMetadata;
+  }
+
+  void activateBootstrapSnapshot(String errorMessage) {
+    try {
+      var active = bootstrapMetadata().activate(
+          java.util.Objects.requireNonNull(bootstrapSnapshot, "bootstrapSnapshot"));
+      bootstrapSnapshot = active;
+      updateStorageIdentity(active.storageIdentity(), active.lineageIdentity());
+    } catch (IOException exception) {
+      throw BaseException.wrapException(new StorageException(name, errorMessage), exception, name);
+    }
   }
 
   @Override
@@ -819,10 +1076,15 @@ public class DiskStorage extends AbstractStorage {
           stream.forEach(
               (p) -> {
                 final var fileName = p.getFileName().toString();
+                // A bootstrap authority artifact also proves an existing storage image. That
+                // artifact set covers the authority copies, the authority lock file, and the
+                // unfinished record candidate. An interrupted storage birth therefore stays
+                // visible instead of reporting a missing storage.
                 if (fileName.equals("database.ocf")
                     || (fileName.startsWith("config") && fileName.endsWith(".bd"))
                     || fileName.startsWith("dirty.fl")
-                    || fileName.startsWith("dirty.flb")) {
+                    || fileName.startsWith("dirty.flb")
+                    || StorageBootstrapMetadata.isBootstrapArtifactName(fileName)) {
                   exists[0] = true;
                 }
               });
@@ -1619,6 +1881,14 @@ public class DiskStorage extends AbstractStorage {
                   + "impossible.");
         }
 
+        // A restored image never shares its storage lineage with the backup source. A storage
+        // lineage is the identifier of the ancestry of one storage image. The production restore
+        // path creates a fresh target. The birth publication of that fresh target already
+        // generates a random storage identity and a random storage lineage. The call below is
+        // therefore a no-operation for the production restore path, because the target already
+        // carries the restore-in-progress lifecycle state. The call serves an in-place restore
+        // into an already active storage, which only a test performs today.
+        beginLineageReplacement();
         var result = preprocessingIncrementalRestore();
         for (var ibuFilePair : tempIBUFiles) {
           var ibuPath = ibuFilePair.left();
@@ -1642,6 +1912,14 @@ public class DiskStorage extends AbstractStorage {
         }
 
         postProcessIncrementalRestore(result.contextConfiguration);
+        // Track 24 restore order. The restore target reaches the active lifecycle state only
+        // after the validation of the restored content and after the durability barrier over
+        // that content. A failed validation therefore leaves the restore-in-progress state, and
+        // the destructive restart entry accepts that state.
+        validateRestoredContent();
+        barrierWhileCallerOwnsStateLock();
+        activateBootstrapSnapshot("Cannot activate the restored storage lineage");
+        dropStaleIndexLifecycles();
       } finally {
         PathUtils.deleteDirectory(tmpDirectory);
         LogManager.instance().info(this, "Temporary directory for backup restore %s deleted.",
@@ -1653,6 +1931,35 @@ public class DiskStorage extends AbstractStorage {
           new StorageException(name, "Error during restore from backup"), e, name);
     } finally {
       stateLock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * Adopts a fresh storage lineage for an in-place restore into an already active storage.
+   *
+   * <p>A storage lineage is the identifier of the ancestry of one storage image. A restored image
+   * never shares its storage lineage with the backup source. An in-place restore therefore
+   * replaces the lineage of the target before the first content write.
+   *
+   * <p>This method performs no work for a target that already carries the restore-in-progress
+   * lifecycle state. The production restore path creates a fresh target. The birth publication of
+   * that fresh target already generated a random storage identity and a random storage lineage.
+   * That fresh target therefore needs no replacement.
+   *
+   * <p>The logical sequence floor needs no adoption either. A fresh target starts at the lowest
+   * floor, and no production reader of the durable floor exists today.
+   */
+  void beginLineageReplacement() {
+    try {
+      var current = java.util.Objects.requireNonNull(bootstrapSnapshot, "bootstrapSnapshot");
+      var pending = bootstrapMetadata().beginLineageReplacement(
+          current, new LineageFloorAdoption(current.format(), current.sequenceFloor()));
+      bootstrapSnapshot = pending;
+    } catch (IOException exception) {
+      throw BaseException.wrapException(
+          new StorageException(name, "Cannot publish the storage restore authority"),
+          exception,
+          name);
     }
   }
 
@@ -1672,6 +1979,73 @@ public class DiskStorage extends AbstractStorage {
     configuration = null;
 
     return new IncrementalRestorePreprocessingResult(contextConfiguration, charset, locale);
+  }
+
+  /**
+   * Validates the restored content before the activation of this restore target.
+   *
+   * <p>The validation covers two durable values of the restored image. The first value is the
+   * storage layout version of the restored storage configuration. The storage layout version is
+   * the version of the on-disk storage layout. The second value is the genesis marker. The genesis
+   * marker is the durable property that records a finished genesis.
+   *
+   * <p>A failed validation leaves this target in the restore-in-progress lifecycle state, because
+   * the activation follows this method.
+   */
+  private void validateRestoredContent() throws IOException {
+    final var restoredConfiguration = (CollectionBasedStorageConfiguration) configuration;
+    final var restoredLayoutVersion =
+        atomicOperationsManager.calculateInsideAtomicOperation(restoredConfiguration::getVersion);
+    validateRestoredStorageLayoutVersion(name, restoredLayoutVersion);
+    validateRestoredGenesisMarker(
+        name, restoredConfiguration.getProperty(SharedContext.GENESIS_COMPLETED_PROPERTY));
+  }
+
+  /**
+   * Rejects a restored storage layout version that this build does not support.
+   *
+   * <p>A backup of an older or a newer build carries such a version. The refusal keeps the target
+   * in the restore-in-progress lifecycle state. A drop discards that target and reports success.
+   *
+   * <p>This check is defense in depth. The configuration load of the restore reads the same value
+   * earlier. That load reports the named inconsistent-metadata result for a disagreement. A real
+   * backup of another build therefore never reaches this check today. This check still guards the
+   * case of a configuration load that stops comparing that value.
+   */
+  static void validateRestoredStorageLayoutVersion(String storageName, int restoredLayoutVersion) {
+    if (restoredLayoutVersion != StorageConfiguration.CURRENT_VERSION) {
+      throw new StorageException(
+          storageName,
+          "The restore of database '"
+              + storageName
+              + "' failed. The backup content carries storage layout version "
+              + restoredLayoutVersion
+              + ". This build supports storage layout version "
+              + StorageConfiguration.CURRENT_VERSION
+              + " only. Drop database '"
+              + storageName
+              + "' to remove the unusable restore target.");
+    }
+  }
+
+  /**
+   * Rejects restored content without a set genesis marker.
+   *
+   * <p>The genesis marker is the durable property that records a finished genesis. A backup of an
+   * incomplete database carries no such marker. The refusal keeps the target in the
+   * restore-in-progress lifecycle state.
+   */
+  static void validateRestoredGenesisMarker(String storageName, String markerValue) {
+    if (!Boolean.parseBoolean(markerValue)) {
+      throw new StorageException(
+          storageName,
+          "The restore of database '"
+              + storageName
+              + "' failed. The backup content carries no genesis completion marker. The backup"
+              + " therefore holds an incomplete database. Drop database '"
+              + storageName
+              + "' to remove the unusable restore target.");
+    }
   }
 
   private void postProcessIncrementalRestore(ContextConfiguration contextConfiguration)
