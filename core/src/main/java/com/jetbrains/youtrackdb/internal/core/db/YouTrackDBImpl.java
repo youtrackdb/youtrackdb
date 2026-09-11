@@ -103,7 +103,6 @@ public class YouTrackDBImpl implements YouTrackDB, AutoCloseable {
       String... userCredentials) {
     create(databaseName, type, YouTrackDBConfig.defaultConfig(), userCredentials);
 
-
   }
 
   public void create(@Nonnull String databaseName, @Nonnull DatabaseType type,
@@ -207,7 +206,6 @@ public class YouTrackDBImpl implements YouTrackDB, AutoCloseable {
     return sessionPool.asGraph();
   }
 
-
   @Override
   public @NonNull YTDBGraphTraversalSource openTraversal(@NonNull String databaseName,
       @NonNull String userName, @NonNull String userPassword) {
@@ -310,6 +308,19 @@ public class YouTrackDBImpl implements YouTrackDB, AutoCloseable {
       @Nullable String expectedUUID, @Nonnull Configuration config) {
     internal.restore(databaseName, path, expectedUUID,
         YouTrackDBConfig.builder().fromApacheConfiguration(config).build());
+  }
+
+  /// Restarts an interrupted restore of one database, and destroys the target of that restore.
+  ///
+  /// The embedded implementation deletes the whole target and restores the backup again.
+  @Override
+  public void restartInterruptedRestore(@Nonnull String databaseName, @Nonnull String path,
+      @Nullable String expectedUUID, @Nullable Configuration config) {
+    var restoreConfig =
+        config == null
+            ? YouTrackDBConfig.defaultConfig()
+            : YouTrackDBConfig.builder().fromApacheConfiguration(config).build();
+    internal.restartInterruptedRestore(databaseName, path, expectedUUID, restoreConfig);
   }
 
   @Override
