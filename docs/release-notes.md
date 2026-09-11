@@ -7,7 +7,8 @@ between your current version and your target version.
 
 ### ORDER BY null placement is configurable
 
-YouTrackDB now accepts `NULLS FIRST` and `NULLS LAST` on each YQL `ORDER BY` sort item.
+YouTrackDB now accepts `NULLS FIRST` and `NULLS LAST` on each YouTrackDB Query Language
+(YQL) `ORDER BY` sort item.
 The clause controls one item and comes before its optional `COLLATE` clause.
 
 **Who is affected.** Queries that need a null order other than the shipped direction-specific
@@ -15,8 +16,16 @@ placement can now request it. Existing queries keep their prior results under th
 Ascending order ships with nulls first. Descending order ships with nulls last.
 
 **How to configure the server.** Set `youtrackdb.query.orderBy.nullsPlacementAsc` or
-`youtrackdb.query.orderBy.nullsPlacementDesc` to `FIRST` or `LAST`. An explicit YQL clause
-wins over the setting for that sort item.
+`youtrackdb.query.orderBy.nullsPlacementDesc` to `FIRST` or `LAST`. Set these keys as Java
+system properties at startup:
+
+```
+-Dyoutrackdb.query.orderBy.nullsPlacementAsc=LAST
+-Dyoutrackdb.query.orderBy.nullsPlacementDesc=FIRST
+```
+
+An explicit YQL clause wins over the setting for that sort item. The values take effect when
+YouTrackDB reads the properties at startup.
 
 **How to configure one Gremlin traversal.** Use the public application programming interface
 (API) parameters `YTDBQueryConfigParam.orderByNullsPlacementAsc` and

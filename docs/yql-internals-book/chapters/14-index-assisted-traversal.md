@@ -350,8 +350,8 @@ That ceiling is the **absolute cap**. `resolveWithCache` first obtains the cheap
 and compares it against `TraversalPreFilterHelper.maxRidSetSize()` (`EdgeTraversal.java:769`).
 Unlike the fixed 100 000 of earlier versions, this cap is now *heap-adaptive*: half a percent
 of the maximum heap, clamped to the range [100 000, 10 000 000]
-(`GlobalConfiguration.java:1351`). A larger heap tolerates a larger materialised set; a small
-one is protected from a set that would dwarf it. When the estimate exceeds the cap the build
+(`GlobalConfiguration.java:1389`). A larger heap tolerates a larger materialised set.
+A small heap is protected from a set that would dwarf it. When the estimate exceeds the cap the build
 is abandoned before it starts, recorded as `CAP_EXCEEDED`, and the `null` is cached so later
 vertices sharing the same key do not re-estimate. Because the estimate can under-count, the
 same ceiling is re-checked *during* materialisation: both `resolveIndexToRidSet` and
@@ -556,8 +556,10 @@ gracefully to standard post-load filtering in all these cases.
 
 ## Configuration knobs
 
-Seven `GlobalConfiguration` keys affect the runtime paths in this chapter. Five control
-pre-filter thresholds. Two control null placement when the planner tests index sort elision.
+Seven `GlobalConfiguration` keys support the paths described in this chapter. Five control
+runtime pre-filter thresholds. Two control null placement during plan construction, when
+`SelectExecutionPlanner` and `IndexOrderedPlanner` test whether an index-ordered plan can
+elide an in-memory sort.
 
 **Table 14.1 — Index-assisted traversal configuration keys.**
 
@@ -572,7 +574,7 @@ pre-filter thresholds. Two control null placement when the planner tests index s
 | `youtrackdb.query.prefilter.loadToScanRatio` | 100.0 | Path B: modelled cost of a random record load relative to one set-scan entry, used in the amortization break-even `m` |
 
 The five pre-filter keys start at
-`core/src/main/java/com/jetbrains/youtrackdb/api/config/GlobalConfiguration.java:1351`.
+`core/src/main/java/com/jetbrains/youtrackdb/api/config/GlobalConfiguration.java:1389`.
 The two null-placement keys start at line 1463.
 
 ---
@@ -615,12 +617,12 @@ are engaged — a spaced-repetition pass over the entire engine.
   — the eight-constant enum of per-edge skip reasons, surfaced in `PROFILE` output.
 - `core/src/main/java/com/jetbrains/youtrackdb/internal/core/record/impl/PreFilterableLinkBagIterable.java`
   — the shared interface for filterable link-bag iterables.
-- `core/src/main/java/com/jetbrains/youtrackdb/api/config/GlobalConfiguration.java:1351`
+- `core/src/main/java/com/jetbrains/youtrackdb/api/config/GlobalConfiguration.java:1389`
   — the pre-filter configuration block: `QUERY_PREFILTER_MAX_RIDSET_SIZE`,
-  `QUERY_PREFILTER_EDGE_LOOKUP_MAX_RATIO` (line 1362),
-  `QUERY_PREFILTER_INDEX_LOOKUP_MAX_SELECTIVITY` (line 1370),
-  `QUERY_PREFILTER_MIN_LINKBAG_SIZE` (line 1379),
-  `QUERY_PREFILTER_LOAD_TO_SCAN_RATIO` (line 1387).
+  `QUERY_PREFILTER_EDGE_LOOKUP_MAX_RATIO` (line 1400),
+  `QUERY_PREFILTER_INDEX_LOOKUP_MAX_SELECTIVITY` (line 1408),
+  `QUERY_PREFILTER_MIN_LINKBAG_SIZE` (line 1417),
+  `QUERY_PREFILTER_LOAD_TO_SCAN_RATIO` (line 1425).
 - `core/src/test/java/com/jetbrains/youtrackdb/internal/core/sql/executor/MatchPreFilterComprehensiveTest.java`
   — end-to-end tests for the index-assisted traversal path.
 - Chapter 8 — cost estimation and fan-out estimates that inform scheduling decisions made
