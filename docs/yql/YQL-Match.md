@@ -47,6 +47,11 @@ SKIP <number>
 LIMIT <number>
 ```
 
+A MATCH sort item accepts the same optional direction, null placement, and collation clauses
+as a SELECT sort item. The shipped placement is `FIRST` for ascending order and `LAST` for
+descending order. See the [`ORDER BY` section](YQL-Query.md#order-by) for clause order and
+configuration details.
+
 - **`<class>`** Defines a valid target class.
 - **`as: <alias>`** Defines an alias for a node in the pattern.
 - **`<whereCondition>`** Defines a filter condition to match a node in the pattern.  It supports the normal YQL [`WHERE`](YQL-Where.md) clause.  

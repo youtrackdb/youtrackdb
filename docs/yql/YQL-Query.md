@@ -25,13 +25,20 @@ set of Record IDs.
 - **[`WHERE`](YQL-Where.md)** Designates conditions to filter the result-set.
 - **[`LET`](YQL-Query.md#let-block)** Binds context variables to use in projections, conditions or sub-queries.
 - **`GROUP BY`** Designates property on which to group the result-set.
-- **`ORDER BY`** Designates the property with which to order the result-set.  Use the optional `ASC` and `DESC` operators to define the direction of the order.  
-The default is ascending. Optionally add `NULLS FIRST` or `NULLS LAST` after the direction to control where null values appear. When the clause is omitted, null placement follows the setting for that direction:
-  - `youtrackdb.query.orderBy.nullsPlacementAsc` uses `FIRST` by default.
-  - `youtrackdb.query.orderBy.nullsPlacementDesc` uses `LAST` by default.
-The same settings apply to Gremlin `order()`. Per-storage configuration overrides the runtime global. An explicit clause overrides the setting.
-Additionally, if you are using a [projection](YQL-Query.md#projections), 
-you need to include the `ORDER BY` field in the projection. Note that ORDER BY works only on projection properties (properties that are returned in the result set), not on LET variables.
+<a id="order-by"></a>
+- **`ORDER BY`** Designates the property with which to order the result-set.
+  - The `ASC` or `DESC` direction keyword is optional. The default direction is ascending.
+  - An explicit `NULLS FIRST` or `NULLS LAST` clause sets null placement for one sort item.
+  - Without that clause, the setting for the item's direction supplies the default. The server
+    value falls back to the shipped value:
+    - `youtrackdb.query.orderBy.nullsPlacementAsc` ships as `FIRST`.
+    - `youtrackdb.query.orderBy.nullsPlacementDesc` ships as `LAST`.
+  - An optional `COLLATE` clause selects the collation. Put null placement before collation, as in
+    `ORDER BY name DESC NULLS FIRST COLLATE ci`.
+
+The same settings apply to Gremlin `order()`. An explicit clause overrides the setting.
+If you are using a [projection](YQL-Query.md#projections), include the `ORDER BY` field in the
+projection. `ORDER BY` works only on returned projection properties, not on `LET` variables.
 - **[`UNWIND`](YQL-Query.md#unwinding)** Designates the property on which to unwind the collection. 
 - **`SKIP`** Defines the number of records you want to skip from the start of the result-set.
 - **`LIMIT`** Defines the maximum number of records in the result-set.  

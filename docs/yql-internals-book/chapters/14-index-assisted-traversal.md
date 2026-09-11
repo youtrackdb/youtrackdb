@@ -556,22 +556,24 @@ gracefully to standard post-load filtering in all these cases.
 
 ## Configuration knobs
 
-Five `GlobalConfiguration` keys control the runtime thresholds. They mirror the structure of
-the runtime section: one shared cap, one shared link-bag floor, and one knob for each of the
-two admission paths (plus the cost ratio that Path B's break-even formula reads).
+Seven `GlobalConfiguration` keys affect the runtime paths in this chapter. Five control
+pre-filter thresholds. Two control null placement when the planner tests index sort elision.
 
-**Table 14.1 — The five pre-filter configuration keys.**
+**Table 14.1 — Index-assisted traversal configuration keys.**
 
 | Key | Default | Effect |
 |---|---|---|
+| `youtrackdb.query.orderBy.nullsPlacementAsc` | `FIRST` | Requested ascending null placement when the planner tests whether index order can elide an in-memory sort |
+| `youtrackdb.query.orderBy.nullsPlacementDesc` | `LAST` | Requested descending null placement when the planner tests whether index order can elide an in-memory sort |
 | `youtrackdb.query.prefilter.maxRidSetSize` | heap-adaptive: 0.5 % of max heap, clamped to [100 000, 10 000 000] | Absolute cap on RidSet entries; exceeding it (up front or mid-build) aborts materialisation |
 | `youtrackdb.query.prefilter.minLinkBagSize` | 50 | Minimum adjacency-list size below which the RID-set filter is skipped entirely |
 | `youtrackdb.query.prefilter.edgeLookupMaxRatio` | 0.8 | Path A: maximum `resolvedSize / linkBagSize` for an `EdgeRidLookup`; above this the overlap is too high to help |
 | `youtrackdb.query.prefilter.indexLookupMaxSelectivity` | 0.95 | Path B: maximum class-level selectivity for an `IndexLookup`; above this the condition matches too much of the class |
 | `youtrackdb.query.prefilter.loadToScanRatio` | 100.0 | Path B: modelled cost of a random record load relative to one set-scan entry, used in the amortization break-even `m` |
 
-All five are declared in the pre-filter block of
+The five pre-filter keys start at
 `core/src/main/java/com/jetbrains/youtrackdb/api/config/GlobalConfiguration.java:1351`.
+The two null-placement keys start at line 1463.
 
 ---
 
