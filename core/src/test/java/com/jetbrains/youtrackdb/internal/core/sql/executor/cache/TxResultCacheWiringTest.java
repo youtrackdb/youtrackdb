@@ -47,6 +47,8 @@ public class TxResultCacheWiringTest extends DbTestBase {
 
   private static final String CLASS_NAME = "WireRec";
   private static final String FIELD = "n";
+  private static final String MATCH_NODE = "WireMatchNode";
+  private static final String MATCH_EDGE = "WireMatchLink";
 
   private boolean previousEnabled;
 
@@ -398,18 +400,15 @@ public class TxResultCacheWiringTest extends DbTestBase {
   }
 
   // ===========================================================================
-  // Null placement is fixed at populate
+  // Null placement is fixed per served entry and stale entries are rejected
   // ===========================================================================
 
   /**
-   * A populated entry that carries an ORDER BY must already hold its null placement, before any row
-   * is compared. The populating query has no in-transaction mutation, so its view never compares a
-   * cached head with an injected head. A placement read at the first comparison would leave this
-   * entry unfixed here. A change before the next query would then rank the injected rows against a
-   * cached prefix ordered the other way.
+   * A populated ordered entry freezes its placement. A database-local placement change makes the
+   * next identical query reject that entry as a miss, execute again, and publish a new frozen entry.
    */
   @Test
-  public void flagOn_populateFixesNullPlacementBeforeAnyComparison() {
+  public void flagOn_placementChangeRejectsAndRepopulatesOrderedEntry() {
     GlobalConfiguration.QUERY_TX_RESULT_CACHE_ENABLED.setValue(true);
     var storageConfig = session.getStorage().getContextConfiguration();
     storageConfig.setValue(
@@ -423,33 +422,191 @@ public class TxResultCacheWiringTest extends DbTestBase {
 
       var cache = tx().getQueryResultCache();
       assertNotNull("cache must exist with the flag on", cache);
-      var entry = CacheTestSupport.onlyEntry(cache);
+      var oldEntry = CacheTestSupport.onlyEntry(cache);
       assertEquals(
-          "populate must fix the placement in force at that moment",
+          "populate must freeze the placement in force at that moment",
           new ResolvedOrderByNullsPlacement(
               OrderByNullsPlacement.LAST, OrderByNullsPlacement.LAST),
-          entry.fixedNullsDefault());
+          oldEntry.fixedNullsDefault());
 
-      // A change after populate must not reach this entry, because the cached rows keep the order
-      // the populating execution gave them.
       storageConfig.setValue(
           GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.FIRST);
       var withoutSortKey = session.newEntity(CLASS_NAME);
-      assertNull("the injected row must carry a null sort key", withoutSortKey.getProperty(FIELD));
+      assertNull("the injected row must carry an absent sort key",
+          withoutSortKey.getProperty(FIELD));
 
       List<Object> values;
       try (var rs = session.query(sql)) {
         values = rs.stream().map(r -> r.<Object>getProperty(FIELD)).toList();
       }
 
-      assertEquals(
-          "the merged rows follow the placement fixed at populate",
-          Arrays.asList(0, 1, null),
+      assertEquals("the fresh execution follows the new placement", Arrays.asList(null, 0, 1),
           values);
+      var newEntry = CacheTestSupport.onlyEntry(cache);
+      assertTrue("the stale entry must be replaced, not served", oldEntry != newEntry);
+      assertEquals(
+          "the replacement entry freezes the current placement",
+          new ResolvedOrderByNullsPlacement(
+              OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST),
+          newEntry.fixedNullsDefault());
+      assertEquals("populate and stale-placement rejection are both misses", 2,
+          cache.getMetrics().getMisses());
+      assertEquals("the stale placement is never counted as a hit", 0,
+          cache.getMetrics().getHits());
       session.rollback();
     } finally {
       storageConfig.setValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, null);
     }
+  }
+
+  /**
+   * A descending ordered entry must also become stale when its direction-specific placement changes.
+   * The replacement query puts an injected null after both values and publishes a new frozen pair.
+   */
+  @Test
+  public void flagOn_descendingPlacementChangeRejectsAndRepopulatesOrderedEntry() {
+    GlobalConfiguration.QUERY_TX_RESULT_CACHE_ENABLED.setValue(true);
+    var storageConfig = session.getStorage().getContextConfiguration();
+    var oldDescending =
+        storageConfig.getValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC);
+    storageConfig.setValue(
+        GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC, OrderByNullsPlacement.FIRST);
+    try {
+      seed(2);
+      session.begin();
+      var sql = "SELECT FROM " + CLASS_NAME + " ORDER BY " + FIELD + " DESC";
+
+      assertEquals("the populating query returns the seeded rows", 2, countQuery(sql));
+      var cache = tx().getQueryResultCache();
+      assertNotNull("cache must exist with the flag on", cache);
+      var oldEntry = CacheTestSupport.onlyEntry(cache);
+      assertEquals("populate must freeze descending nulls first",
+          OrderByNullsPlacement.FIRST, oldEntry.fixedNullsDefault().descending());
+
+      storageConfig.setValue(
+          GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC, OrderByNullsPlacement.LAST);
+      var withoutSortKey = session.newEntity(CLASS_NAME);
+      assertNull("the injected row must carry an absent sort key",
+          withoutSortKey.getProperty(FIELD));
+
+      List<Object> values;
+      try (var rs = session.query(sql)) {
+        values = rs.stream().map(r -> r.<Object>getProperty(FIELD)).toList();
+      }
+
+      assertEquals("the fresh descending execution puts null last",
+          Arrays.asList(1, 0, null), values);
+      var newEntry = CacheTestSupport.onlyEntry(cache);
+      assertTrue("the stale descending entry must be replaced", oldEntry != newEntry);
+      assertEquals("the replacement must freeze descending nulls last",
+          OrderByNullsPlacement.LAST, newEntry.fixedNullsDefault().descending());
+      assertEquals("populate and stale-placement rejection are both misses", 2,
+          cache.getMetrics().getMisses());
+      assertEquals("the stale placement is never counted as a hit", 0,
+          cache.getMetrics().getHits());
+      session.rollback();
+    } finally {
+      storageConfig.setValue(
+          GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_DESC, oldDescending);
+    }
+  }
+
+  /**
+   * A multi-alias MATCH keeps its ORDER BY on the statement, so its cache entry carries no ORDER BY
+   * of its own. The placement gate must still reject the frozen tuple set after a placement change.
+   *
+   * <p>The pattern binds two aliases through a traversal edge, which makes the entry a tuple entry
+   * that replays verbatim. The populating query freezes the tuples under nulls first. A
+   * mid-transaction change to nulls last must make the next identical query execute again and return
+   * the null sort key at the end. A served entry would return the frozen nulls-first order.
+   */
+  @Test
+  public void flagOn_placementChangeRejectsOrderedMultiAliasMatchEntry() {
+    GlobalConfiguration.QUERY_TX_RESULT_CACHE_ENABLED.setValue(true);
+    var storageConfig = session.getStorage().getContextConfiguration();
+    var oldAscending =
+        storageConfig.getValue(GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC);
+    storageConfig.setValue(
+        GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.FIRST);
+    try {
+      seedMatchGraph();
+      session.begin();
+      var sql =
+          "MATCH {class:" + MATCH_NODE + ", as:a}.out('" + MATCH_EDGE + "')"
+              + "{class:" + MATCH_NODE + ", as:b} RETURN a.name AS an, b.n AS bn ORDER BY bn ASC";
+
+      assertEquals(
+          "the populating query orders the null tuple first",
+          Arrays.asList(null, 20),
+          matchSortKeys(sql));
+
+      var cache = tx().getQueryResultCache();
+      assertNotNull("cache must exist with the flag on", cache);
+      var oldEntry = CacheTestSupport.onlyEntry(cache);
+      assertEquals(
+          "a two-alias pattern caches as a tuple entry",
+          CacheableShape.MATCH_TUPLE_MULTI,
+          oldEntry.getShape());
+      assertEquals(
+          "populate must freeze the placement even though the entry carries no ORDER BY",
+          new ResolvedOrderByNullsPlacement(
+              OrderByNullsPlacement.FIRST, OrderByNullsPlacement.LAST),
+          oldEntry.fixedNullsDefault());
+
+      storageConfig.setValue(
+          GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, OrderByNullsPlacement.LAST);
+
+      assertEquals(
+          "the fresh execution follows the new placement",
+          Arrays.asList(20, null),
+          matchSortKeys(sql));
+      var newEntry = CacheTestSupport.onlyEntry(cache);
+      assertTrue("the stale tuple entry must be replaced, not served", oldEntry != newEntry);
+      assertEquals(
+          "populate and stale-placement rejection are both misses",
+          2,
+          cache.getMetrics().getMisses());
+      assertEquals(
+          "the stale placement is never counted as a hit", 0, cache.getMetrics().getHits());
+      session.rollback();
+    } finally {
+      storageConfig.setValue(
+          GlobalConfiguration.QUERY_ORDER_BY_NULLS_PLACEMENT_ASC, oldAscending);
+    }
+  }
+
+  /** Runs the multi-alias MATCH and returns its sort-key column in row order. */
+  private List<Object> matchSortKeys(String sql) {
+    try (var rs = session.query(sql)) {
+      return rs.stream().map(r -> r.<Object>getProperty("bn")).toList();
+    }
+  }
+
+  /**
+   * Creates a two-vertex-deep graph for the multi-alias MATCH test. One target vertex carries the
+   * sort property and the other leaves it absent, so the pattern yields one null sort key.
+   */
+  private void seedMatchGraph() {
+    session.execute("CREATE CLASS " + MATCH_NODE + " EXTENDS V").close();
+    session.execute("CREATE CLASS " + MATCH_EDGE + " EXTENDS E").close();
+    session.execute("CREATE PROPERTY " + MATCH_NODE + ".name STRING").close();
+    session.execute("CREATE PROPERTY " + MATCH_NODE + ".n INTEGER").close();
+
+    session.begin();
+    session.execute("CREATE VERTEX " + MATCH_NODE + " SET name = 'root'").close();
+    session.execute("CREATE VERTEX " + MATCH_NODE + " SET name = 'valued', n = 20").close();
+    session.execute("CREATE VERTEX " + MATCH_NODE + " SET name = 'absent'").close();
+    session.execute(
+        "CREATE EDGE " + MATCH_EDGE
+            + " FROM (SELECT FROM " + MATCH_NODE + " WHERE name = 'root')"
+            + " TO (SELECT FROM " + MATCH_NODE + " WHERE name = 'valued')")
+        .close();
+    session.execute(
+        "CREATE EDGE " + MATCH_EDGE
+            + " FROM (SELECT FROM " + MATCH_NODE + " WHERE name = 'root')"
+            + " TO (SELECT FROM " + MATCH_NODE + " WHERE name = 'absent')")
+        .close();
+    session.commit();
   }
 
   /** Reflectively invokes the private {@code serveThroughCache(SQLStatement, Object)} gate. */

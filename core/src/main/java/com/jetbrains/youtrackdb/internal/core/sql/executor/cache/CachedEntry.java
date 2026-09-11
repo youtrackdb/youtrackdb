@@ -137,10 +137,15 @@ public final class CachedEntry {
    * a configuration change, and the merged result would then come out unsorted.
    *
    * <p>Populate is the right moment because the rows the populating execution froze are already
-   * ordered under the value in force then. A later reading would rank the injected rows against a
-   * cached prefix ordered the other way.
+   * ordered under the value in force then. The cache resolves the value before that execution builds
+   * its plan, so the seed is the value the plan itself read. A later reading would rank the injected
+   * rows against a cached prefix ordered the other way.
    *
-   * <p>Stays {@code null} for an entry with no ORDER BY, which never compares rows. An entry built
+   * <p>The seed is also what makes the entry placement sensitive, so it is installed for every
+   * statement that ranks its rows. A multi-alias MATCH is such a statement even though its entry
+   * carries no merge {@link #orderBy}, because it replays tuples the plan already ordered.
+   *
+   * <p>Stays {@code null} for an entry that ranks nothing, which never compares rows. An entry built
    * outside the cache, as a test does, may also reach a comparison unseeded. The first comparison
    * then fixes the value, so the one-value rule holds either way.
    */
@@ -327,6 +332,35 @@ public final class CachedEntry {
    */
   @Nullable ResolvedOrderByNullsPlacement fixedNullsDefault() {
     return nullsDefault;
+  }
+
+  /**
+   * Whether a placement change can make this entry stale.
+   *
+   * <p>An entry is placement sensitive once the cache froze a placement on it at populate, which the
+   * cache does for every statement that ranks its rows. An entry that carries a merge ORDER BY is
+   * sensitive as well, even with no seed, so a construction that skipped the seed still reaches the
+   * gate below rather than being served blind.
+   *
+   * <p>Reading this before the gate keeps a lookup that cannot go stale free of any placement work.
+   */
+  boolean isPlacementSensitive() {
+    return nullsDefault != null || orderBy != null;
+  }
+
+  /**
+   * Returns whether this entry remains valid under {@code current}.
+   *
+   * <p>A seeded entry stays valid only while the seed still matches, because its frozen rows are
+   * ordered by the seed. An entry with a merge ORDER BY and no seed is treated as stale rather than
+   * resolved after the fact, since the cache seeds every ordered entry before publication. An entry
+   * that ranks nothing does not depend on placement at all.
+   */
+  boolean hasCurrentNullPlacement(@Nonnull ResolvedOrderByNullsPlacement current) {
+    if (nullsDefault != null) {
+      return current.equals(nullsDefault);
+    }
+    return orderBy == null;
   }
 
   /**
